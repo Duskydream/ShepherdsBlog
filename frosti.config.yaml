@@ -45,11 +45,11 @@ site:
           svg: "material-symbols:deployed-code-outline"
           target: _self
         # 子菜单项配置
-    - id: project
-      text: Project
-      href: /project
-      svg: "material-symbols:code-blocks-outline"
-      target: _self
+    # - id: project
+    # text: Project
+    # href: /project
+    # svg: "material-symbols:code-blocks-outline"
+    # target: _self
     - id: friend
       text: Friend
       href: /friend
