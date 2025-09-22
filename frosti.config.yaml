@@ -39,11 +39,11 @@ site:
           href: /blog/category/Documentation
           svg: "material-symbols:unknown-document-outline-rounded"
           target: _self
-        - id: examples
-          text: Examples
-          href: /blog/category/Examples
-          svg: "material-symbols:deployed-code-outline"
-          target: _self
+        # - id: examples
+        #  text: Examples
+        # href: /blog/category/Examples
+        # svg: "material-symbols:deployed-code-outline"
+        #  target: _self
         # 子菜单项配置
     # - id: project
     # text: Project
@@ -68,37 +68,37 @@ user:
   avatar: https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg # 用户头像路径
   sidebar: # 侧边栏配置
     social:
-      - href: "https://afdian.com/a/saroprock" # 链接
-        ariaLabel: Support my work # 图标的可访问性标签
-        title: Support my work # 图标的悬浮标题
-        svg: "ri:cup-line"
-      - href: "https://github.com/EveSunMaple"
+      # - href: "https://afdian.com/a/saroprock" # 链接
+      #  ariaLabel: Support my work # 图标的可访问性标签
+      #  title: Support my work # 图标的悬浮标题
+      #  svg: "ri:cup-line"
+      - href: "https://github.com/Duskydream"
         ariaLabel: Github
         title: Github
         svg: "ri:github-line"
-      - href: "https://space.bilibili.com/438392347"
+      - href: "https://space.bilibili.com/198625051"
         ariaLabel: BiliBili
         title: BiliBili
         svg: "ri:bilibili-line"
-      - href: "https://x.com/EveSunMaple"
+      - href: "https://x.com/Lxzm1211"
         ariaLabel: X(twitter)
         title: X(twitter)
         svg: "ri:twitter-line"
   footer:
     social:
-      - href: "https://afdian.com/a/saroprock" # 链接
-        ariaLabel: Support my work # 图标的可访问性标签
-        title: Support my work # 图标的悬浮标题
-        svg: "ri:cup-line"
-      - href: "https://github.com/EveSunMaple"
+      # - href: "https://afdian.com/a/saroprock" # 链接
+      #  ariaLabel: Support my work # 图标的可访问性标签
+      #  title: Support my work # 图标的悬浮标题
+      #  svg: "ri:cup-line"
+      - href: "https://github.com/Duskydream"
         ariaLabel: Github
         title: Github
         svg: "ri:github-line"
-      - href: "https://space.bilibili.com/438392347"
+      - href: "https://space.bilibili.com/198625051"
         ariaLabel: BiliBili
         title: BiliBili
         svg: "ri:bilibili-line"
-      - href: "https://x.com/EveSunMaple"
+      - href: "https://x.com/Lxzm1211"
         ariaLabel: X(twitter)
         title: X(twitter)
         svg: "ri:twitter-line"

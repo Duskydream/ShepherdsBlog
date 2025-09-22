@@ -1,6 +1,7 @@
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
+import vercel from "@astrojs/vercel";
 import playformCompress from "@playform/compress";
 import terser from "@rollup/plugin-terser";
 import expressiveCode from "astro-expressive-code";
@@ -8,6 +9,7 @@ import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeKatex from "rehype-katex";
+
 import remarkMath from "remark-math";
 
 import { CODE_THEME, USER_SITE } from "./src/config.ts";
@@ -15,8 +17,6 @@ import { CODE_THEME, USER_SITE } from "./src/config.ts";
 import updateConfig from "./src/integration/updateConfig.ts";
 
 import { remarkReadingTime } from "./src/plugins/remark-reading-time";
-
-import vercel from "@astrojs/vercel";
 
 // https://astro.build/config
 export default defineConfig({
