@@ -1,4 +1,4 @@
 
 User-agent: *
 Allow: /
-Sitemap: https://frosti.saroprock.com/sitemap-index.xml
+Sitemap: https://duskydream.icu/sitemap-index.xml
