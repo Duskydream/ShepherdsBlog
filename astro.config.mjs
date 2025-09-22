@@ -16,15 +16,19 @@ import updateConfig from "./src/integration/updateConfig.ts";
 
 import { remarkReadingTime } from "./src/plugins/remark-reading-time";
 
+import vercel from "@astrojs/vercel";
+
 // https://astro.build/config
 export default defineConfig({
   site: USER_SITE,
   output: "static",
+
   style: {
     scss: {
       includePaths: ["./src/styles"],
     },
   },
+
   integrations: [updateConfig(), expressiveCode({
     themes: [CODE_THEME],
     styleOverrides: {
@@ -36,6 +40,7 @@ export default defineConfig({
   }), sitemap(), tailwind({
     configFile: "./tailwind.config.mjs",
   }), playformCompress()],
+
   markdown: {
     remarkPlugins: [remarkMath, remarkReadingTime],
     rehypePlugins: [rehypeKatex, [
@@ -45,6 +50,7 @@ export default defineConfig({
       },
     ]],
   },
+
   vite: {
     css: {
       preprocessorOptions: {
@@ -54,4 +60,6 @@ export default defineConfig({
       },
     },
   },
+
+  adapter: vercel(),
 });
