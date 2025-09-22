@@ -1,7 +1,7 @@
 # 网站的基本信息
 site:
-  tab: Shepherd's Blog 櫻の森の上を舞う # 浏览器标签栏上显示的文本
-  title: 💠 Shepherd's Blog # 网站的标题
+  tab: ShepherdBlog 櫻の森の上を舞う # 浏览器标签栏上显示的文本
+  title: 💠 ShepherdBlog # 网站的标题
   description: # 网站的描述，用于SEO等
   language: en # 网站的语言，例如 "en" 是英文
   favicon: /favicon.ico # 网站的图标，用于浏览器标签栏和其他地方显示
