@@ -13,11 +13,11 @@ site:
   blog: # 博客相关配置
     pageSize: 8 # 每页显示的文章数量
   menu: # 菜单配置
-    - id: home # 菜单项的唯一标识符
-      text: Home # 菜单项显示的文本
-      href: / # 菜单项链接的地址
-      svg: "material-symbols:home-outline-rounded"
-      target: _self
+    # - id: home # 菜单项的唯一标识符
+    #  text: Home # 菜单项显示的文本
+    #  href: / # 菜单项链接的地址
+    #  svg: "material-symbols:home-outline-rounded"
+    #  target: _self
     - id: about
       text: About
       href: /about
@@ -51,13 +51,23 @@ site:
     # svg: "material-symbols:code-blocks-outline"
     # target: _self
     - id: friend
-      text: Friend
+      text: Friends
       href: /friend
       svg: "material-symbols:supervisor-account-outline-rounded"
       target: _self
+    - id: anime
+      text: Anime
+      href: /anime
+      target: _self
+      svg: "material-symbols:live-tv-rounded"
+    - id: music
+      text: Music
+      href: /music
+      target: _self
+      svg: "material-symbols:music-note-rounded"
     - id: contact
       text: Contact
-      href: "mailto:contact.evesunmaple@outlook.com"
+      href: "mailto:contact.lxzm1211@outlook.com"
       target: _blank # 在新标签页打开
       svg: "material-symbols:attach-email-outline-rounded"
 

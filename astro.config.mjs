@@ -62,4 +62,9 @@ export default defineConfig({
   },
 
   adapter: vercel(),
+  // ... 其他配置
+  redirects: {
+    // 将旧的 /about 路径永久重定向到新的根路径 /
+    "/about": "/",
+  },
 });
