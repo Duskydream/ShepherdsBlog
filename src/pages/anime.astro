@@ -1,0 +1,58 @@
+---
+type Subject = {
+  id: number;
+  name: string;
+  name_cn?: string;
+};
+
+type WatchingItem = {
+  subject: Subject;
+};
+
+const username = "851657"; // 你的 bangumi 用户 ID
+const apiUrl = `https://api.bgm.tv/v0/users/${username}/collections?type=3`;
+
+let watching: WatchingItem[] = [];
+
+try {
+  const res = await fetch(apiUrl, {
+    headers: {
+      "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
+    },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    watching = data.data ?? [];
+  } else {
+    console.error("Bangumi API 请求失败:", res.status);
+  }
+} catch (err) {
+  console.error("Bangumi API 错误:", err);
+}
+---
+
+<html lang="zh">
+  <head>
+    <title>我的追番</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h1>📺 我的追番</h1>
+
+    {
+      watching.length === 0 ? (
+        <p>目前没有在追的番剧</p>
+      ) : (
+        <ul>
+          {watching.map((item: WatchingItem) => (
+            <li>
+              <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                {item.subject.name_cn || item.subject.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </body>
+</html>
