@@ -3,56 +3,204 @@ type Subject = {
   id: number;
   name: string;
   name_cn?: string;
+  date?: string;
+  images?: {
+    common?: string;
+  };
 };
 
 type WatchingItem = {
   subject: Subject;
 };
 
-const username = "851657"; // 你的 bangumi 用户 ID
-const apiUrl = `https://api.bgm.tv/v0/users/${username}/collections?type=3`;
+const username = "851657"; // 建议放到 import.meta.env.PUBLIC_BGM_USER
+const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
 
-let watching: WatchingItem[] = [];
-
-try {
-  const res = await fetch(apiUrl, {
-    headers: {
-      "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
-    },
-  });
-  if (res.ok) {
-    const data = await res.json();
-    watching = data.data ?? [];
-  } else {
-    console.error("Bangumi API 请求失败:", res.status);
+async function fetchCollection(type: number): Promise<WatchingItem[]> {
+  try {
+    const res = await fetch(`${baseUrl}?type=${type}`, {
+      headers: {
+        "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.data ?? [];
+    } else {
+      console.error("API 请求失败", res.status);
+      return [];
+    }
+  } catch (err) {
+    console.error("API 错误", err);
+    return [];
   }
-} catch (err) {
-  console.error("Bangumi API 错误:", err);
 }
+
+// 拉取三类番剧数据
+const watching: WatchingItem[] = await fetchCollection(3); // 在看
+const wish: WatchingItem[] = await fetchCollection(1); // 想看
+const watched: WatchingItem[] = await fetchCollection(2); // 看过
 ---
 
 <html lang="zh">
   <head>
-    <title>我的追番</title>
     <meta charset="UTF-8" />
+    <title>我的追番</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 1rem;
+      }
+      .tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .tabs button {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        background: #f9f9f9;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .tabs button.active {
+        background: #0078d7;
+        color: white;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+      .card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.2s;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+      }
+      .card img {
+        width: 100%;
+        display: block;
+      }
+      .card h3 {
+        font-size: 1rem;
+        margin: 0.5rem 0;
+      }
+      .card p {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+      .section {
+        display: none;
+      }
+      .section.active {
+        display: block;
+      }
+    </style>
   </head>
+
   <body>
     <h1>📺 我的追番</h1>
 
-    {
-      watching.length === 0 ? (
-        <p>目前没有在追的番剧</p>
-      ) : (
-        <ul>
-          {watching.map((item: WatchingItem) => (
-            <li>
-              <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
-                {item.subject.name_cn || item.subject.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    <!-- 标签按钮 -->
+    <div class="tabs">
+      <button class="active" data-tab="watching" onclick="showTab('watching')">在看</button>
+      <button data-tab="wish" onclick="showTab('wish')">想看</button>
+      <button data-tab="watched" onclick="showTab('watched')">看过</button>
+    </div>
+
+    <!-- 在看 -->
+    <div id="watching" class="section active">
+      {
+        watching.length === 0 ? (
+          <p>目前没有在看的番剧</p>
+        ) : (
+          <div class="grid">
+            {watching.map((item) => (
+              <div class="card">
+                {item.subject.images?.common && (
+                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
+                  </a>
+                )}
+                <h3>{item.subject.name_cn || item.subject.name}</h3>
+                {item.subject.date && <p>{item.subject.date}</p>}
+              </div>
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    <!-- 想看 -->
+    <div id="wish" class="section">
+      {
+        wish.length === 0 ? (
+          <p>目前没有想看的番剧</p>
+        ) : (
+          <div class="grid">
+            {wish.map((item) => (
+              <div class="card">
+                {item.subject.images?.common && (
+                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
+                  </a>
+                )}
+                <h3>{item.subject.name_cn || item.subject.name}</h3>
+                {item.subject.date && <p>{item.subject.date}</p>}
+              </div>
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    <!-- 看过 -->
+    <div id="watched" class="section">
+      {
+        watched.length === 0 ? (
+          <p>目前没有看过的番剧</p>
+        ) : (
+          <div class="grid">
+            {watched.map((item) => (
+              <div class="card">
+                {item.subject.images?.common && (
+                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
+                  </a>
+                )}
+                <h3>{item.subject.name_cn || item.subject.name}</h3>
+                {item.subject.date && <p>{item.subject.date}</p>}
+              </div>
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    <!-- 标签切换脚本 -->
+    <script type="module">
+      function showTab(tabId) {
+        // 切换 section
+        const section = document.getElementById(tabId);
+        if (section) {
+          document.querySelectorAll(".section").forEach((sec) => sec.classList.remove("active"));
+          section.classList.add("active");
+        }
+
+        // 切换按钮状态
+        const btn = document.querySelector(`[data-tab="${tabId}"]`);
+        if (btn) {
+          document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        }
+      }
+    </script>
   </body>
 </html>
