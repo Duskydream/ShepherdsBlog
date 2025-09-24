@@ -1,0 +1,60 @@
+---
+import { useState } from "react";
+
+// 配置：换成你自己的 Bangumi 用户名
+const BANGUMI_USERNAME = "851657";
+const API_URL = `https://api.bgm.tv/v0/users/${BANGUMI_USERNAME}/collections?type=3`;
+
+let watching = [];
+
+try {
+  const res = await fetch(API_URL, {
+    headers: {
+      "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
+    },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    watching = data.data ?? [];
+  }
+} catch (err) {
+  console.error("Bangumi API Error:", err);
+}
+---
+
+<html lang="zh">
+  <head>
+    <title>我的追番页面</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body class="mx-auto max-w-5xl px-4 py-8 font-sans">
+    <h1 class="text-3xl font-bold mb-6">📺 我的追番</h1>
+
+    {
+      watching.length === 0 ? (
+        <p class="text-gray-600">目前没有获取到追番数据。</p>
+      ) : (
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {watching.map((item) => (
+            <div class="rounded-xl shadow hover:shadow-lg transition bg-white overflow-hidden">
+              <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                <img
+                  src={item.subject.images?.large || item.subject.images?.common}
+                  alt={item.subject.name}
+                  class="w-full h-48 object-cover"
+                />
+              </a>
+              <div class="p-3">
+                <h2 class="text-sm font-bold line-clamp-2">{item.subject.name_cn || item.subject.name}</h2>
+                <p class="text-xs text-gray-500 mt-1">{item.subject.date || "未知放送时间"}</p>
+                <p class="text-xs mt-2">
+                  📖 {item.ep_status} / {item.subject.eps || "??"} 集
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </body>
+</html>
