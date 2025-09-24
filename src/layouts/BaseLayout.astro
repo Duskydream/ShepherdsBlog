@@ -14,7 +14,7 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
 ---
 
 <!doctype html>
-<html lang={SITE_LANGUAGE} class="bg-base-300" data-theme={SITE_THEME.light} data-theme-type="light">
+<html lang={SITE_LANGUAGE} class="bg-white dark:bg-gray-900" data-theme={SITE_THEME.light} data-theme-type="light">
   <head>
     <ClientRouter />
     <ElementCrossing />
@@ -53,50 +53,34 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     <!-- 导航栏 -->
     <Navbar />
 
-   <Navbar />
+    <!-- Banner 头图，占满屏幕 -->
+    <Banner
+      src="/images/Monet.JPG"
+      alt="博客头图"
+      title="Shepherd's Blog"
+      subtitle="C'est Mon Panache!"
+      class="h-screen"
+    />
 
-<!-- Banner 占满屏幕 -->
-<Banner
-  src="/images/https://pic1.imgdb.cn/item/68d3f03fc5157e1a882d187d.jpg"
-  alt="博客头图"
-  title="欢迎来到我的博客"
-  subtitle="记录技术与生活"
-  class="h-screen"
-/>
-
-<!-- 内容区半透明背景 -->
-<div class="relative max-w-6xl mx-auto w-full -mt-32 z-20">
-  <div class="bg-white/80 dark:bg-black/60 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
+    <!-- 主体内容，半透明覆盖 Banner -->
+   <div class="relative max-w-6xl mx-auto w-full -mt-32 z-20 px-4">
+  <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
     <div class="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-4 gap-4">
+      <!-- 主内容 -->
       <main class="col-span-1 md:col-span-4 lg:col-span-3 flex flex-col gap-4">
         <slot />
       </main>
+
+      <!-- 侧边栏 -->
       <aside class="col-span-1">
         <Sidebar headings={headings} showTOC={showTOC} />
         <slot name="sidebar" />
       </aside>
     </div>
+    <Footer />
   </div>
 </div>
 
-    <!-- 主体内容 + 侧边栏 -->
-    <div class="max-w-6xl mx-auto w-full flex-grow">
-      <div class="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-4 gap-4 p-4 h-full">
-        <!-- 主内容 -->
-        <main class="col-span-1 md:col-span-4 lg:col-span-3 bg-transparent flex flex-col gap-4">
-          <div class="flex-grow flex flex-col gap-4 mt-8 md:mt-0">
-            <slot />
-          </div>
-          <Footer />
-        </main>
-
-        <!-- 侧边栏 -->
-        <aside class="col-span-1 bg-transparent">
-          <Sidebar headings={headings} showTOC={showTOC} />
-          <slot name="sidebar" />
-        </aside>
-      </div>
-    </div>
 
     <!-- 移动端 TOC -->
     <MobileTOC headings={headings} showTOC={showTOC} />
