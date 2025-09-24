@@ -15,159 +15,40 @@ type WatchingItem = {
 
 const username = "851657"; // 建议放到 import.meta.env.PUBLIC_BGM_USER
 const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
-
-async function fetchCollection(type: number): Promise<WatchingItem[]> {
-  let page = 1;
-  const limit = 30;
-  let allData: WatchingItem[] = [];
-
-  try {
-    while (true) {
-      const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page - 1) * limit}`, {
-        headers: {
-          "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
-        },
-      });
-
-      if (!res.ok) {
-        console.error("API 请求失败", res.status);
-        break;
-      }
-
-      const data = await res.json();
-      if (!data.data || data.data.length === 0) break;
-
-      allData = allData.concat(data.data);
-
-      if (data.data.length < limit) break;
-      page++;
-    }
-  } catch (err) {
-    console.error("API 错误", err);
-  }
-
-  return allData;
-}
 ---
 
 <html lang="zh">
   <head>
     <meta charset="UTF-8" />
     <title>我的追番</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "PingFang SC", sans-serif;
-        margin: 0;
-        background: #f5f6fa;
-        color: #333;
-      }
-
-      h1 {
-        text-align: center;
-        margin: 2rem 0 1rem;
-        font-size: 2rem;
-        font-weight: 700;
-      }
-
-      #search {
-        display: block;
-        margin: 0 auto 1.5rem;
-        padding: 0.6rem 1rem;
-        width: 90%;
-        max-width: 350px;
-        border-radius: 9999px;
-        border: 1px solid #ddd;
-        font-size: 1rem;
-        outline: none;
-        transition: 0.2s;
-      }
-      #search:focus {
-        border-color: #0078d7;
-        box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
-      }
-
-      .tabs {
-        display: flex;
-        justify-content: center;
-        gap: 0.8rem;
-        margin-bottom: 2rem;
-      }
-      .tabs button {
-        padding: 0.5rem 1.2rem;
-        border: none;
-        border-radius: 9999px;
-        background: #e9ecef;
-        cursor: pointer;
-        font-size: 0.95rem;
-        transition: all 0.2s;
-      }
-      .tabs button:hover {
-        background: #d0d5da;
-      }
-      .tabs button.active {
-        background: #0078d7;
-        color: white;
-        font-weight: 600;
-        box-shadow: 0 2px 6px rgba(0, 120, 215, 0.4);
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1.5rem;
-        padding: 0 1rem 2rem;
-        max-width: 1200px;
-        margin: auto;
-      }
-
-      .card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      }
-      .card img {
-        width: 100%;
-        aspect-ratio: 3/4;
-        object-fit: cover;
-      }
-      .card h3 {
-        font-size: 1rem;
-        margin: 0.8rem 0 0.3rem;
-        padding: 0 0.5rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .card p {
-        font-size: 0.85rem;
-        color: #777;
-        margin-bottom: 0.8rem;
-      }
-    </style>
   </head>
+  <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
-  <body>
-    <h1>📺 我的追番</h1>
+    <!-- 标题 -->
+    <h1 class="text-3xl font-bold text-center mt-8">📺 我的追番</h1>
 
-    <input type="text" id="search" placeholder="搜索番剧..." />
+    <!-- 返回主页按钮 -->
+    <a href="/"
+       class="block mx-auto mt-4 mb-6 px-4 py-2 bg-blue-600 text-white rounded-full text-center font-semibold hover:bg-blue-700 transition-colors duration-200">
+       返回主页
+    </a>
 
-    <div class="tabs">
-      <button id="tab-watching" class="active">在看</button>
-      <button id="tab-wish">想看</button>
-      <button id="tab-watched">看过</button>
+    <!-- 搜索框 -->
+    <input type="text" id="search" placeholder="搜索番剧..."
+           class="block mx-auto mb-6 px-4 py-2 w-11/12 max-w-sm rounded-full border border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+
+    <!-- Tabs -->
+    <div class="flex justify-center gap-4 mb-6">
+      <button id="tab-watching" class="px-4 py-2 rounded-full bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition">在看</button>
+      <button id="tab-wish" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition">想看</button>
+      <button id="tab-watched" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition">看过</button>
     </div>
 
+    <!-- 内容容器 -->
     <div id="tab-content">
-      <div id="content-watching" class="grid"><p>加载中…</p></div>
-      <div id="content-wish" class="grid" style="display:none;"><p>加载中…</p></div>
-      <div id="content-watched" class="grid" style="display:none;"><p>加载中…</p></div>
+      <div id="content-watching" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto"><p>加载中…</p></div>
+      <div id="content-wish" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto hidden"><p>加载中…</p></div>
+      <div id="content-watched" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto hidden"><p>加载中…</p></div>
     </div>
 
     <script type="module">
@@ -183,71 +64,71 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
       ];
       const searchInput = document.getElementById("search");
 
+      // Tabs 切换
       tabButtons.forEach((btn, idx) => {
-        if (btn) {
-          btn.addEventListener("click", () => {
-            tabButtons.forEach((b) => b && b.classList.remove("active"));
-            btn.classList.add("active");
-            tabContents.forEach((c, i) => c && (c.style.display = i === idx ? "" : "none"));
-            filterCards();
+        btn.addEventListener("click", () => {
+          tabButtons.forEach((b,i) => {
+            b.classList.remove("bg-blue-600","text-white","shadow");
+            b.classList.add("bg-gray-200","text-gray-700");
           });
-        }
+          btn.classList.add("bg-blue-600","text-white","shadow");
+          btn.classList.remove("bg-gray-200","text-gray-700");
+          tabContents.forEach((c,i)=> c.classList.toggle("hidden", i!==idx));
+          filterCards();
+        });
       });
 
-      if (searchInput) {
-        searchInput.addEventListener("input", filterCards);
-      }
-
+      // 搜索过滤
+      searchInput.addEventListener("input", filterCards);
       function filterCards() {
-        const term = searchInput ? searchInput.value.toLowerCase() : "";
-        const activeContent = tabContents.find((c) => c && c.style.display !== "none");
-        if (!activeContent) return;
+        const term = searchInput.value.toLowerCase();
+        const activeContent = tabContents.find(c => !c.classList.contains("hidden"));
+        if(!activeContent) return;
         const cards = activeContent.querySelectorAll(".card");
-        cards.forEach((card) => {
+        cards.forEach(card => {
           const name = card.dataset.name || "";
-          card.style.display = name.includes(term) ? "" : "none";
+          card.classList.toggle("hidden", !name.includes(term));
         });
       }
 
+      // API 获取
       async function fetchCollectionJS(type) {
         const username = "851657";
         const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
         let page = 1;
         const limit = 30;
         let allData = [];
-
         try {
-          while (true) {
+          while(true){
             const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page-1)*limit}`, {
-              headers: {
-                "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
-              },
+              headers: {"User-Agent":"AstroBlog/1.0 (https://yourblog.com)"}
             });
-            if (!res.ok) break;
+            if(!res.ok) break;
             const data = await res.json();
-            if (!data.data || data.data.length === 0) break;
+            if(!data.data || data.data.length===0) break;
             allData = allData.concat(data.data);
-            if (data.data.length < limit) break;
+            if(data.data.length<limit) break;
             page++;
           }
-        } catch (err) {
-          console.error(err);
-        }
+        } catch(e){ console.error(e) }
         return allData;
       }
 
+      // 渲染卡片
       function renderCards(container, items, emptyText) {
-        if (!container) return;
-        if (!items || items.length === 0) {
-          container.innerHTML = `<p>${emptyText}</p>`;
+        if(!container) return;
+        if(!items || items.length===0){
+          container.innerHTML = `<p class="col-span-full text-center text-gray-500">${emptyText}</p>`;
           return;
         }
-
-        container.innerHTML = items.map(item => `
-          <div class="card" data-name="${(item.subject.name_cn || item.subject.name).toLowerCase()}">
-            ${item.subject.images?.common ? `<a href="https://bgm.tv/subject/${item.subject.id}" target="_blank"><img src="${item.subject.images.common}" alt="${item.subject.name_cn || item.subject.name}" /></a>` : ""}
-            <h3>${item.subject.name_cn || item.subject.name}</h3>
-            ${item.subject.date ? `<p>${item.subject.date}</p>` : ""}
+        container.innerHTML = items.map(item=>`
+          <div class="card bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center" 
+               data-name="${(item.subject.name_cn||item.subject.name).toLowerCase()}">
+            ${item.subject.images?.common ? `<a href="https://bgm.tv/subject/${item.subject.id}" target="_blank">
+              <img src="${item.subject.images.common}" alt="${item.subject.name_cn||item.subject.name}" class="w-full aspect-[3/4] object-cover"/>
+            </a>` : ""}
+            <h3 class="mt-2 text-sm font-medium truncate px-2">${item.subject.name_cn||item.subject.name}</h3>
+            ${item.subject.date ? `<p class="text-xs text-gray-500 mb-2">${item.subject.date}</p>` : ""}
           </div>
         `).join("");
       }
@@ -258,11 +139,9 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
           fetchCollectionJS(1),
           fetchCollectionJS(2)
         ]);
-
         renderCards(tabContents[0], watching, "目前没有在看的番剧");
         renderCards(tabContents[1], wish, "目前没有想看的番剧");
         renderCards(tabContents[2], watched, "目前没有看过的番剧");
-
         filterCards();
       }
 
