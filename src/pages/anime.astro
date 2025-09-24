@@ -17,28 +17,37 @@ const username = "851657"; // 建议放到 import.meta.env.PUBLIC_BGM_USER
 const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
 
 async function fetchCollection(type: number): Promise<WatchingItem[]> {
+  let page = 1;
+  const limit = 30;
+  let allData: WatchingItem[] = [];
+
   try {
-    const res = await fetch(`${baseUrl}?type=${type}`, {
-      headers: {
-        "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
-      },
-    });
-    if (res.ok) {
+    while (true) {
+      const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page - 1) * limit}`, {
+        headers: {
+          "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
+        },
+      });
+
+      if (!res.ok) {
+        console.error("API 请求失败", res.status);
+        break;
+      }
+
       const data = await res.json();
-      return data.data ?? [];
-    } else {
-      console.error("API 请求失败", res.status);
-      return [];
+      if (!data.data || data.data.length === 0) break;
+
+      allData = allData.concat(data.data);
+
+      if (data.data.length < limit) break;
+      page++;
     }
   } catch (err) {
     console.error("API 错误", err);
-    return [];
   }
-}
 
-const watching: WatchingItem[] = await fetchCollection(3); // 在看
-const wish: WatchingItem[] = await fetchCollection(1); // 想看
-const watched: WatchingItem[] = await fetchCollection(2); // 看过
+  return allData;
+}
 ---
 
 <html lang="zh">
@@ -60,7 +69,6 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
         font-weight: 700;
       }
 
-      /* 搜索框 */
       #search {
         display: block;
         margin: 0 auto 1.5rem;
@@ -78,7 +86,6 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
         box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
       }
 
-      /* 标签栏 */
       .tabs {
         display: flex;
         justify-content: center;
@@ -104,7 +111,6 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
         box-shadow: 0 2px 6px rgba(0, 120, 215, 0.4);
       }
 
-      /* 卡片网格 */
       .grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -114,7 +120,6 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
         margin: auto;
       }
 
-      /* 单个卡片 */
       .card {
         background: white;
         border-radius: 12px;
@@ -151,91 +156,32 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
   <body>
     <h1>📺 我的追番</h1>
 
-    <!-- 搜索框 -->
     <input type="text" id="search" placeholder="搜索番剧..." />
 
-    <!-- 标签按钮 -->
     <div class="tabs">
       <button id="tab-watching" class="active">在看</button>
       <button id="tab-wish">想看</button>
       <button id="tab-watched">看过&玩过</button>
     </div>
 
-    <!-- 内容 -->
     <div id="tab-content">
-      <div id="content-watching" class="grid">
-        {
-          watching.length === 0 ? (
-            <p>目前没有在看的番剧</p>
-          ) : (
-            watching.map((item) => (
-              <div class="card" data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}>
-                {item.subject.images?.common && (
-                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
-                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
-                  </a>
-                )}
-                <h3>{item.subject.name_cn || item.subject.name}</h3>
-                {item.subject.date && <p>{item.subject.date}</p>}
-              </div>
-            ))
-          )
-        }
-      </div>
-
-      <div id="content-wish" class="grid" style="display:none;">
-        {
-          wish.length === 0 ? (
-            <p>目前没有想看的番剧</p>
-          ) : (
-            wish.map((item) => (
-              <div class="card" data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}>
-                {item.subject.images?.common && (
-                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
-                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
-                  </a>
-                )}
-                <h3>{item.subject.name_cn || item.subject.name}</h3>
-                {item.subject.date && <p>{item.subject.date}</p>}
-              </div>
-            ))
-          )
-        }
-      </div>
-
-      <div id="content-watched" class="grid" style="display:none;">
-        {
-          watched.length === 0 ? (
-            <p>目前没有看过的番剧</p>
-          ) : (
-            watched.map((item) => (
-              <div class="card" data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}>
-                {item.subject.images?.common && (
-                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
-                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
-                  </a>
-                )}
-                <h3>{item.subject.name_cn || item.subject.name}</h3>
-                {item.subject.date && <p>{item.subject.date}</p>}
-              </div>
-            ))
-          )
-        }
-      </div>
+      <div id="content-watching" class="grid"><p>加载中…</p></div>
+      <div id="content-wish" class="grid" style="display:none;"><p>加载中…</p></div>
+      <div id="content-watched" class="grid" style="display:none;"><p>加载中…</p></div>
     </div>
 
-    <!-- 标签切换 + 搜索 JS -->
-    <script>
+    <script type="module">
       const tabButtons = [
-        document.getElementById("tab-watching") as HTMLButtonElement | null,
-        document.getElementById("tab-wish") as HTMLButtonElement | null,
-        document.getElementById("tab-watched") as HTMLButtonElement | null,
+        document.getElementById("tab-watching"),
+        document.getElementById("tab-wish"),
+        document.getElementById("tab-watched"),
       ];
       const tabContents = [
-        document.getElementById("content-watching") as HTMLElement | null,
-        document.getElementById("content-wish") as HTMLElement | null,
-        document.getElementById("content-watched") as HTMLElement | null,
+        document.getElementById("content-watching"),
+        document.getElementById("content-wish"),
+        document.getElementById("content-watched"),
       ];
+      const searchInput = document.getElementById("search");
 
       tabButtons.forEach((btn, idx) => {
         if (btn) {
@@ -243,26 +189,84 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
             tabButtons.forEach((b) => b && b.classList.remove("active"));
             btn.classList.add("active");
             tabContents.forEach((c, i) => c && (c.style.display = i === idx ? "" : "none"));
-            filterCards(); // 切换标签时也触发搜索过滤
+            filterCards();
           });
         }
       });
 
-      const searchInput = document.getElementById("search") as HTMLInputElement | null;
       if (searchInput) {
         searchInput.addEventListener("input", filterCards);
       }
 
       function filterCards() {
         const term = searchInput ? searchInput.value.toLowerCase() : "";
-        const activeContent = tabContents.find((c) => c && c.style.display !== "none") as HTMLElement | undefined;
+        const activeContent = tabContents.find((c) => c && c.style.display !== "none");
         if (!activeContent) return;
-        const cards = activeContent.querySelectorAll<HTMLElement>(".card");
+        const cards = activeContent.querySelectorAll(".card");
         cards.forEach((card) => {
-          const name = (card.dataset?.name ?? "");
+          const name = card.dataset.name || "";
           card.style.display = name.includes(term) ? "" : "none";
         });
       }
+
+      async function fetchCollectionJS(type) {
+        const username = "851657";
+        const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
+        let page = 1;
+        const limit = 30;
+        let allData = [];
+
+        try {
+          while (true) {
+            const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page-1)*limit}`, {
+              headers: {
+                "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
+              },
+            });
+            if (!res.ok) break;
+            const data = await res.json();
+            if (!data.data || data.data.length === 0) break;
+            allData = allData.concat(data.data);
+            if (data.data.length < limit) break;
+            page++;
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        return allData;
+      }
+
+      function renderCards(container, items, emptyText) {
+        if (!container) return;
+        if (!items || items.length === 0) {
+          container.innerHTML = `<p>${emptyText}</p>`;
+          return;
+        }
+
+        container.innerHTML = items.map(item => `
+          <div class="card" data-name="${(item.subject.name_cn || item.subject.name).toLowerCase()}">
+            ${item.subject.images?.common ? `<a href="https://bgm.tv/subject/${item.subject.id}" target="_blank"><img src="${item.subject.images.common}" alt="${item.subject.name_cn || item.subject.name}" /></a>` : ""}
+            <h3>${item.subject.name_cn || item.subject.name}</h3>
+            ${item.subject.date ? `<p>${item.subject.date}</p>` : ""}
+          </div>
+        `).join("");
+      }
+
+      async function init() {
+        const [watching, wish, watched] = await Promise.all([
+          fetchCollectionJS(3),
+          fetchCollectionJS(1),
+          fetchCollectionJS(2)
+        ]);
+
+        renderCards(tabContents[0], watching, "目前没有在看的番剧");
+        renderCards(tabContents[1], wish, "目前没有想看的番剧");
+        renderCards(tabContents[2], watched, "目前没有看过的番剧");
+
+        filterCards();
+      }
+
+      init();
     </script>
   </body>
 </html>
