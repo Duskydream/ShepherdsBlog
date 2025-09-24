@@ -1,6 +1,4 @@
 ---
-// Removed React import; use Astro components or client scripts for interactivity.
-
 type Subject = {
   id: number;
   name: string;
@@ -49,62 +47,103 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
     <title>我的追番</title>
     <style>
       body {
-        font-family: sans-serif;
-        margin: 1rem;
+        font-family: "Segoe UI", "PingFang SC", sans-serif;
+        margin: 0;
+        background: #f5f6fa;
         color: #333;
       }
+
+      h1 {
+        text-align: center;
+        margin: 2rem 0 1rem;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      /* 搜索框 */
+      #search {
+        display: block;
+        margin: 0 auto 1.5rem;
+        padding: 0.6rem 1rem;
+        width: 90%;
+        max-width: 350px;
+        border-radius: 9999px;
+        border: 1px solid #ddd;
+        font-size: 1rem;
+        outline: none;
+        transition: 0.2s;
+      }
+      #search:focus {
+        border-color: #0078d7;
+        box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
+      }
+
+      /* 标签栏 */
       .tabs {
         display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
+        justify-content: center;
+        gap: 0.8rem;
+        margin-bottom: 2rem;
       }
       .tabs button {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        background: #f9f9f9;
-        border-radius: 6px;
+        padding: 0.5rem 1.2rem;
+        border: none;
+        border-radius: 9999px;
+        background: #e9ecef;
         cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+      }
+      .tabs button:hover {
+        background: #d0d5da;
       }
       .tabs button.active {
         background: #0078d7;
         color: white;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(0, 120, 215, 0.4);
       }
+
+      /* 卡片网格 */
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1.5rem;
+        padding: 0 1rem 2rem;
+        max-width: 1200px;
+        margin: auto;
       }
+
+      /* 单个卡片 */
       .card {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         overflow: hidden;
         text-align: center;
-        transition: transform 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s;
       }
       .card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       }
       .card img {
         width: 100%;
-        display: block;
+        aspect-ratio: 3/4;
+        object-fit: cover;
       }
       .card h3 {
         font-size: 1rem;
-        margin: 0.5rem 0;
+        margin: 0.8rem 0 0.3rem;
+        padding: 0 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .card p {
         font-size: 0.85rem;
-        color: #666;
-        margin-bottom: 0.5rem;
-      }
-      input[type="text"] {
-        padding: 0.5rem;
-        width: 100%;
-        max-width: 300px;
-        margin-bottom: 1rem;
-        border-radius: 6px;
-        border: 1px solid #ccc;
+        color: #777;
+        margin-bottom: 0.8rem;
       }
     </style>
   </head>
@@ -188,14 +227,14 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
     <!-- 标签切换 + 搜索 JS -->
     <script>
       const tabButtons = [
-        document.getElementById("tab-watching"),
-        document.getElementById("tab-wish"),
-        document.getElementById("tab-watched"),
+        document.getElementById("tab-watching") as HTMLButtonElement | null,
+        document.getElementById("tab-wish") as HTMLButtonElement | null,
+        document.getElementById("tab-watched") as HTMLButtonElement | null,
       ];
       const tabContents = [
-        document.getElementById("content-watching"),
-        document.getElementById("content-wish"),
-        document.getElementById("content-watched"),
+        document.getElementById("content-watching") as HTMLElement | null,
+        document.getElementById("content-wish") as HTMLElement | null,
+        document.getElementById("content-watched") as HTMLElement | null,
       ];
 
       tabButtons.forEach((btn, idx) => {
@@ -216,12 +255,12 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
 
       function filterCards() {
         const term = searchInput ? searchInput.value.toLowerCase() : "";
-        const activeContent = tabContents.find((c) => c && c.style.display !== "none");
+        const activeContent = tabContents.find((c) => c && c.style.display !== "none") as HTMLElement | undefined;
         if (!activeContent) return;
-        const cards = activeContent.querySelectorAll(".card");
+        const cards = activeContent.querySelectorAll<HTMLElement>(".card");
         cards.forEach((card) => {
-          const name = (card as HTMLElement).dataset.name || "";
-          (card as HTMLElement).style.display = name.includes(term) ? "" : "none";
+          const name = (card.dataset?.name ?? "");
+          card.style.display = name.includes(term) ? "" : "none";
         });
       }
     </script>
