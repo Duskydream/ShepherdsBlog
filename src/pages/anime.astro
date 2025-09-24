@@ -1,55 +1,3 @@
----
-type Subject = {
-  id: number;
-  name: string;
-  name_cn?: string;
-  date?: string;
-  images?: {
-    common?: string;
-  };
-};
-
-type WatchingItem = {
-  subject: Subject;
-};
-
-const username = "851657"; // 建议放到 import.meta.env.PUBLIC_BGM_USER
-const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
-
-async function fetchCollection(type: number): Promise<WatchingItem[]> {
-  let page = 1;
-  const limit = 30;
-  let allData: WatchingItem[] = [];
-
-  try {
-    while (true) {
-      const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page - 1) * limit}`, {
-        headers: {
-          "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
-        },
-      });
-
-      if (!res.ok) {
-        console.error("API 请求失败", res.status);
-        break;
-      }
-
-      const data = await res.json();
-      if (!data.data || data.data.length === 0) break;
-
-      allData = allData.concat(data.data);
-
-      if (data.data.length < limit) break;
-      page++;
-    }
-  } catch (err) {
-    console.error("API 错误", err);
-  }
-
-  return allData;
-}
----
-
 <html lang="zh">
   <head>
     <meta charset="UTF-8" />
@@ -122,21 +70,20 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
 
       .card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
       }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      }
+
       .card img {
         width: 100%;
-        aspect-ratio: 3/4;
+        display: block;
         object-fit: cover;
+        aspect-ratio: 3/4;
+        border-radius: 12px; /* 图片圆角 */
       }
+
       .card h3 {
         font-size: 1rem;
         margin: 0.8rem 0 0.3rem;
@@ -150,10 +97,32 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
         color: #777;
         margin-bottom: 0.8rem;
       }
+
+      .home-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        display: inline-block;
+        padding: 0.6rem 1rem;
+        background: #0078d7;
+        color: white;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0, 120, 215, 0.3);
+        transition: background 0.2s, transform 0.2s;
+      }
+      .home-btn:hover {
+        background: #005bb5;
+        transform: translateY(-2px);
+      }
     </style>
   </head>
 
   <body>
+    <a href="/" class="home-btn">🏠 返回主页</a>
     <h1>📺 我的追番</h1>
 
     <input type="text" id="search" placeholder="搜索番剧..." />
@@ -161,7 +130,7 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
     <div class="tabs">
       <button id="tab-watching" class="active">在看</button>
       <button id="tab-wish">想看</button>
-      <button id="tab-watched">看过&玩过</button>
+      <button id="tab-watched">看过</button>
     </div>
 
     <div id="tab-content">
@@ -174,24 +143,22 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
       const tabButtons = [
         document.getElementById("tab-watching"),
         document.getElementById("tab-wish"),
-        document.getElementById("tab-watched"),
+        document.getElementById("tab-watched")
       ];
       const tabContents = [
         document.getElementById("content-watching"),
         document.getElementById("content-wish"),
-        document.getElementById("content-watched"),
+        document.getElementById("content-watched")
       ];
       const searchInput = document.getElementById("search");
 
       tabButtons.forEach((btn, idx) => {
-        if (btn) {
-          btn.addEventListener("click", () => {
-            tabButtons.forEach((b) => b && b.classList.remove("active"));
-            btn.classList.add("active");
-            tabContents.forEach((c, i) => c && (c.style.display = i === idx ? "" : "none"));
-            filterCards();
-          });
-        }
+        btn.addEventListener("click", () => {
+          tabButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          tabContents.forEach((c, i) => c.style.display = i === idx ? "" : "none");
+          filterCards();
+        });
       });
 
       if (searchInput) {
@@ -199,11 +166,10 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
       }
 
       function filterCards() {
-        const term = searchInput ? searchInput.value.toLowerCase() : "";
-        const activeContent = tabContents.find((c) => c && c.style.display !== "none");
+        const term = searchInput.value.toLowerCase();
+        const activeContent = tabContents.find(c => c.style.display !== "none");
         if (!activeContent) return;
-        const cards = activeContent.querySelectorAll(".card");
-        cards.forEach((card) => {
+        activeContent.querySelectorAll(".card").forEach(card => {
           const name = card.dataset.name || "";
           card.style.display = name.includes(term) ? "" : "none";
         });
@@ -219,9 +185,7 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
         try {
           while (true) {
             const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page-1)*limit}`, {
-              headers: {
-                "User-Agent": "AstroBlog/1.0 (https://yourblog.com)",
-              },
+              headers: {"User-Agent": "AstroBlog/1.0"}
             });
             if (!res.ok) break;
             const data = await res.json();
@@ -230,22 +194,21 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
             if (data.data.length < limit) break;
             page++;
           }
-        } catch (err) {
-          console.error(err);
-        }
+        } catch (err) { console.error(err); }
         return allData;
       }
 
       function renderCards(container, items, emptyText) {
-        if (!container) return;
         if (!items || items.length === 0) {
           container.innerHTML = `<p>${emptyText}</p>`;
           return;
         }
-
         container.innerHTML = items.map(item => `
           <div class="card" data-name="${(item.subject.name_cn || item.subject.name).toLowerCase()}">
-            ${item.subject.images?.common ? `<a href="https://bgm.tv/subject/${item.subject.id}" target="_blank"><img src="${item.subject.images.common}" alt="${item.subject.name_cn || item.subject.name}" /></a>` : ""}
+            ${item.subject.images?.common ?
+              `<a href="https://bgm.tv/subject/${item.subject.id}" target="_blank">
+                <img src="${item.subject.images.common}" alt="${item.subject.name_cn || item.subject.name}" />
+              </a>` : ""}
             <h3>${item.subject.name_cn || item.subject.name}</h3>
             ${item.subject.date ? `<p>${item.subject.date}</p>` : ""}
           </div>

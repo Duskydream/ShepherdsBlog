@@ -8,6 +8,7 @@ import Sidebar from "@components/Sidebar.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import MobileTOC from "@components/widgets/MobileTOC.astro";
+import Banner from '../components/Banner.astro';
 
 const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = false, isIndexed = true } = Astro.props;
 ---
@@ -49,27 +50,58 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
   </head>
 
   <body class="flex flex-col min-h-screen" {...isIndexed ? { "data-pagefind-body": true } : {}}>
+    <!-- 导航栏 -->
     <Navbar />
 
+   <Navbar />
+
+<!-- Banner 占满屏幕 -->
+<Banner
+  src="/images/https://pic1.imgdb.cn/item/68d3f03fc5157e1a882d187d.jpg"
+  alt="博客头图"
+  title="欢迎来到我的博客"
+  subtitle="记录技术与生活"
+  class="h-screen"
+/>
+
+<!-- 内容区半透明背景 -->
+<div class="relative max-w-6xl mx-auto w-full -mt-32 z-20">
+  <div class="bg-white/80 dark:bg-black/60 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
+    <div class="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-4 gap-4">
+      <main class="col-span-1 md:col-span-4 lg:col-span-3 flex flex-col gap-4">
+        <slot />
+      </main>
+      <aside class="col-span-1">
+        <Sidebar headings={headings} showTOC={showTOC} />
+        <slot name="sidebar" />
+      </aside>
+    </div>
+  </div>
+</div>
+
+    <!-- 主体内容 + 侧边栏 -->
     <div class="max-w-6xl mx-auto w-full flex-grow">
       <div class="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-4 gap-4 p-4 h-full">
-        <main
-          class="col-span-1 md:col-span-4 lg:col-span-3 bg-transparent order-1 md:order-2 mt-16 md:mt-0 flex flex-col gap-4"
-        >
-          <div class="flex-grow flex flex-col gap-4">
+        <!-- 主内容 -->
+        <main class="col-span-1 md:col-span-4 lg:col-span-3 bg-transparent flex flex-col gap-4">
+          <div class="flex-grow flex flex-col gap-4 mt-8 md:mt-0">
             <slot />
           </div>
           <Footer />
         </main>
-        <aside class="col-span-1 bg-transparent order-2 md:order-1 md:top-4">
+
+        <!-- 侧边栏 -->
+        <aside class="col-span-1 bg-transparent">
           <Sidebar headings={headings} showTOC={showTOC} />
           <slot name="sidebar" />
         </aside>
       </div>
     </div>
 
+    <!-- 移动端 TOC -->
     <MobileTOC headings={headings} showTOC={showTOC} />
 
+    <!-- 保持主题切换同步 -->
     <script define:vars={{ SITE_THEME }} is:inline>
       document.addEventListener("astro:after-swap", () => {
         const storedTheme = localStorage.getItem("theme");
@@ -81,6 +113,7 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
       });
     </script>
 
+    <!-- 代码复制按钮脚本 -->
     <script is:inline>
       document.addEventListener("astro:page-load", () => {
         document.querySelectorAll(".btn-copy").forEach((button) => {
@@ -108,27 +141,10 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     </script>
 
     <style is:inline>
-      .btn-copy {
-        position: relative;
-        overflow: hidden;
-      }
-      .copy-success {
-        animation: pulse 0.5s ease-in-out;
-      }
-      .frosti-code-toolbar-copy-success svg {
-        color: #10b981;
-      }
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
+      .btn-copy { position: relative; overflow: hidden; }
+      .copy-success { animation: pulse 0.5s ease-in-out; }
+      .frosti-code-toolbar-copy-success svg { color: #10b981; }
+      @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
   </body>
 </html>
