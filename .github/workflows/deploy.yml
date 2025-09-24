@@ -1,0 +1,44 @@
+name: Build and Deploy Astro Blog
+
+# 当 push 到 main 分支或手动触发时运行
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出仓库
+      - uses: actions/checkout@v3
+
+      # 2. 设置 Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # 3. 安装 pnpm 并依赖
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install
+
+      # 4. 构建 Astro
+      - name: Build Astro site
+        run: pnpm run build
+
+      # 5. 部署到 gh-pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          user_name: github-actions
+          user_email: actions@github.com
