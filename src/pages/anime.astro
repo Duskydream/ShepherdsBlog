@@ -1,4 +1,6 @@
 ---
+// Removed React import; use Astro components or client scripts for interactivity.
+
 type Subject = {
   id: number;
   name: string;
@@ -36,7 +38,6 @@ async function fetchCollection(type: number): Promise<WatchingItem[]> {
   }
 }
 
-// 拉取三类番剧数据
 const watching: WatchingItem[] = await fetchCollection(3); // 在看
 const wish: WatchingItem[] = await fetchCollection(1); // 想看
 const watched: WatchingItem[] = await fetchCollection(2); // 看过
@@ -50,6 +51,7 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
       body {
         font-family: sans-serif;
         margin: 1rem;
+        color: #333;
       }
       .tabs {
         display: flex;
@@ -96,11 +98,13 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
         color: #666;
         margin-bottom: 0.5rem;
       }
-      .section {
-        display: none;
-      }
-      .section.active {
-        display: block;
+      input[type="text"] {
+        padding: 0.5rem;
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 1rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
       }
     </style>
   </head>
@@ -108,22 +112,25 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
   <body>
     <h1>📺 我的追番</h1>
 
+    <!-- 搜索框 -->
+    <input type="text" id="search" placeholder="搜索番剧..." />
+
     <!-- 标签按钮 -->
     <div class="tabs">
-      <button class="active" data-tab="watching" onclick="showTab('watching')">在看</button>
-      <button data-tab="wish" onclick="showTab('wish')">想看</button>
-      <button data-tab="watched" onclick="showTab('watched')">看过</button>
+      <button id="tab-watching" class="active">在看</button>
+      <button id="tab-wish">想看</button>
+      <button id="tab-watched">看过</button>
     </div>
 
-    <!-- 在看 -->
-    <div id="watching" class="section active">
-      {
-        watching.length === 0 ? (
-          <p>目前没有在看的番剧</p>
-        ) : (
-          <div class="grid">
-            {watching.map((item) => (
-              <div class="card">
+    <!-- 内容 -->
+    <div id="tab-content">
+      <div id="content-watching" class="grid">
+        {
+          watching.length === 0 ? (
+            <p>目前没有在看的番剧</p>
+          ) : (
+            watching.map((item) => (
+              <div class="card" data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}>
                 {item.subject.images?.common && (
                   <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
                     <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
@@ -132,74 +139,90 @@ const watched: WatchingItem[] = await fetchCollection(2); // 看过
                 <h3>{item.subject.name_cn || item.subject.name}</h3>
                 {item.subject.date && <p>{item.subject.date}</p>}
               </div>
-            ))}
-          </div>
-        )
-      }
-    </div>
-
-    <!-- 想看 -->
-    <div id="wish" class="section">
-      {
-        wish.length === 0 ? (
-          <p>目前没有想看的番剧</p>
-        ) : (
-          <div class="grid">
-            {wish.map((item) => (
-              <div class="card">
-                {item.subject.images?.common && (
-                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
-                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
-                  </a>
-                )}
-                <h3>{item.subject.name_cn || item.subject.name}</h3>
-                {item.subject.date && <p>{item.subject.date}</p>}
-              </div>
-            ))}
-          </div>
-        )
-      }
-    </div>
-
-    <!-- 看过 -->
-    <div id="watched" class="section">
-      {
-        watched.length === 0 ? (
-          <p>目前没有看过的番剧</p>
-        ) : (
-          <div class="grid">
-            {watched.map((item) => (
-              <div class="card">
-                {item.subject.images?.common && (
-                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
-                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
-                  </a>
-                )}
-                <h3>{item.subject.name_cn || item.subject.name}</h3>
-                {item.subject.date && <p>{item.subject.date}</p>}
-              </div>
-            ))}
-          </div>
-        )
-      }
-    </div>
-
-    <!-- 标签切换脚本 -->
-    <script type="module">
-      function showTab(tabId) {
-        // 切换 section
-        const section = document.getElementById(tabId);
-        if (section) {
-          document.querySelectorAll(".section").forEach((sec) => sec.classList.remove("active"));
-          section.classList.add("active");
+            ))
+          )
         }
+      </div>
 
-        // 切换按钮状态
-        const btn = document.querySelector(`[data-tab="${tabId}"]`);
+      <div id="content-wish" class="grid" style="display:none;">
+        {
+          wish.length === 0 ? (
+            <p>目前没有想看的番剧</p>
+          ) : (
+            wish.map((item) => (
+              <div class="card" data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}>
+                {item.subject.images?.common && (
+                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
+                  </a>
+                )}
+                <h3>{item.subject.name_cn || item.subject.name}</h3>
+                {item.subject.date && <p>{item.subject.date}</p>}
+              </div>
+            ))
+          )
+        }
+      </div>
+
+      <div id="content-watched" class="grid" style="display:none;">
+        {
+          watched.length === 0 ? (
+            <p>目前没有看过的番剧</p>
+          ) : (
+            watched.map((item) => (
+              <div class="card" data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}>
+                {item.subject.images?.common && (
+                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank">
+                    <img src={item.subject.images.common} alt={item.subject.name_cn || item.subject.name} />
+                  </a>
+                )}
+                <h3>{item.subject.name_cn || item.subject.name}</h3>
+                {item.subject.date && <p>{item.subject.date}</p>}
+              </div>
+            ))
+          )
+        }
+      </div>
+    </div>
+
+    <!-- 标签切换 + 搜索 JS -->
+    <script>
+      const tabButtons = [
+        document.getElementById("tab-watching"),
+        document.getElementById("tab-wish"),
+        document.getElementById("tab-watched"),
+      ];
+      const tabContents = [
+        document.getElementById("content-watching"),
+        document.getElementById("content-wish"),
+        document.getElementById("content-watched"),
+      ];
+
+      tabButtons.forEach((btn, idx) => {
         if (btn) {
-          document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
+          btn.addEventListener("click", () => {
+            tabButtons.forEach((b) => b && b.classList.remove("active"));
+            btn.classList.add("active");
+            tabContents.forEach((c, i) => c && (c.style.display = i === idx ? "" : "none"));
+            filterCards(); // 切换标签时也触发搜索过滤
+          });
         }
+      });
+
+      const searchInput = document.getElementById("search") as HTMLInputElement | null;
+      if (searchInput) {
+        searchInput.addEventListener("input", filterCards);
+      }
+
+      function filterCards() {
+        const term = searchInput ? searchInput.value.toLowerCase() : "";
+        const activeContent = tabContents.find((c) => c && c.style.display !== "none");
+        if (!activeContent) return;
+        const cards = activeContent.querySelectorAll(".card");
+        cards.forEach((card) => {
+          const name = (card as HTMLElement).dataset.name || "";
+          (card as HTMLElement).style.display = name.includes(term) ? "" : "none";
+        });
       }
     </script>
   </body>
