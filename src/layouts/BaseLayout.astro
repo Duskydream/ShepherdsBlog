@@ -55,7 +55,7 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
 
     <!-- Banner 头图，占满屏幕 -->
     <Banner
-      src="/images/Monet.JPG"
+      src="https://pic1.imgdb.cn/item/68d4113ac5157e1a882d2490.jpg"
       alt="博客头图"
       title="Shepherd's Blog"
       subtitle="C'est Mon Panache!"
@@ -63,11 +63,11 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     />
 
     <!-- 主体内容，半透明覆盖 Banner -->
-   <div class="relative max-w-6xl mx-auto w-full -mt-32 z-20 px-4">
+   <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
   <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
-    <div class="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
       <!-- 主内容 -->
-      <main class="col-span-1 md:col-span-4 lg:col-span-3 flex flex-col gap-4">
+      <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
         <slot />
       </main>
 
@@ -80,6 +80,7 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     <Footer />
   </div>
 </div>
+
 
 
     <!-- 移动端 TOC -->

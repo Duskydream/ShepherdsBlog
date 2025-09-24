@@ -1,79 +1,117 @@
 ---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MainCard from "@/components/MainCard.astro";
+import { Icon } from "astro-icon/components";
+
 type Subject = {
   id: number;
   name: string;
   name_cn?: string;
   date?: string;
-  images?: {
-    common?: string;
-  };
+  images?: { common?: string };
 };
+type WatchingItem = { subject: Subject };
 
-type WatchingItem = {
-  subject: Subject;
-};
-
-const username = "851657"; // 建议放到 import.meta.env.PUBLIC_BGM_USER
+const username = "851657";
 const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
+
+// 获取番剧列表
+async function fetchCollection(type: number) {
+  let page = 1;
+  const limit = 30;
+  let allData: any[] = [];
+  try {
+    while (true) {
+      const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page - 1) * limit}`, {
+        headers: { "User-Agent": "AstroBlog/1.0 (https://yourblog.com)" }
+      });
+      if (!res.ok) break;
+      const data = await res.json();
+      if (!data.data || data.data.length === 0) break;
+      allData = allData.concat(data.data);
+      if (data.data.length < limit) break;
+      page++;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return allData;
+}
+
+const watching = await fetchCollection(3);
+const wish = await fetchCollection(1);
+const watched = await fetchCollection(2);
 ---
 
-<html lang="zh">
-  <head>
-    <meta charset="UTF-8" />
-    <title>我的追番</title>
-  </head>
-  <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+<BaseLayout title="我的追番">
+  <MainCard
+    title="我的追番"
+    description="追番记录"
+    textOverlay="Anime"
+    infoIcon="lucide:tv"
+  >
+    <div class="space-y-8 mb-8 max-w-7xl mx-auto px-4">
+      <!-- 搜索 & Tabs -->
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <input
+          type="text"
+          id="search"
+          placeholder="搜索番剧..."
+          class="px-4 py-2 w-full md:w-64 rounded-full border border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none transition"
+        />
+        <div class="flex gap-2">
+          <button data-tab="watching" class="tab-btn px-4 py-2 rounded-full bg-blue-600 text-white font-semibold shadow">在看</button>
+          <button data-tab="wish" class="tab-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold">想看</button>
+          <button data-tab="watched" class="tab-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold">看过</button>
+        </div>
+      </div>
 
-    <!-- 标题 -->
-    <h1 class="text-3xl font-bold text-center mt-8">📺 我的追番</h1>
-
-    <!-- 返回主页按钮 -->
-    <a href="/"
-       class="block mx-auto mt-4 mb-6 px-4 py-2 bg-blue-600 text-white rounded-full text-center font-semibold hover:bg-blue-700 transition-colors duration-200">
-       返回主页
-    </a>
-
-    <!-- 搜索框 -->
-    <input type="text" id="search" placeholder="搜索番剧..."
-           class="block mx-auto mb-6 px-4 py-2 w-11/12 max-w-sm rounded-full border border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none transition" />
-
-    <!-- Tabs -->
-    <div class="flex justify-center gap-4 mb-6">
-      <button id="tab-watching" class="px-4 py-2 rounded-full bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition">在看</button>
-      <button id="tab-wish" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition">想看</button>
-      <button id="tab-watched" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition">看过</button>
-    </div>
-
-    <!-- 内容容器 -->
-    <div id="tab-content">
-      <div id="content-watching" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto"><p>加载中…</p></div>
-      <div id="content-wish" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto hidden"><p>加载中…</p></div>
-      <div id="content-watched" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 px-4 max-w-7xl mx-auto hidden"><p>加载中…</p></div>
+      <!-- Tabs 内容容器，统一栅格 -->
+      {["watching", "wish", "watched"].map(tab => (
+        <div
+          id={`content-${tab}`}
+          class={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 ${tab !== "watching" ? "hidden" : ""}`}
+        >
+          {(tab === "watching" ? watching : tab === "wish" ? wish : watched).map(item => (
+            <div class="card bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center" data-name={(item.subject.name_cn||item.subject.name).toLowerCase()}>
+              {item.subject.images?.common && (
+                <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={item.subject.images.common}
+                    alt={item.subject.name_cn||item.subject.name}
+                    class="w-full h-48 md:h-56 lg:h-60 object-cover rounded-t-xl"
+                    loading="lazy"
+                  />
+                </a>
+              )}
+              <h3 class="mt-2 text-sm font-medium truncate px-2">{item.subject.name_cn || item.subject.name}</h3>
+              {item.subject.date && <p class="text-xs text-gray-500 mb-2">{item.subject.date}</p>}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
 
     <script type="module">
-      const tabButtons = [
-        document.getElementById("tab-watching"),
-        document.getElementById("tab-wish"),
-        document.getElementById("tab-watched"),
-      ];
-      const tabContents = [
+      const tabs = document.querySelectorAll(".tab-btn");
+      const contents = [
         document.getElementById("content-watching"),
         document.getElementById("content-wish"),
-        document.getElementById("content-watched"),
+        document.getElementById("content-watched")
       ];
       const searchInput = document.getElementById("search");
 
       // Tabs 切换
-      tabButtons.forEach((btn, idx) => {
+      tabs.forEach(btn => {
         btn.addEventListener("click", () => {
-          tabButtons.forEach((b,i) => {
-            b.classList.remove("bg-blue-600","text-white","shadow");
-            b.classList.add("bg-gray-200","text-gray-700");
-          });
+          const target = btn.dataset.tab;
+          tabs.forEach(b => b.classList.remove("bg-blue-600","text-white","shadow"));
+          tabs.forEach(b => b.classList.add("bg-gray-200","text-gray-700"));
           btn.classList.add("bg-blue-600","text-white","shadow");
-          btn.classList.remove("bg-gray-200","text-gray-700");
-          tabContents.forEach((c,i)=> c.classList.toggle("hidden", i!==idx));
+          contents.forEach(c => c.classList.add("hidden"));
+          if(target === "watching") contents[0].classList.remove("hidden");
+          if(target === "wish") contents[1].classList.remove("hidden");
+          if(target === "watched") contents[2].classList.remove("hidden");
           filterCards();
         });
       });
@@ -82,70 +120,11 @@ const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
       searchInput.addEventListener("input", filterCards);
       function filterCards() {
         const term = searchInput.value.toLowerCase();
-        const activeContent = tabContents.find(c => !c.classList.contains("hidden"));
+        const activeContent = contents.find(c => !c.classList.contains("hidden"));
         if(!activeContent) return;
         const cards = activeContent.querySelectorAll(".card");
-        cards.forEach(card => {
-          const name = card.dataset.name || "";
-          card.classList.toggle("hidden", !name.includes(term));
-        });
+        cards.forEach(card => card.classList.toggle("hidden", !(card.dataset.name||"").includes(term)));
       }
-
-      // API 获取
-      async function fetchCollectionJS(type) {
-        const username = "851657";
-        const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
-        let page = 1;
-        const limit = 30;
-        let allData = [];
-        try {
-          while(true){
-            const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page-1)*limit}`, {
-              headers: {"User-Agent":"AstroBlog/1.0 (https://yourblog.com)"}
-            });
-            if(!res.ok) break;
-            const data = await res.json();
-            if(!data.data || data.data.length===0) break;
-            allData = allData.concat(data.data);
-            if(data.data.length<limit) break;
-            page++;
-          }
-        } catch(e){ console.error(e) }
-        return allData;
-      }
-
-      // 渲染卡片
-      function renderCards(container, items, emptyText) {
-        if(!container) return;
-        if(!items || items.length===0){
-          container.innerHTML = `<p class="col-span-full text-center text-gray-500">${emptyText}</p>`;
-          return;
-        }
-        container.innerHTML = items.map(item=>`
-          <div class="card bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center" 
-               data-name="${(item.subject.name_cn||item.subject.name).toLowerCase()}">
-            ${item.subject.images?.common ? `<a href="https://bgm.tv/subject/${item.subject.id}" target="_blank">
-              <img src="${item.subject.images.common}" alt="${item.subject.name_cn||item.subject.name}" class="w-full aspect-[3/4] object-cover"/>
-            </a>` : ""}
-            <h3 class="mt-2 text-sm font-medium truncate px-2">${item.subject.name_cn||item.subject.name}</h3>
-            ${item.subject.date ? `<p class="text-xs text-gray-500 mb-2">${item.subject.date}</p>` : ""}
-          </div>
-        `).join("");
-      }
-
-      async function init() {
-        const [watching, wish, watched] = await Promise.all([
-          fetchCollectionJS(3),
-          fetchCollectionJS(1),
-          fetchCollectionJS(2)
-        ]);
-        renderCards(tabContents[0], watching, "目前没有在看的番剧");
-        renderCards(tabContents[1], wish, "目前没有想看的番剧");
-        renderCards(tabContents[2], watched, "目前没有看过的番剧");
-        filterCards();
-      }
-
-      init();
     </script>
-  </body>
-</html>
+  </MainCard>
+</BaseLayout>
