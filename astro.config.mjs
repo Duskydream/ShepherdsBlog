@@ -29,26 +29,38 @@ export default defineConfig({
     },
   },
 
-  integrations: [updateConfig(), expressiveCode({
-    themes: [CODE_THEME],
-    styleOverrides: {
-      borderRadius: "0.75rem",
-    },
-  }), mdx(), icon(), terser({
-    compress: true,
-    mangle: true,
-  }), sitemap(), tailwind({
-    configFile: "./tailwind.config.mjs",
-  }), playformCompress()],
+  integrations: [
+    updateConfig(),
+    expressiveCode({
+      themes: [CODE_THEME],
+      styleOverrides: {
+        borderRadius: "0.75rem",
+      },
+    }),
+    mdx(),
+    icon(),
+    terser({
+      compress: true,
+      mangle: true,
+    }),
+    sitemap(),
+    tailwind({
+      configFile: "./tailwind.config.mjs",
+    }),
+    playformCompress(),
+  ],
 
   markdown: {
     remarkPlugins: [remarkMath, remarkReadingTime],
-    rehypePlugins: [rehypeKatex, [
-      rehypeExternalLinks,
-      {
-        content: { type: "text", value: "↗" },
-      },
-    ]],
+    rehypePlugins: [
+      rehypeKatex,
+      [
+        rehypeExternalLinks,
+        {
+          content: { type: "text", value: "↗" },
+        },
+      ],
+    ],
   },
 
   vite: {
@@ -62,9 +74,8 @@ export default defineConfig({
   },
 
   adapter: vercel(),
-  // ... 其他配置
+
   redirects: {
-    // 将旧的 /about 路径永久重定向到新的根路径 /
     "/about": "/",
   },
 });

@@ -1,0 +1,51 @@
+---
+
+---
+
+<div id="comments" class="mt-12">
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="Duskydream/ShepherdsBlog"
+    data-repo-id="R_kgDOP0om7Q"
+    data-category="General"
+    data-category-id="DIC_kwDOP0om7c4Cv4dH"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light_tritanopia"
+    data-lang="zh-CN"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async></script>
+  <noscript>请开启 JavaScript 以查看评论。</noscript>
+</div>
+
+<!-- 自动根据 html[data-theme-type] 切换 giscus -->
+<script is:inline>
+  document.addEventListener("astro:page-load", () => {
+    const iframe = document.querySelector("iframe.giscus-frame");
+    if (!iframe) return;
+
+    const setGiscusTheme = (theme) => {
+      iframe.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, "https://giscus.app");
+    };
+
+    // 根据 html 的 data-theme-type 设置初始值
+    const html = document.documentElement;
+    const themeType = html.getAttribute("data-theme-type");
+    setGiscusTheme(themeType === "dark" ? "dark" : "light");
+
+    // 监听属性变化（当你切换主题时，html[data-theme-type] 会变化）
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((m) => {
+        if (m.attributeName === "data-theme-type") {
+          const newTheme = html.getAttribute("data-theme-type");
+          setGiscusTheme(newTheme === "dark" ? "dark" : "light");
+        }
+      });
+    });
+    observer.observe(html, { attributes: true });
+  });
+</script>

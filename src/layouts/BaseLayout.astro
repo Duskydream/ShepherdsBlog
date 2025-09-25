@@ -8,9 +8,18 @@ import Sidebar from "@components/Sidebar.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import MobileTOC from "@components/widgets/MobileTOC.astro";
-import Banner from '../components/Banner.astro';
+import Banner from "../components/Banner.astro";
+import Giscus from "@components/Giscus.astro"; // 评论组件
 
-const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = false, isIndexed = true } = Astro.props;
+const {
+  title,
+  image,
+  description = SITE_DESCRIPTION,
+  headings = [],
+  showTOC = false,
+  isIndexed = true,
+  isPost = false, // 文章页传 true 显示评论
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -20,8 +29,9 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     <ElementCrossing />
     <PointerOnNavigation />
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} />
-    <title>{`${title} - ${SITE_TAB}`}</title>
+    <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
+    <!-- 主题初始化 -->
     <script define:vars={{ SITE_THEME }} is:inline>
       (function () {
         const storedTheme = localStorage.getItem("theme");
@@ -36,12 +46,12 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
         document.documentElement.setAttribute("data-theme", theme);
         const themeType = theme === SITE_THEME.dark ? "dark" : "light";
         document.documentElement.setAttribute("data-theme-type", themeType);
+
         window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
           if (!localStorage.getItem("theme")) {
             const newTheme = e.matches ? SITE_THEME.dark : SITE_THEME.light;
             document.documentElement.setAttribute("data-theme", newTheme);
-            const newThemeType = e.matches ? "dark" : "light";
-            document.documentElement.setAttribute("data-theme-type", newThemeType);
+            document.documentElement.setAttribute("data-theme-type", e.matches ? "dark" : "light");
             localStorage.setItem("theme", newTheme);
           }
         });
@@ -53,52 +63,51 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     <!-- 导航栏 -->
     <Navbar />
 
-    <!-- Banner 头图，占满屏幕 -->
+    <!-- Banner -->
     <Banner
       src="https://pic1.imgdb.cn/item/68d4113ac5157e1a882d2490.jpg"
       alt="博客头图"
       title="Shepherd's Blog"
-      subtitle="C'est Mon Panache!"
+      subtitle="C'est mon Panache!"
       class="h-screen"
     />
 
-    <!-- 主体内容，半透明覆盖 Banner -->
-   <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
-  <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
-    <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
-      <!-- 主内容 -->
-      <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
-        <slot />
-      </main>
+    <!-- 主体内容 -->
+    <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
+      <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
+        <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
+          <!-- 主内容 -->
+          <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
+            <slot />
+            {isPost && <Giscus />}
+            <!-- 文章页显示评论 -->
+          </main>
 
-      <!-- 侧边栏 -->
-      <aside class="col-span-1">
-        <Sidebar headings={headings} showTOC={showTOC} />
-        <slot name="sidebar" />
-      </aside>
+          <!-- 侧边栏 -->
+          <aside class="col-span-1">
+            <Sidebar headings={headings} showTOC={showTOC} />
+            <slot name="sidebar" />
+          </aside>
+        </div>
+      </div>
+      <Footer />
     </div>
-    </div>
-    <Footer />
-</div>
-
-
 
     <!-- 移动端 TOC -->
     <MobileTOC headings={headings} showTOC={showTOC} />
 
-    <!-- 保持主题切换同步 -->
+    <!-- 主题同步 -->
     <script define:vars={{ SITE_THEME }} is:inline>
       document.addEventListener("astro:after-swap", () => {
         const storedTheme = localStorage.getItem("theme");
         if (storedTheme) {
           document.documentElement.setAttribute("data-theme", storedTheme);
-          const themeType = storedTheme === SITE_THEME.dark ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme-type", themeType);
+          document.documentElement.setAttribute("data-theme-type", storedTheme === SITE_THEME.dark ? "dark" : "light");
         }
       });
     </script>
 
-    <!-- 代码复制按钮脚本 -->
+    <!-- 代码复制按钮 -->
     <script is:inline>
       document.addEventListener("astro:page-load", () => {
         document.querySelectorAll(".btn-copy").forEach((button) => {
@@ -126,10 +135,27 @@ const { title, image, description = SITE_DESCRIPTION, headings = [], showTOC = f
     </script>
 
     <style is:inline>
-      .btn-copy { position: relative; overflow: hidden; }
-      .copy-success { animation: pulse 0.5s ease-in-out; }
-      .frosti-code-toolbar-copy-success svg { color: #10b981; }
-      @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+      .btn-copy {
+        position: relative;
+        overflow: hidden;
+      }
+      .copy-success {
+        animation: pulse 0.5s ease-in-out;
+      }
+      .frosti-code-toolbar-copy-success svg {
+        color: #10b981;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
     </style>
   </body>
 </html>
