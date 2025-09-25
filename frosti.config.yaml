@@ -4,7 +4,7 @@ site:
   title: 💠 Shepherd's Blog # 网站的标题
   description: My blog # 网站的描述，用于SEO等
   language: zh # 网站的语言，例如 "en" 是英文
-  favicon: /favicon.ico # 网站的图标，用于浏览器标签栏和其他地方显示
+  favicon: https://pic1.imgdb.cn/item/68d4a75dc5157e1a882dbf13.svg # 网站的图标，用于浏览器标签栏和其他地方显示
   theme: # 更多主题 https://daisyui.com/docs/themes/
     light: winter # 主题的浅色模式
     dark: dracula # 主题的深色模式
@@ -49,27 +49,44 @@ site:
     # text: Project
     # href: /project
     # svg: "material-symbols:code-blocks-outline"
-    # target: _self
+    - id: log
+      text: Log
+      href: /log
+      svg: "material-symbols:calendar-clock-outline-rounded"
+      target: _self
     - id: friend
       text: Friends
       href: /friend
       svg: "material-symbols:supervisor-account-outline-rounded"
+      target: _self 
+    - id: my
+      text: My
+      href: /my
       target: _self
-    - id: anime
-      text: Anime
-      href: /anime
+      svg: "material-symbols:person-outline-rounded"
+      subItems:
+        - id: anime
+          text: Anime
+          href: /anime
+          target: _self
+          svg: "material-symbols:live-tv-rounded"
+        - id: music
+          text: Music
+          href: /music
+          target: _self
+          svg: "material-symbols:music-note-rounded"
+          
+    - id: link
+      text: Links
+      href: /link
       target: _self
-      svg: "material-symbols:live-tv-rounded"
-    - id: music
-      text: Music
-      href: /music
-      target: _self
-      svg: "material-symbols:music-note-rounded"
-    - id: contact
-      text: Contact
-      href: "mailto:contact.lxzm1211@outlook.com"
-      target: _blank # 在新标签页打开
-      svg: "material-symbols:attach-email-outline-rounded"
+      svg: "material-symbols:add-link"
+      subItems:
+        - id: ChatGPT
+          text: ChatGPT
+          href: https://chatgpt.com/
+          target: _blank
+          svg: "material-symbols:smart-toy"
 
 # 用户的个人信息
 user:
