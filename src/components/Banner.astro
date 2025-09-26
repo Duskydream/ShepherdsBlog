@@ -1,5 +1,5 @@
 ---
-const { src, alt = '', title = '', subtitle = '', class: extraClass = '' } = Astro.props;
+const { src, alt = "", title = "", subtitle = "", class: extraClass = "" } = Astro.props;
 ---
 
 <section class={`banner relative w-full flex items-center justify-center text-center overflow-hidden ${extraClass}`}>
@@ -11,8 +11,75 @@ const { src, alt = '', title = '', subtitle = '', class: extraClass = '' } = Ast
 
   <!-- Banner 文字 -->
   <div class="relative z-10 text-white px-4">
-    <h1 class="text-3xl md:text-5xl font-bold">{title}</h1>
-    {subtitle && <p class="mt-2 text-lg md:text-2xl">{subtitle}</p>}
+    <h1 id="banner-title" class="text-3xl md:text-5xl font-bold" data-title={title}>{title}</h1>
+    {
+      subtitle && (
+        <p id="banner-subtitle" class="mt-2 text-lg md:text-2xl" data-subtitle={subtitle}>
+          {subtitle}
+        </p>
+      )
+    }
   </div>
 </section>
 
+<!-- 在服务器端生成内联脚本，传递props值给客户端 -->
+  <script define:vars={{ title, subtitle }}>
+    // 传递标题和副标题文本到客户端JavaScript
+    window.bannerData = {
+      title: title,
+      subtitle: subtitle
+    };
+  </script>
+
+<style>
+  .cursor::after {
+    content: "|";
+    display: inline-block;
+    margin-left: 2px;
+    animation: blink 0.7s step-end infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  // 打字机效果是可选的，我们保留原始内容作为后备
+  if (typeof document !== "undefined" && "bannerData" in window) {
+    setTimeout(() => {
+      const bannerData = (window as any).bannerData || {};
+      const titleText = bannerData.title || "";
+      const subtitleText = (window as any).bannerData?.subtitle || "";
+
+      function typeWriter(element: HTMLElement, text: string, speed: number = 100, callback?: () => void) {
+        let i = 0;
+        element.classList.add("cursor");
+
+        function typing() {
+          if (i < text.length) {
+            element.innerHTML = text.substring(0, i + 1);
+            i++;
+            setTimeout(typing, speed);
+          } else {
+            element.classList.remove("cursor");
+            if (callback) callback();
+          }
+        }
+
+        // 清空元素内容以开始打字机效果
+        element.innerHTML = "";
+        typing();
+      }
+
+      const titleEl = document.getElementById("banner-title");
+      const subtitleEl = document.getElementById("banner-subtitle");
+
+      if (titleEl)
+        typeWriter(titleEl, titleText, 100, () => {
+          if (subtitleEl && subtitleText) typeWriter(subtitleEl, subtitleText, 80);
+        });
+    }, 300); // 增加一点延迟，确保DOM已经加载
+  }
+</script>

@@ -1,13 +1,13 @@
 # 网站的基本信息
 site:
   tab: Shepherd's Blog 櫻の森の上を舞う # 浏览器标签栏上显示的文本
-  title: 💠 Shepherd's Blog # 网站的标题
+  title: Shepherd's Blog # 网站的标题
   description: My blog # 网站的描述，用于SEO等
   language: zh # 网站的语言，例如 "en" 是英文
   favicon: https://pic1.imgdb.cn/item/68d4a75dc5157e1a882dbf13.svg # 网站的图标，用于浏览器标签栏和其他地方显示
   theme: # 更多主题 https://daisyui.com/docs/themes/
-    light: winter # 主题的浅色模式
-    dark: aqua # 主题的深色模式
+    light: lofi # 主题的浅色模式
+    dark: night # 主题的深色模式
     code: github-dark # 代码块的主题 https://expressive-code.com/guides/themes/
   date_format: ddd MMM DD YYYY # 日期格式设置，支持自定义格式
   blog: # 博客相关配置
