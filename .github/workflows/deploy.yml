@@ -25,6 +25,7 @@ jobs:
       # 3. 安装 pnpm 并依赖
       - name: Install dependencies
         run: |
+          npm install -g pnpm
           corepack enable
           corepack prepare pnpm@latest --activate
           pnpm install
@@ -42,6 +43,3 @@ jobs:
           publish_branch: gh-pages
           user_name: github-actions
           user_email: actions@github.com
-
-      - name: Check pnpm path
-        run: which pnpm  # 检查 pnpm 是否可以在 PATH 中找到
