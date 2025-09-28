@@ -1,5 +1,6 @@
 name: Build and Deploy Astro Blog
 
+# 当 push 到 main 分支或手动触发时运行
 on:
   push:
     branches:
@@ -18,22 +19,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # 确认版本与项目兼容
+          node-version: '20'
           cache: 'pnpm'
 
-      # 3. 使用 setup-pnpm 安装 pnpm
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v2
-
-      # 4. 安装依赖
+      # 3. 安装 pnpm 并依赖
       - name: Install dependencies
-        run: pnpm install  # 使用 pnpm 安装项目依赖
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install
 
-      # 5. 构建 Astro
+      # 4. 构建 Astro
       - name: Build Astro site
-        run: pnpm run build  # 使用 pnpm 构建 Astro 项目
+        run: pnpm run build
 
-      # 6. 部署到 gh-pages
+      # 5. 部署到 gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -42,4 +42,3 @@ jobs:
           publish_branch: gh-pages
           user_name: github-actions
           user_email: actions@github.com
-
