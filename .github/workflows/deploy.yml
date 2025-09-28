@@ -42,3 +42,6 @@ jobs:
           publish_branch: gh-pages
           user_name: github-actions
           user_email: actions@github.com
+
+      - name: Check pnpm path
+        run: which pnpm  # 检查 pnpm 是否可以在 PATH 中找到
