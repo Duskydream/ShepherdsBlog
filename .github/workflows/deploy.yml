@@ -22,17 +22,21 @@ jobs:
           node-version: '20'  # 确认版本与项目兼容
           cache: 'pnpm'
 
-      # 3. 安装 pnpm 并依赖
-      - name: Install pnpm and dependencies
+      # 3. 启用 corepack 并使用 pnpm
+      - name: Enable Corepack and use pnpm
         run: |
-          npm install -g pnpm   # 安装 pnpm
-          pnpm install           # 使用 pnpm 安装项目依赖
+          corepack enable  # 启用 corepack
+          corepack prepare pnpm@latest --activate  # 激活 pnpm
 
-      # 4. 构建 Astro
+      # 4. 安装依赖
+      - name: Install dependencies
+        run: pnpm install  # 使用 pnpm 安装项目依赖
+
+      # 5. 构建 Astro
       - name: Build Astro site
-        run: pnpm run build
+        run: pnpm run build  # 使用 pnpm 构建 Astro 项目
 
-      # 5. 部署到 gh-pages
+      # 6. 部署到 gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -41,3 +45,4 @@ jobs:
           publish_branch: gh-pages
           user_name: github-actions
           user_email: actions@github.com
+
