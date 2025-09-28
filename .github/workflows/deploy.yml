@@ -19,15 +19,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20'  # 确认版本与项目兼容
           cache: 'pnpm'
 
       # 3. 安装 pnpm 并依赖
-      - name: Install dependencies
+      - name: Install pnpm and dependencies
         run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
-          pnpm install
+          npm install -g pnpm   # 安装 pnpm
+          pnpm install           # 使用 pnpm 安装项目依赖
 
       # 4. 构建 Astro
       - name: Build Astro site
