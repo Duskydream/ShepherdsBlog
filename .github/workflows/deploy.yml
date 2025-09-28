@@ -1,6 +1,5 @@
 name: Build and Deploy Astro Blog
 
-# 当 push 到 main 分支或手动触发时运行
 on:
   push:
     branches:
@@ -22,11 +21,9 @@ jobs:
           node-version: '20'  # 确认版本与项目兼容
           cache: 'pnpm'
 
-      # 3. 启用 corepack 并使用 pnpm
-      - name: Enable Corepack and use pnpm
-        run: |
-          corepack enable  # 启用 corepack
-          corepack prepare pnpm@latest --activate  # 激活 pnpm
+      # 3. 使用 setup-pnpm 安装 pnpm
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
 
       # 4. 安装依赖
       - name: Install dependencies
