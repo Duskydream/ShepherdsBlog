@@ -13,28 +13,31 @@ jobs:
 
     steps:
       # 1. 检出仓库
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4  # 更新到最新版本以提高性能
 
       # 2. 设置 Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4  # 更新到最新版本
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: '20'  # 保持与你的配置一致
+          cache: 'pnpm'  # 缓存 pnpm 依赖
 
-      # 3. 安装 pnpm 并依赖
+      # 3. 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4  # 使用官方 pnpm 安装动作
+        with:
+          version: latest  # 或指定版本，如 '8.15.0'
+
+      # 4. 安装依赖
       - name: Install dependencies
-        run: |
-          npm install -g pnpm
-          corepack enable
-          corepack prepare pnpm@latest --activate
-          pnpm install
+        run: pnpm install  # 安装项目依赖
 
-      # 4. 构建 Astro
+      # 5. 构建 Astro
       - name: Build Astro site
         run: pnpm run build
 
-      # 5. 部署到 gh-pages
+      # 6. 部署到 gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
