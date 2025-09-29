@@ -19,24 +19,28 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22" # 保持 Node 20，与你的环境一致
-          cache: pnpm # 缓存 pnpm 依赖
+          node-version: 22.18.0 # 明确指定版本，避免缓存导致版本不一致
+          cache: none # 临时禁用缓存以排除问题
 
       # 3. 安装 pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.17.0 # 指定稳定版本，避免 latest 的潜在不稳定
+          version: 10.17.0 # 使用稳定版本
+          run_install: false # 避免自动运行 pnpm install
 
-      # 4. 调试：检查 pnpm 安装
-      - name: Verify pnpm installation
+      # 4. 调试：检查 Node.js 和 pnpm 环境
+      - name: Verify environment
         run: |
-          pnpm --version
+          node --version
+          npm --version
+          pnpm --version || echo "pnpm not found"
           echo "PATH: $PATH"
+          which pnpm || echo "pnpm not in PATH"
 
       # 5. 安装依赖
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile # 使用 lockfile 确保一致性
+        run: pnpm install --frozen-lockfile
 
       # 6. 构建 Astro
       - name: Build Astro site
