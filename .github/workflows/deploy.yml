@@ -11,21 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 检出仓库
-      - uses: actions/checkout@v3
+      # 1. 检出代码
+      - uses: actions/checkout@v4
 
-      # 2. 设置 Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-          cache: pnpm
-
-      # 3. 安装 pnpm
-      - name: Install pnpm
+      # 2. 安装 pnpm（这是关键）
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9 # 或者和你本地版本一致
+          version: 9 # 或者和你本地一致
+
+      # 3. 安装 Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
 
       # 4. 安装依赖
       - name: Install dependencies
@@ -42,5 +42,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          user_name: github-actions
-          user_email: actions@github.com
