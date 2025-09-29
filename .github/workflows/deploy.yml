@@ -13,6 +13,9 @@ jobs:
     steps:
       # 1. 检出代码
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false # 🔑 避免和 peaceiris 冲突
+          fetch-depth: 0 # 🔑 获取完整 git 历史
 
       # 2. 安装 pnpm（这是关键）
       - name: Setup pnpm
