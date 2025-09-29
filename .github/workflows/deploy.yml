@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.18.0 # 明确指定版本，避免缓存导致版本不一致
-          cache: pnpm # 临时禁用缓存以排除问题
+          cache: npm # 临时禁用缓存以排除问题
 
       # 3. 安装 pnpm
       - name: Install pnpm
