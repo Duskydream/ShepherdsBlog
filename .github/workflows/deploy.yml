@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write # 🔑 允许 GITHUB_TOKEN 写入代码库
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
