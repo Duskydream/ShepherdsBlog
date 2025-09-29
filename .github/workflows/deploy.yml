@@ -1,6 +1,5 @@
 name: Build and Deploy Astro Blog
 
-# 当 push 到 main 分支或手动触发时运行
 on:
   push:
     branches:
@@ -14,30 +13,40 @@ jobs:
     steps:
       # 1. 检出仓库
       - name: Checkout code
-        uses: actions/checkout@v4  # 更新到最新版本以提高性能
+        uses: actions/checkout@v4
 
       # 2. 设置 Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4  # 更新到最新版本
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'  # 保持与你的配置一致
-          cache: 'pnpm'  # 缓存 pnpm 依赖
+          node-version: "22" # 保持 Node 20，与你的环境一致
+          cache: pnpm # 缓存 pnpm 依赖
 
       # 3. 安装 pnpm
       - name: Install pnpm
-        uses: pnpm/action-setup@v4  # 使用官方 pnpm 安装动作
+        uses: pnpm/action-setup@v4
         with:
-          version: latest  # 或指定版本，如 '8.15.0'
+          version: 10.17.0 # 指定稳定版本，避免 latest 的潜在不稳定
 
-      # 4. 安装依赖
+      # 4. 调试：检查 pnpm 安装
+      - name: Verify pnpm installation
+        run: |
+          pnpm --version
+          echo "PATH: $PATH"
+
+      # 5. 安装依赖
       - name: Install dependencies
-        run: pnpm install  # 安装项目依赖
+        run: pnpm install --frozen-lockfile # 使用 lockfile 确保一致性
 
-      # 5. 构建 Astro
+      # 6. 构建 Astro
       - name: Build Astro site
         run: pnpm run build
 
-      # 6. 部署到 gh-pages
+      # 7. 调试：检查构建输出
+      - name: Check build output
+        run: ls -la dist
+
+      # 8. 部署到 gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
