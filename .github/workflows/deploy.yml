@@ -19,23 +19,31 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.18.0 # 明确指定版本，避免缓存导致版本不一致
-          cache: npm # 临时禁用缓存以排除问题
+          node-version: 22.18.0 # 明确指定 Node.js 版本
+          cache: pnpm # 使用 pnpm 缓存
+          cache-dependency-path: pnpm-lock.yaml # 精确指定锁文件路径
 
       # 3. 安装 pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.17.0 # 使用稳定版本
-          run_install: false # 避免自动运行 pnpm install
+          run_install: false # 避免自动安装依赖
 
-      # 4. 调试：检查 Node.js 和 pnpm 环境
-      - name: Verify environment
+      # 4. 调试：检查锁文件和环境
+      - name: Verify environment and lock file
         run: |
+          echo "Checking for pnpm-lock.yaml:"
+          ls -la pnpm-lock.yaml || echo "pnpm-lock.yaml not found"
+          echo "Node.js version:"
           node --version
+          echo "npm version:"
           npm --version
+          echo "pnpm version:"
           pnpm --version || echo "pnpm not found"
-          echo "PATH: $PATH"
+          echo "PATH:"
+          echo "$PATH"
+          echo "pnpm location:"
           which pnpm || echo "pnpm not in PATH"
 
       # 5. 安装依赖
