@@ -12,44 +12,30 @@ jobs:
 
     steps:
       # 1. 检出仓库
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       # 2. 设置 Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 20.19.0 # 使用稳定的 Node.js 版本
-          cache: npm # 使用 npm 缓存
-          cache-dependency-path: package-lock.json # 指定锁文件
+          node-version: "20"
+          cache: pnpm
 
-      # 3. 调试：检查环境和锁文件
-      - name: Verify environment and lock file
-        run: |
-          echo "Checking for package-lock.json:"
-          ls -la package-lock.json || echo "package-lock.json not found"
-          echo "Node.js version:"
-          node --version
-          echo "npm version:"
-          npm --version
-          echo "PATH:"
-          echo "$PATH"
-          echo "npm location:"
-          which npm || echo "npm not in PATH"
+      # 3. 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9 # 或者和你本地版本一致
 
       # 4. 安装依赖
       - name: Install dependencies
-        run: npm ci # 使用 npm ci 确保锁文件一致性
+        run: pnpm install --frozen-lockfile
 
       # 5. 构建 Astro
       - name: Build Astro site
-        run: npm run build
+        run: pnpm run build
 
-      # 6. 调试：检查构建输出
-      - name: Check build output
-        run: ls -la dist
-
-      # 7. 部署到 gh-pages
+      # 6. 部署到 gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
