@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MainCard from "@/components/MainCard.astro";
 import { Icon } from "astro-icon/components";
+export const prerender = false;
 
 type Subject = {
   id: number;
@@ -23,7 +24,7 @@ async function fetchCollection(type: number) {
   try {
     while (true) {
       const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page - 1) * limit}`, {
-        headers: { "User-Agent": "AstroBlog/1.0 (https://yourblog.com)" }
+        headers: { "User-Agent": "AstroBlog/1.0 (https://yourblog.com)" },
       });
       if (!res.ok) break;
       const data = await res.json();
@@ -44,12 +45,7 @@ const watched = await fetchCollection(2);
 ---
 
 <BaseLayout title="我的追番">
-  <MainCard
-    title="Anime"
-    description="追番记录"
-    textOverlay="Anime"
-    infoIcon="lucide:tv"
-  >
+  <MainCard title="Anime" description="追番记录" textOverlay="Anime" infoIcon="lucide:tv">
     <div class="space-y-8 mb-8 max-w-7xl mx-auto px-4">
       <!-- 搜索 & Tabs -->
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -60,36 +56,47 @@ const watched = await fetchCollection(2);
           class="px-4 py-2 w-full md:w-64 rounded-full border border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none transition"
         />
         <div class="flex gap-2">
-          <button data-tab="watching" class="tab-btn px-4 py-2 rounded-full bg-blue-600 text-white font-semibold shadow">在看</button>
-          <button data-tab="wish" class="tab-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold">想看</button>
-          <button data-tab="watched" class="tab-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold">看过</button>
+          <button data-tab="watching" class="tab-btn px-4 py-2 rounded-full bg-blue-600 text-white font-semibold shadow"
+            >在看</button
+          >
+          <button data-tab="wish" class="tab-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold"
+            >想看</button
+          >
+          <button data-tab="watched" class="tab-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold"
+            >看过</button
+          >
         </div>
       </div>
 
       <!-- Tabs 内容容器，统一栅格 -->
-      {["watching", "wish", "watched"].map(tab => (
-        <div
-          id={`content-${tab}`}
-          class={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 ${tab !== "watching" ? "hidden" : ""}`}
-        >
-          {(tab === "watching" ? watching : tab === "wish" ? wish : watched).map(item => (
-            <div class="card bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center" data-name={(item.subject.name_cn||item.subject.name).toLowerCase()}>
-              {item.subject.images?.common && (
-                <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank" rel="noopener noreferrer">
-                  <img
-                    src={item.subject.images.common}
-                    alt={item.subject.name_cn||item.subject.name}
-                    class="w-full h-48 md:h-56 lg:h-60 object-cover rounded-t-xl"
-                    loading="lazy"
-                  />
-                </a>
-              )}
-              <h3 class="mt-2 text-sm font-medium truncate px-2">{item.subject.name_cn || item.subject.name}</h3>
-              {item.subject.date && <p class="text-xs text-gray-500 mb-2">{item.subject.date}</p>}
-            </div>
-          ))}
-        </div>
-      ))}
+      {
+        ["watching", "wish", "watched"].map((tab) => (
+          <div
+            id={`content-${tab}`}
+            class={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 ${tab !== "watching" ? "hidden" : ""}`}
+          >
+            {(tab === "watching" ? watching : tab === "wish" ? wish : watched).map((item) => (
+              <div
+                class="card bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center"
+                data-name={(item.subject.name_cn || item.subject.name).toLowerCase()}
+              >
+                {item.subject.images?.common && (
+                  <a href={`https://bgm.tv/subject/${item.subject.id}`} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={item.subject.images.common}
+                      alt={item.subject.name_cn || item.subject.name}
+                      class="w-full h-48 md:h-56 lg:h-60 object-cover rounded-t-xl"
+                      loading="lazy"
+                    />
+                  </a>
+                )}
+                <h3 class="mt-2 text-sm font-medium truncate px-2">{item.subject.name_cn || item.subject.name}</h3>
+                {item.subject.date && <p class="text-xs text-gray-500 mb-2">{item.subject.date}</p>}
+              </div>
+            ))}
+          </div>
+        ))
+      }
     </div>
 
     <script type="module">
@@ -97,21 +104,21 @@ const watched = await fetchCollection(2);
       const contents = [
         document.getElementById("content-watching"),
         document.getElementById("content-wish"),
-        document.getElementById("content-watched")
+        document.getElementById("content-watched"),
       ];
       const searchInput = document.getElementById("search");
 
       // Tabs 切换
-      tabs.forEach(btn => {
+      tabs.forEach((btn) => {
         btn.addEventListener("click", () => {
           const target = btn.dataset.tab;
-          tabs.forEach(b => b.classList.remove("bg-blue-600","text-white","shadow"));
-          tabs.forEach(b => b.classList.add("bg-gray-200","text-gray-700"));
-          btn.classList.add("bg-blue-600","text-white","shadow");
-          contents.forEach(c => c.classList.add("hidden"));
-          if(target === "watching") contents[0].classList.remove("hidden");
-          if(target === "wish") contents[1].classList.remove("hidden");
-          if(target === "watched") contents[2].classList.remove("hidden");
+          tabs.forEach((b) => b.classList.remove("bg-blue-600", "text-white", "shadow"));
+          tabs.forEach((b) => b.classList.add("bg-gray-200", "text-gray-700"));
+          btn.classList.add("bg-blue-600", "text-white", "shadow");
+          contents.forEach((c) => c.classList.add("hidden"));
+          if (target === "watching") contents[0].classList.remove("hidden");
+          if (target === "wish") contents[1].classList.remove("hidden");
+          if (target === "watched") contents[2].classList.remove("hidden");
           filterCards();
         });
       });
@@ -120,10 +127,10 @@ const watched = await fetchCollection(2);
       searchInput.addEventListener("input", filterCards);
       function filterCards() {
         const term = searchInput.value.toLowerCase();
-        const activeContent = contents.find(c => !c.classList.contains("hidden"));
-        if(!activeContent) return;
+        const activeContent = contents.find((c) => !c.classList.contains("hidden"));
+        if (!activeContent) return;
         const cards = activeContent.querySelectorAll(".card");
-        cards.forEach(card => card.classList.toggle("hidden", !(card.dataset.name||"").includes(term)));
+        cards.forEach((card) => card.classList.toggle("hidden", !(card.dataset.name || "").includes(term)));
       }
     </script>
   </MainCard>
