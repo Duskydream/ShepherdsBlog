@@ -18,7 +18,7 @@ const {
   headings = [],
   showTOC = false,
   isIndexed = true,
-  isPost = false, // 文章页传 true 显示评论
+  isPost = false,
 } = Astro.props;
 ---
 
@@ -60,37 +60,41 @@ const {
   </head>
 
   <body class="flex flex-col min-h-screen" {...isIndexed ? { "data-pagefind-body": true } : {}}>
-    <!-- 导航栏 -->
+    <!-- 顶部导航栏 -->
     <Navbar />
 
     <!-- Banner -->
-    <Banner
-      src="https://pic1.imgdb.cn/item/68d67d17c5157e1a88385aa2.jpg"
-      alt="博客头图"
-      title="Shepherd's Blog"
-      subtitle="C'est mon Panache!"
-      class="h-screen"
-    />
-
-    <!-- 渐变遮罩层，使Banner和主体内容过渡自然 -->
-    <div
-      class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-white dark:from-gray-900 to-transparent z-10 pointer-events-none"
-    >
+    <div class="relative h-[70vh] md:h-[90vh] w-full">
+      <Banner
+        src="https://pic1.imgdb.cn/item/68d67d17c5157e1a88385aa2.jpg"
+        alt="博客头图"
+        title="Shepherd's Blog"
+        subtitle="C'est mon Panache!"
+        class="h-full w-full object-cover"
+      />
+      <!-- 暗色渐变覆盖层 -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent"></div>
+      <!-- 渐变过渡到主体 -->
+      <div
+        class="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-white dark:from-gray-900 via-white/70 dark:via-gray-900/70 to-transparent z-10"
+      >
+      </div>
     </div>
 
     <!-- 主体内容 -->
-    <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
-      <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
-        <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
+    <div class="relative max-w-7xl mx-auto w-full -mt-40 z-20 px-4">
+      <div
+        class="bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 md:p-12 shadow-xl dark:shadow-gray-900/50"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-6 lg:gap-8">
           <!-- 主内容 -->
-          <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
+          <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-6 prose prose-lg dark:prose-invert">
             <slot />
             {isPost && <Giscus />}
-            <!-- 文章页显示评论 -->
           </main>
 
           <!-- 侧边栏 -->
-          <aside class="col-span-1">
+          <aside class="col-span-1 lg:sticky lg:top-24 space-y-6">
             <Sidebar headings={headings} showTOC={showTOC} />
             <slot name="sidebar" />
           </aside>
