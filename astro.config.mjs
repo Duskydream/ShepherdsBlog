@@ -21,7 +21,8 @@ import { remarkReadingTime } from "./src/plugins/remark-reading-time";
 // https://astro.build/config
 export default defineConfig({
   site: USER_SITE,
-  output: "static",
+  output: "server",
+  adapter: vercel(),
 
   style: {
     scss: {
@@ -72,8 +73,6 @@ export default defineConfig({
       },
     },
   },
-
-  adapter: vercel(),
 
   redirects: {
     "/about": "/",
