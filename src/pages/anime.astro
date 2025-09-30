@@ -132,29 +132,5 @@ const watched = await fetchCollection(2);
         cards.forEach((card) => card.classList.toggle("hidden", !(card.dataset.name || "").includes(term)));
       }
     </script>
-
-    --- --- // 在页面中引入 JS
-    <script>
-      async function loadBangumi() {
-        const res = await fetch("https://api.bgm.tv/v0/users/yourname/collections?type=watching");
-        const data = await res.json();
-
-        const container = document.querySelector("#bangumi-list");
-        container.innerHTML = data.data
-          .map(
-            (item) => `
-      <div>
-        <img src="${item.subject.images.medium}" alt="${item.subject.name}" />
-        <p>${item.subject.name}</p>
-      </div>
-    `,
-          )
-          .join("");
-      }
-
-      loadBangumi();
-    </script>
-
-    <div id="bangumi-list">加载中...</div>
   </MainCard>
 </BaseLayout>
