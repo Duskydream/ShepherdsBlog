@@ -1,0 +1,52 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MainCard from "@/components/MainCard.astro";
+import { Icon } from "astro-icon/components";
+
+export async function getStaticPaths() {
+  const { getCollection } = await import("astro:content");
+  const logs = await getCollection("log");
+  return logs.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<BaseLayout title={entry.data.title} isPost={true}>
+  <MainCard
+    title={entry.data.title}
+    description={entry.data.date.toISOString().slice(0, 10)}
+    textOverlay="LOG"
+    infoIcon="lucide:book-open"
+  >
+    <div class="space-y-6">
+      <!-- 标题 -->
+      <section>
+        <h1 class="text-3xl font-bold mb-2">{entry.data.title}</h1>
+        <p class="text-base-content/60 flex items-center gap-2">
+          <Icon name="lucide:calendar" class="w-4 h-4" />
+          {entry.data.date.toISOString().slice(0, 10)}
+        </p>
+      </section>
+
+      <!-- 正文 -->
+      <section>
+        <article class="prose max-w-none text-base-content/80">
+          <Content />
+        </article>
+      </section>
+
+      <!-- 返回列表 -->
+      <section>
+        <a href="/log/" class="btn btn-sm btn-outline gap-2">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          返回日志列表
+        </a>
+      </section>
+    </div>
+  </MainCard>
+</BaseLayout>
