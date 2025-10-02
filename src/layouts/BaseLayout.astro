@@ -63,105 +63,104 @@ const {
     <!-- 导航栏 -->
     <Navbar />
 
-    <!-- Banner -->
-    <Banner
-      src="https://pic1.imgdb.cn/item/68d67d17c5157e1a88385aa2.jpg"
-      alt="博客头图"
-      title="Shepherd's Blog"
-      subtitle="C'est mon Panache!"
-      class="h-screen"
-    />
+    <!-- Banner + 流星 -->
+    <div class="relative">
+      <Banner
+        src="https://pic1.imgdb.cn/item/68ddfebec5157e1a884e700b.jpg"
+        alt="博客头图"
+        title="Shepherd's Blog"
+        subtitle="C'est mon Panache!"
+        class="h-screen"
+      />
 
-    <!-- 渐变遮罩层，使Banner和主体内容过渡自然 -->
-    <div
-      class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-white dark:from-gray-900 to-transparent z-10 pointer-events-none"
-    >
-    </div>
+      <!-- 主体内容 -->
+      <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
+        <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
+          <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
+            <!-- 主内容 -->
+            <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
+              <slot />
+              {isPost && <Giscus />}
+              <!-- 文章页显示评论 -->
+            </main>
 
-    <!-- 主体内容 -->
-    <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
-      <div class="bg-white/70 dark:bg-white/30 backdrop-blur-md rounded-lg p-6 md:p-12 shadow-lg">
-        <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
-          <!-- 主内容 -->
-          <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
-            <slot />
-            {isPost && <Giscus />}
-            <!-- 文章页显示评论 -->
-          </main>
-
-          <!-- 侧边栏 -->
-          <aside class="col-span-1">
-            <Sidebar headings={headings} showTOC={showTOC} />
-            <slot name="sidebar" />
-          </aside>
+            <!-- 侧边栏 -->
+            <aside class="col-span-1">
+              <Sidebar headings={headings} showTOC={showTOC} />
+              <slot name="sidebar" />
+            </aside>
+          </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
 
-    <!-- 移动端 TOC -->
-    <MobileTOC headings={headings} showTOC={showTOC} />
+      <!-- 移动端 TOC -->
+      <MobileTOC headings={headings} showTOC={showTOC} />
 
-    <!-- 主题同步 -->
-    <script define:vars={{ SITE_THEME }} is:inline>
-      document.addEventListener("astro:after-swap", () => {
-        const storedTheme = localStorage.getItem("theme");
-        if (storedTheme) {
-          document.documentElement.setAttribute("data-theme", storedTheme);
-          document.documentElement.setAttribute("data-theme-type", storedTheme === SITE_THEME.dark ? "dark" : "light");
-        }
-      });
-    </script>
+      <!-- 主题同步 -->
+      <script define:vars={{ SITE_THEME }} is:inline>
+        document.addEventListener("astro:after-swap", () => {
+          const storedTheme = localStorage.getItem("theme");
+          if (storedTheme) {
+            document.documentElement.setAttribute("data-theme", storedTheme);
+            document.documentElement.setAttribute(
+              "data-theme-type",
+              storedTheme === SITE_THEME.dark ? "dark" : "light",
+            );
+          }
+        });
+      </script>
 
-    <!-- 代码复制按钮 -->
-    <script is:inline>
-      document.addEventListener("astro:page-load", () => {
-        document.querySelectorAll(".btn-copy").forEach((button) => {
-          button.addEventListener("click", async () => {
-            const codeBlock = button.closest(".frosti-code");
-            const code = codeBlock.querySelector("code").textContent;
-            const copyIcon = button.querySelector(".frosti-code-toolbar-copy-icon");
-            const successIcon = button.querySelector(".frosti-code-toolbar-copy-success");
-            try {
-              await navigator.clipboard.writeText(code);
-              copyIcon.classList.add("hidden");
-              successIcon.classList.remove("hidden");
-              button.classList.add("copy-success");
-              setTimeout(() => {
-                copyIcon.classList.remove("hidden");
-                successIcon.classList.add("hidden");
-                button.classList.remove("copy-success");
-              }, 2000);
-            } catch (err) {
-              console.error("Failed to copy:", err);
-            }
+      <!-- 代码复制按钮 -->
+      <script is:inline>
+        document.addEventListener("astro:page-load", () => {
+          document.querySelectorAll(".btn-copy").forEach((button) => {
+            button.addEventListener("click", async () => {
+              const codeBlock = button.closest(".frosti-code");
+              const code = codeBlock.querySelector("code").textContent;
+              const copyIcon = button.querySelector(".frosti-code-toolbar-copy-icon");
+              const successIcon = button.querySelector(".frosti-code-toolbar-copy-success");
+              try {
+                await navigator.clipboard.writeText(code);
+                copyIcon.classList.add("hidden");
+                successIcon.classList.remove("hidden");
+                button.classList.add("copy-success");
+                setTimeout(() => {
+                  copyIcon.classList.remove("hidden");
+                  successIcon.classList.add("hidden");
+                  button.classList.remove("copy-success");
+                }, 2000);
+              } catch (err) {
+                console.error("Failed to copy:", err);
+              }
+            });
           });
         });
-      });
-    </script>
+      </script>
 
-    <style is:inline>
-      .btn-copy {
-        position: relative;
-        overflow: hidden;
-      }
-      .copy-success {
-        animation: pulse 0.5s ease-in-out;
-      }
-      .frosti-code-toolbar-copy-success svg {
-        color: #10b981;
-      }
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
+      <style is:inline>
+        .btn-copy {
+          position: relative;
+          overflow: hidden;
         }
-        50% {
-          transform: scale(1.1);
+        .copy-success {
+          animation: pulse 0.5s ease-in-out;
         }
-        100% {
-          transform: scale(1);
+        .frosti-code-toolbar-copy-success svg {
+          color: #10b981;
         }
-      }
-    </style>
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+      </style>
+    </div>
   </body>
 </html>

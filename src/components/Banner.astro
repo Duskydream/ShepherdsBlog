@@ -1,52 +1,41 @@
 ---
 const { src, alt = "", title = "", subtitle = "", class: extraClass = "" } = Astro.props;
+import ShootingStars from "@components/Shootingstars.astro";
 ---
 
 <section class={`banner relative w-full flex items-center justify-center text-center overflow-hidden ${extraClass}`}>
   <!-- 背景固定，占满屏幕 -->
   <div class="absolute inset-0">
-    <img src={src} alt={alt} class="w-full h-full object-cover fixed top-0 left-0" />
-    <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30"></div>
+    <img src={src} alt={alt} class="banner-img w-full h-full object-cover fixed top-0 left-0" />
   </div>
 
   <!-- Banner 文字 -->
-  <div class="relative z-10 text-white px-4">
-    <h1 id="banner-title" class="text-3xl md:text-5xl font-bold" data-title={title}>{title}</h1>
+  <div class="relative z-20 text-white px-4">
+    <h1 id="banner-title" class="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl" data-title={title}>
+      {title}
+    </h1>
     {
       subtitle && (
-        <p id="banner-subtitle" class="mt-2 text-lg md:text-2xl" data-subtitle={subtitle}>
+        <p id="banner-subtitle" class="mt-2 text-lg md:text-2xl text-white drop-shadow-xl" data-subtitle={subtitle}>
           {subtitle}
         </p>
       )
     }
   </div>
+
+  <!-- 流星效果 -->
+  <ShootingStars />
 </section>
 
-<!-- 在服务器端生成内联脚本，传递props值给客户端 -->
-  <script define:vars={{ title, subtitle }}>
-    // 传递标题和副标题文本到客户端JavaScript
-    window.bannerData = {
-      title: title,
-      subtitle: subtitle
-    };
-  </script>
-
 <style>
-  .cursor::after {
-    content: "|";
-    display: inline-block;
-    margin-left: 2px;
-    animation: blink 0.7s step-end infinite;
-  }
-  @keyframes blink {
-    50% {
-      opacity: 0;
-    }
+  html[data-theme-type="dark"] .banner-img {
+    filter: brightness(0.3) contrast(1.1) !important;
+    transition: filter 0.5s ease;
   }
 </style>
 
 <script>
-  // 打字机效果是可选的，我们保留原始内容作为后备
+  // 打字机效果
   if (typeof document !== "undefined" && "bannerData" in window) {
     setTimeout(() => {
       const bannerData = (window as any).bannerData || {};
@@ -68,7 +57,6 @@ const { src, alt = "", title = "", subtitle = "", class: extraClass = "" } = Ast
           }
         }
 
-        // 清空元素内容以开始打字机效果
         element.innerHTML = "";
         typing();
       }
@@ -80,6 +68,6 @@ const { src, alt = "", title = "", subtitle = "", class: extraClass = "" } = Ast
         typeWriter(titleEl, titleText, 100, () => {
           if (subtitleEl && subtitleText) typeWriter(subtitleEl, subtitleText, 80);
         });
-    }, 300); // 增加一点延迟，确保DOM已经加载
+    }, 300);
   }
 </script>
