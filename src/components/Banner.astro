@@ -32,42 +32,60 @@ import ShootingStars from "@components/Shootingstars.astro";
     filter: brightness(0.3) contrast(1.1) !important;
     transition: filter 0.5s ease;
   }
+
+  .cursor-blinking::after {
+    content: "_";
+    animation: blink 1s step-end infinite;
+    font-weight: bold;
+    margin-left: 0.1em;
+  }
+
+  @keyframes blink {
+    from,
+    to {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
 </style>
 
 <script>
-  // 打字机效果
-  if (typeof document !== "undefined" && "bannerData" in window) {
-    setTimeout(() => {
-      const bannerData = (window as any).bannerData || {};
-      const titleText = bannerData.title || "";
-      const subtitleText = (window as any).bannerData?.subtitle || "";
+  document.addEventListener("astro:page-load", () => {
+    const titleEl = document.getElementById("banner-title") as HTMLElement;
+    const subtitleEl = document.getElementById("banner-subtitle") as HTMLElement;
 
-      function typeWriter(element: HTMLElement, text: string, speed: number = 100, callback?: () => void) {
-        let i = 0;
-        element.classList.add("cursor");
+    if (!titleEl) return;
 
-        function typing() {
-          if (i < text.length) {
-            element.innerHTML = text.substring(0, i + 1);
-            i++;
-            setTimeout(typing, speed);
-          } else {
-            element.classList.remove("cursor");
-            if (callback) callback();
-          }
+    const titleText = titleEl.dataset.title || "";
+    const subtitleText = subtitleEl ? subtitleEl.dataset.subtitle || "" : "";
+
+    function typeWriter(element: HTMLElement, text: string, speed: number = 100, callback?: () => void) {
+      let i = 0;
+      element.classList.add("cursor-blinking");
+
+      function typing() {
+        if (i < text.length) {
+          element.textContent = text.substring(0, i + 1);
+          i++;
+          setTimeout(typing, speed);
+        } else {
+          element.classList.remove("cursor-blinking");
+          if (callback) callback();
         }
-
-        element.innerHTML = "";
-        typing();
       }
+      element.textContent = ""; // Clear initial text
+      typing();
+    }
 
-      const titleEl = document.getElementById("banner-title");
-      const subtitleEl = document.getElementById("banner-subtitle");
-
-      if (titleEl)
-        typeWriter(titleEl, titleText, 100, () => {
-          if (subtitleEl && subtitleText) typeWriter(subtitleEl, subtitleText, 80);
-        });
+    // Use a small delay to ensure elements are ready, though astro:page-load should handle it.
+    setTimeout(() => {
+      typeWriter(titleEl, titleText, 100, () => {
+        if (subtitleEl && subtitleText) {
+          typeWriter(subtitleEl, subtitleText, 80);
+        }
+      });
     }, 300);
-  }
+  });
 </script>
