@@ -7,7 +7,9 @@ import process from "node:process";
 const username = "851657";
 const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
-const CACHE_FILE = path.resolve(process.cwd(), ".cache", "bangumi.json");
+// Use /tmp on Vercel/serverless (writable), otherwise local .cache directory
+const CACHE_DIR = process.env.VERCEL ? "/tmp" : path.resolve(process.cwd(), ".cache");
+const CACHE_FILE = path.join(CACHE_DIR, "bangumi.json");
 
 async function fetchCollectionType(type: number) {
   let page = 1;
@@ -54,12 +56,23 @@ async function writeCache(obj: any) {
   }
 }
 
-export const GET: APIRoute = async () => {
-  // Try read file cache
-  const fileCache = await readCache();
+export const GET: APIRoute = async ({ url }) => {
+  const force = url.searchParams.get("force") === "1" || url.searchParams.get("refresh") === "1";
+
+  // Try read file cache unless force refresh requested
   const now = Date.now();
-  if (fileCache && fileCache.cachedAt && (now - fileCache.cachedAt) < CACHE_TTL_MS) {
-    return new Response(JSON.stringify({ ...fileCache, servedFrom: "file-cache" }), { status: 200, headers: { "Content-Type": "application/json" } });
+  if (!force) {
+    const fileCache = await readCache();
+    if (fileCache && fileCache.cachedAt && (now - fileCache.cachedAt) < CACHE_TTL_MS) {
+      return new Response(JSON.stringify({ ...fileCache, servedFrom: "file-cache" }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          // prevent CDN/browser caching of this response to ensure client-side refresh always revalidates
+          "Cache-Control": "no-store, max-age=0",
+        },
+      });
+    }
   }
 
   // Otherwise fetch fresh (or partial) and save
@@ -71,6 +84,15 @@ export const GET: APIRoute = async () => {
 
   const payload = { watching, wish, watched, cachedAt: now };
   await writeCache(payload).catch(() => {});
-  return new Response(JSON.stringify({ ...payload, servedFrom: "fetched" }), { status: 200, headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ ...payload, servedFrom: force ? "forced-fetch" : "fetched" }), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      // prevent CDN/browser caching so follow-up refreshes always consult the function
+      "Cache-Control": "no-store, max-age=0",
+    },
+  });
 };
+// For SSR adapters, ensure this endpoint is executed at runtime and not pre-rendered
+export const prerender = false;
 // ...existing code...

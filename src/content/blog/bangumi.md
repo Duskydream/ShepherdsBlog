@@ -1,7 +1,140 @@
 ---
+title: 通过调用API实现博客追番页面
+author: Shepherd
+description: 给博客搭个追番页面
+pubDate: 2025-09-23
+tags: Anime
+catagories: FrontendDeveloping
+---
+
+# 通过调用Bangumi API实现博客追番页面
+
+## 功能：
+
+1.实时更新Bangumi的“已看/想看/在看”的番剧/游戏/小说（未作区分）；
+
+2.搜索功能；
+
+3.实时调用以及页面刷新
+
+## 方法
+
+### 1.注册Bangumi账号
+
+访问www.bgm.tv(自测www.bangumi.tv需要代理)，注册账号，可浏览ACG作品并选择已看/想看/在看。点右上角图标进入个人页面记下左上角用户名旁的@id（不是用户名）。
+
+### 2.页面搭建（以Astro为例）
+
+在Blog的pages页面创建/api文件夹，新建bangumi.ts
+
+```ts
+import type { APIRoute } from "astro";
+import fs from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+
+const username = "";//在这里填上@id的内容
+const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
+const CACHE_TTL_MS = 60 * 60 * 1000; //这里是调用api的时间间隔，默认为60分钟
+// Use /tmp on Vercel/serverless (writable), otherwise local .cache directory
+const CACHE_DIR = process.env.VERCEL ? "/tmp" : path.resolve(process.cwd(), ".cache");
+const CACHE_FILE = path.join(CACHE_DIR, "bangumi.json");
+
+async function fetchCollectionType(type: number) {
+  let page = 1;
+  const limit = 30;
+  let all: any[] = [];
+  try {
+    while (true) {
+      const res = await fetch(`${baseUrl}?type=${type}&limit=${limit}&offset=${(page - 1) * limit}`, {
+        headers: { "User-Agent": "AstroBlog/1.0 (https://yourblog.com)" },
+      });
+      if (!res.ok)
+        break;
+      const j = await res.json();
+      if (!j.data || j.data.length === 0)
+        break;
+      all = all.concat(j.data);
+      if (j.data.length < limit)
+        break;
+      page++;
+    }
+  }
+  catch (e) {
+    console.error("fetchCollectionType error:", e);
+  }
+  return all;
+}
+
+async function readCache() {
+  try {
+    const raw = await fs.readFile(CACHE_FILE, "utf-8");
+    return JSON.parse(raw);
+  }
+  catch {
+    return null;
+  }
+}
+async function writeCache(obj: any) {
+  try {
+    await fs.mkdir(path.dirname(CACHE_FILE), { recursive: true });
+    await fs.writeFile(CACHE_FILE, JSON.stringify(obj), "utf-8");
+  }
+  catch (e) {
+    console.warn("writeCache failed:", e);
+  }
+}
+
+export const GET: APIRoute = async ({ url }) => {
+  const force = url.searchParams.get("force") === "1" || url.searchParams.get("refresh") === "1";
+
+  // Try read file cache unless force refresh requested
+  const now = Date.now();
+  if (!force) {
+    const fileCache = await readCache();
+    if (fileCache && fileCache.cachedAt && (now - fileCache.cachedAt) < CACHE_TTL_MS) {
+      return new Response(JSON.stringify({ ...fileCache, servedFrom: "file-cache" }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          // prevent CDN/browser caching of this response to ensure client-side refresh always revalidates
+          "Cache-Control": "no-store, max-age=0",
+        },
+      });
+    }
+  }
+
+  // Otherwise fetch fresh (or partial) and save
+  const [watching, wish, watched] = await Promise.all([
+    fetchCollectionType(3),
+    fetchCollectionType(1),
+    fetchCollectionType(2),
+  ]);
+
+  const payload = { watching, wish, watched, cachedAt: now };
+  await writeCache(payload).catch(() => {});
+  return new Response(JSON.stringify({ ...payload, servedFrom: force ? "forced-fetch" : "fetched" }), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      // prevent CDN/browser caching so follow-up refreshes always consult the function
+      "Cache-Control": "no-store, max-age=0",
+    },
+  });
+};
+// For SSR adapters, ensure this endpoint is executed at runtime and not pre-rendered
+export const prerender = false;
+```
+
+以存放bangumi的api。
+
+新建anime的页面，在astro里新建（hexo用md）anime.astro
+
+```html
+---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MainCard from "@/components/MainCard.astro";
-import { Icon } from "astro-icon/components";
+import { Icon } from "astro-icon/components";<!--这里是博客的基本配置，不用管-->
 
 type Subject = {
   id: number;
@@ -222,3 +355,8 @@ type WatchingItem = { subject: Subject };
     </script>
   </MainCard>
 </BaseLayout>
+```
+
+这就搭建好了追番页面，后续可以自行修改参数样式。
+
+示例：www.duskydream.icu/anime
