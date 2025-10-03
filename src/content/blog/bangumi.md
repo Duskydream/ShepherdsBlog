@@ -3,8 +3,8 @@ title: 通过调用API实现博客追番页面
 author: Shepherd
 description: 给博客搭个追番页面
 pubDate: 2025-09-23
-tags: Anime
-catagories: FrontendDeveloping
+tags: [Anime]
+categories: [FrontendDeveloping]
 ---
 
 # 通过调用Bangumi API实现博客追番页面
@@ -33,9 +33,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-const username = "";//在这里填上@id的内容
+const username = "";// 在这里填上@id的内容
 const baseUrl = `https://api.bgm.tv/v0/users/${username}/collections`;
-const CACHE_TTL_MS = 60 * 60 * 1000; //这里是调用api的时间间隔，默认为60分钟
+const CACHE_TTL_MS = 60 * 60 * 1000; // 这里是调用api的时间间隔，默认为60分钟
 // Use /tmp on Vercel/serverless (writable), otherwise local .cache directory
 const CACHE_DIR = process.env.VERCEL ? "/tmp" : path.resolve(process.cwd(), ".cache");
 const CACHE_FILE = path.join(CACHE_DIR, "bangumi.json");
@@ -355,6 +355,7 @@ type WatchingItem = { subject: Subject };
     </script>
   </MainCard>
 </BaseLayout>
+
 ```
 
 这就搭建好了追番页面，后续可以自行修改参数样式。
