@@ -111,6 +111,18 @@ const {
         });
       </script>
 
+      <!-- Swup.js scroll to anchor -->
+      <script is:inline>
+        document.addEventListener("astro:page-load", () => {
+          if (window.location.hash) {
+            const el = document.querySelector(window.location.hash);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth" });
+            }
+          }
+        });
+      </script>
+
       <!-- 代码复制按钮 -->
       <script is:inline>
         document.addEventListener("astro:page-load", () => {
