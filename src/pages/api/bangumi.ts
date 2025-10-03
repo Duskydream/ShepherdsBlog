@@ -54,7 +54,7 @@ async function writeCache(obj: any) {
   }
 }
 
-export const get: APIRoute = async () => {
+export const GET: APIRoute = async () => {
   // Try read file cache
   const fileCache = await readCache();
   const now = Date.now();
