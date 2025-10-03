@@ -109,8 +109,8 @@ type WatchingItem = { subject: Subject };
           return true;
         } catch (e) {
           console.warn("Bangumi API fetch failed:", e);
-          // if nothing in UI and client cache missing, show error
-          if (!dataStore || (!dataStore.watching.length && !dataStore.wish.length && !dataStore.watched.length)) {
+          // if nothing in UI (from cache) and client cache missing, show error
+          if (!dataStore.watching.length && !dataStore.wish.length && !dataStore.watched.length) {
             contentArea.innerHTML =
               '<div class="col-span-full text-center py-8 text-sm text-red-500">无法加载番剧数据，请稍后再试。</div>';
           }
