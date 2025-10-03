@@ -135,12 +135,19 @@ type WatchingItem = { subject: Subject };
       function renderCurrent() {
         const list = dataStore[currentTab] || [];
         const term = (searchInput.value || "").toLowerCase();
-        if (!list || list.length === 0) {
+        // Only show 'no content' if data has been loaded and the list is empty.
+        // If dataStore is empty, it means we are still in the initial loading phase.
+        if (
+          list.length === 0 &&
+          (dataStore.watching.length > 0 || dataStore.wish.length > 0 || dataStore.watched.length > 0)
+        ) {
           contentArea.innerHTML = '<div class="col-span-full text-center py-8 text-sm text-gray-500">暂无内容</div>';
           return;
         }
-        const html = list.map((item) => renderCard(item)).join("");
-        contentArea.innerHTML = html;
+        if (list.length > 0) {
+          const html = list.map((item) => renderCard(item)).join("");
+          contentArea.innerHTML = html;
+        }
         // apply search filter
         if (term) {
           const cards = contentArea.querySelectorAll("[data-name]");
