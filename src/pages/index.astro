@@ -3,6 +3,24 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import MainCard from "@/components/MainCard.astro";
 import GitHubStats from "@/components/mdx/GitHubStats.astro";
+import { getCollection } from "astro:content";
+import PostCard from "@/components/PostCard.astro";
+
+const rawPosts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+// Render to obtain remarkPluginFrontmatter (readingTime & totalCharCount)
+const posts = await Promise.all(
+  rawPosts.map(async (p) => {
+    const { remarkPluginFrontmatter } = await p.render();
+    return {
+      ...p,
+      remarkPluginFrontmatter,
+    };
+  }),
+);
 ---
 
 <BaseLayout title="About">
@@ -90,6 +108,38 @@ import GitHubStats from "@/components/mdx/GitHubStats.astro";
         </h2>
 
         <GitHubStats username="Duskydream" showLanguages={false} showCommitGraph={true} />
+      </section>
+
+      <!-- Recent Posts -->
+      <section>
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <Icon name="lucide:newspaper" class="w-6 h-6 text-primary" />
+          <span>Recent Posts</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {
+            posts.map((post) => (
+              <PostCard
+                title={post.data.title}
+                image={post.data.image}
+                description={post.data.description}
+                url={`/blog/${post.slug}`}
+                pubDate={post.data.pubDate}
+                badge={post.data.badge}
+                categories={post.data.categories}
+                tags={post.data.tags}
+                word={String(post.remarkPluginFrontmatter?.totalCharCount ?? "0")}
+                time={String(post.remarkPluginFrontmatter?.readingTime ?? "0")}
+              />
+            ))
+          }
+        </div>
+        <div class="text-center mt-8">
+          <a href="/blog" class="btn btn-primary btn-wide">
+            View All Posts
+            <Icon name="lucide:arrow-right" class="w-4 h-4" />
+          </a>
+        </div>
       </section>
 
       <!-- Tech Stack -->

@@ -28,7 +28,7 @@ const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
                     data-heading-depth={heading.depth}
                     data-index={index}
                     class={`toc-link relative flex items-center py-2 px-2 rounded-lg ${heading.depth === 1 ? "font-medium" : ""}`}
-                    style={`padding-left: ${12 + (heading.depth - 1) * 16}px;`}
+                    style={`padding-left: ${28 + (heading.depth - 1) * 16}px;`}
                   >
                     <Icon
                       name="tabler:chevron-right"
@@ -86,18 +86,21 @@ const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
 
     // Update IDs only once at initialization
     const headingIds = new Map<string, string>();
-    headings.forEach((heading, index) => {
-      const oldId = heading.getAttribute("id");
+    tocLinks.forEach((link, index) => {
+      const slug = link.dataset.headingSlug;
+      if (!slug) return;
+
+      const heading = document.getElementById(slug);
       const newId = `heading-${index}`;
 
-      if (oldId && oldId !== newId) {
+      if (heading && heading.id !== newId) {
         heading.setAttribute("id", newId);
-        headingIds.set(oldId, newId);
+        headingIds.set(slug, newId);
 
         // Only update non-TOC links that point to this heading
         document
-          .querySelectorAll(`a[href="#${oldId}"]:not(.toc-nav a)`)
-          .forEach((link) => link.setAttribute("href", `#${newId}`));
+          .querySelectorAll(`a[href="#${slug}"]:not(.toc-nav a)`)
+          .forEach((otherLink) => otherLink.setAttribute("href", `#${newId}`));
       }
     });
 
