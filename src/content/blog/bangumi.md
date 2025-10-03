@@ -2,7 +2,7 @@
 title: 通过调用API实现博客追番页面
 author: Shepherd
 description: 给博客搭个追番页面
-pubDate: 2025-09-23
+pubDate: 2025-10-03
 tags: [Anime]
 categories: [FrontendDeveloping]
 ---
