@@ -1,0 +1,4 @@
+
+User-agent: *
+Allow: /
+Sitemap: https://duskydream.icu/sitemap-index.xml
