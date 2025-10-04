@@ -68,49 +68,49 @@ type Subject = {
       const searchInput = document.getElementById("search");
       const contentArea = document.getElementById("content-area");
       const refreshBtn = document.getElementById("refresh-btn");
+      // add last update element
+      const lastUpdateEl =
+        document.getElementById("last-update") ||
+        (() => {
+          const span = document.createElement("span");
+          span.id = "last-update";
+          span.className = "text-xs text-gray-500 select-none";
+          refreshBtn.parentElement.appendChild(span);
+          return span;
+        })();
 
-      function saveClientCache(obj) {
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ data: obj, ts: Date.now() }));
-        } catch (e) {
-          /* ignore */
-        }
+      function formatTime(ts) {
+        const d = new Date(ts);
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       }
-      function readClientCache() {
-        try {
-          const raw = localStorage.getItem(CACHE_KEY);
-          if (!raw) return null;
-          const parsed = JSON.parse(raw);
-          if (Date.now() - parsed.ts > CLIENT_TTL) return null;
-          return parsed.data;
-        } catch {
-          return null;
-        }
+      function setLastUpdate(meta) {
+        if (!lastUpdateEl) return;
+        const { cachedAt, servedFrom } = meta || {};
+        if (cachedAt) lastUpdateEl.textContent = `更新: ${formatTime(cachedAt)} (${servedFrom || "?"})`;
+        else if (servedFrom) lastUpdateEl.textContent = `来源: ${servedFrom}`;
       }
 
       async function fetchFromApi(force = false) {
-        // If not forced, try client cache first
         if (!force) {
           const cached = readClientCache();
           if (cached) {
             dataStore = cached;
             renderCurrent();
-            // still refresh in background if staled? we'll continue to fetch but don't block UI
           }
         }
-
         try {
           const url = `${API}?t=${Date.now()}${force ? "&force=1" : ""}`;
           const res = await fetch(url, { cache: "no-store" });
           if (!res.ok) throw new Error("primary api status " + res.status);
           const json = await res.json();
-          dataStore = {
-            watching: json.watching || [],
-            wish: json.wish || [],
-            watched: json.watched || [],
-          };
+          dataStore = { watching: json.watching || [], wish: json.wish || [], watched: json.watched || [] };
           saveClientCache(dataStore);
           renderCurrent();
+          setLastUpdate({
+            cachedAt: json.cachedAt,
+            servedFrom: json.servedFrom || res.headers.get("X-Bangumi-Served-From"),
+          });
           return true;
         } catch (primaryErr) {
           console.warn("[bangumi] 主API失败，尝试静态回退:", primaryErr);
@@ -118,13 +118,10 @@ type Subject = {
             const resStatic = await fetch(`${STATIC_FALLBACK}?t=${Date.now()}`, { cache: "no-store" });
             if (!resStatic.ok) throw new Error("fallback status " + resStatic.status);
             const json = await resStatic.json();
-            dataStore = {
-              watching: json.watching || [],
-              wish: json.wish || [],
-              watched: json.watched || [],
-            };
+            dataStore = { watching: json.watching || [], wish: json.wish || [], watched: json.watched || [] };
             saveClientCache(dataStore);
             renderCurrent();
+            setLastUpdate({ cachedAt: json.cachedAt, servedFrom: "static" });
             return true;
           } catch (fallbackErr) {
             console.warn("[bangumi] 静态回退也失败:", fallbackErr);
@@ -205,6 +202,9 @@ type Subject = {
       refreshBtn.addEventListener("click", async () => {
         refreshBtn.textContent = "刷新中…";
         refreshBtn.disabled = true;
+        try {
+          localStorage.removeItem(CACHE_KEY);
+        } catch {}
         await fetchFromApi(true);
         refreshBtn.textContent = "刷新";
         refreshBtn.disabled = false;

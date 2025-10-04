@@ -12,7 +12,7 @@
 const USER_ID = "851657";
 const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
 const LIMIT = 30;
-const CACHE_TTL = 15 * 60 * 1000; // 15分钟
+const CACHE_TTL = 15 * 60 * 1000; // 15分钟（内存缓存）
 // 若平台提供临时目录，例如 /tmp，可使用；这里假设支持。
 
 // 简易内存缓存（函数冷启动重置）
@@ -60,8 +60,15 @@ export async function handleRequest(request: Request): Promise<Response> {
       status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        // 控制浏览器不缓存，以便客户端主动刷新
-        "Cache-Control": "no-store",
+        // 严格禁止缓存，确保客户端刷新可触发请求
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "Surrogate-Control": "no-store",
+        // 透出来源供前端调试
+        "X-Bangumi-Served-From": data.servedFrom,
+        // 避免中间缓存基于 Accept 等做合并
+        "Vary": "*",
       },
     });
   }
