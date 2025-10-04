@@ -171,6 +171,90 @@
   ],
   "wish": [
     {
+      "updated_at": "2025-10-04T12:18:59+08:00",
+      "comment": null,
+      "tags": [],
+      "subject": {
+        "date": "1998-10-23",
+        "images": {
+          "small": "https://lain.bgm.tv/r/200/pic/cover/l/c2/4c/253_jJJj9.jpg",
+          "grid": "https://lain.bgm.tv/r/100/pic/cover/l/c2/4c/253_jJJj9.jpg",
+          "large": "https://lain.bgm.tv/pic/cover/l/c2/4c/253_jJJj9.jpg",
+          "medium": "https://lain.bgm.tv/r/800/pic/cover/l/c2/4c/253_jJJj9.jpg",
+          "common": "https://lain.bgm.tv/r/400/pic/cover/l/c2/4c/253_jJJj9.jpg"
+        },
+        "name": "カウボーイビバップ",
+        "name_cn": "星际牛仔",
+        "short_summary": "       2021年，随着超光速航行技术的实现，人类得以在太阳系范围内方便的自由移动，但是由于设计上的失误，这种技术引发了月球的爆炸，无数的月球碎片被吸引向地球，造成了空前绝后的大灾难。存活下来的人类逃离地球，并开始在太阳系各地建立家园",
+        "tags": [
+          {
+            "name": "渡边信一郎",
+            "count": 5339,
+            "total_cont": 0
+          },
+          {
+            "name": "菅野洋子",
+            "count": 4280,
+            "total_cont": 0
+          },
+          {
+            "name": "星际牛仔",
+            "count": 3858,
+            "total_cont": 0
+          },
+          {
+            "name": "科幻",
+            "count": 3428,
+            "total_cont": 0
+          },
+          {
+            "name": "经典",
+            "count": 3121,
+            "total_cont": 0
+          },
+          {
+            "name": "SUNRISE",
+            "count": 2327,
+            "total_cont": 0
+          },
+          {
+            "name": "神作",
+            "count": 2255,
+            "total_cont": 0
+          },
+          {
+            "name": "神配乐",
+            "count": 1902,
+            "total_cont": 0
+          },
+          {
+            "name": "TV",
+            "count": 1728,
+            "total_cont": 0
+          },
+          {
+            "name": "1998",
+            "count": 1539,
+            "total_cont": 0
+          }
+        ],
+        "score": 9.1,
+        "type": 2,
+        "id": 253,
+        "eps": 26,
+        "volumes": 0,
+        "collection_total": 40153,
+        "rank": 4
+      },
+      "subject_id": 253,
+      "vol_status": 0,
+      "ep_status": 0,
+      "subject_type": 2,
+      "type": 1,
+      "rate": 0,
+      "private": false
+    },
+    {
       "updated_at": "2025-10-03T18:30:58+08:00",
       "comment": null,
       "tags": [],
@@ -1869,7 +1953,7 @@
         "tags": [
           {
             "name": "Galgame",
-            "count": 1147,
+            "count": 1148,
             "total_cont": 0
           },
           {
@@ -1923,7 +2007,7 @@
         "id": 132528,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 6016,
+        "collection_total": 6017,
         "rank": 2569
       },
       "subject_id": 132528,
@@ -3689,7 +3773,7 @@
         "id": 431767,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 39051,
+        "collection_total": 39052,
         "rank": 644
       },
       "subject_id": 431767,
@@ -4865,7 +4949,7 @@
         "id": 772,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 25783,
+        "collection_total": 25784,
         "rank": 187
       },
       "subject_id": 772,
@@ -5285,7 +5369,7 @@
         "id": 3302,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 28419,
+        "collection_total": 28420,
         "rank": 55
       },
       "subject_id": 3302,
@@ -7385,7 +7469,7 @@
         "id": 10380,
         "eps": 25,
         "volumes": 0,
-        "collection_total": 67032,
+        "collection_total": 67033,
         "rank": 9
       },
       "subject_id": 10380,
@@ -7469,7 +7553,7 @@
         "id": 6049,
         "eps": 2,
         "volumes": 0,
-        "collection_total": 34465,
+        "collection_total": 34466,
         "rank": 7
       },
       "subject_id": 6049,
@@ -7565,5 +7649,5 @@
       "private": false
     }
   ],
-  "cachedAt": 1759554901939
+  "cachedAt": 1759555421632
 }

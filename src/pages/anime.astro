@@ -89,6 +89,8 @@ type Subject = {
 
       let currentTab = "watching";
       let dataStore = { watching: [], wish: [], watched: [] };
+      // 最近一次从 /api 或静态/回退获取的元信息，用来判断是否需要直接抓取上游 API
+      let lastFetchMeta = null;
 
       // ---- Client cache helpers (previously missing -> caused ReferenceError) ----
       function readClientCache() {
@@ -158,11 +160,12 @@ type Subject = {
           dataStore = { watching: json.watching || [], wish: json.wish || [], watched: json.watched || [] };
           saveClientCache(dataStore);
           renderCurrent();
-          setLastUpdate({
+          lastFetchMeta = {
             cachedAt: json.cachedAt,
-            servedFrom: json.servedFrom || res.headers.get("X-Bangumi-Served-From"),
-          });
-          return true;
+            servedFrom: json.servedFrom || res.headers.get("X-Bangumi-Served-From") || "api",
+          };
+          setLastUpdate(lastFetchMeta);
+          return lastFetchMeta;
         } catch (primaryErr) {
           console.warn("[bangumi] 主API失败，尝试静态回退:", primaryErr);
           try {
@@ -172,16 +175,69 @@ type Subject = {
             dataStore = { watching: json.watching || [], wish: json.wish || [], watched: json.watched || [] };
             saveClientCache(dataStore);
             renderCurrent();
-            setLastUpdate({ cachedAt: json.cachedAt, servedFrom: "static" });
-            return true;
+            lastFetchMeta = { cachedAt: json.cachedAt, servedFrom: "static" };
+            setLastUpdate(lastFetchMeta);
+            return lastFetchMeta;
           } catch (fallbackErr) {
             console.warn("[bangumi] 静态回退也失败:", fallbackErr);
             if (!dataStore.watching.length && !dataStore.wish.length && !dataStore.watched.length) {
               contentArea.innerHTML =
                 '<div class="col-span-full text-center py-8 text-sm text-red-500">无法加载番剧数据，请稍后再试。</div>';
             }
-            return false;
+            return null;
           }
+        }
+      }
+
+      // 直接抓取 Bangumi 上游 API（当 /api/bangumi 只是静态快照时，用户希望手动刷新获取最新）
+      // 仅在用户点击刷新时触发，避免频繁访问上游。与 EdgeOne 函数逻辑对应。
+      async function directUpstreamFetch() {
+        console.info("[bangumi] 尝试直接抓取上游 API ...");
+        const USER_ID = "851657"; // 与云函数一致，如需更换请同步修改
+        const LIMIT = 30;
+        const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
+
+        async function fetchCollection(type) {
+          let page = 1;
+          const all = [];
+          while (true) {
+            const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}`;
+            const res = await fetch(url, {
+              headers: { "User-Agent": "ShepherdBlog/ClientFetch (+github.com/Duskydream)" },
+              cache: "no-store",
+            });
+            if (!res.ok) break; // 中断，不抛错，保留已获取数据
+            const json = await res.json();
+            if (!json.data || json.data.length === 0) break;
+            all.push(...json.data);
+            if (json.data.length < LIMIT) break;
+            page++;
+            if (page > 10) break; // 安全上限，防止意外循环
+          }
+          return all;
+        }
+
+        try {
+          const [watching, wish, watched] = await Promise.all([
+            fetchCollection(3), // 在看
+            fetchCollection(1), // 想看
+            fetchCollection(2), // 看过
+          ]);
+          dataStore = { watching, wish, watched };
+          saveClientCache(dataStore);
+          renderCurrent();
+          lastFetchMeta = { cachedAt: Date.now(), servedFrom: "client-fetch" };
+          setLastUpdate(lastFetchMeta);
+          console.info(
+            "[bangumi] 上游抓取完成: watching=%d wish=%d watched=%d",
+            watching.length,
+            wish.length,
+            watched.length,
+          );
+          return true;
+        } catch (e) {
+          console.error("[bangumi] 上游抓取失败", e);
+          return false;
         }
       }
 
@@ -256,7 +312,14 @@ type Subject = {
         try {
           localStorage.removeItem(CACHE_KEY);
         } catch {}
-        await fetchFromApi(true);
+
+        const meta = await fetchFromApi(true);
+
+        // 如果还是 static / static-prerender，尝试直接上游抓取
+        if (!meta || (meta.servedFrom && meta.servedFrom.startsWith("static"))) {
+          await directUpstreamFetch();
+        }
+
         refreshBtn.textContent = "刷新";
         refreshBtn.disabled = false;
       });
