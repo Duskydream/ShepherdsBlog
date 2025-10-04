@@ -58,7 +58,30 @@ type Subject = {
       // EdgeOne 部署：优先尝试云函数 /api/bangumi (动态)，失败则回退静态预构建 /data/bangumi.json
       // 允许通过全局变量 __BANGUMI_API__ 或环境注入自定义 API 前缀（例如反向代理或不同函数路径）
       // window.__BANGUMI_API__ 可在部署平台通过注入 <script> 提前写入，未定义则使用默认 /api/bangumi
-      const API = (window.__BANGUMI_API__ || import.meta.env.PUBLIC_BANGUMI_API || "/api/bangumi").replace(/\/$/, "");
+      // 某些情况下（例如被外部脚本抽离 / 内联处理异常）import.meta 可能未定义，做安全访问
+      // Use optional chaining to avoid runtime TypeError when import.meta is undefined
+      let _envApi; // 构建期注入的 PUBLIC_BANGUMI_API（若存在）
+      try {
+        // Astro 打包后 import.meta 通常存在；容错处理防某些运行时沙箱剥离
+        _envApi =
+          (typeof import.meta === "object" && import.meta && import.meta.env && import.meta.env.PUBLIC_BANGUMI_API) ||
+          undefined;
+      } catch {
+        /* ignore */
+      }
+      const API = (window.__BANGUMI_API__ || _envApi || "/api/bangumi").replace(/\/$/, "");
+      // 可打开调试：在控制台中查看最终使用的 API
+      if (typeof window !== "undefined" && !window.__BANGUMI_API_DEBUG_REPORTED) {
+        window.__BANGUMI_API_DEBUG_REPORTED = true;
+        console.debug(
+          "[bangumi] API endpoint =",
+          API,
+          "window.__BANGUMI_API__ =",
+          window.__BANGUMI_API__,
+          "env =",
+          _envApi,
+        );
+      }
       const STATIC_FALLBACK = "/data/bangumi.json";
       const CACHE_KEY = "bangumi_front_cache_v1";
       const CLIENT_TTL = 60 * 60 * 1000; // 1 hour client-side fallback cache
