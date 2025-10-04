@@ -212,7 +212,113 @@ bash frosti.update.sh
 4.  **清理** 任何残留的空文件夹和临时文件。
 5.  使用 `pnpm` **安装或更新** 依赖项。
 
-## 👀 问题
+## � 动态数据（Bangumi 追番）部署与缓存策略
+
+本模板支持在完全静态构建的前提下，为追番页（`/anime`）提供“云函数 + 静态回退 + 前端缓存”三层数据获取机制，保证：
+
+1. 页面永远可渲染：即使云函数暂时不可用，也能展示上一次构建时的静态数据。
+2. 用户可手动刷新：点击“刷新”按钮强制绕过前端缓存与云端内存缓存。
+3. 自动定时更新：前端每 15 分钟尝试重新拉取一次。
+
+### 目录与文件
+
+| 路径                                 | 作用                                             |
+| ------------------------------------ | ------------------------------------------------ |
+| `edgeone/functions/bangumi/index.ts` | 腾讯 EdgeOne 云函数（可按平台适配导出签名）      |
+| `public/data/bangumi.json`           | 预构建静态回退 JSON，`pnpm build` 前通过脚本生成 |
+| `scripts/fetch-bangumi.mjs`          | 预构建脚本，写入上方静态 JSON                    |
+| `src/pages/anime.astro`              | 前端渲染与数据三层获取逻辑                       |
+
+### 构建前预抓取
+
+`package.json` 中的 `prebuild` 会执行：
+
+```jsonc
+{
+  "scripts": {
+    "prebuild": "node ./scripts/fetch-bangumi.mjs"
+  }
+}
+```
+
+脚本流程：
+
+1. 并发抓取三种收藏：在看(type=3)、想看(type=1)、看过(type=2)
+2. 全量翻页直到返回不足 `limit` 条
+3. 生成结构 `{ watching, wish, watched, cachedAt }`
+4. 输出到 `public/data/bangumi.json`
+
+> 如果云函数不可部署，也可以只依赖该静态 JSON，前端仍能展示构建时的数据。
+
+### 云函数缓存策略
+
+`edgeone/functions/bangumi/index.ts`：
+
+- 内存缓存（冷启动清空）默认 15 分钟：`CACHE_TTL = 15 * 60 * 1000`
+- 查询参数 `?force=1` 可绕过缓存并强制更新
+- 响应头：
+  - `Cache-Control: no-store` 禁止中间层缓存
+  - `X-Bangumi-Served-From: memory|fetch|force-fetch` 指示来源
+
+### 前端三层回退逻辑
+
+1. 读取 `localStorage`（客户端缓存，1 小时 TTL）
+2. 请求云函数 `/api/bangumi`
+3. 云函数失败则回退静态 `/data/bangumi.json`
+
+刷新按钮动作：
+
+- 删除本地缓存 key：`bangumi_front_cache_v1`
+- 调用 `/api/bangumi?force=1&t=时间戳`
+- 成功后写入新缓存并更新“更新时间”显示
+
+### 环境变量 / 自定义 API 路径
+
+`anime.astro` 中允许通过以下方式覆盖默认的 `/api/bangumi`：
+
+1. 构建时注入 `PUBLIC_BANGUMI_API`（例如 `PUBLIC_BANGUMI_API=/edge/bgm`）
+2. 部署时在 HTML `<head>` 里注入：
+
+```html
+<script>
+  window.__BANGUMI_API__ = "/edge/bgm";
+</script>
+
+```
+
+（运行时代码优先级：`window.__BANGUMI_API__` > `import.meta.env.PUBLIC_BANGUMI_API` > `/api/bangumi`）
+
+### 常见问题（FAQ）
+
+| 现象                 | 可能原因                     | 解决                                                                                |
+| -------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
+| 页面一直显示 Loading | 云函数与静态 JSON 都获取失败 | 打开网络面板检查 `/api/bangumi` 与 `/data/bangumi.json` 状态码；确认构建时生成 JSON |
+| 每次刷新都不变       | 命中内存缓存                 | 使用“刷新”按钮（带 `force=1`）或等待缓存 TTL 过期                                   |
+| 想自定义函数路径     | 部署平台路径不同             | 使用环境变量或注入 `window.__BANGUMI_API__`                                         |
+| 静态 JSON 过旧       | 长时间未重新构建             | 重新执行 `pnpm build`（会重新抓取）                                                 |
+
+### 调试建议
+
+1. 本地仅测试静态：先运行 `node scripts/fetch-bangumi.mjs`，再 `pnpm dev`，前端会直接走静态 JSON。
+2. 联调云函数：在本地提供一个简单代理（如果平台支持本地仿真）或直接部署后抓包。
+3. 观察响应头 `X-Bangumi-Served-From` 判断来源。
+
+### 安全 & 限速
+
+- 公开 API 仅聚合公开收藏数据，不包含敏感信息
+- 若需添加鉴权，可在云函数层添加 `Authorization` 校验并在前端按需附加
+
+---
+
+如果你不需要追番页，可以：
+
+1. 删除 `src/pages/anime.astro`
+2. 删除 `edgeone/functions/bangumi` 目录与脚本 `scripts/fetch-bangumi.mjs`
+3. 从 `package.json` 移除 `prebuild` 钩子
+
+这样构建将完全静态且无额外数据抓取。
+
+## �👀 问题
 
 如果您有任何问题或建议，可以通过提交 Issues 来反馈或同开发者交流！
 

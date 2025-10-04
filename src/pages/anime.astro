@@ -56,7 +56,9 @@ type Subject = {
 
     <script type="module" is:inline>
       // EdgeOne 部署：优先尝试云函数 /api/bangumi (动态)，失败则回退静态预构建 /data/bangumi.json
-      const API = "/api/bangumi";
+      // 允许通过全局变量 __BANGUMI_API__ 或环境注入自定义 API 前缀（例如反向代理或不同函数路径）
+      // window.__BANGUMI_API__ 可在部署平台通过注入 <script> 提前写入，未定义则使用默认 /api/bangumi
+      const API = (window.__BANGUMI_API__ || import.meta.env.PUBLIC_BANGUMI_API || "/api/bangumi").replace(/\/$/, "");
       const STATIC_FALLBACK = "/data/bangumi.json";
       const CACHE_KEY = "bangumi_front_cache_v1";
       const CLIENT_TTL = 60 * 60 * 1000; // 1 hour client-side fallback cache
@@ -151,7 +153,7 @@ type Subject = {
       function renderCurrent() {
         const list = dataStore[currentTab] || [];
         const term = (searchInput.value || "").toLowerCase();
-        // Only show 'no content' if data has been loaded and the list is empty.
+        // Only show 'no content' if data has been loaded and wthe list is empty.
         // If dataStore is empty, it means we are still in the initial loading phase.
         if (
           list.length === 0 &&
