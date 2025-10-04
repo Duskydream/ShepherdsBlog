@@ -90,6 +90,32 @@ type Subject = {
       let currentTab = "watching";
       let dataStore = { watching: [], wish: [], watched: [] };
 
+      // ---- Client cache helpers (previously missing -> caused ReferenceError) ----
+      function readClientCache() {
+        try {
+          const raw = localStorage.getItem(CACHE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return null;
+          // TTL check
+          if (parsed.__cachedAt && Date.now() - parsed.__cachedAt < CLIENT_TTL) {
+            return { watching: parsed.watching || [], wish: parsed.wish || [], watched: parsed.watched || [] };
+          }
+        } catch (e) {
+          console.debug("[bangumi] readClientCache failed", e);
+        }
+        return null;
+      }
+      function saveClientCache(data) {
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, __cachedAt: Date.now() }));
+        } catch (e) {
+          // ignore quota / private mode errors
+          console.debug("[bangumi] saveClientCache failed", e);
+        }
+      }
+      // ------------------------------------------------------------------------
+
       const searchInput = document.getElementById("search");
       const contentArea = document.getElementById("content-area");
       const refreshBtn = document.getElementById("refresh-btn");

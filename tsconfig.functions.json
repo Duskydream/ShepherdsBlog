@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "rootDir": "./edgeone/functions",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "types": [],
+    "allowJs": false,
+    "outDir": "./.edgeone/functions",
+    "esModuleInterop": true,
+    "isolatedModules": false,
+    "skipLibCheck": true
+  },
+  "include": ["edgeone/functions/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
