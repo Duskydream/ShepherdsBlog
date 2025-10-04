@@ -324,24 +324,27 @@ type Subject = {
         refreshBtn.disabled = false;
       });
 
-      // Initial load: try client cache then network. Start auto refresh interval.
+      // Initial load: 每次进入页面都强制请求 API；若仍是静态则继续直连上游，保证“重新进入页面”即可获取最新。
       (async () => {
-        const clientCached = readClientCache();
-        if (clientCached) {
-          dataStore = clientCached;
-          renderCurrent();
-        } else {
-          contentArea.innerHTML = '<div class="col-span-full text-center py-12 text-sm text-gray-500">Loading...</div>';
+        contentArea.innerHTML = '<div class="col-span-full text-center py-12 text-sm text-gray-500">Loading...</div>';
+        try {
+          localStorage.removeItem(CACHE_KEY);
+        } catch {}
+
+        const meta = await fetchFromApi(true); // 强制刷新云函数/静态 API
+        if (!meta || (meta.servedFrom && meta.servedFrom.startsWith("static"))) {
+          await directUpstreamFetch();
         }
 
-        await fetchFromApi(false); // fetch fresh in background (updates UI when done)
-
-        // auto refresh periodically
-        setInterval(() => {
-          fetchFromApi(false);
+        // auto refresh periodically（保持之前策略，但不再使用缓存结果）
+        setInterval(async () => {
+          const m2 = await fetchFromApi(true);
+          if (m2 && m2.servedFrom && m2.servedFrom.startsWith("static")) {
+            // 间隔刷新仍是静态时不自动直连上游，避免频繁调用；如需自动可解除注释
+            // await directUpstreamFetch();
+          }
         }, AUTO_REFRESH_MS);
 
-        // default active tab
         setActiveTab("watching");
       })();
     </script>
