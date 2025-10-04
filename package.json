@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check",
+    "prebuild": "node ./scripts/fetch-bangumi.ts",
     "build": "astro check && astro build && pagefind --site dist && mkdirp public/pagefind && cpy 'dist/pagefind/**' public/pagefind",
     "search:clean": "rimraf public/pagefind",
     "search:index": "astro build --experimental-static-build && pagefind --site dist && mkdirp public/pagefind && cpy 'dist/pagefind/**' public/pagefind",

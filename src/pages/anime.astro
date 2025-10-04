@@ -57,7 +57,9 @@ type WatchingItem = { subject: Subject };
     </div>
 
     <script type="module">
+      // EdgeOne 部署：优先尝试云函数 /api/bangumi (动态)，失败则回退静态预构建 /data/bangumi.json
       const API = "/api/bangumi";
+      const STATIC_FALLBACK = "/data/bangumi.json";
       const CACHE_KEY = "bangumi_front_cache_v1";
       const CLIENT_TTL = 60 * 60 * 1000; // 1 hour client-side fallback cache
       const AUTO_REFRESH_MS = 15 * 60 * 1000; // auto refresh every 15 minutes
@@ -101,12 +103,10 @@ type WatchingItem = { subject: Subject };
         }
 
         try {
-          // Add cache-busting param and optional force flag so server bypasses cache
           const url = `${API}?t=${Date.now()}${force ? "&force=1" : ""}`;
           const res = await fetch(url, { cache: "no-store" });
-          if (!res.ok) throw new Error("fetch failed " + res.status);
+          if (!res.ok) throw new Error("primary api status " + res.status);
           const json = await res.json();
-          // server returns { watching, wish, watched, cachedAt }
           dataStore = {
             watching: json.watching || [],
             wish: json.wish || [],
@@ -115,14 +115,28 @@ type WatchingItem = { subject: Subject };
           saveClientCache(dataStore);
           renderCurrent();
           return true;
-        } catch (e) {
-          console.warn("Bangumi API fetch failed:", e);
-          // if nothing in UI (from cache) and client cache missing, show error
-          if (!dataStore.watching.length && !dataStore.wish.length && !dataStore.watched.length) {
-            contentArea.innerHTML =
-              '<div class="col-span-full text-center py-8 text-sm text-red-500">无法加载番剧数据，请稍后再试。</div>';
+        } catch (primaryErr) {
+          console.warn("[bangumi] 主API失败，尝试静态回退:", primaryErr);
+          try {
+            const resStatic = await fetch(`${STATIC_FALLBACK}?t=${Date.now()}`, { cache: "no-store" });
+            if (!resStatic.ok) throw new Error("fallback status " + resStatic.status);
+            const json = await resStatic.json();
+            dataStore = {
+              watching: json.watching || [],
+              wish: json.wish || [],
+              watched: json.watched || [],
+            };
+            saveClientCache(dataStore);
+            renderCurrent();
+            return true;
+          } catch (fallbackErr) {
+            console.warn("[bangumi] 静态回退也失败:", fallbackErr);
+            if (!dataStore.watching.length && !dataStore.wish.length && !dataStore.watched.length) {
+              contentArea.innerHTML =
+                '<div class="col-span-full text-center py-8 text-sm text-red-500">无法加载番剧数据，请稍后再试。</div>';
+            }
+            return false;
           }
-          return false;
         }
       }
 
