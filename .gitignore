@@ -25,3 +25,9 @@ pnpm-debug.log*
 
 # pagefind
 public/pagefind/
+
+# vercel build output (should not be committed)
+.vercel/output/
+
+# local cache directory
+.cache/

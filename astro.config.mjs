@@ -1,7 +1,6 @@
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
-import vercel from "@astrojs/vercel";
 import playformCompress from "@playform/compress";
 import terser from "@rollup/plugin-terser";
 import expressiveCode from "astro-expressive-code";
@@ -73,7 +72,7 @@ export default defineConfig({
     },
   },
 
-  adapter: vercel(),
+  // adapter removed (migrated from Vercel to Tencent EdgeOne); using default static build
 
   redirects: {
     "/about": "/",

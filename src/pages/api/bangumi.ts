@@ -93,5 +93,8 @@ export const GET: APIRoute = async ({ url }) => {
   });
 };
 // For SSR adapters, ensure this endpoint is executed at runtime and not pre-rendered
-export const prerender = false;
-// ...existing code...
+// NOTE: This API route required SSR. Since we're deploying a fully static site without an adapter,
+// prerendering is attempted. If you still need dynamic fresh data, move this logic to a build step
+// that writes a JSON file into `public/` (e.g. scripts/fetch-bangumi.ts) and remove this route.
+// For now we allow Astro to try prerender; frequent updates will need manual rebuild.
+export const prerender = true;
