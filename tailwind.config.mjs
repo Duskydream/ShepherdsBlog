@@ -5,6 +5,7 @@ import daisyUI from "daisyui";
 import { SITE_THEME } from "./src/config";
 
 export default {
+  darkMode: ["attribute", "[data-theme-type=\"dark\"]"],
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
   theme: {
     extend: {},
