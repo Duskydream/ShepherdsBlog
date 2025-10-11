@@ -4,87 +4,17 @@ export interface Props {
 }
 
 const { username } = Astro.props;
-
-let contributions: any[] = [];
-let totalContributions = 0;
-let error: string | null = null;
-
-try {
-  // 使用另一个API - ghchart.rshah.org的数据源
-  const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
-  if (response.ok) {
-    const data = await response.json();
-    console.log("GitHub API Response:", data); // 调试用
-
-    // API返回的数据结构可能是: { contributions: [...], total: {...} }
-    if (data.contributions && Array.isArray(data.contributions)) {
-      contributions = data.contributions;
-      // 计算总贡献数
-      totalContributions = contributions.reduce((sum: number, day: any) => sum + (day.count || 0), 0);
-    } else {
-      error = "Invalid data format";
-    }
-  } else {
-    error = "Failed to load contributions";
-  }
-} catch (e) {
-  error = "Failed to fetch data";
-  console.error("GitHub Calendar Error:", e);
-}
-
-const weeks: any[] = [];
-
-if (contributions.length > 0) {
-  let currentWeek: any[] = [];
-  // 取最近一年的数据（大约371天，53周）
-  const recentContributions = contributions.slice(-371);
-
-  recentContributions.forEach((day: any) => {
-    if (currentWeek.length === 7) {
-      weeks.push(currentWeek);
-      currentWeek = [];
-    }
-    currentWeek.push(day);
-  });
-  if (currentWeek.length > 0) {
-    weeks.push(currentWeek);
-  }
-}
-
-function getLevel(count: number): number {
-  if (count === 0) return 0;
-  if (count <= 3) return 1;
-  if (count <= 6) return 2;
-  if (count <= 9) return 3;
-  return 4;
-}
-
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 ---
 
 <div class="github-calendar-simple">
-  {
-    error ? (
-      <div class="error-message">
-        <p>{error}</p>
-        <p class="text-sm">Showing placeholder data</p>
-      </div>
-    ) : (
-      <div class="contributions-info">
-        <span class="font-semibold">{totalContributions}</span> contributions in the last year
-        {contributions.length > 0 && (
-          <span class="text-xs text-base-content/50 ml-2">
-            ({contributions[contributions.length - 1]?.date || "Loading..."})
-          </span>
-        )}
-      </div>
-    )
-  }
+  <div class="contributions-info">
+    <span class="font-semibold">Loading...</span> contributions in the last year
+  </div>
 
   <div class="calendar-graph">
     <div class="months">
       {
-        months.map((month, i) => (
+        ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, i) => (
           <span class="month-label" style={`grid-column: ${Math.floor(i * 4.3) + 1}`}>
             {month}
           </span>
@@ -105,25 +35,13 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
       <div class="weeks">
         {
-          weeks.length > 0
-            ? weeks.map((week: any) => (
-                <div class="week">
-                  {week.map((day: any) => (
-                    <div
-                      class="day"
-                      data-level={getLevel(day.count)}
-                      title={`${day.count} contributions on ${day.date}`}
-                    />
-                  ))}
-                </div>
-              ))
-            : Array.from({ length: 53 }).map((_, i) => (
-                <div class="week">
-                  {Array.from({ length: 7 }).map((_, j) => (
-                    <div class="day" data-level={Math.floor(Math.random() * 5)} />
-                  ))}
-                </div>
-              ))
+          Array.from({ length: 53 }).map((_, i) => (
+            <div class="week">
+              {Array.from({ length: 7 }).map((_, j) => (
+                <div class="day" data-level="0" />
+              ))}
+            </div>
+          ))
         }
       </div>
     </div>
@@ -146,13 +64,160 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
   </div>
 </div>
 
+<script define:vars={{ username }}>
+  // 前端动态加载GitHub贡献数据
+  async function loadGitHubContributions() {
+    try {
+      // 使用多个API作为备用方案
+      const apis = [
+        `https://github-contributions-api.jogruber.de/v4/${username}?y=last`,
+        `https://api.github-contributions-canvas.vercel.app/api/${username}`,
+        `https://ghchart.rshah.org/${username}`,
+      ];
+
+      let data = null;
+      let error = null;
+
+      // 尝试第一个API
+      try {
+        const response = await fetch(apis[0]);
+        if (response.ok) {
+          data = await response.json();
+        }
+      } catch (e) {
+        console.log("First API failed, trying backup...");
+      }
+
+      // 如果第一个失败，尝试第二个API
+      if (!data) {
+        try {
+          const response = await fetch(apis[1]);
+          if (response.ok) {
+            data = await response.json();
+          }
+        } catch (e) {
+          console.log("Second API failed, trying SVG fallback...");
+        }
+      }
+
+      // 如果API都失败，使用SVG方案
+      if (!data) {
+        console.log("Using SVG fallback...");
+        const img = new Image();
+        img.onload = function () {
+          // SVG加载成功，显示占位符数据
+          updateCalendarWithPlaceholder();
+        };
+        img.onerror = function () {
+          updateCalendarWithPlaceholder();
+        };
+        img.src = `https://ghchart.rshah.org/${username}`;
+        return;
+      }
+
+      // 处理数据
+      let contributions = [];
+      let totalContributions = 0;
+
+      if (data.contributions && Array.isArray(data.contributions)) {
+        contributions = data.contributions;
+        totalContributions = contributions.reduce((sum, day) => sum + (day.count || 0), 0);
+      } else if (data.total) {
+        // 如果是其他格式的数据
+        totalContributions = Object.values(data.total).reduce((sum, year) => sum + year, 0);
+        contributions = data.contributions || [];
+      }
+
+      // 更新贡献信息
+      const infoElement = document.querySelector(".contributions-info");
+      if (infoElement) {
+        infoElement.innerHTML = `
+          <span class="font-semibold">${totalContributions}</span> contributions in the last year
+          ${contributions.length > 0 ? `<span class="text-xs text-base-content/50 ml-2">(${contributions[contributions.length - 1]?.date || "Loading..."})</span>` : ""}
+        `;
+      }
+
+      // 更新日历
+      updateCalendar(contributions);
+    } catch (error) {
+      console.error("Error loading GitHub contributions:", error);
+      updateCalendarWithPlaceholder();
+    }
+  }
+
+  function updateCalendar(contributions) {
+    const weeks = [];
+    const recentContributions = contributions.slice(-371);
+
+    let currentWeek = [];
+    recentContributions.forEach((day) => {
+      if (currentWeek.length === 7) {
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+      currentWeek.push(day);
+    });
+    if (currentWeek.length > 0) {
+      weeks.push(currentWeek);
+    }
+
+    // 更新DOM
+    const weekElements = document.querySelectorAll(".week");
+    weeks.forEach((week, weekIndex) => {
+      if (weekElements[weekIndex]) {
+        const dayElements = weekElements[weekIndex].querySelectorAll(".day");
+        week.forEach((day, dayIndex) => {
+          if (dayElements[dayIndex]) {
+            const level = getLevel(day.count);
+            dayElements[dayIndex].setAttribute("data-level", level);
+            dayElements[dayIndex].setAttribute("title", `${day.count} contributions on ${day.date}`);
+          }
+        });
+      }
+    });
+  }
+
+  function updateCalendarWithPlaceholder() {
+    // 显示占位符数据
+    const infoElement = document.querySelector(".contributions-info");
+    if (infoElement) {
+      infoElement.innerHTML = `
+        <span class="font-semibold">Sample</span> contributions in the last year
+        <span class="text-xs text-base-content/50 ml-2">(Placeholder data)</span>
+      `;
+    }
+
+    // 生成随机占位符数据
+    const weekElements = document.querySelectorAll(".week");
+    weekElements.forEach((weekElement) => {
+      const dayElements = weekElement.querySelectorAll(".day");
+      dayElements.forEach((dayElement) => {
+        const level = Math.floor(Math.random() * 5);
+        dayElement.setAttribute("data-level", level);
+        dayElement.setAttribute("title", "Sample data - GitHub API unavailable");
+      });
+    });
+  }
+
+  function getLevel(count) {
+    if (count === 0) return 0;
+    if (count <= 3) return 1;
+    if (count <= 6) return 2;
+    if (count <= 9) return 3;
+    return 4;
+  }
+
+  // 页面加载完成后执行
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadGitHubContributions);
+  } else {
+    loadGitHubContributions();
+  }
+</script>
+
 <style>
   .github-calendar-simple {
     @apply bg-base-200 rounded-xl p-6;
-  }
-
-  .error-message {
-    @apply text-center text-warning mb-4 text-sm;
   }
 
   .contributions-info {
@@ -207,6 +272,7 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
     transform: scale(1.2);
   }
 
+  /* 红色主题 - 浅色模式 */
   html:not(.dark) .day[data-level="0"] {
     background-color: #ebedf0;
   }
@@ -223,6 +289,7 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
     background-color: #c62828;
   }
 
+  /* 红色主题 - 深色模式 */
   html.dark .day[data-level="0"] {
     background-color: #161b22;
   }
