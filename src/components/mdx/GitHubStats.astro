@@ -148,6 +148,9 @@ const repoUrl = repositoryName ? `https://github.com/${username}/${repositoryNam
   class GitHubStats extends HTMLElement {
     private abortController: AbortController | null = null;
     private readonly githubToken = import.meta.env.GITHUB_TOKEN || "";
+    private readonly cachePrefix = "github-stats";
+    private readonly cacheVersion = "v2";
+    private readonly cacheTtlMs = 1000 * 60 * 30; // keep GitHub responses for 30 minutes
 
     connectedCallback() {
       this.abortController = new AbortController();
@@ -222,51 +225,90 @@ const repoUrl = repositoryName ? `https://github.com/${username}/${repositoryNam
       }
     }
 
-    // 从本地存储获取缓存的数据
-    private getCachedData(key: string): any {
+    private buildStorageKey(key: string): string {
+      return `${this.cachePrefix}:${this.cacheVersion}:${key}`;
+    }
+
+    private isBrowserEnvironment(): boolean {
+      return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+    }
+
+    private purgeCacheEntry(storageKey: string) {
       try {
-        const cachedData = localStorage.getItem(`github-stats:${key}`);
-        if (cachedData) {
-          const { data, timestamp } = JSON.parse(cachedData);
-          // 检查缓存是否在24小时内
-          if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-            return data;
-          }
-        }
-      } catch (e) {
-        console.warn("Error reading from cache:", e);
+        window.localStorage.removeItem(storageKey);
+      } catch (cleanupError) {
+        console.warn("Failed to purge GitHub stats cache entry", cleanupError);
       }
-      return null;
+    }
+
+    // 从本地存储获取缓存的数据
+    private getCachedData<T>(key: string): { data: T; isStale: boolean } | null {
+      if (!this.isBrowserEnvironment()) {
+        return null;
+      }
+
+      const storageKey = this.buildStorageKey(key);
+
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (!raw) {
+          return null;
+        }
+
+        const parsed = JSON.parse(raw) as { data?: T; timestamp?: number } | null;
+        if (!parsed || typeof parsed !== "object" || typeof parsed.timestamp !== "number" || parsed.timestamp <= 0) {
+          this.purgeCacheEntry(storageKey);
+          return null;
+        }
+
+        const age = Date.now() - parsed.timestamp;
+        const isStale = age > this.cacheTtlMs;
+
+        if (parsed.data === null || (typeof parsed.data !== "object" && typeof parsed.data !== "number")) {
+          this.purgeCacheEntry(storageKey);
+          return null;
+        }
+
+        return { data: parsed.data as T, isStale };
+      } catch (error) {
+        console.warn("Failed to read GitHub stats cache", error);
+        this.purgeCacheEntry(storageKey);
+        return null;
+      }
     }
 
     // 缓存数据到本地存储
-    private cacheData(key: string, data: any): void {
+    private cacheData<T>(key: string, data: T): void {
+      if (!this.isBrowserEnvironment()) {
+        return;
+      }
+
+      const storageKey = this.buildStorageKey(key);
+
       try {
-        localStorage.setItem(
-          `github-stats:${key}`,
-          JSON.stringify({
-            data,
-            timestamp: Date.now(),
-          }),
-        );
-      } catch (e) {
-        console.warn("Error writing to cache:", e);
+        const payload = JSON.stringify({ data, timestamp: Date.now() });
+        window.localStorage.setItem(storageKey, payload);
+      } catch (error) {
+        console.warn("Failed to write GitHub stats cache", error);
+        this.purgeCacheEntry(storageKey);
       }
     }
 
     async fetchRepoData(username: string, repoName: string, signal: AbortSignal) {
       // 首先尝试读取缓存
       const cacheKey = `repo:${username}/${repoName}`;
-      const cachedData = this.getCachedData(cacheKey);
+      const cachedData = this.getCachedData<any>(cacheKey);
 
       if (cachedData) {
-        console.log("Using cached repository data");
-        this.updateRepoUI(cachedData);
+        console.log(`Using cached repository data${cachedData.isStale ? " (stale)" : ""}`);
+        this.updateRepoUI(cachedData.data);
         this.renderCommitGraph();
-        return;
+        if (!cachedData.isStale) {
+          return;
+        }
+      } else {
+        this.showLoading();
       }
-
-      this.showLoading();
 
       try {
         const url = `https://api.github.com/repos/${username}/${repoName}`;
@@ -300,7 +342,9 @@ const repoUrl = repositoryName ? `https://github.com/${username}/${repositoryNam
             errorMessage = "Access to GitHub API is restricted. This might be due to rate limiting.";
           }
 
-          this.showError(errorMessage);
+          if (!cachedData) {
+            this.showError(errorMessage);
+          }
         }
       }
     }
@@ -308,15 +352,17 @@ const repoUrl = repositoryName ? `https://github.com/${username}/${repositoryNam
     async fetchUserData(username: string, signal: AbortSignal) {
       // 首先尝试读取缓存
       const cacheKey = `user:${username}`;
-      const cachedData = this.getCachedData(cacheKey);
+      const cachedData = this.getCachedData<{ userData: any; totalStars: number }>(cacheKey);
 
       if (cachedData) {
-        console.log("Using cached user data");
-        this.updateUserUI(cachedData.userData, cachedData.totalStars);
-        return;
+        console.log(`Using cached user data${cachedData.isStale ? " (stale)" : ""}`);
+        this.updateUserUI(cachedData.data.userData, cachedData.data.totalStars);
+        if (!cachedData.isStale) {
+          return;
+        }
+      } else {
+        this.showLoading();
       }
-
-      this.showLoading();
 
       try {
         // Fetch user details
@@ -370,7 +416,9 @@ const repoUrl = repositoryName ? `https://github.com/${username}/${repositoryNam
             errorMessage = "Access to GitHub API is restricted. This might be due to rate limiting.";
           }
 
-          this.showError(errorMessage);
+          if (!cachedData) {
+            this.showError(errorMessage);
+          }
         }
       }
     }

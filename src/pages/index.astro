@@ -5,6 +5,7 @@ import MainCard from "@/components/MainCard.astro";
 import GitHubStats from "@/components/mdx/GitHubStats.astro";
 import { getCollection } from "astro:content";
 import PostCard from "@/components/PostCard.astro";
+import GitHubCalendar from "@/components/GitHubCalendar.astro";
 
 const rawPosts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
@@ -101,22 +102,26 @@ const posts = await Promise.all(
         </div>
       </section>
 
-      <!-- GitHub Stats -->
       <section>
-        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Icon name="lucide:github" class="w-6 h-6 text-primary" />
-          <span>GitHub Statistics</span>
-        </h2>
-
-        <GitHubStats username="Duskydream" showLanguages={false} showCommitGraph={true} />
+        <div class="flex items-center gap-2 mb-4">
+          <Icon name="lucide:github" class="w-6 h-6" />
+          <h2 class="text-2xl font-bold">GitHub Contributions</h2>
+        </div>
+        <GitHubCalendar username="Duskydream" />
       </section>
 
-      <!-- Recent Posts -->
+      <!-- Recent Posts Section -->
       <section>
-        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Icon name="lucide:newspaper" class="w-6 h-6 text-primary" />
-          <span>Recent Posts</span>
-        </h2>
+        <div class="flex items-center gap-2 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-2">
+            <Icon name="lucide:newspaper" class="w-6 h-6 text-primary" />
+            <span>Recent Posts</span>
+          </h2>
+          <a href="/blog" class="btn btn-sm btn-primary gap-2 ml-auto">
+            <span>View All</span>
+            <Icon name="lucide:arrow-right" class="w-4 h-4" />
+          </a>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {
             posts.map((post) => (
@@ -134,12 +139,6 @@ const posts = await Promise.all(
               />
             ))
           }
-        </div>
-        <div class="text-center mt-8">
-          <a href="/blog" class="btn btn-primary btn-wide">
-            View All Posts
-            <Icon name="lucide:arrow-right" class="w-4 h-4" />
-          </a>
         </div>
       </section>
 

@@ -1,0 +1,105 @@
+---
+import { Icon } from "astro-icon/components";
+
+export interface Props {
+  username: string;
+}
+
+const { username } = Astro.props;
+---
+
+<div class="card bg-base-100 shadow-xl border border-base-300">
+  <div class="card-body">
+    <div class="calendar-container">
+      <!-- Loading stuff -->
+      Loading the data just for you.
+    </div>
+    <div class="flex justify-between items-center mt-2 text-xs text-base-content/60">
+      <a
+        href="https://docs.github.com/articles/viewing-contributions-on-your-profile-page"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:underline"
+      >
+        Learn how we count contributions
+      </a>
+      <div class="flex items-center gap-1">
+        <span>Less</span>
+        <svg width="10" height="10"><rect width="10" height="10" class="graph-rect" data-level="0"></rect></svg>
+        <svg width="10" height="10"><rect width="10" height="10" class="graph-rect" data-level="1"></rect></svg>
+        <svg width="10" height="10"><rect width="10" height="10" class="graph-rect" data-level="2"></rect></svg>
+        <svg width="10" height="10"><rect width="10" height="10" class="graph-rect" data-level="3"></rect></svg>
+        <svg width="10" height="10"><rect width="10" height="10" class="graph-rect" data-level="4"></rect></svg>
+        <span>More</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
+
+<script define:vars={{ username }}>
+  GitHubCalendar(".calendar-container", username, {
+    responsive: true,
+    tooltips: true,
+  });
+</script>
+
+<style is:global>
+  .calendar-container .contrib-legend {
+    display: none;
+  }
+
+  .calendar-container .calendar,
+  .calendar-container .contrib-column {
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .calendar-container .month {
+    font-size: 0.75rem;
+  }
+
+  .calendar-container .wday {
+    font-size: 0.75rem;
+  }
+
+  .calendar-container .graph-rect {
+    rx: 2;
+    ry: 2;
+  }
+
+  /* Light Theme Colors */
+  html:not(.dark) .calendar-container .graph-rect {
+    --color-calendar-graph-day-bg: #ebedf0;
+    --color-calendar-graph-day-L1-bg: #9be9a8;
+    --color-calendar-graph-day-L2-bg: #40c463;
+    --color-calendar-graph-day-L3-bg: #30a14e;
+    --color-calendar-graph-day-L4-bg: #216e39;
+  }
+
+  /* Dark Theme Colors */
+  html.dark .calendar-container .graph-rect {
+    --color-calendar-graph-day-bg: #161b22;
+    --color-calendar-graph-day-L1-bg: #0e4429;
+    --color-calendar-graph-day-L2-bg: #006d32;
+    --color-calendar-graph-day-L3-bg: #26a641;
+    --color-calendar-graph-day-L4-bg: #39d353;
+  }
+
+  .graph-rect[data-level="0"] {
+    fill: var(--color-calendar-graph-day-bg);
+  }
+  .graph-rect[data-level="1"] {
+    fill: var(--color-calendar-graph-day-L1-bg);
+  }
+  .graph-rect[data-level="2"] {
+    fill: var(--color-calendar-graph-day-L2-bg);
+  }
+  .graph-rect[data-level="3"] {
+    fill: var(--color-calendar-graph-day-L3-bg);
+  }
+  .graph-rect[data-level="4"] {
+    fill: var(--color-calendar-graph-day-L4-bg);
+  }
+</style>
