@@ -4,7 +4,7 @@ author: Shepherd Meng
 description: 算法笔记
 pubDate: 2025-10-11
 tags: [Coding,Notes,C]
-categories: [Coding Note]
+categories: [Coding Notes]
 ---
 
 # 二分查找
@@ -68,13 +68,13 @@ int main(void) {
     while (count < n - 1) {
         if (arr[j] != 0) {
             step++;
-            if (step == 3) { 
+            if (step == 3) {
                 arr[j] = 0;
                 count++;
-                step = 0; 
+                step = 0;
             }
         }
-        j = (j + 1) % n;//环形数组 
+        j = (j + 1) % n;//环形数组
     }
     //查找剩余序号
     for (i = 0; i < n; i++) {
@@ -84,4 +84,3 @@ int main(void) {
     return 0;
 }
 ```
-
