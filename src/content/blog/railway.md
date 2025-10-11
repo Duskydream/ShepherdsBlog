@@ -1,7 +1,7 @@
 ---
 title: 银河铁道之夜（全文）
 author: 宫泽贤治
-description: 童话般的故事/素学研究/(花水电车的灵感)
+description: 素学研究
 pubDate: 2025-10-03
 tags: [Stories, Novels]
 categories: [Literature]

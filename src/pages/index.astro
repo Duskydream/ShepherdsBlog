@@ -3,9 +3,11 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import MainCard from "@/components/MainCard.astro";
 import GitHubStats from "@/components/mdx/GitHubStats.astro";
+import GitHubCalendar from "@/components/GitHubCalendar.astro";
 import { getCollection } from "astro:content";
 import PostCard from "@/components/PostCard.astro";
-import GitHubCalendar from "@/components/GitHubCalendar.astro";
+import dayjs from "@/utils/dayjs";
+import { DATE_FORMAT } from "@/config";
 
 const rawPosts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
@@ -25,12 +27,7 @@ const posts = await Promise.all(
 ---
 
 <BaseLayout title="About">
-  <MainCard
-    title="About Shepherd Meng"
-    description="XMU Computer Science Student"
-    textOverlay="ABOUT"
-    infoIcon="lucide:user"
-  >
+  <MainCard title="About Shepherd" description="About me" textOverlay="ABOUT" infoIcon="lucide:user">
     <div class="space-y-10 mb-8">
       <!-- Profile Section -->
       <section class="flex flex-col md:flex-row gap-8 items-center md:items-start">
@@ -96,17 +93,19 @@ const posts = await Promise.all(
           </div>
 
           <p class="text-base-content/80">
-            Hello! I'm Shepherd Meng, a student at Xiamen University majoring in Computer Science. The blog site is
-            built with Astro and deployed on Tencent EdgeOne.
+            Hello! I'm Shepherd Meng, a student at XMU majoring in CS. The site is built with Astro and deployed on
+            edgeone.ai, recording my learning journey and projects, and I occasionally share my thoughts and reviews
+            here.
           </p>
         </div>
       </section>
 
+      <!-- GitHub Contributions -->
       <section>
-        <div class="flex items-center gap-2 mb-4">
-          <Icon name="lucide:github" class="w-6 h-6" />
-          <h2 class="text-2xl font-bold">GitHub Contributions</h2>
-        </div>
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <Icon name="lucide:github" class="w-6 h-6 text-primary" />
+          <span>GitHub Contributions</span>
+        </h2>
         <GitHubCalendar username="Duskydream" />
       </section>
 
@@ -122,23 +121,30 @@ const posts = await Promise.all(
             <Icon name="lucide:arrow-right" class="w-4 h-4" />
           </a>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {
-            posts.map((post) => (
-              <PostCard
-                title={post.data.title}
-                image={post.data.image}
-                description={post.data.description}
-                url={`/blog/${post.slug}`}
-                pubDate={post.data.pubDate}
-                badge={post.data.badge}
-                categories={post.data.categories}
-                tags={post.data.tags}
-                word={String(post.remarkPluginFrontmatter?.totalCharCount ?? "0")}
-                time={String(post.remarkPluginFrontmatter?.readingTime ?? "0")}
-              />
-            ))
-          }
+
+        <!-- 时间线样式 -->
+        <div class="archives-timeline">
+          <ul class="archive-posts">
+            {
+              posts.map((post) => (
+                <li class="archive-item">
+                  <div class="archive-marker">
+                    <Icon name="lucide:file-text" class="archive-icon" />
+                  </div>
+                  <a href={`/blog/${post.slug}`} class="archive-card">
+                    <time class="archive-date">{dayjs(post.data.pubDate).format(DATE_FORMAT)}</time>
+                    <h4 class="archive-title">{post.data.title}</h4>
+                    {post.data.description && <p class="archive-description">{post.data.description}</p>}
+                    {post.data.badge && (
+                      <div class="mt-2">
+                        <span class="badge badge-primary badge-sm">{post.data.badge}</span>
+                      </div>
+                    )}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
         </div>
       </section>
 
