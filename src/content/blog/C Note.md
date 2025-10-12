@@ -7,7 +7,7 @@ tags: [Coding,Notes,C]
 categories: [Coding Notes]
 ---
 
-# 二分查找
+## 二分查找
 
 ```c
 #include <stdio.h>
@@ -55,7 +55,7 @@ int main(void) {
 }
 ```
 
-## 指针解决约瑟夫环
+## 约瑟夫环
 
 ```c
 #include <stdio.h>
