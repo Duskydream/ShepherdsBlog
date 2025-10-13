@@ -1,0 +1,523 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MainCard from "@/components/MainCard.astro";
+
+// Static page - client-side data fetching
+---
+
+<BaseLayout title="GitHub Actions">
+  <MainCard title="GitHub Actions" description="Workflow runs calendar" textOverlay="ACTIONS" infoIcon="lucide:rocket">
+    <div class="space-y-4 mb-8 max-w-7xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-center md:text-left">
+          <h2 class="text-xl font-semibold mb-2">Workflow Runs Calendar</h2>
+          <p class="text-sm text-base-content/70">
+            Visual representation of successful workflow runs over the past year
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            id="refresh-btn"
+            title="Refresh data"
+            class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors"
+          >
+            <span id="refresh-text">Refresh</span>
+            <span id="refresh-spinner" class="hidden ml-2">⟳</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Calendar Container -->
+      <div id="calendar-container" class="bg-base-200 rounded-xl p-6">
+        <div class="contributions-info text-sm text-base-content/70 mb-4">
+          <span class="font-semibold">Loading...</span> workflow runs in the last year
+        </div>
+
+        <div class="calendar-graph">
+          <div class="months" id="months-container">
+            <!-- Month labels will be generated dynamically -->
+          </div>
+
+          <div class="calendar-grid">
+            <div class="days-labels">
+              <span></span>
+              <span>Mon</span>
+              <span></span>
+              <span>Wed</span>
+              <span></span>
+              <span>Fri</span>
+              <span></span>
+            </div>
+
+            <div class="weeks">
+              <!-- Calendar grid will be generated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span class="legend-text">Less</span>
+          <div class="legend-squares">
+            <div class="day" data-level="0"></div>
+            <div class="day" data-level="1"></div>
+            <div class="day" data-level="2"></div>
+            <div class="day" data-level="3"></div>
+            <div class="day" data-level="4"></div>
+          </div>
+          <span class="legend-text">More</span>
+        </div>
+
+        <div class="footer-link mt-4">
+          <a
+            href="https://github.com/Duskydream/ShepherdsBlog/actions"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm text-primary hover:underline"
+          >
+            View Actions →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" is:inline>
+      const CACHE_KEY = "github_actions_cache_v1";
+      const CLIENT_TTL = 30 * 60 * 1000; // 30 minutes client-side cache
+      const AUTO_REFRESH_MS = 60 * 60 * 1000; // auto refresh every hour
+
+      let isLoading = false;
+
+      // Client cache helpers
+      function readClientCache() {
+        try {
+          const raw = localStorage.getItem(CACHE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (Date.now() - parsed.timestamp > CLIENT_TTL) return null;
+          return parsed.data;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function saveClientCache(data) {
+        try {
+          localStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              data,
+              timestamp: Date.now(),
+            }),
+          );
+        } catch (e) {
+          // Ignore storage errors
+        }
+      }
+
+      // Generate calendar grid HTML
+      function generateCalendarGrid() {
+        const weeksContainer = document.querySelector(".weeks");
+        weeksContainer.innerHTML = "";
+
+        for (let i = 0; i < 53; i++) {
+          const weekDiv = document.createElement("div");
+          weekDiv.className = "week";
+
+          for (let j = 0; j < 7; j++) {
+            const dayDiv = document.createElement("div");
+            dayDiv.className = "day";
+            dayDiv.setAttribute("data-level", "0");
+            weekDiv.appendChild(dayDiv);
+          }
+
+          weeksContainer.appendChild(weekDiv);
+        }
+      }
+
+      // Update month labels
+      function updateMonthsLabels(contributions) {
+        const monthsContainer = document.getElementById("months-container");
+        if (!monthsContainer) return;
+
+        monthsContainer.innerHTML = "";
+
+        if (contributions.length === 0) return;
+
+        // Get date range (past year)
+        const endDate = new Date(contributions[contributions.length - 1].date);
+        const startDate = new Date(endDate);
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        startDate.setDate(startDate.getDate() + 1);
+
+        // Generate month labels
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        let currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+
+        while (currentDate <= endDate) {
+          const monthName = monthNames[currentDate.getMonth()];
+          const year = currentDate.getFullYear();
+
+          // Calculate column position in calendar grid
+          const monthStartDate = new Date(year, currentDate.getMonth(), 1);
+          const daysDiff = Math.floor((monthStartDate - startDate) / (1000 * 60 * 60 * 24));
+          const columnStart = Math.floor(daysDiff / 7) + 1;
+
+          if (columnStart >= 1 && columnStart <= 53) {
+            const monthLabel = document.createElement("span");
+            monthLabel.className = "month-label";
+            monthLabel.style.gridColumn = columnStart.toString();
+            monthLabel.textContent = monthName;
+            monthsContainer.appendChild(monthLabel);
+          }
+
+          currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+      }
+
+      // Update calendar display
+      function updateCalendar(contributions) {
+        updateMonthsLabels(contributions);
+
+        const weeks = [];
+        const recentContributions = contributions.slice(-371);
+
+        let currentWeek = [];
+        recentContributions.forEach((day) => {
+          if (currentWeek.length === 7) {
+            weeks.push(currentWeek);
+            currentWeek = [];
+          }
+          currentWeek.push(day);
+        });
+        if (currentWeek.length > 0) {
+          weeks.push(currentWeek);
+        }
+
+        const weekElements = document.querySelectorAll(".week");
+        weeks.forEach((week, weekIndex) => {
+          if (weekElements[weekIndex]) {
+            const dayElements = weekElements[weekIndex].querySelectorAll(".day");
+            week.forEach((day, dayIndex) => {
+              if (dayElements[dayIndex]) {
+                const level = getLevel(day.count);
+                dayElements[dayIndex].setAttribute("data-level", level);
+                dayElements[dayIndex].setAttribute("title", `${day.count} runs on ${day.date}`);
+              }
+            });
+          }
+        });
+      }
+
+      // Get activity level
+      function getLevel(count) {
+        if (count === 0) return 0;
+        if (count <= 1) return 1;
+        if (count <= 3) return 2;
+        if (count <= 5) return 3;
+        return 4;
+      }
+
+      // Show loading state
+      function showLoading() {
+        isLoading = true;
+        const refreshBtn = document.getElementById("refresh-btn");
+        const refreshText = document.getElementById("refresh-text");
+        const refreshSpinner = document.getElementById("refresh-spinner");
+
+        refreshBtn.disabled = true;
+        refreshText.textContent = "Loading...";
+        refreshSpinner.classList.remove("hidden");
+
+        const infoElement = document.querySelector(".contributions-info");
+        if (infoElement) {
+          infoElement.innerHTML = '<span class="font-semibold">Loading...</span> workflow runs in the last year';
+        }
+      }
+
+      // Hide loading state
+      function hideLoading() {
+        isLoading = false;
+        const refreshBtn = document.getElementById("refresh-btn");
+        const refreshText = document.getElementById("refresh-text");
+        const refreshSpinner = document.getElementById("refresh-spinner");
+
+        refreshBtn.disabled = false;
+        refreshText.textContent = "Refresh";
+        refreshSpinner.classList.add("hidden");
+      }
+
+      // Load GitHub Actions data
+      async function loadGitHubActionsData(force = false) {
+        if (isLoading && !force) return;
+
+        showLoading();
+
+        try {
+          // Try cache first (unless force refresh)
+          if (!force) {
+            const cached = readClientCache();
+            if (cached) {
+              console.log("Using cached data");
+              updateCalendar(cached.contributions);
+              updateInfo(cached.totalRuns, cached.lastDate);
+              hideLoading();
+              return;
+            }
+          }
+
+          console.log("Fetching fresh GitHub Actions data");
+
+          // Fetch data from GitHub API
+          const username = "Duskydream";
+          const repo = "ShepherdsBlog";
+          const allWorkflowRuns = [];
+          const maxPages = 5;
+
+          for (let page = 1; page <= maxPages; page++) {
+            const pageUrl = `https://api.github.com/repos/${username}/${repo}/actions/runs?per_page=100&page=${page}`;
+
+            const pageResponse = await fetch(pageUrl, {
+              headers: {
+                Accept: "application/vnd.github.v3+json",
+              },
+            });
+
+            if (!pageResponse.ok) {
+              console.warn(`Failed to fetch page ${page}:`, pageResponse.status);
+              break;
+            }
+
+            const pageData = await pageResponse.json();
+            const pageRuns = pageData.workflow_runs || [];
+
+            if (pageRuns.length === 0) break;
+
+            allWorkflowRuns.push(...pageRuns);
+
+            // Check if we have enough data for a year
+            if (pageRuns.length > 0) {
+              const oldestRun = pageRuns[pageRuns.length - 1];
+              const runDate = new Date(oldestRun.created_at);
+              const oneYearAgo = new Date();
+              oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+              if (runDate < oneYearAgo) break;
+            }
+          }
+
+          // Process workflow runs
+          const successfulRuns = allWorkflowRuns.filter((run) => run.conclusion === "success");
+          const finalRuns = successfulRuns.length > 0 ? successfulRuns : allWorkflowRuns;
+
+          // Count runs by date
+          const deployCounts = {};
+          finalRuns.forEach((run) => {
+            const date = run.created_at.split("T")[0];
+            deployCounts[date] = (deployCounts[date] || 0) + 1;
+          });
+
+          // Generate full date range for the past year
+          const today = new Date();
+          const calendarStartDate = new Date(today);
+          calendarStartDate.setFullYear(today.getFullYear() - 1);
+
+          const contributions = [];
+          for (let d = new Date(calendarStartDate); d <= today; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toISOString().split("T")[0];
+            contributions.push({
+              date: dateStr,
+              count: deployCounts[dateStr] || 0,
+            });
+          }
+
+          const totalRuns = finalRuns.length;
+          const lastDate = contributions.length > 0 ? contributions[contributions.length - 1].date : null;
+
+          // Cache the data
+          saveClientCache({ contributions, totalRuns, lastDate });
+
+          // Update UI
+          updateCalendar(contributions);
+          updateInfo(totalRuns, lastDate);
+
+          console.log(`Loaded ${totalRuns} workflow runs`);
+        } catch (error) {
+          console.error("Error loading GitHub Actions data:", error);
+
+          // Show error state
+          const errorInfoElement = document.querySelector(".contributions-info");
+          if (errorInfoElement) {
+            errorInfoElement.innerHTML =
+              '<span class="font-semibold text-error">Error</span> loading workflow data <span class="text-xs text-base-content/50 ml-2">(Check console for details)</span>';
+          }
+
+          // Generate placeholder data
+          generateCalendarGrid();
+          const placeholderContributions = [];
+          const today = new Date();
+          for (let i = 364; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            placeholderContributions.push({
+              date: date.toISOString().split("T")[0],
+              count: Math.floor(Math.random() * 5),
+            });
+          }
+          updateMonthsLabels(placeholderContributions);
+          updateCalendar(placeholderContributions);
+
+          const placeholderInfoElement = document.querySelector(".contributions-info");
+          if (placeholderInfoElement) {
+            placeholderInfoElement.innerHTML =
+              '<span class="font-semibold">Sample</span> workflow runs in the last year <span class="text-xs text-base-content/50 ml-2">(Placeholder data)</span>';
+          }
+        } finally {
+          hideLoading();
+        }
+      }
+
+      // Update info display
+      function updateInfo(totalRuns, lastDate) {
+        const infoElement = document.querySelector(".contributions-info");
+        if (infoElement) {
+          infoElement.innerHTML = `
+            <span class="font-semibold">${totalRuns}</span> successful workflow runs in the last year
+            ${lastDate ? `<span class="text-xs text-base-content/50 ml-2">(Last: ${lastDate})</span>` : ""}
+          `;
+        }
+      }
+
+      // Initialize
+      function init() {
+        generateCalendarGrid();
+        loadGitHubActionsData();
+
+        // Auto refresh
+        setInterval(() => {
+          if (!isLoading) {
+            loadGitHubActionsData();
+          }
+        }, AUTO_REFRESH_MS);
+
+        // Manual refresh button
+        const refreshBtn = document.getElementById("refresh-btn");
+        refreshBtn.addEventListener("click", () => {
+          loadGitHubActionsData(true);
+        });
+      }
+
+      // Start when DOM is ready
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    </script>
+
+    <style>
+      .calendar-graph {
+        @apply overflow-x-auto pb-2;
+      }
+
+      .months {
+        @apply grid mb-2;
+        grid-template-columns: repeat(53, 11px);
+        gap: 3px;
+      }
+
+      .month-label {
+        @apply text-xs text-base-content/60;
+        font-size: 10px;
+      }
+
+      .calendar-grid {
+        @apply flex gap-3;
+      }
+
+      .days-labels {
+        @apply flex flex-col gap-[3px] text-xs text-base-content/60 pr-2;
+        font-size: 9px;
+      }
+
+      .days-labels span {
+        height: 11px;
+        line-height: 11px;
+      }
+
+      .weeks {
+        @apply flex gap-[3px];
+      }
+
+      .week {
+        @apply flex flex-col gap-[3px];
+      }
+
+      .day {
+        width: 11px;
+        height: 11px;
+        @apply rounded-sm cursor-pointer transition-all;
+      }
+
+      .day:hover {
+        @apply ring-1 ring-base-content/30;
+        transform: scale(1.2);
+      }
+
+      /* Red theme - light mode */
+      html:not(.dark) .day[data-level="0"] {
+        background-color: #ebedf0;
+      }
+      html:not(.dark) .day[data-level="1"] {
+        background-color: #ffcdd2;
+      }
+      html:not(.dark) .day[data-level="2"] {
+        background-color: #ef5350;
+      }
+      html:not(.dark) .day[data-level="3"] {
+        background-color: #e53935;
+      }
+      html:not(.dark) .day[data-level="4"] {
+        background-color: #c62828;
+      }
+
+      /* Red theme - dark mode */
+      html.dark .day[data-level="0"] {
+        background-color: #161b22;
+      }
+      html.dark .day[data-level="1"] {
+        background-color: #5c1a1a;
+      }
+      html.dark .day[data-level="2"] {
+        background-color: #8b2525;
+      }
+      html.dark .day[data-level="3"] {
+        background-color: #c62828;
+      }
+      html.dark .day[data-level="4"] {
+        background-color: #ff5252;
+      }
+
+      .legend {
+        @apply flex items-center gap-2 mt-4 text-xs text-base-content/60;
+      }
+
+      .legend-text {
+        @apply text-xs;
+      }
+
+      .legend-squares {
+        @apply flex gap-1;
+      }
+
+      .legend-squares .day {
+        @apply cursor-default;
+      }
+
+      .legend-squares .day:hover {
+        @apply ring-0;
+        transform: none;
+      }
+    </style>
+  </MainCard>
+</BaseLayout>

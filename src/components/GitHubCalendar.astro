@@ -5,16 +5,221 @@ export interface Props {
 }
 
 const { username, repo } = Astro.props;
+
+interface ContributionDay {
+  date: string;
+  count: number;
+}
+
+interface MonthLabel {
+  name: string;
+  columnStart: number;
+}
+
+const ONE_YEAR_AGO = (() => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 1);
+  return date;
+})();
+
+async function fetchWorkflowRuns(): Promise<any[]> {
+  const allWorkflowRuns: any[] = [];
+  const maxPages = 5;
+  const token =
+    import.meta.env.GITHUB_TOKEN ?? import.meta.env.PRIVATE_GITHUB_TOKEN ?? import.meta.env.GITHUB_TOKEN_BEARER;
+
+  for (let page = 1; page <= maxPages; page++) {
+    const pageUrl = `https://api.github.com/repos/${username}/${repo}/actions/runs?per_page=100&page=${page}`;
+    const response = await fetch(pageUrl, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "ShepherdsBlog-GitHubCalendar",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to load workflow runs (status ${response.status})`);
+    }
+
+    const pageData = await response.json();
+    const pageRuns = pageData.workflow_runs ?? [];
+
+    if (pageRuns.length === 0) {
+      break;
+    }
+
+    allWorkflowRuns.push(...pageRuns);
+
+    const oldestRun = pageRuns[pageRuns.length - 1];
+    const oldestRunDate = new Date(oldestRun.created_at);
+
+    if (oldestRunDate < ONE_YEAR_AGO) {
+      break;
+    }
+  }
+
+  return allWorkflowRuns;
+}
+
+function toContributionDays(runDates: ContributionDay[]): ContributionDay[] {
+  const lookup = new Map(runDates.map((entry) => [entry.date, entry.count]));
+  const today = new Date();
+  const calendarStartDate = new Date(today);
+  calendarStartDate.setFullYear(today.getFullYear() - 1);
+
+  const days: ContributionDay[] = [];
+  for (let d = new Date(calendarStartDate); d <= today; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split("T")[0];
+    days.push({
+      date: dateStr,
+      count: lookup.get(dateStr) ?? 0,
+    });
+  }
+
+  return days;
+}
+
+function buildMonthLabels(contributions: ContributionDay[]): MonthLabel[] {
+  if (contributions.length === 0) {
+    return [];
+  }
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const endDate = new Date(contributions[contributions.length - 1].date);
+  const startDate = new Date(endDate);
+  startDate.setFullYear(startDate.getFullYear() - 1);
+  startDate.setDate(startDate.getDate() + 1);
+  const labels: MonthLabel[] = [];
+
+  const iterator = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+
+  while (iterator <= endDate) {
+    const monthStart = new Date(iterator);
+    const daysDiff = Math.floor((monthStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const columnStart = Math.floor(daysDiff / 7) + 1;
+
+    if (columnStart >= 1 && columnStart <= 53) {
+      labels.push({
+        name: monthNames[monthStart.getMonth()],
+        columnStart,
+      });
+    }
+
+    iterator.setMonth(iterator.getMonth() + 1);
+  }
+
+  return labels;
+}
+
+function computeLevel(count: number): number {
+  if (count === 0) return 0;
+  if (count <= 1) return 1;
+  if (count <= 3) return 2;
+  if (count <= 5) return 3;
+  return 4;
+}
+
+function generatePlaceholder(): { contributions: ContributionDay[]; total: number; lastDate: string | null } {
+  const today = new Date();
+  const contributions: ContributionDay[] = [];
+  let total = 0;
+
+  for (let i = 364; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const count = Math.floor(Math.random() * 5);
+    contributions.push({
+      date: date.toISOString().split("T")[0],
+      count,
+    });
+    total += count;
+  }
+
+  return {
+    contributions,
+    total,
+    lastDate: contributions[contributions.length - 1]?.date ?? null,
+  };
+}
+
+let contributions: ContributionDay[] = [];
+let totalDeploys = 0;
+let lastRunDate: string | null = null;
+let monthLabels: MonthLabel[] = [];
+let placeholder = false;
+
+try {
+  const workflowRuns = await fetchWorkflowRuns();
+  const runsWithinYear = workflowRuns.filter((run) => new Date(run.created_at) >= ONE_YEAR_AGO);
+  const successfulRuns = runsWithinYear.filter((run) => run.conclusion === "success");
+  const finalRuns = successfulRuns.length > 0 ? successfulRuns : runsWithinYear;
+
+  const countsByDate = finalRuns.reduce<Record<string, number>>((acc, run) => {
+    const dateKey = run.created_at.split("T")[0];
+    acc[dateKey] = (acc[dateKey] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const days = Object.entries(countsByDate)
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
+
+  contributions = toContributionDays(days);
+  monthLabels = buildMonthLabels(contributions);
+  totalDeploys = finalRuns.length;
+
+  if (finalRuns.length > 0) {
+    const sortedRuns = [...finalRuns].sort((a, b) => a.created_at.localeCompare(b.created_at));
+    lastRunDate = sortedRuns[sortedRuns.length - 1]?.created_at.split("T")[0] ?? null;
+  }
+} catch (error) {
+  console.error("Failed to load GitHub Actions data:", error);
+  placeholder = true;
+  const placeholderData = generatePlaceholder();
+  contributions = placeholderData.contributions;
+  monthLabels = buildMonthLabels(contributions);
+  totalDeploys = placeholderData.total;
+  lastRunDate = placeholderData.lastDate;
+}
+
+const TOTAL_WEEKS = 53;
+const DAYS_PER_WEEK = 7;
+const MAX_CELLS = TOTAL_WEEKS * DAYS_PER_WEEK;
+const recentContributions = contributions.slice(-MAX_CELLS);
+
+const weeks = Array.from({ length: TOTAL_WEEKS }, (_, weekIndex) => {
+  const start = weekIndex * DAYS_PER_WEEK;
+  return recentContributions.slice(start, start + DAYS_PER_WEEK);
+});
 ---
 
 <div class="github-calendar-simple">
   <div class="contributions-info">
-    <span class="font-semibold">Loading...</span> deploys in the last year
+    {
+      placeholder ? (
+        <>
+          <span class="font-semibold">Sample</span> deploys in the last year
+          <span class="text-xs text-base-content/50 ml-2">(Placeholder data)</span>
+        </>
+      ) : (
+        <>
+          <span class="font-semibold">{totalDeploys}</span> successful workflow runs in the last year
+          {lastRunDate && <span class="text-xs text-base-content/50 ml-2">(Last: {lastRunDate})</span>}
+        </>
+      )
+    }
   </div>
 
   <div class="calendar-graph">
     <div class="months" id="months-container">
-      <!-- 月份标签将通过JavaScript动态生成 -->
+      {
+        monthLabels.map((label) => (
+          <span class="month-label" style={`grid-column: ${label.columnStart}`}>
+            {label.name}
+          </span>
+        ))
+      }
     </div>
 
     <div class="calendar-grid">
@@ -30,11 +235,15 @@ const { username, repo } = Astro.props;
 
       <div class="weeks">
         {
-          Array.from({ length: 53 }).map((_, i) => (
+          weeks.map((week) => (
             <div class="week">
-              {Array.from({ length: 7 }).map((_, j) => (
-                <div class="day" data-level="0" />
-              ))}
+              {Array.from({ length: 7 }).map((_, dayIndex) => {
+                const day = week[dayIndex];
+                const level = day ? computeLevel(day.count) : 0;
+                const title = day ? `${day.count} deploys on ${day.date}` : "No deployment data";
+
+                return <div class="day" data-level={level} title={title} />;
+              })}
             </div>
           ))
         }
@@ -60,253 +269,7 @@ const { username, repo } = Astro.props;
     </a>
   </div>
 </div>
-
-<script define:vars={{ username, repo }}>
-  // 前端动态加载GitHub Actions部署数据
-  async function loadGitHubActionsData() {
-    try {
-      console.log("Loading GitHub Actions data for:", username, repo);
-
-      // 调用GitHub Actions API获取workflow runs
-      // 获取最近一年的数据 (created > '2024-01-01' 或类似的)
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      const since = oneYearAgo.toISOString().split("T")[0];
-
-      // 获取多页数据以覆盖一年的记录
-      const allWorkflowRuns = [];
-      const maxPages = 5; // 最多获取5页（500条记录）
-
-      for (let page = 1; page <= maxPages; page++) {
-        const pageUrl = `https://api.github.com/repos/${username}/${repo}/actions/runs?per_page=100&page=${page}`;
-        console.log("Fetching page", page, ":", pageUrl);
-
-        const pageResponse = await fetch(pageUrl, {
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-          },
-        });
-
-        if (!pageResponse.ok) {
-          console.warn(`Failed to fetch page ${page}:`, pageResponse.status);
-          break; // 如果某页失败，停止获取
-        }
-
-        const pageData = await pageResponse.json();
-        const pageRuns = pageData.workflow_runs || [];
-
-        if (pageRuns.length === 0) break; // 没有更多数据
-
-        allWorkflowRuns.push(...pageRuns);
-
-        // 检查是否已经覆盖了一年的数据
-        if (pageRuns.length > 0) {
-          const oldestRun = pageRuns[pageRuns.length - 1];
-          const runDate = new Date(oldestRun.created_at);
-          const oneYearAgo = new Date();
-          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-          if (runDate < oneYearAgo) break; // 已经获取到一年前的数据
-        }
-      }
-
-      const data = { workflow_runs: allWorkflowRuns };
-      console.log("GitHub Actions data:", data);
-
-      // 处理workflow runs数据
-      const workflowRuns = data.workflow_runs || [];
-
-      console.log(`Total workflow runs: ${workflowRuns.length}`);
-
-      // 简化：使用所有成功的runs（不限制deploy相关）
-      const successfulRuns = workflowRuns.filter((run) => run.conclusion === "success");
-
-      console.log(`Successful runs: ${successfulRuns.length}`);
-
-      // 如果没有成功的runs，使用所有runs
-      const finalRuns = successfulRuns.length > 0 ? successfulRuns : workflowRuns;
-
-      console.log(`Final runs to display: ${finalRuns.length}`);
-
-      // 按日期统计部署次数
-      const deployCounts = {};
-      finalRuns.forEach((run) => {
-        const date = run.created_at.split("T")[0]; // YYYY-MM-DD格式
-        deployCounts[date] = (deployCounts[date] || 0) + 1;
-      });
-
-      // 生成过去一年的完整日期范围
-      const today = new Date();
-      const calendarStartDate = new Date(today);
-      calendarStartDate.setFullYear(today.getFullYear() - 1);
-
-      const contributions = [];
-      for (let d = new Date(calendarStartDate); d <= today; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split("T")[0];
-        contributions.push({
-          date: dateStr,
-          count: deployCounts[dateStr] || 0,
-        });
-      }
-
-      const totalDeploys = finalRuns.length;
-
-      // 更新贡献信息
-      const infoElement = document.querySelector(".contributions-info");
-      if (infoElement) {
-        infoElement.innerHTML = `
-          <span class="font-semibold">${totalDeploys}</span> successful workflow runs in the last year
-          ${contributions.length > 0 ? `<span class="text-xs text-base-content/50 ml-2">(Last: ${contributions[contributions.length - 1]?.date || "N/A"})</span>` : ""}
-        `;
-      }
-
-      // 更新日历
-      updateCalendar(contributions);
-    } catch (error) {
-      console.error("Error loading GitHub Actions data:", error);
-
-      // 显示错误信息
-      const infoElement = document.querySelector(".contributions-info");
-      if (infoElement) {
-        infoElement.innerHTML = `
-          <span class="font-semibold text-error">Error</span> loading deployment data
-          <span class="text-xs text-base-content/50 ml-2">(Check console for details)</span>
-        `;
-      }
-
-      updateCalendarWithPlaceholder();
-    }
-  }
-
-  function updateMonthsLabels(contributions) {
-    const monthsContainer = document.getElementById("months-container");
-    if (!monthsContainer) return;
-
-    // 清空现有标签
-    monthsContainer.innerHTML = "";
-
-    if (contributions.length === 0) return;
-
-    // 获取日期范围（过去一年）
-    const endDate = new Date(contributions[contributions.length - 1].date);
-    const startDate = new Date(endDate);
-    startDate.setFullYear(startDate.getFullYear() - 1);
-    startDate.setDate(startDate.getDate() + 1); // 包含起始日期
-
-    // 生成月份标签
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    // 从起始年月的第一天开始
-    let currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-
-    while (currentDate <= endDate) {
-      const monthName = monthNames[currentDate.getMonth()];
-      const year = currentDate.getFullYear();
-
-      // 计算这个月在日历网格中的起始列位置
-      const monthStartDate = new Date(year, currentDate.getMonth(), 1);
-      const daysDiff = Math.floor((monthStartDate - startDate) / (1000 * 60 * 60 * 24));
-      const columnStart = Math.floor(daysDiff / 7) + 1;
-
-      // 只在有效范围内显示标签
-      if (columnStart >= 1 && columnStart <= 53) {
-        const monthLabel = document.createElement("span");
-        monthLabel.className = "month-label";
-        monthLabel.style.gridColumn = columnStart.toString();
-        monthLabel.textContent = monthName;
-        monthsContainer.appendChild(monthLabel);
-      }
-
-      // 移动到下个月
-      currentDate.setMonth(currentDate.getMonth() + 1);
-    }
-  }
-
-  function updateCalendar(contributions) {
-    // 更新月份标签
-    updateMonthsLabels(contributions);
-
-    const weeks = [];
-    const recentContributions = contributions.slice(-371);
-
-    let currentWeek = [];
-    recentContributions.forEach((day) => {
-      if (currentWeek.length === 7) {
-        weeks.push(currentWeek);
-        currentWeek = [];
-      }
-      currentWeek.push(day);
-    });
-    if (currentWeek.length > 0) {
-      weeks.push(currentWeek);
-    }
-
-    // 更新DOM
-    const weekElements = document.querySelectorAll(".week");
-    weeks.forEach((week, weekIndex) => {
-      if (weekElements[weekIndex]) {
-        const dayElements = weekElements[weekIndex].querySelectorAll(".day");
-        week.forEach((day, dayIndex) => {
-          if (dayElements[dayIndex]) {
-            const level = getLevel(day.count);
-            dayElements[dayIndex].setAttribute("data-level", level);
-            dayElements[dayIndex].setAttribute("title", `${day.count} deploys on ${day.date}`);
-          }
-        });
-      }
-    });
-  }
-
-  function updateCalendarWithPlaceholder() {
-    // 显示占位符数据
-    const infoElement = document.querySelector(".contributions-info");
-    if (infoElement) {
-      infoElement.innerHTML = `
-        <span class="font-semibold">Sample</span> deploys in the last year
-        <span class="text-xs text-base-content/50 ml-2">(Placeholder data)</span>
-      `;
-    }
-
-    // 生成占位符月份标签（使用当前日期向前推一年）
-    const placeholderContributions = [];
-    const today = new Date();
-    for (let i = 364; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      placeholderContributions.push({
-        date: date.toISOString().split("T")[0],
-        count: Math.floor(Math.random() * 5),
-      });
-    }
-    updateMonthsLabels(placeholderContributions);
-
-    // 生成随机占位符数据
-    const weekElements = document.querySelectorAll(".week");
-    weekElements.forEach((weekElement) => {
-      const dayElements = weekElement.querySelectorAll(".day");
-      dayElements.forEach((dayElement) => {
-        const level = Math.floor(Math.random() * 5);
-        dayElement.setAttribute("data-level", level);
-        dayElement.setAttribute("title", "Sample data - GitHub API unavailable");
-      });
-    });
-  }
-
-  function getLevel(count) {
-    if (count === 0) return 0; // 无部署
-    if (count <= 1) return 1; // 1次部署
-    if (count <= 3) return 2; // 2-3次部署
-    if (count <= 5) return 3; // 4-5次部署
-    return 4; // 6次及以上部署
-  }
-
-  // 页面加载完成后执行
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", loadGitHubActionsData);
-  } else {
-    loadGitHubActionsData();
-  }
-</script><style>
+<style>
   .github-calendar-simple {
     @apply bg-base-200 rounded-xl p-6;
   }
