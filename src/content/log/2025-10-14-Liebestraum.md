@@ -6,9 +6,13 @@ date: 2025-10-14
 # Franz Liszt——Liebestraum
 
 Love like you've never been hurt .
+
 Dance like nobody's watching.
+
 Sing like nobody's listening.
+
 work like you don't need the money .
+
 Live like it's heaven on earth.
 
 —Alfred D’Souza
