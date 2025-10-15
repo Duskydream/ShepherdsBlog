@@ -24,6 +24,8 @@ const posts = await Promise.all(
     };
   }),
 );
+
+const logs = (await getCollection("log")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 6);
 ---
 
 <BaseLayout title="About">
@@ -116,35 +118,77 @@ const posts = await Promise.all(
             <Icon name="lucide:newspaper" class="w-6 h-6 text-primary" />
             <span>Recent Posts</span>
           </h2>
-          <a href="/blog" class="btn btn-sm btn-primary gap-2 ml-auto">
-            <span>View All</span>
-            <Icon name="lucide:arrow-right" class="w-4 h-4" />
-          </a>
+          <div class="flex items-center gap-2 ml-auto">
+            <a href="/blog" class="btn btn-sm btn-primary gap-2">
+              <span>View All</span>
+              <Icon name="lucide:arrow-right" class="w-4 h-4" />
+            </a>
+            <a href="/log" class="btn btn-sm btn-outline gap-2">
+              <span>View Log</span>
+              <Icon name="lucide:book-open" class="w-4 h-4" />
+            </a>
+          </div>
         </div>
 
-        <!-- 时间线样式 -->
-        <div class="archives-timeline">
-          <ul class="archive-posts">
-            {
-              posts.map((post) => (
-                <li class="archive-item">
-                  <div class="archive-marker">
-                    <Icon name="lucide:file-text" class="archive-icon" />
-                  </div>
-                  <a href={`/blog/${post.slug}`} class="archive-card">
-                    <time class="archive-date">{dayjs(post.data.pubDate).format(DATE_FORMAT)}</time>
-                    <h4 class="archive-title">{post.data.title}</h4>
-                    {post.data.description && <p class="archive-description">{post.data.description}</p>}
-                    {post.data.badge && (
-                      <div class="mt-2">
-                        <span class="badge badge-primary badge-sm">{post.data.badge}</span>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <!-- 时间线样式 -->
+          <div class="archives-timeline">
+            <ul class="archive-posts">
+              {
+                posts.map((post) => (
+                  <li class="archive-item">
+                    <div class="archive-marker">
+                      <Icon name="lucide:file-text" class="archive-icon" />
+                    </div>
+                    <a href={`/blog/${post.slug}`} class="archive-card">
+                      <time class="archive-date">{dayjs(post.data.pubDate).format(DATE_FORMAT)}</time>
+                      <h4 class="archive-title">{post.data.title}</h4>
+                      {post.data.description && <p class="archive-description">{post.data.description}</p>}
+                      {post.data.badge && (
+                        <div class="mt-2">
+                          <span class="badge badge-primary badge-sm">{post.data.badge}</span>
+                        </div>
+                      )}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <!-- 日志列表 -->
+          <div class="bg-base-200 rounded-xl p-6 h-full">
+            <div class="flex items-center gap-2 mb-4">
+              <Icon name="lucide:book-open" class="w-5 h-5 text-primary" />
+              <h3 class="text-xl font-semibold">Recent Logs</h3>
+            </div>
+            <ul class="space-y-4">
+              {
+                logs.map((entry) => (
+                  <li>
+                    <a
+                      href={`/log/${entry.slug}/`}
+                      class="group flex items-start gap-3 p-4 rounded-lg bg-base-100 hover:bg-base-300 transition-colors"
+                    >
+                      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <Icon name="lucide:bookmark" class="w-5 h-5" />
                       </div>
-                    )}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
+                      <div class="flex-1">
+                        <time class="text-sm text-base-content/60">{dayjs(entry.data.date).format(DATE_FORMAT)}</time>
+                        <h4 class="text-base font-semibold text-base-content mt-1 group-hover:text-primary">
+                          {entry.data.title}
+                        </h4>
+                      </div>
+                      <Icon
+                        name="lucide:arrow-up-right"
+                        class="w-4 h-4 text-base-content/40 mt-1 group-hover:text-primary"
+                      />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
         </div>
       </section>
 
