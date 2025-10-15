@@ -166,7 +166,6 @@ try {
     .sort((a, b) => (a.date < b.date ? -1 : 1));
 
   contributions = toContributionDays(days);
-  monthLabels = buildMonthLabels(contributions);
   totalDeploys = finalRuns.length;
 
   if (finalRuns.length > 0) {
@@ -178,7 +177,6 @@ try {
   placeholder = true;
   const placeholderData = generatePlaceholder();
   contributions = placeholderData.contributions;
-  monthLabels = buildMonthLabels(contributions);
   totalDeploys = placeholderData.total;
   lastRunDate = placeholderData.lastDate;
 }
@@ -186,7 +184,29 @@ try {
 const TOTAL_WEEKS = 53;
 const DAYS_PER_WEEK = 7;
 const MAX_CELLS = TOTAL_WEEKS * DAYS_PER_WEEK;
-const recentContributions = contributions.slice(-MAX_CELLS);
+const contributionsMap = new Map(contributions.map((entry) => [entry.date, entry.count]));
+
+const latestContributionDate =
+  contributions.length > 0 ? new Date(contributions[contributions.length - 1].date) : new Date();
+
+const rangeEnd = new Date(latestContributionDate);
+while (rangeEnd.getDay() !== 6) {
+  rangeEnd.setDate(rangeEnd.getDate() + 1);
+}
+
+const rangeStart = new Date(rangeEnd);
+rangeStart.setDate(rangeStart.getDate() - (MAX_CELLS - 1));
+
+const recentContributions: ContributionDay[] = [];
+for (let cursor = new Date(rangeStart); cursor <= rangeEnd; cursor.setDate(cursor.getDate() + 1)) {
+  const dateStr = cursor.toISOString().split("T")[0];
+  recentContributions.push({
+    date: dateStr,
+    count: contributionsMap.get(dateStr) ?? 0,
+  });
+}
+
+monthLabels = buildMonthLabels(recentContributions);
 
 const weeks = Array.from({ length: TOTAL_WEEKS }, (_, weekIndex) => {
   const start = weekIndex * DAYS_PER_WEEK;
