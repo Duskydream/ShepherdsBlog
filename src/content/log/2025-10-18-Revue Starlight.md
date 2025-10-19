@@ -1,6 +1,6 @@
 ---
-title: "爱之梦"
-date: 2025-10-14
+title: "Revue Starlight"
+date: 2025-10-18
 ---
 
 # 少歌剧场版线下观影会
