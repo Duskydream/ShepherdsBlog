@@ -13,14 +13,14 @@ type Subject = {
 // remove server-side fetching so page is static-built and client will update
 ---
 
-<BaseLayout title="我的追番">
+<BaseLayout title="Anime">
   <MainCard title="Anime" description="追番记录" textOverlay="Anime" infoIcon="lucide:tv">
     <div class="space-y-4 mb-8 max-w-7xl mx-auto px-4">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <input
           type="text"
           id="search"
-          placeholder="搜索番剧..."
+          placeholder="Search anime..."
           class="px-4 py-2 w-full md:w-64 rounded-full border border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none transition"
         />
         <div class="flex items-center gap-2">
@@ -38,6 +38,7 @@ type Subject = {
               Collect
             </button>
           </div>
+          <span id="last-update" class="text-xs text-gray-500 select-none hidden"></span>
         </div>
       </div>
 
@@ -113,17 +114,7 @@ type Subject = {
 
       const searchInput = document.getElementById("search");
       const contentArea = document.getElementById("content-area");
-      const refreshBtn = document.getElementById("refresh-btn");
-      // add last update element
-      const lastUpdateEl =
-        document.getElementById("last-update") ||
-        (() => {
-          const span = document.createElement("span");
-          span.id = "last-update";
-          span.className = "text-xs text-gray-500 select-none";
-          refreshBtn.parentElement.appendChild(span);
-          return span;
-        })();
+      const lastUpdateEl = document.getElementById("last-update");
 
       function formatTime(ts) {
         const d = new Date(ts);
@@ -133,8 +124,16 @@ type Subject = {
       function setLastUpdate(meta) {
         if (!lastUpdateEl) return;
         const { cachedAt, servedFrom } = meta || {};
-        if (cachedAt) lastUpdateEl.textContent = `更新: ${formatTime(cachedAt)} (${servedFrom || "?"})`;
-        else if (servedFrom) lastUpdateEl.textContent = `来源: ${servedFrom}`;
+        let message = "";
+        if (cachedAt) {
+          message = `更新: ${formatTime(cachedAt)} (${servedFrom || "?"})`;
+        } else if (servedFrom) {
+          message = `来源: ${servedFrom}`;
+        }
+        if (message) {
+          lastUpdateEl.textContent = message;
+          lastUpdateEl.classList.remove("hidden");
+        }
       }
 
       async function fetchFromApi(force = false) {
@@ -297,25 +296,6 @@ type Subject = {
 
       // Search
       searchInput.addEventListener("input", () => renderCurrent());
-
-      // Refresh button
-      refreshBtn.addEventListener("click", async () => {
-        refreshBtn.textContent = "刷新中…";
-        refreshBtn.disabled = true;
-        try {
-          localStorage.removeItem(CACHE_KEY);
-        } catch {}
-
-        const meta = await fetchFromApi(true);
-
-        // 如果还是 static / static-prerender，尝试直接上游抓取
-        if (!meta || (meta.servedFrom && meta.servedFrom.startsWith("static"))) {
-          await directUpstreamFetch();
-        }
-
-        refreshBtn.textContent = "刷新";
-        refreshBtn.disabled = false;
-      });
 
       // Initial load: 每次进入页面都强制请求 API；若仍是静态则继续直连上游，保证“重新进入页面”即可获取最新。
       (async () => {
