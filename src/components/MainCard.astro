@@ -57,27 +57,18 @@ const accessibleHelpText = `${helpText}: ${title}`;
           {/* Description Button */}
           {description && (
             <div class="flex-shrink-0">
-              <div class="dropdown dropdown-top dropdown-end dropdown-hover">
-                <label
-                  tabindex="0"
+              <details class="dropdown-info">
+                <summary
                   aria-label={accessibleHelpText}
-                  class="group btn btn-sm px-2 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/40 text-white shadow-lg rounded-full flex items-center gap-0 transition-all duration-300 ease-in-out"
+                  class="btn btn-sm px-3 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/40 text-white shadow-lg rounded-full flex items-center gap-2 transition-colors duration-300 ease-in-out"
                 >
                   <Icon name={infoIcon} class="w-4 h-4 flex-shrink-0" />
-                  <span class="w-0 overflow-hidden group-hover:w-20 transition-all duration-300 text-xs whitespace-nowrap">
-                    {helpText}
-                  </span>
-                </label>
-                <div
-                  tabindex="0"
-                  class="dropdown-content z-[1] card w-64 sm:w-80 p-2 shadow-lg bg-black/70 backdrop-blur-md text-white border border-white/20 mb-4"
-                  data-state="closed"
-                >
-                  <div class="card-body p-3">
-                    <p class="text-sm">{description}</p>
-                  </div>
+                  <span class="text-xs whitespace-nowrap">{helpText}</span>
+                </summary>
+                <div class="dropdown-panel z-[1] w-64 sm:w-80 p-3 bg-black/70 backdrop-blur-md text-white border border-white/20 rounded-xl shadow-lg">
+                  <p class="text-sm">{description}</p>
                 </div>
-              </div>
+              </details>
             </div>
           )}
         </div>
@@ -105,27 +96,18 @@ const accessibleHelpText = `${helpText}: ${title}`;
           {/* Description Button */}
           {description && (
             <div class="flex-shrink-0">
-              <div class="dropdown dropdown-top dropdown-end dropdown-hover">
-                <label
-                  tabindex="0"
+              <details class="dropdown-info">
+                <summary
                   aria-label={accessibleHelpText}
-                  class="group btn btn-sm px-2 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/40 text-white shadow-lg rounded-full flex items-center gap-0 transition-all duration-300 ease-in-out"
+                  class="btn btn-sm px-3 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/40 text-white shadow-lg rounded-full flex items-center gap-2 transition-colors duration-300 ease-in-out"
                 >
                   <Icon name={infoIcon} class="w-4 h-4 flex-shrink-0" />
-                  <span class="w-0 overflow-hidden group-hover:w-20 transition-all duration-300 text-xs whitespace-nowrap">
-                    {helpText}
-                  </span>
-                </label>
-                <div
-                  tabindex="0"
-                  class="dropdown-content z-[1] card w-64 sm:w-80 p-2 shadow-lg bg-black/70 backdrop-blur-md text-white border border-white/20 mb-4"
-                  data-state="closed"
-                >
-                  <div class="card-body p-3">
-                    <p class="text-sm">{description}</p>
-                  </div>
+                  <span class="text-xs whitespace-nowrap">{helpText}</span>
+                </summary>
+                <div class="dropdown-panel z-[1] w-64 sm:w-80 p-3 bg-black/70 backdrop-blur-md text-white border border-white/20 rounded-xl shadow-lg">
+                  <p class="text-sm">{description}</p>
                 </div>
-              </div>
+              </details>
             </div>
           )}
         </div>
@@ -145,31 +127,43 @@ const accessibleHelpText = `${helpText}: ${title}`;
   </div>
 </Card>
 
-<script>
-  document.addEventListener("astro:page-load", () => {
-    // Get all info buttons and dropdown contents
-    const infoButtons = document.querySelectorAll(".dropdown label");
-    const dropdownContents = document.querySelectorAll(".dropdown-content");
+<style>
+  .dropdown-info {
+    position: relative;
+    display: inline-flex;
+  }
 
-    // Add click event listeners
-    infoButtons.forEach((button, index) => {
-      button.addEventListener("click", () => {
-        const content = dropdownContents[index];
-        const currentState = content.getAttribute("data-state");
+  .dropdown-info summary {
+    list-style: none;
+    cursor: pointer;
+  }
 
-        // Toggle state
-        if (currentState === "closed") {
-          content.setAttribute("data-state", "open");
-          // Add animation classes when opening
-          content.classList.add("scale-100", "opacity-100");
-          content.classList.remove("scale-90", "opacity-0");
-        } else {
-          content.setAttribute("data-state", "closed");
-          // Remove animation classes when closing
-          content.classList.add("scale-90", "opacity-0");
-          content.classList.remove("scale-100", "opacity-100");
-        }
-      });
-    });
-  });
-</script>
+  .dropdown-info summary::marker,
+  .dropdown-info summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .dropdown-info summary:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 2px;
+  }
+
+  .dropdown-panel {
+    position: absolute;
+    bottom: calc(100% + 1rem);
+    right: 0;
+    transform-origin: top right;
+    transform: scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .dropdown-info[open] .dropdown-panel {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+</style>

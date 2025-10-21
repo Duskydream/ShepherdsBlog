@@ -42,17 +42,12 @@ site:
       href: /friend
       svg: "material-symbols:supervisor-account-outline-rounded"
       target: _self
-    - id: my
-      text: My
-      href: /my
+
+    - id: anime
+      text: Anime
+      href: /anime
       target: _self
-      svg: "material-symbols:person-outline-rounded"
-      subItems:
-        - id: anime
-          text: Anime
-          href: /anime
-          target: _self
-          svg: "material-symbols:live-tv-rounded"
+      svg: "material-symbols:live-tv-rounded"
 
     - id: link
       text: Links

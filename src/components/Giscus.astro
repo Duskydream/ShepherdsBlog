@@ -2,50 +2,83 @@
 
 ---
 
-<div id="comments" class="mt-12">
-  <script
-    src="https://giscus.app/client.js"
-    data-repo="Duskydream/ShepherdsBlog"
-    data-repo-id="R_kgDOP0om7Q"
-    data-category="General"
-    data-category-id="DIC_kwDOP0om7c4Cv4dH"
-    data-mapping="pathname"
-    data-strict="0"
-    data-reactions-enabled="1"
-    data-emit-metadata="0"
-    data-input-position="bottom"
-    data-theme="light_tritanopia"
-    data-lang="zh-CN"
-    data-loading="lazy"
-    crossorigin="anonymous"
-    async></script>
-  <noscript>请开启 JavaScript 以查看评论。</noscript>
-</div>
+<div id="giscus-container" class="mt-12" data-loaded="false"></div>
+<noscript>请开启 JavaScript 以查看评论。</noscript>
 
-<!-- 自动根据 html[data-theme-type] 切换 giscus -->
+<!-- 延迟加载 giscus，进入视口后再请求脚本 -->
 <script is:inline>
   document.addEventListener("astro:page-load", () => {
-    const iframe = document.querySelector("iframe.giscus-frame");
-    if (!iframe) return;
+    const container = /** @type {HTMLDivElement | null} */ (document.querySelector("#giscus-container"));
+    if (!container) return;
 
-    const setGiscusTheme = (theme) => {
-      iframe.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, "https://giscus.app");
+    const html = document.documentElement;
+    /** @type {MutationObserver | null} */
+    let themeObserver = null;
+
+    const resolveTheme = () => (html.getAttribute("data-theme-type") === "dark" ? "dark" : "light");
+
+    const postThemeToIframe = () => {
+      const iframe = /** @type {HTMLIFrameElement | null} */ (container.querySelector("iframe.giscus-frame"));
+      if (!iframe || !iframe.contentWindow) return false;
+      iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: resolveTheme() } } }, "https://giscus.app");
+      return true;
     };
 
-    // 根据 html 的 data-theme-type 设置初始值
-    const html = document.documentElement;
-    const themeType = html.getAttribute("data-theme-type");
-    setGiscusTheme(themeType === "dark" ? "dark" : "light");
+    const ensureThemeSync = () => {
+      if (!postThemeToIframe()) {
+        requestAnimationFrame(ensureThemeSync);
+        return;
+      }
 
-    // 监听属性变化（当你切换主题时，html[data-theme-type] 会变化）
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((m) => {
-        if (m.attributeName === "data-theme-type") {
-          const newTheme = html.getAttribute("data-theme-type");
-          setGiscusTheme(newTheme === "dark" ? "dark" : "light");
-        }
+      if (themeObserver) return;
+
+      themeObserver = new MutationObserver(() => {
+        postThemeToIframe();
       });
-    });
-    observer.observe(html, { attributes: true });
+      themeObserver.observe(html, { attributes: true, attributeFilter: ["data-theme-type"] });
+    };
+
+    const loadGiscus = () => {
+      if (container.dataset.loaded === "true") return;
+
+      const script = document.createElement("script");
+      script.src = "https://giscus.app/client.js";
+      script.async = true;
+      script.crossOrigin = "anonymous";
+
+      script.setAttribute("data-repo", "Duskydream/ShepherdsBlog");
+      script.setAttribute("data-repo-id", "R_kgDOP0om7Q");
+      script.setAttribute("data-category", "General");
+      script.setAttribute("data-category-id", "DIC_kwDOP0om7c4Cv4dH");
+      script.setAttribute("data-mapping", "pathname");
+      script.setAttribute("data-strict", "0");
+      script.setAttribute("data-reactions-enabled", "1");
+      script.setAttribute("data-emit-metadata", "0");
+      script.setAttribute("data-input-position", "bottom");
+      script.setAttribute("data-theme", "light_tritanopia");
+      script.setAttribute("data-lang", "zh-CN");
+      script.setAttribute("data-loading", "lazy");
+
+      script.addEventListener("load", () => {
+        requestAnimationFrame(ensureThemeSync);
+      });
+
+      container.appendChild(script);
+      container.dataset.loaded = "true";
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            observer.disconnect();
+            loadGiscus();
+          }
+        });
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(container);
   });
 </script>

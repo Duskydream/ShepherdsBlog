@@ -73,80 +73,6 @@ const sites = [{ name: "Frosti Demo", url: "https://frosti.saroprock.com/" }];
           </div>
         </section>
 
-        <!-- Contributors Section -->
-        <section>
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Icon name="lucide:git-pull-request" class="w-6 h-6 text-primary" />
-            <span>Contributors</span>
-          </h2>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <FriendCard
-              name="EveSunMaple"
-              avatar="https://github.com/EveSunMaple.png"
-              description="Coding is my hobby, not my career."
-              url="https://github.com/EveSunMaple"
-              type="contributor"
-            />
-            <FriendCard
-              name="Loping151"
-              avatar="https://github.com/Loping151.png"
-              description="Loping151"
-              url="https://github.com/Loping151"
-              type="contributor"
-            />
-            <FriendCard
-              name="Tianxiang Roxiyater"
-              avatar="https://github.com/TNXG.png"
-              description="明日尚未到来，希望凝于心上"
-              url="https://github.com/TNXG"
-              type="contributor"
-            />
-            <FriendCard
-              name="Yaoqx"
-              avatar="https://github.com/YaoqxCN.png"
-              description="A lazy junior high school student who likes coding!"
-              url="https://github.com/YaoqxCN"
-              type="contributor"
-            />
-            <FriendCard
-              name="Yao Tutu"
-              avatar="https://github.com/yaotutu.png"
-              description="Graduated student of SHMTU, CS major."
-              url="https://github.com/yaotutu"
-              type="contributor"
-            />
-            <FriendCard
-              name="WRXinYue"
-              avatar="https://github.com/WRXinYue.png"
-              description="Technology is not just a tool; it is a joy and an art."
-              url="https://github.com/WRXinYue"
-              type="contributor"
-            />
-            <FriendCard
-              name="龙一"
-              avatar="https://github.com/linglilongyi.png"
-              description="linglilongyi"
-              url="https://github.com/linglilongyi"
-              type="contributor"
-            />
-            <FriendCard
-              name="Youngestar"
-              avatar="https://github.com/youngestar.png"
-              description="Just go ahead!"
-              url="https://github.com/youngestar"
-              type="contributor"
-            />
-            <FriendCard
-              name="Liks"
-              avatar="https://github.com/Liksone.png"
-              description="Liks"
-              url="https://github.com/Liksone"
-              type="contributor"
-            />
-          </div>
-        </section>
-
         <!-- Useful Resources Section -->
         <section>
           <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -209,35 +135,5 @@ const sites = [{ name: "Frosti Demo", url: "https://frosti.saroprock.com/" }];
         </div>
       </div>
     </MainCard>
-    <Card>
-      <div class="p-4 sm:p-6">
-        <div class="space-y-10">
-          <section>
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
-              <h2 class="text-2xl font-bold flex items-center gap-2">
-                <Icon name="lucide:layout-template" class="w-6 h-6 text-primary" />
-                <span>Sites Using Frosti</span>
-              </h2>
-              <a
-                href="https://github.com/EveSunMaple/Frosti/edit/main/src/pages/friend.astro"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-sm btn-outline btn-primary gap-2"
-              >
-                <Icon name="lucide:plus-circle" class="w-4 h-4" />
-                Add Your Site
-              </a>
-            </div>
-            <p class="text-base-content/70 mb-6">
-              Here is a list of sites built with Frosti. Want to get your site listed? Click the "Add Your Site" button
-              in the top right to edit this page by submitting a Pull Request!
-            </p>
-            <div class="flex flex-wrap items-center gap-3">
-              {sites.map((site) => <Showcase name={site.name} url={site.url} />)}
-            </div>
-          </section>
-        </div>
-      </div>
-    </Card>
   </CardGroup>
 </BaseLayout>
