@@ -48,6 +48,60 @@ type Subject = {
       </div>
     </div>
 
+    <!-- 聚焦覆盖：放大图片 + 背景虚化，尺寸适中，贴合 MainCard 风格 -->
+    <div
+      id="focus-overlay"
+      class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-200 ease-out bg-black/40 backdrop-blur-sm"
+      aria-hidden="true"
+    >
+      <div
+        id="focus-panel"
+        class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-95 opacity-0 transition duration-200 ease-out bg-white rounded-2xl shadow-xl border w-[90vw] max-w-3xl md:w-[72vw] max-h-[82vh] overflow-hidden"
+      >
+        <div class="flex flex-col md:flex-row">
+          <div
+            class="md:w-[50%] bg-gray-100 relative overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none"
+          >
+            <img id="focus-img" alt="cover" class="w-full h-[34vh] md:h-[52vh] object-contain" />
+            <button
+              id="focus-close"
+              class="absolute top-3 right-3 text-white/90 hover:text-white bg-black/40 hover:bg-black/60 rounded-full w-9 h-9 grid place-items-center"
+              aria-label="关闭"
+            >
+              ✕
+            </button>
+          </div>
+          <div
+            class="md:w-[50%] p-5 md:p-6 flex flex-col min-w-0 bg-white/95 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none"
+          >
+            <h3 id="focus-title" class="text-base md:text-lg font-semibold text-gray-900 line-clamp-2"></h3>
+            <p
+              id="focus-comment"
+              class="mt-3 text-sm text-gray-700 whitespace-pre-wrap break-words overflow-auto max-h-[26vh] md:max-h-[40vh]"
+            >
+            </p>
+            <div class="mt-4 md:mt-auto pt-2 flex flex-wrap items-center gap-3">
+              <a
+                id="focus-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+              >
+                前往 Bangumi
+              </a>
+              <button
+                id="focus-dismiss"
+                class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm hover:bg-gray-200"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" is:inline>
       // EdgeOne 部署：优先尝试云函数 /api/bangumi (动态)，失败则回退静态预构建 /data/bangumi.json
       // 允许通过全局变量 __BANGUMI_API__ 或环境注入自定义 API 前缀（例如反向代理或不同函数路径）
@@ -237,11 +291,23 @@ type Subject = {
         const title = (item.subject.name_cn || item.subject.name || "").replace(/"/g, "&quot;");
         const img = item.subject.images?.common;
         const id = item.subject.id;
+        const hasComment = !!(item.comment && String(item.comment).trim());
         const date = item.subject.date ? `<p class="text-xs text-gray-500 mb-2">${item.subject.date}</p>` : "";
         return `
-          <div class="card bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center" data-name="${(title || "").toLowerCase()}">
-            ${img ? `<a href="https://bgm.tv/subject/${id}" target="_blank" rel="noopener noreferrer"><img src="${img}" alt="${title}" class="w-full h-48 md:h-56 lg:h-60 object-cover rounded-t-xl" loading="lazy" /></a>` : ""}
-            <h3 class="mt-2 text-sm font-medium truncate px-2">${title}</h3>
+          <div class="card relative bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300" data-name="${(title || "").toLowerCase()}" data-id="${id}" tabindex="0" role="button" aria-label="查看评论：${title}">
+            ${
+              hasComment
+                ? `
+            <span class=\"absolute top-1 right-1 sm:top-2 sm:right-2 z-10 pointer-events-none drop-shadow\" aria-hidden=\"true\">
+              <svg viewBox=\"0 0 24 24\" class=\"w-4 h-4 sm:w-5 sm:h-5\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">
+                <path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.9 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z\" fill=\"#ffffff\" stroke=\"#E5E7EB\" stroke-width=\"1.5\"/>
+              </svg>
+            </span>
+            `
+                : ""
+            }
+            ${img ? `<img src="${img}" alt="${title}" class="w-full h-48 md:h-56 lg:h-60 object-cover rounded-t-xl" loading="lazy" />` : ""}
+            <h3 class="mt-2 text-sm font-medium truncate px-2" title="${title}">${title}</h3>
             ${date}
           </div>
         `;
@@ -296,6 +362,96 @@ type Subject = {
 
       // Search
       searchInput.addEventListener("input", () => renderCurrent());
+
+      // -------- 聚焦覆盖逻辑（放大图片+虚化背景） --------
+      const overlay = document.getElementById("focus-overlay");
+      const panel = document.getElementById("focus-panel");
+      const fImg = document.getElementById("focus-img");
+      const fTitle = document.getElementById("focus-title");
+      const fComment = document.getElementById("focus-comment");
+      const fLink = document.getElementById("focus-link");
+      const fClose = document.getElementById("focus-close");
+      const fDismiss = document.getElementById("focus-dismiss");
+      let lastFocusedCard = null;
+
+      function findItemById(id) {
+        id = Number(id);
+        const pools = [dataStore.watching || [], dataStore.wish || [], dataStore.watched || []];
+        for (const list of pools) {
+          const hit = list.find((x) => x?.subject?.id === id);
+          if (hit) return hit;
+        }
+        return null;
+      }
+
+      function openFocusByItem(item, anchorEl) {
+        if (!item) return;
+        lastFocusedCard = anchorEl || null;
+        const title = item.subject?.name_cn || item.subject?.name || "";
+        const cover = item.subject?.images?.common || item.subject?.images?.large || "";
+        const link = `https://bgm.tv/subject/${item.subject?.id}`;
+        const cmt = item.comment && String(item.comment).trim() ? String(item.comment) : "暂无评论";
+
+        fTitle.textContent = title;
+        fImg.src = cover || "";
+        fComment.textContent = cmt;
+        fLink.href = link;
+
+        overlay.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          overlay.classList.remove("opacity-0");
+          panel.classList.remove("opacity-0", "scale-95");
+        });
+        // 初始焦点放在关闭按钮
+        setTimeout(() => fClose?.focus(), 0);
+      }
+
+      function closeFocus() {
+        overlay.classList.add("opacity-0");
+        panel.classList.add("opacity-0", "scale-95");
+        setTimeout(() => {
+          overlay.classList.add("hidden");
+          // 归还焦点到原卡片
+          if (lastFocusedCard) {
+            try {
+              lastFocusedCard.focus();
+            } catch {}
+            lastFocusedCard = null;
+          }
+        }, 200);
+      }
+
+      // 委托点击卡片打开
+      contentArea.addEventListener("click", (e) => {
+        const card = e.target.closest?.(".card");
+        if (!card) return;
+        const id = card.getAttribute("data-id");
+        if (!id) return;
+        const item = findItemById(id);
+        openFocusByItem(item, card);
+      });
+
+      // 键盘激活
+      contentArea.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const card = e.target.closest?.(".card");
+        if (!card) return;
+        e.preventDefault();
+        const id = card.getAttribute("data-id");
+        const item = findItemById(id);
+        openFocusByItem(item, card);
+      });
+
+      // 关闭逻辑
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeFocus();
+      });
+      fClose?.addEventListener("click", closeFocus);
+      fDismiss?.addEventListener("click", closeFocus);
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !overlay.classList.contains("hidden")) closeFocus();
+      });
+      // -------- 结束 --------
 
       // Initial load: 每次进入页面都强制请求 API；若仍是静态则继续直连上游，保证“重新进入页面”即可获取最新。
       (async () => {
