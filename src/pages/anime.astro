@@ -29,7 +29,7 @@ type Subject = {
               data-tab="watching"
               class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-neutral-800 text-white font-semibold shadow transition-colors"
             >
-              Watching
+              Present
             </button>
             <button
               data-tab="wish"
@@ -44,7 +44,6 @@ type Subject = {
               Collect
             </button>
           </div>
-          <span id="last-update" class="text-xs text-gray-500 select-none hidden"></span>
         </div>
       </div>
 
@@ -141,7 +140,7 @@ type Subject = {
       const CLIENT_TTL = 60 * 60 * 1000; // 1 hour client-side fallback cache
       const AUTO_REFRESH_MS = 15 * 60 * 1000; // auto refresh every 15 minutes
 
-      let currentTab = "watching";
+      let currentTab = "Watching";
       let dataStore = { watching: [], wish: [], watched: [] };
       // 最近一次从 /api 或静态/回退获取的元信息，用来判断是否需要直接抓取上游 API
       let lastFetchMeta = null;
@@ -174,27 +173,6 @@ type Subject = {
 
       const searchInput = document.getElementById("search");
       const contentArea = document.getElementById("content-area");
-      const lastUpdateEl = document.getElementById("last-update");
-
-      function formatTime(ts) {
-        const d = new Date(ts);
-        const pad = (n) => String(n).padStart(2, "0");
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-      }
-      function setLastUpdate(meta) {
-        if (!lastUpdateEl) return;
-        const { cachedAt, servedFrom } = meta || {};
-        let message = "";
-        if (cachedAt) {
-          message = `Update: ${formatTime(cachedAt)} (${servedFrom || "?"})`;
-        } else if (servedFrom) {
-          message = `来源: ${servedFrom}`;
-        }
-        if (message) {
-          lastUpdateEl.textContent = message;
-          lastUpdateEl.classList.remove("hidden");
-        }
-      }
 
       async function fetchFromApi(force = false) {
         if (!force) {
