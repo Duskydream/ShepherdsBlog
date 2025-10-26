@@ -1,229 +1,174 @@
----
+﻿---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MainCard from "@/components/MainCard.astro";
-
-type Subject = {
-  id: number;
-  name: string;
-  name_cn?: string;
-  date?: string;
-  images?: { common?: string };
-};
-
-// remove server-side fetching so page is static-built and client will update
 ---
 
 <BaseLayout title="Anime">
   <MainCard title="Anime" description="追番记录" textOverlay="Anime" infoIcon="lucide:tv">
-    <div class="space-y-4 mb-8 max-w-7xl mx-auto px-4">
+    <div class="space-y-6 mb-8 max-w-7xl mx-auto px-4">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <input
           type="text"
           id="search"
-          placeholder="Search anime or games..."
-          class="px-4 py-2 w-full md:w-80 lg:w-80 rounded-full border-2 border-neutral-800 focus:border-neutral-800 focus:ring-2 focus:ring-neutral-800/20 outline-none transition"
+          placeholder="搜索动画或游戏..."
+          class="px-4 py-2 w-full md:w-80 rounded-full border-2 border-neutral-800 focus:border-neutral-800 focus:ring-2 focus:ring-neutral-800/20 outline-none transition"
         />
-        <div class="flex items-center gap-2">
-          <div class="flex gap-2" id="tab-group">
-            <button
-              data-tab="watching"
-              class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-neutral-800 text-white font-semibold shadow transition-colors"
-            >
-              Present
-            </button>
-            <button
-              data-tab="wish"
-              class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-transparent text-neutral-900 font-semibold transition-colors hover:bg-neutral-800/5"
-            >
-              Wish
-            </button>
-            <button
-              data-tab="watched"
-              class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-transparent text-neutral-900 font-semibold transition-colors hover:bg-neutral-800/5"
-            >
-              Collect
-            </button>
-          </div>
+        <div class="flex gap-2" id="tab-group">
+          <button
+            data-tab="watching"
+            class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-neutral-800 text-white font-semibold shadow transition-all"
+            >在看</button
+          >
+          <button
+            data-tab="wish"
+            class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-transparent text-neutral-900 font-semibold transition-all hover:bg-neutral-100"
+            >想看</button
+          >
+          <button
+            data-tab="watched"
+            class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-transparent text-neutral-900 font-semibold transition-all hover:bg-neutral-100"
+            >看过</button
+          >
         </div>
       </div>
-
-      <!-- 内容容器：初始为空，客户端填充 -->
-      <div id="content-area" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        <div id="loading-placeholder" class="col-span-full text-center py-12 text-sm text-gray-500">Loading...</div>
-      </div>
-    </div>
-
-    <!-- 聚焦覆盖：放大图片 + 背景虚化，尺寸适中，贴合 MainCard 风格 -->
-    <div
-      id="focus-overlay"
-      class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-200 ease-out bg-black/40 backdrop-blur-sm"
-      aria-hidden="true"
-    >
-      <div
-        id="focus-panel"
-        class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-95 opacity-0 transition duration-200 ease-out bg-white rounded-2xl shadow-xl border w-[90vw] max-w-xl md:w-[56vw] max-h-[68vh] overflow-hidden"
-      >
-        <div class="flex flex-col md:flex-row">
-          <div
-            class="w-full md:w-[66%] bg-gray-100 relative overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none"
-          >
-            <img id="focus-img" alt="cover" class="w-full h-[26vh] sm:h-[30vh] md:h-[34vh] object-contain" />
-            <button
-              id="focus-close"
-              class="absolute top-3 right-3 text-white/90 hover:text-white bg-black/40 hover:bg-black/60 rounded-full w-9 h-9 grid place-items-center"
-              aria-label="关闭"
-            >
-              ✕
-            </button>
-          </div>
-          <div
-            class="w-full md:w-[34%] p-3 md:p-4 flex flex-col min-w-0 bg-white/95 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none"
-          >
-            <h3 id="focus-title" class="text-base md:text-lg font-semibold text-gray-900 line-clamp-2"></h3>
-            <p
-              id="focus-comment"
-              class="mt-3 text-sm text-gray-700 whitespace-pre-wrap break-words overflow-auto max-h-[38vh] md:max-h-[26vh]"
-            >
-            </p>
-            <div class="mt-2 md:mt-auto pt-1 flex flex-wrap items-center gap-1">
-              <a
-                id="focus-link"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm hover:bg-gray-200"
-              >
-                前往 Bangumi
-              </a>
-              <button
-                id="focus-dismiss"
-                class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm hover:bg-gray-200"
-              >
-                关闭
-              </button>
-            </div>
-          </div>
-        </div>
+      <div id="content-area" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="col-span-full text-center py-12 text-sm text-gray-500">加载中...</div>
       </div>
     </div>
 
     <script type="module" is:inline>
-      // EdgeOne 部署：优先尝试云函数 /api/bangumi (动态)，失败则回退静态预构建 /data/bangumi.json
-      // 允许通过全局变量 __BANGUMI_API__ 或环境注入自定义 API 前缀（例如反向代理或不同函数路径）
-      // window.__BANGUMI_API__ 可在部署平台通过注入 <script> 提前写入，未定义则使用默认 /api/bangumi
-      // 某些情况下（例如被外部脚本抽离 / 内联处理异常）import.meta 可能未定义，做安全访问
-      // Use optional chaining to avoid runtime TypeError when import.meta is undefined
-      let _envApi; // 构建期注入的 PUBLIC_BANGUMI_API（若存在）
+      // ============ 配置 ============
+      let _envApi;
       try {
-        // Astro 打包后 import.meta 通常存在；容错处理防某些运行时沙箱剥离
-        _envApi =
-          (typeof import.meta === "object" && import.meta && import.meta.env && import.meta.env.PUBLIC_BANGUMI_API) ||
-          undefined;
+        _envApi = (typeof import.meta === "object" && import.meta?.env?.PUBLIC_BANGUMI_API) || undefined;
       } catch {
         /* ignore */
       }
       const API = (window.__BANGUMI_API__ || _envApi || "/api/bangumi").replace(/\/$/, "");
-      // 可打开调试：在控制台中查看最终使用的 API
-      if (typeof window !== "undefined" && !window.__BANGUMI_API_DEBUG_REPORTED) {
-        window.__BANGUMI_API_DEBUG_REPORTED = true;
-        console.debug(
-          "[bangumi] API endpoint =",
-          API,
-          "window.__BANGUMI_API__ =",
-          window.__BANGUMI_API__,
-          "env =",
-          _envApi,
-        );
-      }
       const STATIC_FALLBACK = "/data/bangumi.json";
-      const CACHE_KEY = "bangumi_front_cache_v1";
-      const CLIENT_TTL = 60 * 60 * 1000; // 1 hour client-side fallback cache
-      const AUTO_REFRESH_MS = 15 * 60 * 1000; // auto refresh every 15 minutes
+      const CACHE_KEY = "bangumi_cache_v3";
+      const CLIENT_TTL = 30 * 60 * 1000;
+      const AUTO_REFRESH_MS = 10 * 60 * 1000;
 
-      let currentTab = "Watching";
-      let dataStore = { watching: [], wish: [], watched: [] };
-      // 最近一次从 /api 或静态/回退获取的元信息，用来判断是否需要直接抓取上游 API
-      let lastFetchMeta = null;
+      let tab = "watching";
+      let data = { watching: [], wish: [], watched: [] };
+      let expanded = null;
+      let isFetching = false;
+      let fetchAbortController = null;
 
-      // ---- Client cache helpers (previously missing -> caused ReferenceError) ----
-      function readClientCache() {
+      const search = document.getElementById("search");
+      const area = document.getElementById("content-area");
+
+      // ============ 缓存管理 ============
+      function readCache() {
         try {
           const raw = localStorage.getItem(CACHE_KEY);
           if (!raw) return null;
           const parsed = JSON.parse(raw);
-          if (!parsed || typeof parsed !== "object") return null;
-          // TTL check
           if (parsed.__cachedAt && Date.now() - parsed.__cachedAt < CLIENT_TTL) {
             return { watching: parsed.watching || [], wish: parsed.wish || [], watched: parsed.watched || [] };
           }
         } catch (e) {
-          console.debug("[bangumi] readClientCache failed", e);
+          console.debug("Cache read failed", e);
         }
         return null;
       }
-      function saveClientCache(data) {
+
+      function saveCache(obj) {
         try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, __cachedAt: Date.now() }));
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ ...obj, __cachedAt: Date.now() }));
         } catch (e) {
-          // ignore quota / private mode errors
-          console.debug("[bangumi] saveClientCache failed", e);
+          console.debug("Cache save failed", e);
         }
       }
-      // ------------------------------------------------------------------------
 
-      const searchInput = document.getElementById("search");
-      const contentArea = document.getElementById("content-area");
+      // ============ 数据获取 ============
+      async function fetchData(force = false) {
+        if (isFetching) {
+          console.debug("[bangumi] Request already in progress");
+          return null;
+        }
 
-      async function fetchFromApi(force = false) {
         if (!force) {
-          const cached = readClientCache();
+          const cached = readCache();
           if (cached) {
-            dataStore = cached;
-            renderCurrent();
+            data = cached;
+            render();
+            return { cachedAt: Date.now(), servedFrom: "cache" };
           }
         }
+
+        isFetching = true;
+        fetchAbortController = new AbortController();
+
         try {
-          const url = `${API}?t=${Date.now()}${force ? "&force=1" : ""}`;
-          const res = await fetch(url, { cache: "no-store" });
-          if (!res.ok) throw new Error("primary api status " + res.status);
+          const res = await fetch(`${API}?t=${Date.now()}`, {
+            cache: "no-store",
+            signal: fetchAbortController.signal,
+          });
+
+          if (!res.ok) throw new Error(`API status ${res.status}`);
+
           const json = await res.json();
-          dataStore = { watching: json.watching || [], wish: json.wish || [], watched: json.watched || [] };
-          saveClientCache(dataStore);
-          renderCurrent();
-          lastFetchMeta = {
-            cachedAt: json.cachedAt,
-            servedFrom: json.servedFrom || res.headers.get("X-Bangumi-Served-From") || "api",
+          data = {
+            watching: json.watching || [],
+            wish: json.wish || [],
+            watched: json.watched || [],
           };
-          setLastUpdate(lastFetchMeta);
-          return lastFetchMeta;
+          saveCache(data);
+          render();
+
+          return {
+            cachedAt: json.cachedAt || Date.now(),
+            servedFrom: json.servedFrom || "api",
+          };
         } catch (primaryErr) {
-          console.warn("[bangumi] 主API失败，尝试静态回退:", primaryErr);
+          if (primaryErr.name === "AbortError") {
+            console.debug("[bangumi] Request cancelled");
+            return null;
+          }
+
+          console.warn("[bangumi] API failed, trying static fallback:", primaryErr.message);
+
           try {
-            const resStatic = await fetch(`${STATIC_FALLBACK}?t=${Date.now()}`, { cache: "no-store" });
-            if (!resStatic.ok) throw new Error("fallback status " + resStatic.status);
+            const resStatic = await fetch(`${STATIC_FALLBACK}?t=${Date.now()}`, {
+              cache: "no-store",
+              signal: fetchAbortController.signal,
+            });
+
+            if (!resStatic.ok) throw new Error(`Fallback status ${resStatic.status}`);
+
             const json = await resStatic.json();
-            dataStore = { watching: json.watching || [], wish: json.wish || [], watched: json.watched || [] };
-            saveClientCache(dataStore);
-            renderCurrent();
-            lastFetchMeta = { cachedAt: json.cachedAt, servedFrom: "static" };
-            setLastUpdate(lastFetchMeta);
-            return lastFetchMeta;
+            data = {
+              watching: json.watching || [],
+              wish: json.wish || [],
+              watched: json.watched || [],
+            };
+            saveCache(data);
+            render();
+
+            return { cachedAt: json.cachedAt, servedFrom: "static" };
           } catch (fallbackErr) {
-            console.warn("[bangumi] 静态回退也失败:", fallbackErr);
-            if (!dataStore.watching.length && !dataStore.wish.length && !dataStore.watched.length) {
-              contentArea.innerHTML =
-                '<div class="col-span-full text-center py-8 text-sm text-red-500">无法加载番剧数据，请稍后再试。</div>';
+            if (fallbackErr.name === "AbortError") return null;
+
+            console.error("[bangumi] All sources failed:", fallbackErr.message);
+
+            if (!data.watching.length && !data.wish.length && !data.watched.length) {
+              area.innerHTML =
+                '<div class="col-span-full text-center py-8 text-sm text-red-500">无法加载数据，请检查网络连接后刷新页面</div>';
             }
             return null;
           }
+        } finally {
+          isFetching = false;
+          fetchAbortController = null;
         }
       }
 
-      // 直接抓取 Bangumi 上游 API（当 /api/bangumi 只是静态快照时，用户希望手动刷新获取最新）
-      // 仅在用户点击刷新时触发，避免频繁访问上游。与 EdgeOne 函数逻辑对应。
+      // 直接抓取 Bangumi 上游 API
       async function directUpstreamFetch() {
         console.info("[bangumi] 尝试直接抓取上游 API ...");
-        const USER_ID = "851657"; // 与云函数一致，如需更换请同步修改
+        const USER_ID = "851657";
         const LIMIT = 30;
         const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
 
@@ -236,13 +181,13 @@ type Subject = {
               headers: { "User-Agent": "ShepherdBlog/ClientFetch (+github.com/Duskydream)" },
               cache: "no-store",
             });
-            if (!res.ok) break; // 中断，不抛错，保留已获取数据
+            if (!res.ok) break;
             const json = await res.json();
             if (!json.data || json.data.length === 0) break;
             all.push(...json.data);
             if (json.data.length < LIMIT) break;
             page++;
-            if (page > 10) break; // 安全上限，防止意外循环
+            if (page > 10) break;
           }
           return all;
         }
@@ -253,11 +198,9 @@ type Subject = {
             fetchCollection(1), // 想看
             fetchCollection(2), // 看过
           ]);
-          dataStore = { watching, wish, watched };
-          saveClientCache(dataStore);
-          renderCurrent();
-          lastFetchMeta = { cachedAt: Date.now(), servedFrom: "client-fetch" };
-          setLastUpdate(lastFetchMeta);
+          data = { watching, wish, watched };
+          saveCache(data);
+          render();
           console.info(
             "[bangumi] 上游抓取完成: watching=%d wish=%d watched=%d",
             watching.length,
@@ -271,200 +214,121 @@ type Subject = {
         }
       }
 
-      function renderCard(item) {
-        const title = (item.subject.name_cn || item.subject.name || "").replace(/"/g, "&quot;");
-        const img = item.subject.images?.common;
-        const id = item.subject.id;
-        const hasComment = !!(item.comment && String(item.comment).trim());
-        const date = item.subject.date ? `<p class="text-xs text-gray-500 mb-2">${item.subject.date}</p>` : "";
+      // ============ 渲染 ============
+      window.toggle = (id) => {
+        expanded = expanded === id ? null : id;
+        render();
+      };
+
+      function card(item) {
+        const t = item.subject?.name_cn || item.subject?.name || "?";
+        const img = item.subject?.images?.common || "";
+        const id = item.subject?.id || 0;
+        const cmt = item.comment?.trim() || "";
+        const date = item.subject?.date || "";
+        const open = expanded === id;
+
         return `
-          <div class="card relative bg-white rounded-xl shadow hover:shadow-lg transform hover:-translate-y-1 transition overflow-hidden text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300" data-name="${(title || "").toLowerCase()}" data-id="${id}" tabindex="0" role="button" aria-label="查看评论：${title}">
-            ${
-              hasComment
-                ? `
-            <span class=\"absolute top-1 right-1 sm:top-2 sm:right-2 z-10 pointer-events-none drop-shadow transform translate-x-1/4 -translate-y-1/4\" aria-hidden=\"true\">\
-              <svg viewBox=\"0 0 24 24\" class=\"w-5 h-5 sm:w-6 sm:h-6\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\
-                <rect x=\"3\" y=\"4\" width=\"18\" height=\"12\" rx=\"4\" fill=\"none\" stroke=\"#000000\" stroke-width=\"1.5\"/>\
-                <path d=\"M10 16 H14 L12 19 Z\" fill=\"none\" stroke=\"#000000\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/>\
-                <circle cx=\"9\" cy=\"10\" r=\"1.2\" fill=\"#000000\"/>\
-                <circle cx=\"12\" cy=\"10\" r=\"1.2\" fill=\"#000000\"/>\
-                <circle cx=\"15\" cy=\"10\" r=\"1.2\" fill=\"#000000\"/>\
-              </svg>\
-            </span>\
-            `
-                : ""
-            }
-            ${img ? `<img src="${img}" alt="${title}" class="w-full h-48 md:h-56 lg:h-60 object-cover rounded-t-xl" loading="lazy" />` : ""}
-            <h3 class="mt-2 text-sm font-medium truncate px-2 text-neutral-900 dark:text-neutral-900" title="${title}">${title}</h3>
-            ${date}
-          </div>
-        `;
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow">
+  <div class="flex gap-4 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50" onclick="toggle(${id})">
+    <div class="w-24 h-32 rounded overflow-hidden bg-gray-200 flex-shrink-0">
+      ${img ? `<img src="${img}" alt="${t}" class="w-full h-full object-cover"/>` : '<div class="flex items-center justify-center h-full text-3xl">📺</div>'}
+    </div>
+    <div class="flex-1 min-w-0">
+      <h3 class="font-semibold text-lg mb-1 line-clamp-2">${t}</h3>
+      ${date ? `<p class="text-sm text-gray-500 mb-2">📅 ${date}</p>` : ""}
+      ${cmt ? `<p class="text-sm text-gray-600 line-clamp-2">💬 ${cmt.slice(0, 100)}...</p>` : ""}
+    </div>
+    <svg class="w-6 h-6 text-gray-400 transition-transform ${open ? "rotate-180" : ""}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+  <div style="max-height:${open ? "400px" : "0"}" class="overflow-hidden transition-all duration-300">
+    <div class="px-4 pb-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+      ${cmt ? `<div class="my-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3"><h4 class="font-semibold text-sm text-gray-700 dark:text-gray-200 mb-2">💭 我的评论</h4><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${cmt}</p></div>` : ""}
+      <a href="https://bgm.tv/subject/${id}" target="_blank" rel="noopener noreferrer"
+         style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #262626; color: white; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.2s;"
+         onmouseover="this.style.backgroundColor='#171717'"
+         onmouseout="this.style.backgroundColor='#262626'">
+        <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+        <span>前往 Bangumi</span>
+      </a>
+    </div>
+  </div>
+</div>`;
       }
 
-      function renderCurrent() {
-        const list = dataStore[currentTab] || [];
-        const term = (searchInput.value || "").toLowerCase();
-        // Only show 'no content' if data has been loaded and wthe list is empty.
-        // If dataStore is empty, it means we are still in the initial loading phase.
-        if (
-          list.length === 0 &&
-          (dataStore.watching.length > 0 || dataStore.wish.length > 0 || dataStore.watched.length > 0)
-        ) {
-          contentArea.innerHTML = '<div class="col-span-full text-center py-8 text-sm text-gray-500">暂无内容</div>';
+      function render() {
+        const list = data[tab] || [];
+        const term = search.value.toLowerCase().trim();
+        const filtered = term
+          ? list.filter((x) => (x.subject?.name_cn || x.subject?.name || "").toLowerCase().includes(term))
+          : list;
+
+        if (!filtered.length) {
+          area.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">📭 暂无内容</div>';
           return;
         }
-        if (list.length > 0) {
-          const html = list.map((item) => renderCard(item)).join("");
-          contentArea.innerHTML = html;
-        }
-        // apply search filter
-        if (term) {
-          const cards = contentArea.querySelectorAll("[data-name]");
-          cards.forEach((c) => {
-            const name = c.getAttribute("data-name") || "";
-            c.classList.toggle("hidden", !name.includes(term));
-          });
-        }
+
+        area.innerHTML = filtered.map(card).join("");
       }
 
-      // tabs UI: simple CSS class change and switching currentTab
-      function setActiveTab(tab) {
-        currentTab = tab;
-        // update button styles (active: neutral-800 bg + white text; inactive: transparent bg + neutral text)
+      function setTab(t) {
+        tab = t;
+        expanded = null;
         document.querySelectorAll(".tab-btn").forEach((b) => {
-          const isActive = b.dataset.tab === tab;
-          b.classList.toggle("shadow", isActive);
-          b.classList.toggle("bg-neutral-800", isActive);
-          b.classList.toggle("text-white", isActive);
-          b.classList.toggle("bg-transparent", !isActive);
-          b.classList.toggle("text-neutral-900", !isActive);
-          b.classList.toggle("hover:bg-neutral-800/5", !isActive);
-          // keep consistent border
-          b.classList.add("border-2", "border-neutral-800");
+          const active = b.dataset.tab === t;
+          b.classList.toggle("bg-neutral-800", active);
+          b.classList.toggle("text-white", active);
+          b.classList.toggle("shadow", active);
+          b.classList.toggle("bg-transparent", !active);
+          b.classList.toggle("text-neutral-900", !active);
         });
-        renderCurrent();
+        render();
       }
 
-      // Attach tab buttons
-      document.querySelectorAll("#tab-group .tab-btn").forEach((b) => {
-        b.addEventListener("click", () => setActiveTab(b.dataset.tab));
+      document.querySelectorAll(".tab-btn").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
+
+      let timer;
+      search.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          expanded = null;
+          render();
+        }, 300);
       });
 
-      // Search
-      searchInput.addEventListener("input", () => renderCurrent());
-
-      // -------- 聚焦覆盖逻辑（放大图片+虚化背景） --------
-      const overlay = document.getElementById("focus-overlay");
-      const panel = document.getElementById("focus-panel");
-      const fImg = document.getElementById("focus-img");
-      const fTitle = document.getElementById("focus-title");
-      const fComment = document.getElementById("focus-comment");
-      const fLink = document.getElementById("focus-link");
-      const fClose = document.getElementById("focus-close");
-      const fDismiss = document.getElementById("focus-dismiss");
-      let lastFocusedCard = null;
-
-      function findItemById(id) {
-        id = Number(id);
-        const pools = [dataStore.watching || [], dataStore.wish || [], dataStore.watched || []];
-        for (const list of pools) {
-          const hit = list.find((x) => x?.subject?.id === id);
-          if (hit) return hit;
-        }
-        return null;
-      }
-
-      function openFocusByItem(item, anchorEl) {
-        if (!item) return;
-        lastFocusedCard = anchorEl || null;
-        const title = item.subject?.name_cn || item.subject?.name || "";
-        const cover = item.subject?.images?.common || item.subject?.images?.large || "";
-        const link = `https://bgm.tv/subject/${item.subject?.id}`;
-        const cmt = item.comment && String(item.comment).trim() ? String(item.comment) : "暂无评论";
-
-        fTitle.textContent = title;
-        fImg.src = cover || "";
-        fComment.textContent = cmt;
-        fLink.href = link;
-
-        overlay.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          overlay.classList.remove("opacity-0");
-          panel.classList.remove("opacity-0", "scale-95");
-        });
-        // 初始焦点放在关闭按钮
-        setTimeout(() => fClose?.focus(), 0);
-      }
-
-      function closeFocus() {
-        overlay.classList.add("opacity-0");
-        panel.classList.add("opacity-0", "scale-95");
-        setTimeout(() => {
-          overlay.classList.add("hidden");
-          // 归还焦点到原卡片
-          if (lastFocusedCard) {
-            try {
-              lastFocusedCard.focus();
-            } catch {}
-            lastFocusedCard = null;
-          }
-        }, 200);
-      }
-
-      // 委托点击卡片打开
-      contentArea.addEventListener("click", (e) => {
-        const card = e.target.closest?.(".card");
-        if (!card) return;
-        const id = card.getAttribute("data-id");
-        if (!id) return;
-        const item = findItemById(id);
-        openFocusByItem(item, card);
-      });
-
-      // 键盘激活
-      contentArea.addEventListener("keydown", (e) => {
-        if (e.key !== "Enter" && e.key !== " ") return;
-        const card = e.target.closest?.(".card");
-        if (!card) return;
-        e.preventDefault();
-        const id = card.getAttribute("data-id");
-        const item = findItemById(id);
-        openFocusByItem(item, card);
-      });
-
-      // 关闭逻辑
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) closeFocus();
-      });
-      fClose?.addEventListener("click", closeFocus);
-      fDismiss?.addEventListener("click", closeFocus);
-      window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && !overlay.classList.contains("hidden")) closeFocus();
-      });
-      // -------- 结束 --------
-
-      // Initial load: 每次进入页面都强制请求 API；若仍是静态则继续直连上游，保证“重新进入页面”即可获取最新。
+      // ============ 初始化 ============
       (async () => {
-        contentArea.innerHTML = '<div class="col-span-full text-center py-12 text-sm text-gray-500">Loading...</div>';
-        try {
-          localStorage.removeItem(CACHE_KEY);
-        } catch {}
+        area.innerHTML = '<div class="text-center py-12 text-sm text-gray-500">加载中...</div>';
 
-        const meta = await fetchFromApi(true); // 强制刷新云函数/静态 API
+        // 首次加载强制刷新
+        const meta = await fetchData(true);
+
+        // 如果获取的是静态数据，尝试直接抓取上游
         if (!meta || (meta.servedFrom && meta.servedFrom.startsWith("static"))) {
           await directUpstreamFetch();
         }
 
-        // auto refresh periodically（保持之前策略，但不再使用缓存结果）
+        // 自动刷新
         setInterval(async () => {
-          const m2 = await fetchFromApi(true);
+          const m2 = await fetchData(true);
           if (m2 && m2.servedFrom && m2.servedFrom.startsWith("static")) {
-            // 间隔刷新仍是静态时不自动直连上游，避免频繁调用；如需自动可解除注释
+            // 可选：取消注释以启用自动上游抓取
             // await directUpstreamFetch();
           }
         }, AUTO_REFRESH_MS);
 
-        setActiveTab("watching");
+        // 页面可见性检测 - 隐藏时停止刷新
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) {
+            fetchData(true);
+          }
+        });
+
+        setTab("watching");
       })();
     </script>
   </MainCard>

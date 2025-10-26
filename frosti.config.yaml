@@ -65,6 +65,11 @@ site:
           href: https://gemini.google.com/
           target: _blank
           svg: ri:gemini-fill
+        - id: Google AI Studio
+          text: Google AI Studio
+          href: https://aistudio.google.com/
+          target: _blank
+          svg: ri:google-fill
 
 # 用户的个人信息
 user:

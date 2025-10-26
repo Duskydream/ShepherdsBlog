@@ -19,6 +19,7 @@ const {
   showTOC = false,
   isIndexed = true,
   isPost = false, // 文章页传 true 显示评论
+  loadKatex = false, // 是否加载 KaTeX CSS（仅数学公式文章需要）
 } = Astro.props;
 ---
 
@@ -28,7 +29,7 @@ const {
     <ClientRouter />
     <ElementCrossing />
     <PointerOnNavigation />
-    <Header title={title} description={description} favicon={SITE_FAVICON} image={image} />
+    <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
     <!-- 主题初始化 -->

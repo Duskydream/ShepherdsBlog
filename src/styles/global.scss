@@ -26,6 +26,97 @@ code {
   font-size: 0.875em;
 }
 
+/* Enhanced reading experience */
+.prose {
+  /* Improved line height for better readability */
+  @apply leading-relaxed;
+
+  /* Better paragraph spacing */
+  p {
+    @apply mb-6 leading-7;
+  }
+
+  /* Optimized heading spacing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply mt-8 mb-4 leading-tight;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  /* Better list spacing */
+  ul,
+  ol {
+    @apply my-6 space-y-2;
+
+    li {
+      @apply leading-7;
+    }
+  }
+
+  /* Improved blockquote styling */
+  blockquote {
+    @apply my-6 py-4 px-6 border-l-4 border-primary/50 bg-base-200/30 rounded-r-lg;
+
+    p {
+      @apply mb-0 leading-7 text-base-content/90;
+    }
+  }
+
+  /* Better code block contrast in dark mode */
+  pre {
+    @apply my-6 shadow-lg;
+  }
+
+  /* Inline code improvements */
+  :not(pre) > code {
+    @apply px-1.5 py-0.5 rounded bg-base-200 text-base-content font-medium;
+    font-size: 0.9em;
+  }
+
+  /* Image captions */
+  img + em {
+    @apply block text-center text-sm text-base-content/70 mt-2 mb-6;
+  }
+
+  /* Table improvements */
+  table {
+    @apply my-8 shadow-md;
+
+    th {
+      @apply bg-base-200 font-semibold;
+    }
+
+    td,
+    th {
+      @apply py-3 px-4;
+    }
+  }
+
+  /* Link hover effects */
+  a {
+    @apply text-primary transition-colors duration-200;
+
+    &:hover {
+      @apply text-primary underline decoration-2 underline-offset-4;
+    }
+  }
+}
+
 .scrollbar-none {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */

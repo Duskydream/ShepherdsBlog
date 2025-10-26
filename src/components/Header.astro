@@ -1,11 +1,10 @@
 ---
 import "../styles/global.scss";
-import "/node_modules/katex/dist/katex.min.css";
 import type { HeaderProps } from "@interfaces/data";
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, favicon, image } = Astro.props as HeaderProps;
+const { title, description, favicon, image, loadKatex = false } = Astro.props as HeaderProps & { loadKatex?: boolean };
 ---
 
 <meta charset="utf-8" />
@@ -13,8 +12,15 @@ const { title, description, favicon, image } = Astro.props as HeaderProps;
 <link rel="icon" type="image" href={favicon} />
 <meta name="generator" content={Astro.generator} />
 
+<!-- Preconnect to external domains for faster resource loading -->
+<link rel="preconnect" href="https://pic1.imgdb.cn" crossorigin />
+<link rel="dns-prefetch" href="https://pic1.imgdb.cn" />
+
 <meta name="description" content={description} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 {image && <meta property="og:image" content={image} />}
 <link rel="canonical" href={canonicalURL.toString()} />
+
+<!-- Only load KaTeX CSS when needed -->
+{loadKatex && <link rel="stylesheet" href="/node_modules/katex/dist/katex.min.css" />}

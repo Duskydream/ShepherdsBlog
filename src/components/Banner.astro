@@ -6,7 +6,14 @@ import ShootingStars from "@components/Shootingstars.astro";
 <section class={`banner relative w-full flex items-center justify-center text-center overflow-hidden ${extraClass}`}>
   <!-- 背景固定，占满屏幕 -->
   <div class="absolute inset-0">
-    <img src={src} alt={alt} class="banner-img w-full h-full object-cover fixed top-0 left-0" />
+    <img
+      src={src}
+      alt={alt}
+      class="banner-img w-full h-full object-cover fixed top-0 left-0"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
   </div>
 
   <!-- Banner 文字 -->

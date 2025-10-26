@@ -43,6 +43,8 @@ const logs = (await getCollection("log")).sort((a, b) => b.data.date.valueOf() -
               width="160"
               height="160"
               loading="eager"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
         </div>
