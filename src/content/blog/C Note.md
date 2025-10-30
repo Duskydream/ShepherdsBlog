@@ -23,7 +23,7 @@ int main() {
 }
 ```
 
-## 2025-10-30 链表初探 
+## 2025-10-30 链表初探
 
 ### 可变数组
 
@@ -92,10 +92,11 @@ int main(){
 
 #### 2. 占用内存空间大
 
-### ——>链表: 不再申请新的内存，而是在结构体中包含指向上一个或下一个节点的指针
+——>链表: 不再申请新的内存，而是在结构体中包含指向上一个或下一个节点的指针
 
 ```c
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct _node { //节点的定义
 	int value;
@@ -126,7 +127,7 @@ int main(){
 	clear(&list);
 }
 
-void add(List *pList, int number){ 
+void add(List *pList, int number){
 Node *head = NULL; //节点首位初始化为NULL
 	while (getchar()!='\0'){
 		Node *p = (Node*)malloc(sizeof(Node))；
