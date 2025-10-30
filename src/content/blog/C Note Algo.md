@@ -7,6 +7,20 @@ tags: [Coding,Notes,C]
 categories: [Coding Notes]
 ---
 
+# 排序
+
+## 冒泡排序
+
+```c
+int tmp;
+```
+
+# 递归
+
+# 贪心
+
+# 二分法
+
 ## 二分查找
 
 ```c
@@ -54,6 +68,12 @@ int main(void) {
     return 0;
 }
 ```
+
+# 字符串
+
+# 动态规划
+
+# 其他
 
 ## 约瑟夫环
 
