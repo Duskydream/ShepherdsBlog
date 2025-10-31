@@ -129,9 +129,8 @@ int main(){
 
 void add(List *pList, int number){
 Node *head = NULL; //节点首位初始化为NULL
-	while (getchar()!='\0'){
 		Node *p = (Node*)malloc(sizeof(Node))；
-		scanf("%d",&(p->value));
+		p->value = number;
 		p->next = NULL;
 		Node *last = *pList->head;
 		if (last){//检查last节点是否为空
@@ -143,7 +142,6 @@ Node *head = NULL; //节点首位初始化为NULL
 			pList->head = p;//若last节点所指的head为空，则head=p;
 		}
 	}
-}
 
 void print(List *pList){
 	Node *p;
