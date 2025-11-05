@@ -99,6 +99,7 @@ const pageLinks = generatePageLinks(totalPages);
           tags={blog.data.tags}
           word={blog.remarkPluginFrontmatter.totalCharCount}
           time={blog.remarkPluginFrontmatter.readingTime}
+          pinned={blog.data.pinned}
         />
       ))
     }

@@ -29,16 +29,26 @@ export function sortPostsByDate(posts: CollectionEntry<"blog">[]): CollectionEnt
 /**
  * 将文章按置顶和日期排序
  * @param posts 需要排序的文章
- * @returns 排序后的文章 (置顶文章优先，然后是按日期排序)
+ * @returns 排序后的文章 (置顶文章优先按更新时间排序，然后是普通文章按发布日期排序)
  */
 export function sortPostsByPinAndDate(posts: CollectionEntry<"blog">[]): CollectionEntry<"blog">[] {
-  const topPosts = posts.filter((blog: CollectionEntry<"blog">) => blog.data.badge === "Pin");
-  const otherPosts = posts.filter((blog: CollectionEntry<"blog">) => blog.data.badge !== "Pin");
+  // 分离置顶文章和普通文章
+  const pinnedPosts = posts.filter((blog: CollectionEntry<"blog">) => blog.data.pinned === true);
+  const otherPosts = posts.filter((blog: CollectionEntry<"blog">) => blog.data.pinned !== true);
 
-  const sortedTopPosts = sortPostsByDate(topPosts);
+  // 置顶文章按更新时间排序（如果没有更新时间则使用发布时间）
+  const sortedPinnedPosts = [...pinnedPosts].sort(
+    (a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
+      const dateA = a.data.updated || a.data.pubDate;
+      const dateB = b.data.updated || b.data.pubDate;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    },
+  );
+
+  // 普通文章按发布日期排序
   const sortedOtherPosts = sortPostsByDate(otherPosts);
 
-  return [...sortedTopPosts, ...sortedOtherPosts];
+  return [...sortedPinnedPosts, ...sortedOtherPosts];
 }
 
 /**

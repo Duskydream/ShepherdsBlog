@@ -9,6 +9,7 @@ export interface Post {
     badge: string;
     categories: string[];
     tags: string[];
+    pinned?: boolean; // 是否置顶
   };
   remarkPluginFrontmatter: {
     totalCharCount: string;
@@ -39,6 +40,7 @@ export interface PostData {
   word?: string;
   time?: string;
   url?: string;
+  pinned?: boolean; // 是否置顶
 }
 
 // ===== Header Components =====

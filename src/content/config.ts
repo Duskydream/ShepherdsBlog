@@ -10,6 +10,7 @@ const blog = defineCollection({
     image: z.string().optional(),
     badge: z.string().optional(),
     draft: z.boolean().default(false),
+    pinned: z.boolean().default(false), // 是否置顶
     categories: z
       .array(z.string())
       .refine((items) => new Set(items).size === items.length, {

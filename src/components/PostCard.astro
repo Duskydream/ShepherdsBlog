@@ -20,12 +20,23 @@ const {
   word = "0",
   time = "0",
   url = decodeURIComponent(Astro.url.toString()),
+  pinned = false, // 是否置顶
 } = Astro.props as PostData;
 
 const displayDate = pubDate ? dayjs(pubDate).format(DATE_FORMAT) : "";
 ---
 
-<Card class="overflow-hidden">
+<Card class="overflow-hidden relative">
+  {/* 置顶标识 */}
+  {
+    pinned && (
+      <div class="absolute top-0 left-0 z-20 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1 text-xs font-bold flex items-center gap-1 rounded-br-lg shadow-lg">
+        <Icon name="lucide:pin" class="w-3 h-3" />
+        <span>置顶</span>
+      </div>
+    )
+  }
+
   <div class="flex flex-col lg:flex-row">
     <!-- Content Section -->
     <div class="flex-1 p-6 overflow-hidden bg-base-100 lg:order-1 order-2 flex flex-col justify-between">

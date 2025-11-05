@@ -6,6 +6,7 @@ pubDate: 2025-10-12
 updated: 2025-11-02
 tags: [Coding,Notes,C]
 categories: [Coding Notes]
+pinned: true
 ---
 
 ### 使用指针进行动态内存分配
