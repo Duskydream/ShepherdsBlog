@@ -2,6 +2,7 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import License from "@components/widgets/License.astro";
 import PostInfo from "@components/widgets/PostInfo.astro";
+import PostMetadata from "@components/widgets/PostMetadata.astro";
 import PostFilter from "@components/widgets/PostFilter.astro";
 import { type CollectionEntry, getCollection } from "astro:content";
 import dayjs from "@utils/dayjs";
@@ -22,6 +23,7 @@ interface Props {
 const { blog } = Astro.props;
 const { Content, remarkPluginFrontmatter, headings } = await blog.render();
 const displayDate = blog.data.pubDate ? dayjs(blog.data.pubDate).format(DATE_FORMAT) : "";
+const updatedDate = blog.data.updated ? dayjs(blog.data.updated).format(DATE_FORMAT) : "";
 const image = new URL(`/og/${blog.slug}.png`, Astro.site).toString();
 const url = new URL(`/${blog.slug}`, Astro.url.origin);
 
@@ -52,6 +54,16 @@ const hasMath = content.includes("$$") || content.includes("$") || content.inclu
       badge={blog.data.badge}
       word={remarkPluginFrontmatter.totalCharCount}
       time={remarkPluginFrontmatter.readingTime}
+    />
+
+    <!-- 新增：文章元数据（阅读时长、阅读人数、更新时间） -->
+    <PostMetadata
+      readingTime={remarkPluginFrontmatter.readingTime}
+      wordCount={remarkPluginFrontmatter.totalCharCount}
+      showViewCount={true}
+      updatedDate={updatedDate}
+      pubDate={displayDate}
+      pageKey={`/blog/${blog.slug}`}
     />
 
     <div class="mb-6">

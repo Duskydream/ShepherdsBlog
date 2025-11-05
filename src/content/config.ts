@@ -26,11 +26,12 @@ const blog = defineCollection({
 });
 
 const logCollection = defineCollection({
+  type: "content",
   schema: z.object({
     title: z.string(),
-    date: z.date(),
+    date: z.coerce.date(),
+    updated: z.coerce.date().optional(),
   }),
 });
 
-export const collections = { blog,
-  log: logCollection,  };
+export const collections = { blog, log: logCollection };

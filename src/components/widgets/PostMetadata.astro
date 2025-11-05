@@ -1,0 +1,83 @@
+---
+/**
+ * PostMetadata 组件
+ * 显示文章的元数据：阅读时长、阅读人数、最后更新时间
+ */
+import { Icon } from "astro-icon/components";
+import { t } from "@/config";
+
+interface Props {
+  readingTime?: number | string; // 阅读时长（分钟）
+  showViewCount?: boolean; // 是否显示阅读人数统计
+  updatedDate?: string; // 最后更新时间
+  pubDate?: string; // 发布时间（如果未更新则不显示更新时间）
+  wordCount?: number; // 字数统计
+  pageKey?: string; // 页面唯一标识符，用于不蒜子统计
+}
+
+const { readingTime, showViewCount = true, updatedDate, pubDate, wordCount, pageKey } = Astro.props;
+
+// 判断是否有更新时间且不同于发布时间
+const hasUpdate = updatedDate && pubDate && updatedDate !== pubDate;
+---
+
+<div
+  class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm opacity-75 border-t border-b border-base-300 py-3 my-4"
+>
+  <!-- 阅读时长 -->
+  {
+    readingTime && (
+      <div class="flex items-center gap-1.5" title="预计阅读时间">
+        <Icon name="lucide:clock" class="h-4 w-4 flex-shrink-0" />
+        <span class="truncate">
+          {readingTime} {t("label.readTime")}
+        </span>
+      </div>
+    )
+  }
+
+  <!-- 字数统计 -->
+  {
+    wordCount && (
+      <div class="flex items-center gap-1.5" title="文章字数">
+        <Icon name="lucide:book-open" class="h-4 w-4 flex-shrink-0" />
+        <span class="truncate">
+          {wordCount} {t("label.wordCount")}
+        </span>
+      </div>
+    )
+  }
+
+  <!-- 阅读人数统计（不蒜子） -->
+  {
+    showViewCount && (
+      <div class="flex items-center gap-1.5" title="阅读人数">
+        <Icon name="lucide:eye" class="h-4 w-4 flex-shrink-0" />
+        <span class="truncate">
+          <span id="busuanzi_value_page_pv" data-page-key={pageKey}>
+            <span class="animate-pulse">···</span>
+          </span>{" "}
+          次阅读
+        </span>
+      </div>
+    )
+  }
+
+  <!-- 最后更新时间 -->
+  {
+    hasUpdate && (
+      <div class="flex items-center gap-1.5" title="最后更新时间">
+        <Icon name="lucide:refresh-cw" class="h-4 w-4 flex-shrink-0" />
+        <span class="truncate">更新于 {updatedDate}</span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  /* 确保统计数字加载时有视觉反馈 */
+  #busuanzi_value_page_pv {
+    min-width: 2ch;
+    display: inline-block;
+  }
+</style>

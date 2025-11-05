@@ -3,6 +3,7 @@ title: C语言学习笔记
 author: Shepherd Meng
 description: 学习笔记
 pubDate: 2025-10-12
+updated: 2025-11-02
 tags: [Coding,Notes,C]
 categories: [Coding Notes]
 ---

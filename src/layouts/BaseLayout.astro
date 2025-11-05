@@ -32,6 +32,9 @@ const {
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
+    <!-- 不蒜子统计脚本 - 用于页面访问计数 -->
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
     <!-- 主题初始化 -->
     <script define:vars={{ SITE_THEME }} is:inline>
       (function () {
