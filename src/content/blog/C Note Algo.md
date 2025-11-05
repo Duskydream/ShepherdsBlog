@@ -148,7 +148,7 @@ int main(void){
     int n,i,j;
     scanf("%d",&n);
     int height[n];
-    for (int i=0;i<n;i++) scanf("%d",&arr[i]);
+    for (int i=0;i<n;i++) scanf("%d",&height[i]);
     max = height[0];
     for (i=0;i<n;i++){
         for (j=i+1;j<n;j++){
