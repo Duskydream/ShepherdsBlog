@@ -14,12 +14,148 @@ pinned: true
 ## 冒泡排序
 
 ```c
-int tmp;
+//核心：相邻数字依次比较
+void bubble(int arr[], int n) {
+    int i, j;
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+            int tmp;
+            if (arr[j] > arr[j + 1]) { //升序排列
+                tmp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+            }
+        }
+    }
+}
+```
+
+## 选择排序
+
+略 简要理解为从数组遍历n-i个数选择最值到第i个位置替换
+
+# 高精度算法
+
+## 高精度的四则运算
+
+```c
+#include <stdio.h>
+#include <string.h>
+
+// 高精度四则运算，本质上是算法对竖式的实现
+char* plus(char* num1, char* num2, char result[]);
+int main() {
+	char num1[1001] = { 0 }, num2[1001] = { 0 };
+	char result[2002] = { 0 };
+	scanf("%s", num1);
+	scanf("%s", num2);
+	printf("%s", plus(num1, num2, result));
+}
+
+char* plus(char* num1, char* num2, char result[]) {
+	int a[1001] = {0}, b[1001] = {0}, c[2002] = {0}, i;
+	int la = strlen(num1), lb = strlen(num2);
+	for (i = 0; i < la; i++) a[i] = num1[la - 1 - i] - '0';
+	for (i = 0; i < lb; i++) b[i] = num2[lb - 1 - i] - '0';
+	int lc = la > lb ? la : lb;
+	for (i = 0; i < lc; i++) {
+		c[i] += a[i] + b[i]; //加法逻辑
+		//处理进位
+		c[i + 1] += c[i] / 10;
+		c[i] %= 10;
+	}
+	while (c[lc] == 0 && lc > 0) lc--;
+	for (i = 0; i <= lc; i++) result[i] = c[lc - i] + '0';
+	result[lc + 1] = '\0';
+	return result;
+}
+   
+//乘法：
+int lc = la+lb;
+for (i=0;i<la;i++){
+	for (j=0;j<lb;j++){
+		c[i+j] += a[i]*b[j];
+		c[i+j+1] += c[i+j] /10;
+        c[i+j] = c[i+j]%10;
+	}
+}
+
+//减法
+int lc = la>lb?la:lb;
+for (int i = 0; i < len; i++) {
+	c[i] = a[i] - b[i];
+	if (c[i] < 0) {
+		c[i] += 10;
+		a[i + 1]--;
+	}
+}
+
+//除法（需要提前检查除数是否为零）
+int lc = 0;
+int tempLen = 0, temp[1001] = {0};
+
+for (i = 0; i < la; i++) {
+	// 将temp左移一位，并添加新的一位数字
+	for (j = tempLen; j > 0; j--) {
+		temp[j] = temp[j - 1];
+	}
+	temp[0] = a[i];
+	if (tempLen > 0 || temp[0] != 0) tempLen++;
+	
+	// 计算当前temp可以被除数除多少次
+	int quotient = 0;
+	while (1) {
+		// 比较temp和b的大小
+		int cmp = 0;
+		if (tempLen > lb) {
+			cmp = 1;
+		} else if (tempLen < lb) {
+			cmp = -1;
+		} else {
+			for (j = 0; j < tempLen; j++) {
+				if (temp[j] > b[j]) {
+					cmp = 1;
+					break;
+				} else if (temp[j] < b[j]) {
+					cmp = -1;
+					break;
+				}
+			}
+		}
+		
+		if (cmp < 0) break;
+		
+		// temp >= b，执行减法
+		int borrow = 0;
+		for (j = tempLen - 1; j >= 0; j--) {
+			int pos = j - (tempLen - lb);
+			int sub = (pos >= 0) ? b[pos] : 0;
+			temp[j] -= sub + borrow;
+			if (temp[j] < 0) {
+				temp[j] += 10;
+				borrow = 1;
+			} else {
+				borrow = 0;
+			}
+		}
+		
+		// 去掉前导0
+		while (tempLen > 0 && temp[0] == 0) {
+			for (j = 0; j < tempLen - 1; j++) {
+				temp[j] = temp[j + 1];
+			}
+			temp[tempLen - 1] = 0;
+			tempLen--;
+		}
+		
+		quotient++;
+	}
+	
+	c[lc++] = quotient;
+}
 ```
 
 # 贪心
-
-## 背包问题
 
 ## 双指针
 
@@ -146,9 +282,9 @@ int maxArea(int* height, int heightSize) {
 我的思路:
 
     1、可以先把装水的部分填平，然后水量就是遍历的每格减去柱子高度后的求和，除了最高的柱子；
-
+    
     2、 怎么填平：先找到最高的柱子，然后分别正、反向遍历到最高的柱子去；
-
+    
     如果下一个柱子比现在的柱子矮，复制给下一个柱子相同的高度；如果更高，就替换掉现在的高度；
 
 时间复杂度：
