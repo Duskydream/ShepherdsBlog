@@ -3,7 +3,7 @@ title: C语言算法笔记
 author: Shepherd Meng
 description: 算法笔记
 pubDate: 2025-10-11
-updated: 2025-11-05
+updated: 2025-11-21
 tags: [Coding,Notes,C]
 categories: [Coding Notes]
 pinned: true
@@ -470,7 +470,7 @@ int main(void) {
 
 ## N皇后
 
-    在N*N的国际象棋盘上放置N个皇后，输出方案总数；
+在NxN的国际象棋盘上放置N个皇后，输出方案总数；
 
 ```c++
 #include <iostream>
