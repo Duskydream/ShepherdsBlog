@@ -69,7 +69,7 @@ char* plus(char* num1, char* num2, char result[]) {
 	result[lc + 1] = '\0';
 	return result;
 }
-   
+
 //乘法：
 int lc = la+lb;
 for (i=0;i<la;i++){
@@ -101,7 +101,7 @@ for (i = 0; i < la; i++) {
 	}
 	temp[0] = a[i];
 	if (tempLen > 0 || temp[0] != 0) tempLen++;
-	
+
 	// 计算当前temp可以被除数除多少次
 	int quotient = 0;
 	while (1) {
@@ -122,9 +122,9 @@ for (i = 0; i < la; i++) {
 				}
 			}
 		}
-		
+
 		if (cmp < 0) break;
-		
+
 		// temp >= b，执行减法
 		int borrow = 0;
 		for (j = tempLen - 1; j >= 0; j--) {
@@ -138,7 +138,7 @@ for (i = 0; i < la; i++) {
 				borrow = 0;
 			}
 		}
-		
+
 		// 去掉前导0
 		while (tempLen > 0 && temp[0] == 0) {
 			for (j = 0; j < tempLen - 1; j++) {
@@ -147,10 +147,10 @@ for (i = 0; i < la; i++) {
 			temp[tempLen - 1] = 0;
 			tempLen--;
 		}
-		
+
 		quotient++;
 	}
-	
+
 	c[lc++] = quotient;
 }
 ```
@@ -282,9 +282,9 @@ int maxArea(int* height, int heightSize) {
 我的思路:
 
     1、可以先把装水的部分填平，然后水量就是遍历的每格减去柱子高度后的求和，除了最高的柱子；
-    
+
     2、 怎么填平：先找到最高的柱子，然后分别正、反向遍历到最高的柱子去；
-    
+
     如果下一个柱子比现在的柱子矮，复制给下一个柱子相同的高度；如果更高，就替换掉现在的高度；
 
 时间复杂度：
@@ -465,6 +465,75 @@ int main(void) {
 # 字符串
 
 # 动态规划
+
+# DFS
+
+## N皇后
+
+    在N*N的国际象棋盘上放置N个皇后，输出方案总数；
+
+```c++
+#include <iostream>
+#include <stdlib.h>
+
+// 可选：打印棋盘
+void print(int n, int* row) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (row[i] == j)
+				std::cout << "Q";
+			else
+				std::cout << ".";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+void dfs(int n, int r, int* row, int* column, int* diagup, int* diagdown, int* solutions) {
+	if (r == n) { // 遍历完后找到一个解，r是表示当前放置到第几行的索引
+		(*solutions)++;
+		print(n, row); // 可选：打印棋盘
+		return;
+	}
+	for (int col = 0; col < n; col++) { // 检查该行是否可以放置皇后，col表示遍历该行的列数
+		if (column[col] || diagup[r + col] || diagdown[r - col + n - 1])
+			/*检查占位的逻辑：
+			遍历每列时，1、检查该列上方是否安全；
+				      2、检查该列此时对应的向上对角线（和为定值）是否安全
+					  3、检查该列此时对应的向下对角线（差为定值，n-1保证是正数，最大为2n-1）*/
+			continue;
+		column[col] = diagup[r + col] = diagdown[r - col + n - 1] = 1; // 占位
+		row[r] = col; // 记录皇后位置在第r行col列
+		dfs(n, r + 1, row, column, diagup, diagdown, solutions); // 递归放置下一行皇后
+		column[col] = diagup[r + col] = diagdown[r - col + n - 1] = 0; // 若下一行皇后无法放置，则回溯撤销放置
+	}
+}
+
+int main() {
+	int n, solutions = 0;
+	std::cin >> n;
+	int* row = (int*)malloc(n * sizeof(int));
+	int* column = (int*)malloc(n * sizeof(int));
+	int* diagup = (int*)malloc((2 * n - 1) * sizeof(int));
+	int* diagdown = (int*)malloc((2 * n - 1) * sizeof(int));
+	for (int i = 0; i < n; i++) {
+		row[i] = 0;
+		column[i] = 0;
+	}
+	for (int i = 0; i < 2 * n - 1; i++) {
+		diagup[i] = 0;
+		diagdown[i] = 0;
+	}
+	dfs(n, 0, row, column, diagup, diagdown, &solutions);
+	std::cout << "Total solutions: " << solutions << std::endl;
+	free(row);
+	free(column);
+	free(diagup);
+	free(diagdown);
+	return 0;
+}
+```
 
 # 其他
 
