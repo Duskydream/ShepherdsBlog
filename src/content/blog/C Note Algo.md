@@ -513,6 +513,7 @@ void dfs(int n, int r, int* row, int* column, int* diagup, int* diagdown, int* s
 int main() {
 	int n, solutions = 0;
 	std::cin >> n;
+    std::cout << std::endl;
 	int* row = (int*)malloc(n * sizeof(int));
 	int* column = (int*)malloc(n * sizeof(int));
 	int* diagup = (int*)malloc((2 * n - 1) * sizeof(int));
