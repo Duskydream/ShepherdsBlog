@@ -1,21 +1,20 @@
-# CNB 开发环境配置
-# 文档参考: https://docs.cnb.cool/zh/
-
-$:
-  vscode:
-    - docker:
-        # 使用 Node.js 20 作为开发环境基础镜像
-        image: node:20
-      # 建议安装的 VS Code 插件
-      extensions:
-        - astro-build.astro-vscode
-        - dbaeumer.vscode-eslint
-      # 生命周期钩子
-      lifecycle:
-        # 每次启动工作区时运行
-        postStart:
-          - echo "正在安装 pnpm..."
-          - npm install -g pnpm
-          - echo "正在安装依赖..."
-          - pnpm install
-          - echo "环境准备就绪！可以使用 'pnpm dev' 启动开发服务器。"
+vscode:
+  - docker:
+      # 使用 Node.js 20 作为开发环境基础镜像
+      image: node:20
+    # 建议安装的 VS Code 插件
+    extensions:
+      - astro-build.astro-vscode
+      - dbaeumer.vscode-eslint
+    # 生命周期钩子
+    lifecycle:
+      # 每次启动工作区时运行
+      postStart:
+        - echo "正在配置镜像源..."
+        - npm config set registry https://mirrors.cloud.tencent.com/npm/
+        - echo "正在安装 pnpm..."
+        - npm install -g pnpm
+        - pnpm config set registry https://mirrors.cloud.tencent.com/npm/
+        - echo "正在安装依赖..."
+        - pnpm install
+        - echo "环境准备就绪！可以使用 'npm run dev -- --host' 启动开发服务器。"

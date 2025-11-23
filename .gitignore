@@ -31,3 +31,4 @@ public/pagefind/
 
 # local cache directory
 .cache/
+.pnpm-store/
