@@ -93,6 +93,19 @@ code {
     @apply block text-center text-sm text-base-content/70 mt-2 mb-6;
   }
 
+  /* Image lazy loading with fade-in effect */
+  img {
+    @apply transition-opacity duration-500;
+
+    &[loading="lazy"] {
+      opacity: 0;
+
+      &.loaded {
+        opacity: 1;
+      }
+    }
+  }
+
   /* Table improvements */
   table {
     @apply my-8 shadow-md;

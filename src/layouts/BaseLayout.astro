@@ -8,6 +8,8 @@ import Sidebar from "@components/Sidebar.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import MobileTOC from "@components/widgets/MobileTOC.astro";
+import ReadingProgress from "@components/widgets/ReadingProgress.astro";
+import ScrollToTop from "@components/widgets/ScrollToTop.astro";
 import Banner from "../components/Banner.astro";
 import Giscus from "@components/Giscus.astro"; // 评论组件
 
@@ -32,8 +34,17 @@ const {
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
-    <!-- 不蒜子统计脚本 - 用于页面访问计数 -->
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <!-- 不蒜子统计脚本 - 延迟加载以提升首屏性能 -->
+    <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <!-- 注册 Service Worker 实现离线缓存 -->
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
 
     <!-- 主题初始化 -->
     <script define:vars={{ SITE_THEME }} is:inline>
@@ -64,6 +75,9 @@ const {
   </head>
 
   <body class="flex flex-col min-h-screen" {...isIndexed ? { "data-pagefind-body": true } : {}}>
+    <!-- 阅读进度条 -->
+    <ReadingProgress />
+
     <!-- 导航栏 -->
     <Navbar />
 
@@ -100,6 +114,9 @@ const {
 
       <!-- 移动端 TOC -->
       <MobileTOC headings={headings} showTOC={showTOC} />
+
+      <!-- 返回顶部按钮 -->
+      <ScrollToTop />
 
       <!-- 主题同步 -->
       <script define:vars={{ SITE_THEME }} is:inline>
@@ -150,6 +167,15 @@ const {
                 console.error("Failed to copy:", err);
               }
             });
+          });
+
+          // 图片懒加载淡入效果
+          document.querySelectorAll('img[loading="lazy"]').forEach((img) => {
+            if (img.complete) {
+              img.classList.add("loaded");
+            } else {
+              img.addEventListener("load", () => img.classList.add("loaded"));
+            }
           });
         });
       </script>

@@ -42,9 +42,9 @@ const logs = (await getCollection("log")).sort((a, b) => b.data.date.valueOf() -
               alt="Shepherd"
               width="160"
               height="160"
-              loading="eager"
-              fetchpriority="high"
+              loading="lazy"
               decoding="async"
+              style="aspect-ratio: 1/1; background: linear-gradient(135deg, oklch(var(--b2)), oklch(var(--b3)));"
             />
           </div>
         </div>

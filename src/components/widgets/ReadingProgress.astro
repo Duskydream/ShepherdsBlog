@@ -1,0 +1,79 @@
+---
+/**
+ * ReadingProgress - 阅读进度条组件
+ * 显示在页面顶部，指示当前阅读进度
+ */
+---
+
+<div id="reading-progress-container" class="fixed top-0 left-0 w-full h-1 z-[100] bg-transparent hidden">
+  <div
+    id="reading-progress-bar"
+    class="h-full bg-gradient-to-r from-primary via-secondary to-accent transition-[width] duration-75"
+    style="width: 0%"
+  >
+  </div>
+  <!-- 进度百分比显示 -->
+  <div
+    id="reading-progress-percent"
+    class="fixed top-3 right-4 text-xs font-mono bg-base-100/80 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm opacity-0 transition-opacity duration-300"
+  >
+    0%
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const container = document.getElementById("reading-progress-container");
+    const progressBar = document.getElementById("reading-progress-bar");
+    const percentDisplay = document.getElementById("reading-progress-percent");
+    const content = document.getElementById("content");
+
+    if (!container || !progressBar || !percentDisplay) return;
+
+    // 只在文章页显示进度条
+    if (!content) {
+      container.classList.add("hidden");
+      return;
+    }
+
+    container.classList.remove("hidden");
+    let lastProgress = 0;
+
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      const clampedProgress = Math.min(100, Math.max(0, progress));
+
+      progressBar!.style.width = `${clampedProgress}%`;
+      percentDisplay!.textContent = `${Math.round(clampedProgress)}%`;
+
+      // 滚动时显示百分比，停止滚动后淡出
+      if (Math.abs(clampedProgress - lastProgress) > 0.5) {
+        percentDisplay!.style.opacity = "1";
+        lastProgress = clampedProgress;
+      }
+    }
+
+    let ticking = false;
+    let hideTimeout: number | null = null;
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateProgress();
+          ticking = false;
+        });
+        ticking = true;
+      }
+
+      // 滚动停止后 1.5 秒隐藏百分比
+      if (hideTimeout) clearTimeout(hideTimeout);
+      hideTimeout = window.setTimeout(() => {
+        percentDisplay!.style.opacity = "0";
+      }, 1500);
+    });
+
+    updateProgress();
+  });
+</script>

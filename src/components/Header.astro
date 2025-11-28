@@ -15,6 +15,11 @@ const { title, description, favicon, image, loadKatex = false } = Astro.props as
 <!-- Preconnect to external domains for faster resource loading -->
 <link rel="preconnect" href="https://pic1.imgdb.cn" crossorigin />
 <link rel="dns-prefetch" href="https://pic1.imgdb.cn" />
+<link rel="preconnect" href="https://busuanzi.ibruce.info" crossorigin />
+<link rel="dns-prefetch" href="https://busuanzi.ibruce.info" />
+
+<!-- Preload critical banner image -->
+<link rel="preload" as="image" href="https://pic1.imgdb.cn/item/68ddfebec5157e1a884e700b.jpg" fetchpriority="high" />
 
 <meta name="description" content={description} />
 <meta property="og:title" content={title} />
