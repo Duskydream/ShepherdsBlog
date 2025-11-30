@@ -144,6 +144,20 @@ const {
         });
       </script>
 
+      <!-- Fix anchor offset for fixed header: set scroll-padding-top dynamically -->
+      <script is:inline>
+        function updateScrollPaddingTop() {
+          const navbar = document.getElementById("navbar");
+          if (!navbar) return;
+          const height = navbar.offsetHeight + 8; // small gap
+          document.documentElement.style.setProperty("--frosti-scroll-padding-top", height + "px");
+        }
+
+        document.addEventListener("astro:page-load", () => updateScrollPaddingTop());
+        window.addEventListener("resize", () => updateScrollPaddingTop());
+        document.addEventListener("DOMContentLoaded", () => updateScrollPaddingTop());
+      </script>
+
       <!-- 代码复制按钮 -->
       <script is:inline>
         document.addEventListener("astro:page-load", () => {
@@ -181,6 +195,12 @@ const {
       </script>
 
       <style is:inline>
+        :root {
+          --frosti-scroll-padding-top: 64px;
+        }
+        html {
+          scroll-padding-top: var(--frosti-scroll-padding-top);
+        }
         .btn-copy {
           position: relative;
           overflow: hidden;
