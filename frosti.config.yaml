@@ -70,6 +70,21 @@ site:
           href: https://aistudio.google.com/
           target: _blank
           svg: ri:google-fill
+        - id: GitHub Copilot
+          text: GitHub Copilot
+          href: https://github.com/copilot
+          target: _blank
+          svg: ri:github-fill
+        - id: Bohrium
+          text: Bohrium
+          href: https://xmu.bohrium.com/
+          target: _blank
+          svg: ri:flask-fill
+        - id: OneDrive
+          text: OneDrive
+          href: https://onedrive.live.com/
+          target: _blank
+          svg: ri:cloud-fill
 
 # 用户的个人信息
 user:
