@@ -5,7 +5,7 @@ import playformCompress from "@playform/compress";
 import terser from "@rollup/plugin-terser";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeKatex from "rehype-katex";
 
@@ -21,6 +21,17 @@ import { remarkReadingTime } from "./src/plugins/remark-reading-time";
 export default defineConfig({
   site: USER_SITE,
   output: "static",
+
+  // 环境变量配置
+  env: {
+    schema: {
+      BLOG_ENCRYPT_PASSWORD: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
+    },
+  },
 
   style: {
     scss: {
@@ -69,10 +80,6 @@ export default defineConfig({
           api: "modern-compiler",
         },
       },
-    },
-    // 将环境变量注入到构建中
-    define: {
-      "import.meta.env.BLOG_ENCRYPT_PASSWORD": JSON.stringify(process.env.BLOG_ENCRYPT_PASSWORD || ""),
     },
   },
 

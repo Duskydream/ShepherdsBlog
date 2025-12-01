@@ -4,7 +4,8 @@
  *
  * 捕获子内容的 HTML 并加密
  */
-import { encryptContent, getEncryptPassword } from "../../../scripts/encrypt-content.mjs";
+import { getSecret } from "astro:env/server";
+import { encryptContent } from "../../../scripts/encrypt-content.mjs";
 
 interface EncryptedData {
   salt: string;
@@ -25,7 +26,11 @@ const html = await Astro.slots.render("default");
 let encryptedData: EncryptedData | null = null;
 
 try {
-  const password = getEncryptPassword() as string;
+  // 使用 astro:env 获取密码
+  const password = getSecret("BLOG_ENCRYPT_PASSWORD");
+  if (!password) {
+    throw new Error("未设置加密密码 BLOG_ENCRYPT_PASSWORD");
+  }
   encryptedData = encryptContent(html, password) as EncryptedData;
 }
 catch (error) {
