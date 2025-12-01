@@ -28,15 +28,17 @@ function extractFirstImage(md: string | undefined) {
 }
 
 const previews = sortedLogs.map((entry) => {
-  const preview = makePreview(entry.body);
+  const isEncrypted = entry.data.encrypted === true;
+  const preview = isEncrypted ? "" : makePreview(entry.body);
   const imageFromFront = (entry.data as any)?.image;
-  const image = imageFromFront || extractFirstImage(entry.body);
+  const image = isEncrypted ? undefined : imageFromFront || extractFirstImage(entry.body);
   return {
     slug: entry.slug,
     date: entry.data.date.toISOString().slice(0, 10),
     title: entry.data.title,
     preview,
     image,
+    encrypted: isEncrypted,
   };
 });
 ---
@@ -78,9 +80,16 @@ const previews = sortedLogs.map((entry) => {
                   <div class="flex-1">
                     <div class="text-sm text-base-content/60 mb-1">{p.date}</div>
                     <h3 class="text-lg font-bold">{p.title}</h3>
-                    <article class="prose max-w-none text-base-content/80 mt-2 line-clamp-3">
-                      <p>{p.preview}</p>
-                    </article>
+                    {p.encrypted ? (
+                      <div class="flex items-center gap-2 mt-2 text-base-content/60">
+                        <Icon name="lucide:lock" class="w-4 h-4" />
+                        <span class="text-sm">此内容已加密</span>
+                      </div>
+                    ) : (
+                      <article class="prose max-w-none text-base-content/80 mt-2 line-clamp-3">
+                        <p>{p.preview}</p>
+                      </article>
+                    )}
                   </div>
 
                   <div class="flex items-start">
