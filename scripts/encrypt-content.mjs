@@ -78,13 +78,20 @@ const ENCRYPT_CONFIG = {
  * @returns {string} 密码
  */
 export function getEncryptPassword() {
-  // 使用全局 process.env 读取环境变量
+  // 方式1: 尝试从 import.meta.env 读取 (Vite/Astro 构建时注入)
+  // @ts-ignore
+  if (typeof import.meta.env !== "undefined" && import.meta.env.BLOG_ENCRYPT_PASSWORD) {
+    // @ts-ignore
+    return import.meta.env.BLOG_ENCRYPT_PASSWORD;
+  }
+
+  // 方式2: 尝试从 process.env 读取
   const envPassword = proc?.env?.BLOG_ENCRYPT_PASSWORD;
   if (envPassword) {
     return envPassword;
   }
 
-  // 其次使用默认密码
+  // 方式3: 使用默认密码
   if (DEFAULT_PASSWORD) {
     return DEFAULT_PASSWORD;
   }

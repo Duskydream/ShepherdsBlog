@@ -70,6 +70,10 @@ export default defineConfig({
         },
       },
     },
+    // 将环境变量注入到构建中
+    define: {
+      "import.meta.env.BLOG_ENCRYPT_PASSWORD": JSON.stringify(process.env.BLOG_ENCRYPT_PASSWORD || ""),
+    },
   },
 
   // adapter removed (migrated from Vercel to Tencent EdgeOne); using default static build
