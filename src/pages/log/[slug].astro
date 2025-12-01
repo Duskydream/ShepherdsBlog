@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MainCard from "@/components/MainCard.astro";
 import PostMetadata from "@/components/widgets/PostMetadata.astro";
+import EncryptWrapper from "@/components/widgets/EncryptWrapper.astro";
 import { Icon } from "astro-icon/components";
 import dayjs from "@utils/dayjs";
 import { DATE_FORMAT } from "@/config";
@@ -19,6 +20,9 @@ const { entry } = Astro.props;
 const { Content, remarkPluginFrontmatter } = await entry.render();
 const displayDate = dayjs(entry.data.date).format(DATE_FORMAT);
 const updatedDate = entry.data.updated ? dayjs(entry.data.updated).format(DATE_FORMAT) : "";
+
+// 是否加密日志
+const isEncrypted = entry.data.encrypted === true;
 ---
 
 <BaseLayout title={entry.data.title} isPost={true}>
@@ -46,7 +50,13 @@ const updatedDate = entry.data.updated ? dayjs(entry.data.updated).format(DATE_F
       <!-- 正文 -->
       <section>
         <article class="prose max-w-none text-base-content/80">
-          <Content />
+          {isEncrypted ? (
+            <EncryptWrapper postId={entry.slug}>
+              <Content />
+            </EncryptWrapper>
+          ) : (
+            <Content />
+          )}
         </article>
       </section>
 

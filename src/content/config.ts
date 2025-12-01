@@ -11,6 +11,7 @@ const blog = defineCollection({
     badge: z.string().optional(),
     draft: z.boolean().default(false),
     pinned: z.boolean().default(false), // 是否置顶
+    encrypted: z.boolean().default(false), // 是否加密文章内容
     categories: z
       .array(z.string())
       .refine((items) => new Set(items).size === items.length, {
@@ -32,6 +33,7 @@ const logCollection = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
+    encrypted: z.boolean().default(false), // 是否加密日志内容
   }),
 });
 

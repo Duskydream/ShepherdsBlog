@@ -1,0 +1,229 @@
+---
+/**
+ * 内容加密包装器
+ *
+ * 捕获子内容的 HTML 并加密
+ */
+import { encryptContent, getEncryptPassword } from "../../../scripts/encrypt-content.mjs";
+
+interface EncryptedData {
+  salt: string;
+  iv: string;
+  data: string;
+}
+
+interface Props {
+  postId: string;
+}
+
+const { postId } = Astro.props;
+
+// 捕获 slot 内容
+const html = await Astro.slots.render("default");
+
+// 加密 HTML 内容
+let encryptedData: EncryptedData | null = null;
+
+try {
+  const password = getEncryptPassword() as string;
+  encryptedData = encryptContent(html, password) as EncryptedData;
+}
+catch (error) {
+  console.error(`[Encrypt] 加密文章 "${postId}" 失败:`, error);
+}
+---
+
+{encryptedData ? (
+  <Fragment>
+    <!-- 加密数据（JSON 格式，供前端 JS 读取） -->
+    <script
+      id="encrypted-data"
+      type="application/json"
+      set:html={JSON.stringify({
+        postId,
+        salt: encryptedData.salt,
+        iv: encryptedData.iv,
+        data: encryptedData.data,
+      })}
+    />
+
+    <!-- 加密容器 -->
+    <div id="encrypted-container" class="encrypted">
+      <!-- 解密提示界面 -->
+      <div class="decrypt-prompt">
+        <div class="decrypt-card">
+          <!-- 锁图标 -->
+          <div class="decrypt-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+
+          <h3 class="decrypt-title">🔐 此内容已加密</h3>
+          <p class="decrypt-desc">请输入密码以查看文章内容</p>
+
+          <!-- 密码输入 -->
+          <div class="decrypt-form">
+            <input
+              type="password"
+              id="decrypt-password"
+              class="decrypt-input"
+              placeholder="请输入密码..."
+              autocomplete="off"
+            />
+            <button type="button" id="decrypt-submit" class="decrypt-btn">
+              解密
+            </button>
+          </div>
+
+          <!-- 错误提示 -->
+          <div id="decrypt-error" class="decrypt-error"></div>
+
+          <!-- 提示信息 -->
+          <p class="decrypt-hint">
+            💡 解密成功后，密钥会被缓存，下次访问将自动解密
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 解密脚本 -->
+    <script is:inline src="/js/blog-decryptor.js"></script>
+  </Fragment>
+) : (
+  <!-- 加密失败，显示错误提示 -->
+  <div class="encrypt-error-notice">
+    <p>⚠️ 内容加密失败，请检查配置</p>
+  </div>
+)}
+
+<style>
+  .decrypt-prompt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    padding: 2rem;
+  }
+
+  .decrypt-card {
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
+    background: var(--fallback-b1, oklch(var(--b1) / 1));
+    border: 1px solid var(--fallback-b3, oklch(var(--b3) / 1));
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .decrypt-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1.5rem;
+    background: var(--fallback-p, oklch(var(--p) / 1));
+    border-radius: 50%;
+    color: var(--fallback-pc, oklch(var(--pc) / 1));
+  }
+
+  .decrypt-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--fallback-bc, oklch(var(--bc) / 1));
+  }
+
+  .decrypt-desc {
+    margin: 0 0 1.5rem;
+    color: var(--fallback-bc, oklch(var(--bc) / 0.7));
+  }
+
+  .decrypt-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .decrypt-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--fallback-b3, oklch(var(--b3) / 1));
+    border-radius: 0.5rem;
+    background: var(--fallback-b1, oklch(var(--b1) / 1));
+    color: var(--fallback-bc, oklch(var(--bc) / 1));
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .decrypt-input:focus {
+    border-color: var(--fallback-p, oklch(var(--p) / 1));
+    box-shadow: 0 0 0 3px var(--fallback-p, oklch(var(--p) / 0.2));
+  }
+
+  .decrypt-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fallback-pc, oklch(var(--pc) / 1));
+    background: var(--fallback-p, oklch(var(--p) / 1));
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+
+  .decrypt-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    opacity: 0.9;
+    box-shadow: 0 4px 12px var(--fallback-p, oklch(var(--p) / 0.4));
+  }
+
+  .decrypt-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .decrypt-error {
+    display: none;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .decrypt-hint {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--fallback-bc, oklch(var(--bc) / 0.5));
+  }
+
+  /* 解密成功后隐藏提示界面 */
+  #encrypted-container.decrypted .decrypt-prompt {
+    display: none;
+  }
+
+  .encrypt-error-notice {
+    padding: 2rem;
+    text-align: center;
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 0.5rem;
+  }
+</style>

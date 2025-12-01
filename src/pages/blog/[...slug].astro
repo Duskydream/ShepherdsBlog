@@ -4,6 +4,7 @@ import License from "@components/widgets/License.astro";
 import PostInfo from "@components/widgets/PostInfo.astro";
 import PostMetadata from "@components/widgets/PostMetadata.astro";
 import PostFilter from "@components/widgets/PostFilter.astro";
+import EncryptWrapper from "@components/widgets/EncryptWrapper.astro";
 import { type CollectionEntry, getCollection } from "astro:content";
 import dayjs from "@utils/dayjs";
 import { DATE_FORMAT } from "@config";
@@ -30,6 +31,9 @@ const url = new URL(`/${blog.slug}`, Astro.url.origin);
 // Check if the post content contains math (KaTeX)
 const content = blog.body || "";
 const hasMath = content.includes("$$") || content.includes("$") || content.includes("\\[") || content.includes("\\(");
+
+// 是否加密文章
+const isEncrypted = blog.data.encrypted === true;
 ---
 
 <BaseLayout
@@ -72,18 +76,38 @@ const hasMath = content.includes("$$") || content.includes("$") || content.inclu
 
     <div class="mt-8">
       <div id="content" class="prose max-w-none prose-headings:scroll-mt-20 prose-img:rounded-xl prose-img:mx-auto">
-        <Content />
-        <License
-          url={url}
-          title={blog.data.title}
-          image={blog.data.image}
-          pubDate={blog.data.pubDate}
-          badge={blog.data.badge}
-          categories={blog.data.categories}
-          tags={blog.data.tags}
-          word={remarkPluginFrontmatter.totalCharCount}
-          time={remarkPluginFrontmatter.readingTime}
-        />
+        {/* 根据是否加密显示不同内容 */}
+        {isEncrypted ? (
+          <EncryptWrapper postId={blog.slug}>
+            <Content />
+            <License
+              url={url}
+              title={blog.data.title}
+              image={blog.data.image}
+              pubDate={blog.data.pubDate}
+              badge={blog.data.badge}
+              categories={blog.data.categories}
+              tags={blog.data.tags}
+              word={remarkPluginFrontmatter.totalCharCount}
+              time={remarkPluginFrontmatter.readingTime}
+            />
+          </EncryptWrapper>
+        ) : (
+          <>
+            <Content />
+            <License
+              url={url}
+              title={blog.data.title}
+              image={blog.data.image}
+              pubDate={blog.data.pubDate}
+              badge={blog.data.badge}
+              categories={blog.data.categories}
+              tags={blog.data.tags}
+              word={remarkPluginFrontmatter.totalCharCount}
+              time={remarkPluginFrontmatter.readingTime}
+            />
+          </>
+        )}
       </div>
     </div>
   </MainCard>
