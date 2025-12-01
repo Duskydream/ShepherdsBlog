@@ -6,6 +6,7 @@ pubDate: 2025-10-11
 updated: 2025-11-21
 tags: [Coding,Notes,C]
 categories: [Coding Notes]
+encrypted: true
 pinned: true
 ---
 
