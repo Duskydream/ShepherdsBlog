@@ -1,30 +1,26 @@
-name: Build and Deploy Astro Blog
+name: Build Check
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
-permissions:
-  contents: write # 🔑 允许 GITHUB_TOKEN 写入代码库
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
+  build-check:
     runs-on: ubuntu-latest
 
     steps:
       # 1. 检出代码
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: false # 🔑 避免和 peaceiris 冲突
-          fetch-depth: 0 # 🔑 获取完整 git 历史
 
-      # 2. 安装 pnpm（这是关键）
+      # 2. 安装 pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9 # 或者和你本地一致
+          version: 9
 
       # 3. 安装 Node.js
       - name: Setup Node.js
@@ -37,10 +33,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5. 构建 Astro
-      - name: Build Astro site
-        run: |
-          echo "BLOG_ENCRYPT_PASSWORD is set: ${{ secrets.BLOG_ENCRYPT_PASSWORD != '' }}"
-          pnpm run build
+      # 5. 构建检查（验证构建是否成功）
+      - name: Build check
+        run: pnpm run build
         env:
           BLOG_ENCRYPT_PASSWORD: ${{ secrets.BLOG_ENCRYPT_PASSWORD }}
