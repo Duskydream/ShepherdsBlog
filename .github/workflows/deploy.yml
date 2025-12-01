@@ -40,3 +40,5 @@ jobs:
       # 5. 构建 Astro
       - name: Build Astro site
         run: pnpm run build
+        env:
+          BLOG_ENCRYPT_PASSWORD: ${{ secrets.BLOG_ENCRYPT_PASSWORD }}
