@@ -12,12 +12,16 @@ import { Buffer } from "node:buffer";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import process from "node:process";
+
+// 获取全局 process 对象（兼容不同环境）
+// eslint-disable-next-line node/prefer-global/process
+const proc = globalThis.process;
 
 // 手动加载 .env 文件（确保在 Astro 构建时也能读取）
 function loadEnvFile() {
   try {
-    const envPath = path.resolve(process.cwd(), ".env");
+    const cwd = proc?.cwd?.() || ".";
+    const envPath = path.resolve(cwd, ".env");
     if (fs.existsSync(envPath)) {
       const envContent = fs.readFileSync(envPath, "utf-8");
       for (const line of envContent.split("\n")) {
@@ -29,8 +33,8 @@ function loadEnvFile() {
         if (key && valueParts.length > 0) {
           const value = valueParts.join("=").trim();
           // 只设置未定义的环境变量
-          if (!process.env[key]) {
-            process.env[key] = value;
+          if (!proc.env[key]) {
+            proc.env[key] = value;
           }
         }
       }
@@ -74,8 +78,8 @@ const ENCRYPT_CONFIG = {
  * @returns {string} 密码
  */
 export function getEncryptPassword() {
-  // 优先使用环境变量
-  const envPassword = process.env.BLOG_ENCRYPT_PASSWORD;
+  // 使用全局 process.env 读取环境变量
+  const envPassword = proc?.env?.BLOG_ENCRYPT_PASSWORD;
   if (envPassword) {
     return envPassword;
   }
@@ -190,7 +194,8 @@ export function decryptContent(encryptedData, password) {
 }
 
 // 如果直接运行此脚本，执行测试
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMainModule = import.meta.url === `file://${proc?.argv?.[1] || ""}`;
+if (isMainModule) {
   console.log("🔐 博客加密工具测试\n");
 
   const testContent = "<h1>Hello World</h1><p>这是加密内容</p>";
