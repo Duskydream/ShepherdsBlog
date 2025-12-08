@@ -508,9 +508,16 @@ if (typeof module !== "undefined" && module.exports) {
   module.exports = BlogDecryptor;
 }
 
-// 页面加载完成后自动初始化（如果存在加密数据元素）
-document.addEventListener("DOMContentLoaded", () => {
+// 初始化函数
+function initBlogDecryptor() {
   if (document.querySelector("#encrypted-data")) {
     window.blogDecryptor = new BlogDecryptor();
   }
-});
+}
+
+// 页面加载完成后自动初始化（如果存在加密数据元素）
+// 支持普通页面加载
+document.addEventListener("DOMContentLoaded", initBlogDecryptor);
+
+// 支持 Astro View Transitions（页内导航）
+document.addEventListener("astro:page-load", initBlogDecryptor);
