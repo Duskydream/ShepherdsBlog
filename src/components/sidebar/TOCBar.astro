@@ -17,7 +17,7 @@ const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
             {/* Animated active indicator - now moved outside the ul structure */}
             <div
               id="active-indicator"
-              class="absolute bg-primary/10 rounded-lg opacity-0 shadow-sm pointer-events-none z-0"
+              class="absolute bg-primary/10 opacity-0 pointer-events-none z-0"
             />
             <ul class="space-y-0 relative z-10">
               {headings.map((heading, index) => (
@@ -27,7 +27,7 @@ const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
                     data-heading-slug={heading.slug}
                     data-heading-depth={heading.depth}
                     data-index={index}
-                    class={`toc-link relative flex items-center py-2 px-2 rounded-lg ${heading.depth === 1 ? "font-medium" : ""}`}
+                    class={`toc-link relative flex items-center py-2 px-2 ${heading.depth === 1 ? "font-medium" : ""}`}
                     style={`padding-left: ${28 + (heading.depth - 1) * 16}px;`}
                   >
                     <Icon

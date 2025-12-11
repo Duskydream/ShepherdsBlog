@@ -1,171 +1,124 @@
 ---
-import { t } from "@config";
-import { Icon } from "astro-icon/components";
-import Card from "@/components/temple/Card.astro";
-import { Image } from "astro:assets";
 import type { PostData } from "@interfaces/data";
 
 export interface MainCardProps extends PostData {
-  infoIcon?: string; // Icon for the info button
-  helpText?: string; // Custom help text (defaults to "Learn More")
-  textOverlay?: string; // Text to overlay on background when no image
-  showTextBackground?: boolean; // Show text background when no image
-  headerClass?: string; // Additional classes for the header
-  extraClasses?: string; // Additional classes for the whole card
+  extraClasses?: string;
 }
 
 const {
   title,
   description,
-  image,
-  infoIcon = "lucide:help-circle",
-  helpText = t("label.learnMore"),
-  textOverlay,
-  showTextBackground = true,
-  headerClass = "",
   extraClasses = "",
 } = Astro.props as MainCardProps;
-
-// Create a more descriptive label for the button
-const accessibleHelpText = `${helpText}: ${title}`;
 ---
 
-<Card class={`overflow-hidden ${extraClasses}`}>
-  {
-    image ? (
-      // With image - show image with overlay title
-      <div class="relative">
-        <div class="aspect-video w-full overflow-hidden">
-          <Image
-            src={image}
-            alt={title}
-            width={1200}
-            height={630}
-            format="webp"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            class="w-full h-full object-cover"
-          />
-        </div>
+<article class={`feishu-doc ${extraClasses}`}>
+  <header class="doc-header">
+    <h1 class="doc-title">{title}</h1>
+    {description && <p class="doc-description">{description}</p>}
+  </header>
 
-        {/* Flex container for Title and Button */}
-        <div class="absolute bottom-4 left-4 right-4 lg:bottom-6 lg:left-6 lg:right-6 flex items-end justify-between gap-4">
-          {/* Title */}
-          <div class="inline-block bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/40 shadow-lg">
-            <h1 class="text-xl sm:text-2xl lg:text-4xl font-bold text-white">{title}</h1>
-          </div>
-
-          {/* Description Button */}
-          {description && (
-            <div class="flex-shrink-0">
-              <details class="dropdown-info">
-                <summary
-                  aria-label={accessibleHelpText}
-                  class="btn btn-sm px-3 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/40 text-white shadow-lg rounded-full flex items-center gap-2 transition-colors duration-300 ease-in-out"
-                >
-                  <Icon name={infoIcon} class="w-4 h-4 flex-shrink-0" />
-                  <span class="text-xs whitespace-nowrap">{helpText}</span>
-                </summary>
-                <div class="dropdown-panel z-[1] w-64 sm:w-80 p-3 bg-black/70 backdrop-blur-md text-white border border-white/20 rounded-xl shadow-lg">
-                  <p class="text-sm">{description}</p>
-                </div>
-              </details>
-            </div>
-          )}
-        </div>
-      </div>
-    ) : textOverlay ? (
-      // No image, but with textOverlay - show gradient background with overlay text
-      <div class="relative">
-        <div class={`aspect-video w-full overflow-hidden bg-gradient-to-br from-base-300 to-base-100 ${headerClass}`}>
-          {showTextBackground && textOverlay && (
-            <div class="absolute inset-0 w-full h-full error-animation-container">
-              <div class="text-9xl md:text-[12rem] font-bold text-primary opacity-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                {textOverlay}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Flex container for Title and Button */}
-        <div class="absolute bottom-4 left-4 right-4 lg:bottom-6 lg:left-6 lg:right-6 flex items-end justify-between gap-4">
-          {/* Title */}
-          <div class="inline-block bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/40 shadow-lg">
-            <h1 class="text-xl sm:text-2xl lg:text-4xl font-bold text-white">{title}</h1>
-          </div>
-
-          {/* Description Button */}
-          {description && (
-            <div class="flex-shrink-0">
-              <details class="dropdown-info">
-                <summary
-                  aria-label={accessibleHelpText}
-                  class="btn btn-sm px-3 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/40 text-white shadow-lg rounded-full flex items-center gap-2 transition-colors duration-300 ease-in-out"
-                >
-                  <Icon name={infoIcon} class="w-4 h-4 flex-shrink-0" />
-                  <span class="text-xs whitespace-nowrap">{helpText}</span>
-                </summary>
-                <div class="dropdown-panel z-[1] w-64 sm:w-80 p-3 bg-black/70 backdrop-blur-md text-white border border-white/20 rounded-xl shadow-lg">
-                  <p class="text-sm">{description}</p>
-                </div>
-              </details>
-            </div>
-          )}
-        </div>
-      </div>
-    ) : (
-      // No image, no textOverlay - show simple title and description at top
-      <div class="pt-6 px-6">
-        <h1 class="text-xl sm:text-2xl lg:text-4xl font-bold">{title}</h1>
-        {description && <p class="mt-2 text-sm text-base-content/80">{description}</p>}
-      </div>
-    )
-  }
-
-  <!-- Content section -->
-  <div class="p-4 sm:p-6">
+  <div class="doc-content">
     <slot />
   </div>
-</Card>
+</article>
 
 <style>
-  .dropdown-info {
-    position: relative;
-    display: inline-flex;
+  .feishu-doc {
+    @apply max-w-none;
+    line-height: 1.7;
   }
 
-  .dropdown-info summary {
-    list-style: none;
-    cursor: pointer;
+  .doc-header {
+    @apply mb-10 pb-0;
   }
 
-  .dropdown-info summary::marker,
-  .dropdown-info summary::-webkit-details-marker {
-    display: none;
+  .doc-title {
+    @apply text-4xl md:text-5xl font-bold mb-3;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
 
-  .dropdown-info summary:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.4);
-    outline-offset: 2px;
+  .doc-description {
+    @apply text-lg text-base-content/60 mt-4;
+    line-height: 1.6;
   }
 
-  .dropdown-panel {
-    position: absolute;
-    bottom: calc(100% + 1rem);
-    right: 0;
-    transform-origin: top right;
-    transform: scale(0.95);
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      opacity 150ms ease,
-      transform 150ms ease;
+  .doc-content {
+    @apply prose prose-lg max-w-none;
   }
 
-  .dropdown-info[open] .dropdown-panel {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
+  /* 飞书风格的段落间距 */
+  .doc-content :global(p) {
+    @apply mb-4;
+    line-height: 1.7;
+  }
+
+  /* 飞书风格的标题 */
+  .doc-content :global(h1),
+  .doc-content :global(h2),
+  .doc-content :global(h3) {
+    @apply font-semibold mt-8 mb-4;
+    letter-spacing: -0.01em;
+  }
+
+  .doc-content :global(h1) {
+    @apply text-3xl;
+    line-height: 1.3;
+  }
+
+  .doc-content :global(h2) {
+    @apply text-2xl;
+    line-height: 1.4;
+  }
+
+  .doc-content :global(h3) {
+    @apply text-xl;
+    line-height: 1.5;
+  }
+
+  /* 飞书风格的列表 */
+  .doc-content :global(ul),
+  .doc-content :global(ol) {
+    @apply my-4 space-y-2;
+  }
+
+  .doc-content :global(li) {
+    @apply leading-7;
+  }
+
+  /* 飞书风格的引用块 */
+  .doc-content :global(blockquote) {
+    @apply my-6 py-3 px-5 border-l-4 border-primary/40 bg-base-200/30;
+    font-style: normal;
+  }
+
+  /* 飞书风格的代码块 */
+  .doc-content :global(pre) {
+    @apply my-6 p-4 bg-base-200 overflow-x-auto;
+    border-radius: 8px;
+  }
+
+  .doc-content :global(:not(pre) > code) {
+    @apply px-2 py-1 bg-base-200 text-base-content font-mono text-sm;
+    border-radius: 4px;
+  }
+
+  /* 飞书风格的表格 */
+  .doc-content :global(table) {
+    @apply w-full my-6;
+    border-collapse: collapse;
+  }
+
+  .doc-content :global(th) {
+    @apply bg-base-200 font-semibold text-left py-3 px-4 border-b-2 border-base-300;
+  }
+
+  .doc-content :global(td) {
+    @apply py-3 px-4 border-b border-base-300;
+  }
+
+  .doc-content :global(tr:hover) {
+    @apply bg-base-200/50;
   }
 </style>

@@ -29,7 +29,7 @@ const typedMenu = SITE_MENU as MenuItem[];
 ---
 
 <nav
-  class="navbar fixed px-2 w-full transform transition-transform delay-300 duration-500 ease-in-out text-center z-50 bg-base-100 shadow-lg md:hidden"
+  class="navbar fixed px-2 w-full transform transition-transform delay-300 duration-500 ease-in-out text-center z-50 bg-base-100 md:hidden"
   id="navbar"
 >
   <div class="navbar-start">
@@ -53,7 +53,7 @@ const typedMenu = SITE_MENU as MenuItem[];
 
   <div
     id="header-menu"
-    class="absolute top-full left-0 w-full transform -translate-x-full transition-transform duration-300 ease-in-out bg-base-100 shadow-lg"
+    class="absolute top-full left-0 w-full transform -translate-x-full transition-transform duration-300 ease-in-out bg-base-100"
   >
     <ul class="menu bg-transparent w-full p-2">
       {
@@ -61,7 +61,7 @@ const typedMenu = SITE_MENU as MenuItem[];
           <li class="w-full relative group">
             {item.subItems ? (
               <details open={currentPath.startsWith(item.href)}>
-                <summary class="flex items-center text-lg font-bold p-3 hover:bg-base-200 rounded-lg">
+                <summary class="flex items-center text-lg font-bold p-3 hover:bg-base-200">
                   <Icon name={item.svg} class="w-5 h-5 mr-2" />
                   <span>{item.text}</span>
                 </summary>
@@ -70,7 +70,7 @@ const typedMenu = SITE_MENU as MenuItem[];
                     <li>
                       <a
                         class:list={[
-                          "flex items-center p-2 hover:bg-base-200 rounded-lg",
+                          "flex items-center p-2 hover:bg-base-200",
                           currentPath === subItem.href && "bg-base-200",
                         ]}
                         href={subItem.href}
@@ -86,7 +86,7 @@ const typedMenu = SITE_MENU as MenuItem[];
             ) : (
               <a
                 class:list={[
-                  "flex items-center text-lg font-bold p-3 hover:bg-base-200 rounded-lg",
+                  "flex items-center text-lg font-bold p-3 hover:bg-base-200",
                   currentPath === item.href && "bg-base-200",
                 ]}
                 href={item.href}

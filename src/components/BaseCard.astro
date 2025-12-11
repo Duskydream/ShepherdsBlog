@@ -1,15 +1,34 @@
 ---
 import { Image } from "astro:assets";
 import type { PostData } from "@interfaces/data";
-import Card from "@components/temple/Card.astro";
 const { title, image } = Astro.props as PostData;
 ---
 
-<Card>
-  <div id="image-container">
-    {image && <Image src={image} width="1920" height="1080" alt={title} loading="eager" />}
-  </div>
-  <div class="p-4 sm:p-6">
+<article class="feishu-doc">
+  {image && (
+    <div class="mb-8">
+      <Image src={image} width="1920" height="1080" alt={title} loading="eager" class="w-full" style="border-radius: 8px;" />
+    </div>
+  )}
+  <div class="doc-content prose prose-lg max-w-none">
     <slot />
   </div>
-</Card>
+</article>
+
+<style>
+  .feishu-doc {
+    line-height: 1.7;
+  }
+
+  .doc-content :global(p) {
+    @apply mb-4;
+    line-height: 1.7;
+  }
+
+  .doc-content :global(h1),
+  .doc-content :global(h2),
+  .doc-content :global(h3) {
+    @apply font-semibold mt-8 mb-4;
+    letter-spacing: -0.01em;
+  }
+</style>

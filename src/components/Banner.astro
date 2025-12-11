@@ -18,12 +18,12 @@ import ShootingStars from "@components/Shootingstars.astro";
 
   <!-- Banner 文字 -->
   <div class="relative z-20 text-white px-4">
-    <h1 id="banner-title" class="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl" data-title={title}>
+    <h1 class="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl">
       {title}
     </h1>
     {
       subtitle && (
-        <p id="banner-subtitle" class="mt-2 text-lg md:text-2xl text-white drop-shadow-xl" data-subtitle={subtitle}>
+        <p class="mt-2 text-lg md:text-2xl text-white drop-shadow-xl">
           {subtitle}
         </p>
       )
@@ -39,60 +39,4 @@ import ShootingStars from "@components/Shootingstars.astro";
     filter: brightness(0.3) contrast(1.1) !important;
     transition: filter 0.5s ease;
   }
-
-  .cursor-blinking::after {
-    content: "_";
-    animation: blink 1s step-end infinite;
-    font-weight: bold;
-    margin-left: 0.1em;
-  }
-
-  @keyframes blink {
-    from,
-    to {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-  }
 </style>
-
-<script>
-  document.addEventListener("astro:page-load", () => {
-    const titleEl = document.getElementById("banner-title") as HTMLElement;
-    const subtitleEl = document.getElementById("banner-subtitle") as HTMLElement;
-
-    if (!titleEl) return;
-
-    const titleText = titleEl.dataset.title || "";
-    const subtitleText = subtitleEl ? subtitleEl.dataset.subtitle || "" : "";
-
-    function typeWriter(element: HTMLElement, text: string, speed: number = 100, callback?: () => void) {
-      let i = 0;
-      element.classList.add("cursor-blinking");
-
-      function typing() {
-        if (i < text.length) {
-          element.textContent = text.substring(0, i + 1);
-          i++;
-          setTimeout(typing, speed);
-        } else {
-          element.classList.remove("cursor-blinking");
-          if (callback) callback();
-        }
-      }
-      element.textContent = ""; // Clear initial text
-      typing();
-    }
-
-    // Use a small delay to ensure elements are ready, though astro:page-load should handle it.
-    setTimeout(() => {
-      typeWriter(titleEl, titleText, 100, () => {
-        if (subtitleEl && subtitleText) {
-          typeWriter(subtitleEl, subtitleText, 80);
-        }
-      });
-    }, 300);
-  });
-</script>

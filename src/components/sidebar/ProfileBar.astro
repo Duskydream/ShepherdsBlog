@@ -27,16 +27,16 @@ const currentPath = Astro.url.pathname;
           <li class="w-full relative group">
             {item.subItems ? (
               <details class="menu-item w-full" data-submenu-id={item.id} open={currentPath.startsWith(item.href)}>
-                <summary class="justify-center lg:justify-start items-center text-center text-xl md:text-3xl lg:text-xl font-bold p-4 hover:bg-base-200 rounded-lg">
+                <summary class="justify-center lg:justify-start items-center text-center text-xl md:text-3xl lg:text-xl font-bold p-4 hover:bg-base-200">
                   <Icon name={item.svg} />
                   <span class="hidden lg:inline ml-2">{item.text}</span>
                 </summary>
-                <ul class="rounded-lg">
+                <ul>
                   {item.subItems.map((subItem) => (
                     <li class="relative">
                       <a
                         tabindex="0"
-                        class="menu-item text-base md:text-2xl lg:text-base font-bold p-2 hover:bg-base-200 rounded-lg"
+                        class="menu-item text-base md:text-2xl lg:text-base font-bold p-2 hover:bg-base-200"
                         id={`header-${subItem.id}`}
                         href={subItem.href}
                         target={subItem.target || "_self"}
@@ -52,7 +52,7 @@ const currentPath = Astro.url.pathname;
             ) : (
               <a
                 tabindex="0"
-                class="flex justify-center lg:justify-start items-center text-center text-xl md:text-3xl lg:text-xl font-bold p-4 hover:bg-base-200 rounded-lg"
+                class="flex justify-center lg:justify-start items-center text-center text-xl md:text-3xl lg:text-xl font-bold p-4 hover:bg-base-200"
                 id={item.id}
                 href={item.href}
                 target={item.target || "_self"}

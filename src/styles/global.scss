@@ -26,24 +26,29 @@ code {
   font-size: 0.875em;
 }
 
-/* Enhanced reading experience */
+/* Enhanced reading experience - Feishu Style */
 .prose {
   /* Improved line height for better readability */
   @apply leading-relaxed;
+  font-size: 16px;
+  color: var(--fallback-bc, oklch(var(--bc)));
 
   /* Better paragraph spacing */
   p {
-    @apply mb-6 leading-7;
+    @apply mb-4;
+    line-height: 1.7;
   }
 
-  /* Optimized heading spacing */
+  /* Optimized heading spacing - Feishu style */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply mt-8 mb-4 leading-tight;
+    @apply font-semibold mt-8 mb-4;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
   }
 
   h1 {
@@ -61,41 +66,40 @@ code {
   /* Better list spacing */
   ul,
   ol {
-    @apply my-6 space-y-2;
+    @apply my-4 space-y-2;
 
     li {
       @apply leading-7;
     }
   }
 
-  /* Improved blockquote styling */
+  /* Improved blockquote styling - Feishu style */
   blockquote {
-    @apply my-6 py-4 px-6 border-l-4 border-primary/50 bg-base-200/30 rounded-r-lg;
+    @apply my-6 py-3 px-5 border-l-4 border-primary/40 bg-base-200/30;
+    font-style: normal;
 
     p {
       @apply mb-0 leading-7 text-base-content/90;
     }
   }
 
-  /* Better code block contrast in dark mode */
+  /* Better code block contrast */
   pre {
-    @apply my-6 shadow-lg;
+    @apply my-6 p-4 bg-base-200;
+    border-radius: 8px;
   }
 
-  /* Inline code improvements */
+  /* Inline code improvements - Feishu style */
   :not(pre) > code {
-    @apply px-1.5 py-0.5 rounded bg-base-200 text-base-content font-medium;
+    @apply px-2 py-1 bg-base-200 text-base-content font-mono;
     font-size: 0.9em;
+    border-radius: 4px;
   }
 
-  /* Image captions */
-  img + em {
-    @apply block text-center text-sm text-base-content/70 mt-2 mb-6;
-  }
-
-  /* Image lazy loading with fade-in effect */
+  /* Image styling */
   img {
     @apply transition-opacity duration-500;
+    border-radius: 8px;
 
     &[loading="lazy"] {
       opacity: 0;
@@ -106,17 +110,21 @@ code {
     }
   }
 
-  /* Table improvements */
+  /* Table improvements - Feishu style */
   table {
-    @apply my-8 shadow-md;
+    @apply my-6 w-full;
+    border-collapse: collapse;
 
     th {
-      @apply bg-base-200 font-semibold;
+      @apply bg-base-200 font-semibold text-left py-3 px-4 border-b-2 border-base-300;
     }
 
-    td,
-    th {
-      @apply py-3 px-4;
+    td {
+      @apply py-3 px-4 border-b border-base-300;
+    }
+
+    tr:hover {
+      @apply bg-base-200/50;
     }
   }
 
@@ -139,7 +147,7 @@ code {
 }
 
 .frosti-heading {
-  @apply text-2xl leading-normal pt-0 font-bold text-base-content bg-clip-text bg-gradient-to-r from-primary to-secondary duration-300 hover:text-transparent;
+  @apply text-2xl leading-normal pt-0 font-bold text-base-content;
 }
 
 .btn-category {
@@ -155,7 +163,7 @@ code {
 }
 
 .frosti-code {
-  @apply relative my-6 rounded-xl border border-base-300/20 bg-transparent overflow-hidden;
+  @apply relative my-6 border border-base-300 bg-transparent overflow-hidden;
 
   &-toolbar {
     @apply sticky top-0 z-10 flex justify-between items-center px-4 py-2 bg-base-200 border-b border-base-content/20;
@@ -189,7 +197,7 @@ code {
 // Footnotes styles
 // ---------------------------------------------------
 .footnotes {
-  @apply mt-12 p-6 rounded-xl bg-base-200/50 backdrop-blur-sm border border-base-content/20 shadow-sm;
+  @apply mt-12 p-6 bg-base-200/50 border border-base-content/20;
 
   // Footnote list item
   li {
