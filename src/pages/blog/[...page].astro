@@ -16,6 +16,11 @@ export async function getStaticPaths({ paginate }: { paginate: any }) {
 
 const { page }: { page: Page } = Astro.props;
 
+// 如果是第一页，重定向到分类页面
+if (page.currentPage === 1) {
+  return Astro.redirect('/blog/categories');
+}
+
 const totalPages = Math.ceil(page.total / page.size);
 const pageLinks = generatePageLinks(totalPages);
 ---
@@ -80,10 +85,6 @@ const pageLinks = generatePageLinks(totalPages);
             <p class="text-sm opacity-75">{t("label.searchPageDescription")}</p>
           </div>
         </div>
-      </div>
-    </a>
-  </CardGroup>
-
   <!-- Blog Post List -->
   <CardGroup cols="1">
     {
@@ -104,5 +105,9 @@ const pageLinks = generatePageLinks(totalPages);
       ))
     }
   </CardGroup>
-  <Pagination page={page} totalPages={totalPages} pageLinks={pageLinks} baseUrl={`/blog`} />
+  <Pagination page={page} totalPages={totalPages} pageLinks={pageLinks} baseUrl={`/blog`} />    }
+      </CardGroup>
+      <Pagination page={page} totalPages={totalPages} pageLinks={pageLinks} baseUrl={`/blog`} />
+    </>
+  )}
 </BaseLayout>

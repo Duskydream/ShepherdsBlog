@@ -9,7 +9,7 @@ import { getAllPosts, getPostsWithStats, sortPostsByDate, sortPostsByPinAndDate 
  */
 export async function getMainBlogPaginationPaths({ paginate }: { paginate: any }) {
   const allPosts = await getAllPosts();
-  const sortedPosts = sortPostsByPinAndDate(allPosts);
+  const sortedPosts = sortPostsByDate(allPosts);
   const postsWithStats = await getPostsWithStats(sortedPosts);
 
   return paginate(postsWithStats, { pageSize: BLOG_PAGE_SIZE });
