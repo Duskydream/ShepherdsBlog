@@ -85,6 +85,10 @@ const pageLinks = generatePageLinks(totalPages);
             <p class="text-sm opacity-75">{t("label.searchPageDescription")}</p>
           </div>
         </div>
+      </div>
+    </a>
+  </CardGroup>
+
   <!-- Blog Post List -->
   <CardGroup cols="1">
     {
@@ -105,9 +109,5 @@ const pageLinks = generatePageLinks(totalPages);
       ))
     }
   </CardGroup>
-  <Pagination page={page} totalPages={totalPages} pageLinks={pageLinks} baseUrl={`/blog`} />    }
-      </CardGroup>
-      <Pagination page={page} totalPages={totalPages} pageLinks={pageLinks} baseUrl={`/blog`} />
-    </>
-  )}
+  <Pagination page={page} totalPages={totalPages} pageLinks={pageLinks} baseUrl={`/blog`} />
 </BaseLayout>
