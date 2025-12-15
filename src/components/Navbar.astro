@@ -33,12 +33,6 @@ const typedMenu = SITE_MENU as MenuItem[];
   id="navbar"
 >
   <div class="navbar-start">
-    <label class="btn btn-circle btn-md bg-base-100 swap swap-rotate">
-      <span class="sr-only">Toggle menu</span>
-      <input type="checkbox" id="menu-toggle" />
-      <Icon name="lucide:menu" class="swap-off h-5 w-5" />
-      <Icon name="lucide:x" class="swap-on h-5 w-5" />
-    </label>
   </div>
 
   <div class="navbar-center">
@@ -49,57 +43,6 @@ const typedMenu = SITE_MENU as MenuItem[];
 
   <div class="navbar-end">
     <ThemeToggle className="navbar-theme" />
-  </div>
-
-  <div
-    id="header-menu"
-    class="absolute top-full left-0 w-full transform -translate-x-full transition-transform duration-300 ease-in-out bg-base-100"
-  >
-    <ul class="menu bg-transparent w-full p-2">
-      {
-        typedMenu.map((item) => (
-          <li class="w-full relative group">
-            {item.subItems ? (
-              <details open={currentPath.startsWith(item.href)}>
-                <summary class="flex items-center text-lg font-bold p-3 hover:bg-base-200">
-                  <Icon name={item.svg} class="w-5 h-5 mr-2" />
-                  <span>{item.text}</span>
-                </summary>
-                <ul class="pl-4">
-                  {item.subItems.map((subItem) => (
-                    <li>
-                      <a
-                        class:list={[
-                          "flex items-center p-2 hover:bg-base-200",
-                          currentPath === subItem.href && "bg-base-200",
-                        ]}
-                        href={subItem.href}
-                        target={subItem.target || "_self"}
-                      >
-                        <Icon name={subItem.svg} class="w-4 h-4 mr-2" />
-                        <span>{subItem.text}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ) : (
-              <a
-                class:list={[
-                  "flex items-center text-lg font-bold p-3 hover:bg-base-200",
-                  currentPath === item.href && "bg-base-200",
-                ]}
-                href={item.href}
-                target={item.target || "_self"}
-              >
-                <Icon name={item.svg} class="w-5 h-5 mr-2" />
-                <span>{item.text}</span>
-              </a>
-            )}
-          </li>
-        ))
-      }
-    </ul>
   </div>
 </nav>
 

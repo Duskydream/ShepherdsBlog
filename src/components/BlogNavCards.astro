@@ -10,6 +10,26 @@ const { currentPage } = Astro.props;
 ---
 
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <!-- Categories Card -->
+  <a
+    href="/blog/categories"
+    class:list={[
+      "card shadow-lg transition-shadow",
+      currentPage === "categories" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
+    ]}
+  >
+    <div class="card-body p-4">
+      <div class="flex flex-col items-center text-center gap-2">
+        <div class:list={["rounded-full p-3", currentPage === "categories" ? "bg-primary/20" : "bg-primary/10"]}>
+          <Icon name="lucide:folder" class="w-6 h-6 text-primary" />
+        </div>
+        <h2 class:list={["font-semibold text-sm", currentPage === "categories" && "text-primary"]}>
+          {t("label.categoryPage")}
+        </h2>
+      </div>
+    </div>
+  </a>
+
   <!-- Archives Card -->
   <a
     href="/blog/archives"
@@ -28,26 +48,6 @@ const { currentPage } = Astro.props;
         </div>
         <h2 class:list={["font-semibold text-sm", currentPage === "archives" && "text-primary"]}>
           {t("label.archivePage")}
-        </h2>
-      </div>
-    </div>
-  </a>
-
-  <!-- Categories Card -->
-  <a
-    href="/blog/categories"
-    class:list={[
-      "card shadow-lg transition-shadow",
-      currentPage === "categories" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
-    ]}
-  >
-    <div class="card-body p-4">
-      <div class="flex flex-col items-center text-center gap-2">
-        <div class:list={["rounded-full p-3", currentPage === "categories" ? "bg-primary/20" : "bg-primary/10"]}>
-          <Icon name="lucide:folder" class="w-6 h-6 text-primary" />
-        </div>
-        <h2 class:list={["font-semibold text-sm", currentPage === "categories" && "text-primary"]}>
-          {t("label.categoryPage")}
         </h2>
       </div>
     </div>
