@@ -1,0 +1,116 @@
+---
+import { USER_AVATAR, USER_SIDEBAR_SOCIAL_ICONS, SITE_MENU } from "../config";
+import { Icon } from "astro-icon/components";
+import Card from "./temple/Card.astro";
+import { Image } from "astro:assets";
+
+// Get current path to determine active link
+const currentPath = Astro.url.pathname;
+
+type SubMenuItem = {
+  id: string;
+  text: string;
+  href: string;
+  svg: string;
+  target?: string;
+};
+
+type MenuItem = {
+  id: string;
+  text: string;
+  href: string;
+  svg: string;
+  target?: string;
+  subItems?: SubMenuItem[];
+};
+
+const typedMenu = SITE_MENU as MenuItem[];
+---
+
+<Card>
+  <div class="p-6">
+    <!-- 头像和社交图标 -->
+    <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
+      <!-- 头像 -->
+      <div class="flex-shrink-0">
+        <Image
+          class="mask mask-circle"
+          format="webp"
+          width={120}
+          height={120}
+          src={USER_AVATAR}
+          alt="Profile"
+          loading="eager"
+        />
+      </div>
+
+      <!-- 社交图标 -->
+      <div class="flex-1 flex justify-center md:justify-start">
+        <div class="flex flex-wrap gap-3 justify-center">
+          {
+            USER_SIDEBAR_SOCIAL_ICONS.map((icon) => (
+              <div class="tooltip tooltip-bottom" data-tip={icon.title}>
+                <a
+                  href={icon.href}
+                  aria-label={icon.ariaLabel}
+                  target="_blank"
+                  class="btn btn-circle btn-ghost btn-sm"
+                >
+                  <Icon name={icon.svg} class="text-lg" />
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- 导航菜单 -->
+    <div class="divider my-2"></div>
+    <ul class="menu bg-transparent w-full p-0">
+      {
+        typedMenu.map((item) => (
+          <li class="w-full">
+            {item.subItems ? (
+              <details open={currentPath.startsWith(item.href)}>
+                <summary class="flex items-center font-semibold hover:bg-base-200">
+                  <Icon name={item.svg} class="w-5 h-5" />
+                  <span>{item.text}</span>
+                </summary>
+                <ul>
+                  {item.subItems.map((subItem) => (
+                    <li>
+                      <a
+                        href={subItem.href}
+                        target={subItem.target || "_self"}
+                        class:list={[
+                          "flex items-center",
+                          currentPath === subItem.href && "active",
+                        ]}
+                      >
+                        <Icon name={subItem.svg} class="w-4 h-4" />
+                        <span>{subItem.text}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : (
+              <a
+                href={item.href}
+                target={item.target || "_self"}
+                class:list={[
+                  "flex items-center font-semibold",
+                  currentPath === item.href && "active",
+                ]}
+              >
+                <Icon name={item.svg} class="w-5 h-5" />
+                <span>{item.text}</span>
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Card>

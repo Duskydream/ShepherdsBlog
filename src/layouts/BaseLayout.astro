@@ -4,10 +4,11 @@ import { ClientRouter } from "astro:transitions";
 import ElementCrossing from "astro-vtbot/components/ElementCrossing.astro";
 import PointerOnNavigation from "astro-vtbot/components/PointerOnNavigation.astro";
 import Header from "@components/Header.astro";
-import Sidebar from "@components/Sidebar.astro";
+import ProfileCard from "@components/ProfileCard.astro";
+import InlineSearch from "@components/InlineSearch.astro";
+import InlineTOC from "@components/InlineTOC.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
-import MobileTOC from "@components/widgets/MobileTOC.astro";
 import ReadingProgress from "@components/widgets/ReadingProgress.astro";
 import ScrollToTop from "@components/widgets/ScrollToTop.astro";
 import Banner from "../components/Banner.astro";
@@ -22,6 +23,7 @@ const {
   isIndexed = true,
   isPost = false, // 文章页传 true 显示评论
   loadKatex = false, // 是否加载 KaTeX CSS
+  isEncrypted = false, // 是否加密文章
 } = Astro.props;
 ---
 
@@ -94,26 +96,32 @@ const {
       <!-- 主体内容 -->
       <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
         <div class="bg-base-100 min-h-screen p-6 md:p-12">
-          <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-5 gap-4">
-            <!-- 主内容 -->
-            <main class="col-span-1 md:col-span-5 lg:col-span-4 flex flex-col gap-4">
-              <slot />
-              {isPost && <Giscus />}
-              <!-- 文章页显示评论 -->
-            </main>
-
-            <!-- 侧边栏 -->
-            <aside class="col-span-1">
-              <Sidebar headings={headings} showTOC={showTOC} />
-              <slot name="sidebar" />
-            </aside>
+          <!-- 个人资料卡 -->
+          <div class="mb-6">
+            <ProfileCard />
           </div>
+
+          <!-- 搜索栏 -->
+          <div class="mb-6">
+            <InlineSearch />
+          </div>
+
+          <!-- 文章目录（仅在文章页显示） -->
+          {showTOC && headings.length > 0 && (
+            <div class="mb-6" id="toc-wrapper" style={isEncrypted ? "display: none;" : ""}>
+              <InlineTOC headings={headings} />
+            </div>
+          )}
+
+          <!-- 主内容 -->
+          <main class="flex flex-col gap-4">
+            <slot />
+            {isPost && <Giscus />}
+            <!-- 文章页显示评论 -->
+          </main>
         </div>
         <Footer />
       </div>
-
-      <!-- 移动端 TOC -->
-      <MobileTOC headings={headings} showTOC={showTOC} />
 
       <!-- 返回顶部按钮 -->
       <ScrollToTop />
@@ -191,6 +199,14 @@ const {
               img.addEventListener("load", () => img.classList.add("loaded"));
             }
           });
+        });
+
+        // 监听解密事件，显示TOC
+        document.addEventListener("blogDecrypted", () => {
+          const tocWrapper = document.getElementById("toc-wrapper");
+          if (tocWrapper) {
+            tocWrapper.style.display = "";
+          }
         });
       </script>
 

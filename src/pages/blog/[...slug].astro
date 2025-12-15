@@ -44,14 +44,8 @@ const isEncrypted = blog.data.encrypted === true;
   showTOC={true}
   isPost={true}
   loadKatex={hasMath}
-  <!--
-  ⭐
-  这里加上，告诉
-  BaseLayout
-  这是文章页
-  --
+  isEncrypted={isEncrypted}
 >
-  >
   <MainCard title={blog.data.title} description={blog.data.description}>
     <PostInfo
       pubDate={displayDate}

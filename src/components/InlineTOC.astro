@@ -1,0 +1,84 @@
+---
+import { Icon } from "astro-icon/components";
+import Card from "./temple/Card.astro";
+import type { Heading } from "@interfaces/data";
+
+interface Props {
+  headings?: Heading[];
+}
+
+const { headings = [] } = Astro.props;
+---
+
+{
+  headings.length > 0 && (
+    <Card>
+      <details class="collapse collapse-arrow" open>
+        <summary class="collapse-title text-lg font-semibold flex items-center gap-2 cursor-pointer">
+          <Icon name="lucide:list" class="w-5 h-5" />
+          <span>目录</span>
+        </summary>
+        <div class="collapse-content">
+          <nav class="toc-nav">
+            <ul class="space-y-1">
+              {headings.map((heading, index) => (
+                <li>
+                  <a
+                    href={`#heading-${index}`}
+                    data-heading-slug={heading.slug}
+                    data-heading-depth={heading.depth}
+                    data-index={index}
+                    class={`toc-link block py-1.5 px-2 hover:bg-base-200 rounded transition-colors ${heading.depth === 1 ? "font-medium" : ""}`}
+                    style={`padding-left: ${8 + (heading.depth - 1) * 16}px;`}
+                  >
+                    {heading.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </details>
+    </Card>
+  )
+}
+
+<style>
+  .toc-link.active {
+    color: var(--p);
+    background-color: var(--p) / 0.1;
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const links = document.querySelectorAll(".toc-link");
+
+    function updateActiveTOC() {
+      const headings = Array.from(document.querySelectorAll("[id^='heading-']"));
+      let currentActive = null;
+
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const heading = headings[i] as HTMLElement;
+        const rect = heading.getBoundingClientRect();
+        if (rect.top <= 100) {
+          currentActive = heading.id;
+          break;
+        }
+      }
+
+      links.forEach((link) => {
+        const href = (link as HTMLAnchorElement).getAttribute("href")?.substring(1);
+        if (href === currentActive) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
+        }
+      });
+    }
+
+    window.addEventListener("scroll", updateActiveTOC);
+    updateActiveTOC();
+  });
+</script>

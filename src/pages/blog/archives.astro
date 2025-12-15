@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import BaseCard from "@components/BaseCard.astro";
+import BlogNavCards from "@components/BlogNavCards.astro";
 import { t } from "@config";
 import { Icon } from "astro-icon/components";
 import dayjs from "@utils/dayjs";
@@ -30,6 +31,7 @@ const totalPosts = allPosts.length;
 ---
 
 <BaseLayout title={t("label.archivePage")}>
+  <BlogNavCards currentPage="archives" />
   <BaseCard title={t("label.archivePage")}>
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center gap-2">

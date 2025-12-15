@@ -1,0 +1,101 @@
+---
+import { Icon } from "astro-icon/components";
+import { t } from "@config";
+
+interface Props {
+  currentPage?: "archives" | "categories" | "tags" | "search";
+}
+
+const { currentPage } = Astro.props;
+---
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <!-- Archives Card -->
+  <a
+    href="/blog/archives"
+    class:list={[
+      "card shadow-lg transition-shadow",
+      currentPage === "archives" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
+    ]}
+  >
+    <div class="card-body p-4">
+      <div class="flex flex-col items-center text-center gap-2">
+        <div class:list={["rounded-full p-3", currentPage === "archives" ? "bg-primary/20" : "bg-accent/10"]}>
+          <Icon
+            name="lucide:archive"
+            class:list={["w-6 h-6", currentPage === "archives" ? "text-primary" : "text-accent"]}
+          />
+        </div>
+        <h2 class:list={["font-semibold text-sm", currentPage === "archives" && "text-primary"]}>
+          {t("label.archivePage")}
+        </h2>
+      </div>
+    </div>
+  </a>
+
+  <!-- Categories Card -->
+  <a
+    href="/blog/categories"
+    class:list={[
+      "card shadow-lg transition-shadow",
+      currentPage === "categories" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
+    ]}
+  >
+    <div class="card-body p-4">
+      <div class="flex flex-col items-center text-center gap-2">
+        <div class:list={["rounded-full p-3", currentPage === "categories" ? "bg-primary/20" : "bg-primary/10"]}>
+          <Icon name="lucide:folder" class="w-6 h-6 text-primary" />
+        </div>
+        <h2 class:list={["font-semibold text-sm", currentPage === "categories" && "text-primary"]}>
+          {t("label.categoryPage")}
+        </h2>
+      </div>
+    </div>
+  </a>
+
+  <!-- Tags Card -->
+  <a
+    href="/blog/tags"
+    class:list={[
+      "card shadow-lg transition-shadow",
+      currentPage === "tags" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
+    ]}
+  >
+    <div class="card-body p-4">
+      <div class="flex flex-col items-center text-center gap-2">
+        <div class:list={["rounded-full p-3", currentPage === "tags" ? "bg-primary/20" : "bg-secondary/10"]}>
+          <Icon
+            name="lucide:tag"
+            class:list={["w-6 h-6", currentPage === "tags" ? "text-primary" : "text-secondary"]}
+          />
+        </div>
+        <h2 class:list={["font-semibold text-sm", currentPage === "tags" && "text-primary"]}>
+          {t("label.tagPage")}
+        </h2>
+      </div>
+    </div>
+  </a>
+
+  <!-- Search Card -->
+  <a
+    href="/blog/search"
+    class:list={[
+      "card shadow-lg transition-shadow",
+      currentPage === "search" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
+    ]}
+  >
+    <div class="card-body p-4">
+      <div class="flex flex-col items-center text-center gap-2">
+        <div class:list={["rounded-full p-3", currentPage === "search" ? "bg-primary/20" : "bg-info/10"]}>
+          <Icon
+            name="lucide:search"
+            class:list={["w-6 h-6", currentPage === "search" ? "text-primary" : "text-info"]}
+          />
+        </div>
+        <h2 class:list={["font-semibold text-sm", currentPage === "search" && "text-primary"]}>
+          {t("label.searchPage")}
+        </h2>
+      </div>
+    </div>
+  </a>
+</div>

@@ -3,6 +3,7 @@ import type { Post, Page } from "@interfaces/data";
 import PostCard from "@components/PostCard.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import BaseCard from "@components/BaseCard.astro";
+import BlogNavCards from "@components/BlogNavCards.astro";
 import Pagination from "@components/widgets/Pagination.astro";
 import CardGroup from "@components/temple/CardGroup.astro";
 import { t } from "@config";
@@ -22,6 +23,7 @@ const pageLinks = generatePageLinks(totalPages);
 ---
 
 <BaseLayout title={`${t("label.categoryPage")} - ${params.category}`}>
+  <BlogNavCards currentPage="categories" />
   <BaseCard title={t("label.categoryPage")}>
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center gap-2">
