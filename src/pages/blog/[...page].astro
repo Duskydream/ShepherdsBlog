@@ -17,7 +17,7 @@ export async function getStaticPaths({ paginate }: { paginate: any }) {
 const { page }: { page: Page } = Astro.props;
 
 // 如果是第一页，重定向到分类页面
-if (page.currentPage === 1) {
+if (page.current === 1) {
   return Astro.redirect('/blog/categories');
 }
 
