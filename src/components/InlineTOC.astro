@@ -24,7 +24,7 @@ const { headings = [] } = Astro.props;
               {headings.map((heading, index) => (
                 <li>
                   <a
-                    href={`#heading-${index}`}
+                    href={`#${heading.slug}`}
                     data-heading-slug={heading.slug}
                     data-heading-depth={heading.depth}
                     data-index={index}
@@ -55,8 +55,25 @@ const { headings = [] } = Astro.props;
   document.addEventListener("astro:page-load", () => {
     const links = document.querySelectorAll(".toc-link");
 
+    // 点击跳转处理
+    links.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const href = (link as HTMLAnchorElement).getAttribute("href");
+        if (!href) return;
+
+        const targetId = href.substring(1);
+        const target = document.getElementById(targetId);
+
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth" });
+          history.pushState(null, "", href);
+        }
+      });
+    });
+
     function updateActiveTOC() {
-      const headings = Array.from(document.querySelectorAll("[id^='heading-']"));
+      const headings = Array.from(document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]"));
       let currentActive = null;
 
       for (let i = headings.length - 1; i >= 0; i--) {
