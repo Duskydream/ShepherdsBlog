@@ -1,0 +1,598 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MainCard from "@/components/MainCard.astro";
+---
+
+<BaseLayout title="GPA计算器">
+  <MainCard title="GPA计算器" description="根据百分制成绩计算综合绩点">
+    <div class="space-y-6 mb-8 max-w-4xl mx-auto">
+      <!-- 绩点制度选择 -->
+      <div class="flex flex-wrap items-center gap-4 p-4 bg-base-200 rounded-xl">
+        <span class="font-semibold">绩点制度：</span>
+        <select id="gpa-scale" class="select select-bordered select-sm w-40">
+          <option value="4.0">4.0 制（标准）</option>
+          <option value="4.3">4.3 制</option>
+          <option value="5.0">5.0 制</option>
+        </select>
+        <div class="flex-1"></div>
+        <button id="btn-import" class="btn btn-sm btn-outline gap-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"
+            ></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg
+          >
+          导入（JSON文件）
+        </button>
+        <button id="btn-export" class="btn btn-sm btn-outline gap-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"
+            ></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg
+          >
+          导出JSON
+        </button>
+        <button id="btn-export-md" class="btn btn-sm btn-outline gap-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline
+              points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line
+              x1="16"
+              y1="17"
+              x2="8"
+              y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg
+          >
+          导出MD
+        </button>
+      </div>
+
+      <!-- 添加课程表单 -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+          <h3 class="card-title text-lg mb-4">添加课程</h3>
+          <form id="course-form" class="flex flex-wrap gap-3 items-end">
+            <div class="form-control flex-1 min-w-[150px]">
+              <label class="label py-1">
+                <span class="label-text">课程名称</span>
+              </label>
+              <input
+                type="text"
+                id="course-name"
+                placeholder="如：高等数学"
+                class="input input-bordered input-sm w-full"
+                required
+              />
+            </div>
+            <div class="form-control w-24">
+              <label class="label py-1">
+                <span class="label-text">学分</span>
+              </label>
+              <input
+                type="number"
+                id="course-credit"
+                placeholder="3"
+                min="0.5"
+                max="20"
+                step="0.5"
+                class="input input-bordered input-sm w-full"
+                required
+              />
+            </div>
+            <div class="form-control w-28">
+              <label class="label py-1">
+                <span class="label-text">成绩（百分制）</span>
+              </label>
+              <input
+                type="number"
+                id="course-score"
+                placeholder="85"
+                min="0"
+                max="100"
+                step="0.1"
+                class="input input-bordered input-sm w-full"
+                required
+              />
+            </div>
+            <button type="submit" id="btn-add" class="btn btn-primary btn-sm">添加</button>
+            <button type="button" id="btn-cancel-edit" class="btn btn-ghost btn-sm hidden">取消</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 统计信息 -->
+      <div class="stats stats-vertical sm:stats-horizontal shadow w-full bg-base-100">
+        <div class="stat">
+          <div class="stat-title">总学分</div>
+          <div class="stat-value text-2xl" id="total-credits">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">课程数</div>
+          <div class="stat-value text-2xl" id="course-count">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">综合GPA</div>
+          <div class="stat-value text-2xl text-primary" id="gpa-result">0.00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">平均分</div>
+          <div class="stat-value text-2xl" id="avg-score">0.0</div>
+        </div>
+      </div>
+
+      <!-- 课程列表 -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="card-title text-lg">课程列表</h3>
+            <button id="btn-clear-all" class="btn btn-error btn-sm btn-outline">清空全部</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th>课程名称</th>
+                  <th class="text-center">学分</th>
+                  <th class="text-center">成绩</th>
+                  <th class="text-center">等级</th>
+                  <th class="text-center">绩点</th>
+                  <th class="text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody id="course-list">
+                <tr id="empty-row">
+                  <td colspan="6" class="text-center text-base-content/50 py-8"> 暂无课程，请添加课程开始计算 </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 绩点对照表 -->
+      <div class="collapse collapse-arrow bg-base-100 shadow-md">
+        <input type="checkbox" />
+        <div class="collapse-title font-semibold">查看绩点对照表</div>
+        <div class="collapse-content">
+          <div class="overflow-x-auto">
+            <table class="table table-sm" id="grade-table">
+              <thead>
+                <tr>
+                  <th>百分制</th>
+                  <th>等级</th>
+                  <th>4.0制绩点</th>
+                  <th>4.3制绩点</th>
+                  <th>5.0制绩点</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>90-100</td><td>A</td><td>4.0</td><td>4.0</td><td>5.0</td></tr>
+                <tr><td>85-89</td><td>A-</td><td>3.7</td><td>3.7</td><td>4.5</td></tr>
+                <tr><td>82-84</td><td>B+</td><td>3.3</td><td>3.3</td><td>4.0</td></tr>
+                <tr><td>78-81</td><td>B</td><td>3.0</td><td>3.0</td><td>3.5</td></tr>
+                <tr><td>75-77</td><td>B-</td><td>2.7</td><td>2.7</td><td>3.0</td></tr>
+                <tr><td>72-74</td><td>C+</td><td>2.3</td><td>2.3</td><td>2.5</td></tr>
+                <tr><td>68-71</td><td>C</td><td>2.0</td><td>2.0</td><td>2.0</td></tr>
+                <tr><td>64-67</td><td>C-</td><td>1.5</td><td>1.5</td><td>1.5</td></tr>
+                <tr><td>60-63</td><td>D</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
+                <tr><td>0-59</td><td>F</td><td>0</td><td>0</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 隐藏的文件输入 -->
+      <input type="file" id="file-input" accept=".json" class="hidden" />
+    </div>
+
+    <script type="module" is:inline>
+      // ============ 配置 ============
+      const STORAGE_KEY = "gpa_calculator_data_v1";
+
+      // 绩点转换规则
+      const GRADE_SCALES = {
+        "4.0": [
+          { min: 90, max: 100, grade: "A", gp: 4.0 },
+          { min: 85, max: 89, grade: "A-", gp: 3.7 },
+          { min: 82, max: 84, grade: "B+", gp: 3.3 },
+          { min: 78, max: 81, grade: "B", gp: 3.0 },
+          { min: 75, max: 77, grade: "B-", gp: 2.7 },
+          { min: 72, max: 74, grade: "C+", gp: 2.3 },
+          { min: 68, max: 71, grade: "C", gp: 2.0 },
+          { min: 64, max: 67, grade: "C-", gp: 1.5 },
+          { min: 60, max: 63, grade: "D", gp: 1.0 },
+          { min: 0, max: 59, grade: "F", gp: 0 },
+        ],
+        4.3: [
+          { min: 90, max: 100, grade: "A", gp: 4.0 },
+          { min: 85, max: 89, grade: "A-", gp: 3.7 },
+          { min: 82, max: 84, grade: "B+", gp: 3.3 },
+          { min: 78, max: 81, grade: "B", gp: 3.0 },
+          { min: 75, max: 77, grade: "B-", gp: 2.7 },
+          { min: 72, max: 74, grade: "C+", gp: 2.3 },
+          { min: 68, max: 71, grade: "C", gp: 2.0 },
+          { min: 64, max: 67, grade: "C-", gp: 1.5 },
+          { min: 60, max: 63, grade: "D", gp: 1.0 },
+          { min: 0, max: 59, grade: "F", gp: 0 },
+        ],
+        "5.0": [
+          { min: 90, max: 100, grade: "A", gp: 5.0 },
+          { min: 85, max: 89, grade: "A-", gp: 4.5 },
+          { min: 82, max: 84, grade: "B+", gp: 4.0 },
+          { min: 78, max: 81, grade: "B", gp: 3.5 },
+          { min: 75, max: 77, grade: "B-", gp: 3.0 },
+          { min: 72, max: 74, grade: "C+", gp: 2.5 },
+          { min: 68, max: 71, grade: "C", gp: 2.0 },
+          { min: 64, max: 67, grade: "C-", gp: 1.5 },
+          { min: 60, max: 63, grade: "D", gp: 1.0 },
+          { min: 0, max: 59, grade: "F", gp: 0 },
+        ],
+      };
+
+      // ============ 状态 ============
+      let courses = [];
+      let editingId = null;
+      let currentScale = "4.0";
+
+      // ============ DOM元素 ============
+      const scaleSelect = document.getElementById("gpa-scale");
+      const form = document.getElementById("course-form");
+      const nameInput = document.getElementById("course-name");
+      const creditInput = document.getElementById("course-credit");
+      const scoreInput = document.getElementById("course-score");
+      const btnAdd = document.getElementById("btn-add");
+      const btnCancelEdit = document.getElementById("btn-cancel-edit");
+      const btnClearAll = document.getElementById("btn-clear-all");
+      const btnImport = document.getElementById("btn-import");
+      const btnExport = document.getElementById("btn-export");
+      const btnExportMd = document.getElementById("btn-export-md");
+      const fileInput = document.getElementById("file-input");
+      const courseList = document.getElementById("course-list");
+      const emptyRow = document.getElementById("empty-row");
+      const totalCreditsEl = document.getElementById("total-credits");
+      const courseCountEl = document.getElementById("course-count");
+      const gpaResultEl = document.getElementById("gpa-result");
+      const avgScoreEl = document.getElementById("avg-score");
+
+      // ============ 工具函数 ============
+      function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+      }
+
+      function getGradeInfo(score, scale) {
+        const rules = GRADE_SCALES[scale] || GRADE_SCALES["4.0"];
+        for (const rule of rules) {
+          if (score >= rule.min && score <= rule.max) {
+            return { grade: rule.grade, gp: rule.gp };
+          }
+        }
+        return { grade: "F", gp: 0 };
+      }
+
+      function calculateStats() {
+        if (courses.length === 0) {
+          return { totalCredits: 0, courseCount: 0, gpa: 0, avgScore: 0 };
+        }
+
+        let totalCredits = 0;
+        let totalGradePoints = 0;
+        let totalScore = 0;
+
+        for (const course of courses) {
+          const { gp } = getGradeInfo(course.score, currentScale);
+          totalCredits += course.credit;
+          totalGradePoints += course.credit * gp;
+          totalScore += course.credit * course.score;
+        }
+
+        return {
+          totalCredits: totalCredits,
+          courseCount: courses.length,
+          gpa: totalCredits > 0 ? totalGradePoints / totalCredits : 0,
+          avgScore: totalCredits > 0 ? totalScore / totalCredits : 0,
+        };
+      }
+
+      // ============ 存储 ============
+      function saveData() {
+        try {
+          const data = {
+            courses,
+            scale: currentScale,
+            updatedAt: Date.now(),
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {
+          console.error("保存数据失败", e);
+        }
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            courses = data.courses || [];
+            currentScale = data.scale || "4.0";
+            scaleSelect.value = currentScale;
+          }
+        } catch (e) {
+          console.error("加载数据失败", e);
+        }
+      }
+
+      // ============ 渲染 ============
+      function render() {
+        // 更新统计
+        const stats = calculateStats();
+        totalCreditsEl.textContent = stats.totalCredits.toFixed(1);
+        courseCountEl.textContent = stats.courseCount;
+        gpaResultEl.textContent = stats.gpa.toFixed(2);
+        avgScoreEl.textContent = stats.avgScore.toFixed(1);
+
+        // 清空列表
+        courseList.innerHTML = "";
+
+        if (courses.length === 0) {
+          courseList.appendChild(emptyRow);
+          return;
+        }
+
+        // 渲染课程
+        for (const course of courses) {
+          const { grade, gp } = getGradeInfo(course.score, currentScale);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="font-medium">${escapeHtml(course.name)}</td>
+            <td class="text-center">${course.credit}</td>
+            <td class="text-center">${course.score}</td>
+            <td class="text-center"><span class="badge badge-outline">${grade}</span></td>
+            <td class="text-center font-semibold">${gp.toFixed(1)}</td>
+            <td class="text-center">
+              <div class="flex gap-1 justify-center">
+                <button class="btn btn-ghost btn-xs" data-action="edit" data-id="${course.id}" title="编辑">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-xs text-error" data-action="delete" data-id="${course.id}" title="删除">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+              </div>
+            </td>
+          `;
+          courseList.appendChild(tr);
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // ============ 事件处理 ============
+      function handleFormSubmit(e) {
+        e.preventDefault();
+
+        const name = nameInput.value.trim();
+        const credit = parseFloat(creditInput.value);
+        const score = parseFloat(scoreInput.value);
+
+        if (!name || isNaN(credit) || isNaN(score)) {
+          return;
+        }
+
+        if (editingId) {
+          // 编辑模式
+          const index = courses.findIndex((c) => c.id === editingId);
+          if (index !== -1) {
+            courses[index] = { ...courses[index], name, credit, score };
+          }
+          cancelEdit();
+        } else {
+          // 添加模式
+          courses.push({
+            id: generateId(),
+            name,
+            credit,
+            score,
+          });
+        }
+
+        form.reset();
+        saveData();
+        render();
+      }
+
+      function startEdit(id) {
+        const course = courses.find((c) => c.id === id);
+        if (!course) return;
+
+        editingId = id;
+        nameInput.value = course.name;
+        creditInput.value = course.credit;
+        scoreInput.value = course.score;
+        btnAdd.textContent = "更新";
+        btnCancelEdit.classList.remove("hidden");
+        nameInput.focus();
+      }
+
+      function cancelEdit() {
+        editingId = null;
+        form.reset();
+        btnAdd.textContent = "添加";
+        btnCancelEdit.classList.add("hidden");
+      }
+
+      function deleteCourse(id) {
+        if (confirm("确定要删除这门课程吗？")) {
+          courses = courses.filter((c) => c.id !== id);
+          if (editingId === id) {
+            cancelEdit();
+          }
+          saveData();
+          render();
+        }
+      }
+
+      function clearAll() {
+        if (courses.length === 0) return;
+        if (confirm("确定要清空所有课程吗？此操作不可恢复！")) {
+          courses = [];
+          cancelEdit();
+          saveData();
+          render();
+        }
+      }
+
+      function handleScaleChange() {
+        currentScale = scaleSelect.value;
+        saveData();
+        render();
+      }
+
+      function handleListClick(e) {
+        const btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+
+        if (action === "edit") {
+          startEdit(id);
+        } else if (action === "delete") {
+          deleteCourse(id);
+        }
+      }
+
+      // ============ 导入导出 ============
+      function exportData() {
+        const data = {
+          courses,
+          scale: currentScale,
+          exportedAt: new Date().toISOString(),
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `gpa-data-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportMarkdown() {
+        if (courses.length === 0) {
+          alert("暂无课程数据可导出");
+          return;
+        }
+
+        const stats = calculateStats();
+        const scaleNames = { "4.0": "4.0制（标准）", 4.3: "4.3制", "5.0": "5.0制" };
+        const date = new Date().toLocaleDateString("zh-CN");
+
+        let md = `# GPA 成绩单\n\n`;
+        md += `> 导出时间：${date}\n`;
+        md += `> 绩点制度：${scaleNames[currentScale] || currentScale}\n\n`;
+        md += `## 统计信息\n\n`;
+        md += `| 项目 | 数值 |\n`;
+        md += `| --- | --- |\n`;
+        md += `| 总学分 | ${stats.totalCredits.toFixed(1)} |\n`;
+        md += `| 课程数 | ${stats.courseCount} |\n`;
+        md += `| 综合GPA | **${stats.gpa.toFixed(2)}** |\n`;
+        md += `| 加权平均分 | ${stats.avgScore.toFixed(1)} |\n\n`;
+        md += `## 课程明细\n\n`;
+        md += `| 课程名称 | 学分 | 成绩 | 等级 | 绩点 |\n`;
+        md += `| --- | :---: | :---: | :---: | :---: |\n`;
+
+        for (const course of courses) {
+          const { grade, gp } = getGradeInfo(course.score, currentScale);
+          md += `| ${course.name} | ${course.credit} | ${course.score} | ${grade} | ${gp.toFixed(1)} |\n`;
+        }
+
+        const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `gpa-成绩单-${new Date().toISOString().slice(0, 10)}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function importData() {
+        fileInput.click();
+      }
+
+      function handleFileSelect(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (Array.isArray(data.courses)) {
+              if (courses.length > 0) {
+                if (!confirm("导入将覆盖现有数据，是否继续？")) {
+                  return;
+                }
+              }
+              courses = data.courses;
+              if (data.scale && GRADE_SCALES[data.scale]) {
+                currentScale = data.scale;
+                scaleSelect.value = currentScale;
+              }
+              saveData();
+              render();
+              alert("导入成功！");
+            } else {
+              alert("无效的数据格式");
+            }
+          } catch (err) {
+            alert("解析文件失败：" + err.message);
+          }
+        };
+        reader.readAsText(file);
+        fileInput.value = "";
+      }
+
+      // ============ 初始化 ============
+      function init() {
+        loadData();
+        render();
+
+        // 绑定事件
+        form.addEventListener("submit", handleFormSubmit);
+        btnCancelEdit.addEventListener("click", cancelEdit);
+        btnClearAll.addEventListener("click", clearAll);
+        scaleSelect.addEventListener("change", handleScaleChange);
+        courseList.addEventListener("click", handleListClick);
+        btnExport.addEventListener("click", exportData);
+        btnExportMd.addEventListener("click", exportMarkdown);
+        btnImport.addEventListener("click", importData);
+        fileInput.addEventListener("change", handleFileSelect);
+      }
+
+      init();
+    </script>
+  </MainCard>
+</BaseLayout>

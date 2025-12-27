@@ -49,6 +49,18 @@ site:
       target: _self
       svg: "material-symbols:live-tv-rounded"
 
+    - id: application
+      text: Apps
+      href: /apps
+      target: _self
+      svg: "material-symbols:grid-view-rounded"
+      subItems:
+        - id: gpa
+          text: GPA计算器
+          href: /gpa
+          target: _self
+          svg: "material-symbols:calculate-rounded"
+
     - id: link
       text: Links
       href: /link
