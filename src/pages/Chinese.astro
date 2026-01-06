@@ -1,0 +1,1700 @@
+---
+// 大学语文互动复习工具
+const title = "大学语文互动复习工具";
+const description = "一个交互式的大学语文课程复习工具，包含知识卡片、模拟测试和背诵自测功能";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Your Blog" />
+    <style is:global>
+      :root {
+        --primary: #4f46e5;
+        --primary-light: #818cf8;
+        --secondary: #10b981;
+        --bg: #f3f4f6;
+        --card-bg: #ffffff;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --danger: #ef4444;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Navigation */
+      nav {
+        background: var(--card-bg);
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .nav-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        background: transparent;
+        color: var(--text-light);
+        cursor: pointer;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+      }
+
+      .nav-btn.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .nav-btn:hover:not(.active) {
+        background: #e0e7ff;
+        color: var(--primary);
+      }
+
+      /* Main Content */
+      main {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .view-section {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      .view-section.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Dashboard */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .stat-card {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+      }
+
+      .stat-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-desc {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      /* Knowledge Cards */
+      .card-container {
+        perspective: 1000px;
+        max-width: 800px;
+        margin: 0 auto;
+        height: 500px;
+      }
+
+      .flashcard {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .flashcard.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        background: var(--card-bg);
+        border-radius: 1.5rem;
+        overflow-y: auto;
+      }
+
+      .card-front {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+      }
+
+      .card-back {
+        background: var(--card-bg);
+        transform: rotateY(180deg);
+        color: var(--text);
+        text-align: left;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+
+      .card-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+      }
+
+      .card-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        white-space: pre-wrap;
+      }
+
+      .card-controls {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .control-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        background: var(--card-bg);
+        color: var(--primary);
+        border-radius: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s;
+      }
+
+      .control-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+      }
+
+      .control-btn.primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      /* Quiz Mode */
+      .quiz-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .question-text {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        line-height: 1.4;
+      }
+
+      .options-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .quiz-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+        align-items: center;
+      }
+
+      #btn-prev {
+        grid-column: 1;
+      }
+      #btn-check {
+        grid-column: 2;
+      }
+      #btn-next {
+        grid-column: 3;
+      }
+
+      .quiz-controls .control-btn {
+        width: 100%;
+      }
+
+      /* Improved Quiz Options */
+      .option-label {
+        display: flex;
+        align-items: center;
+        padding: 1.25rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.1rem;
+        background: white;
+      }
+
+      .option-label:hover {
+        border-color: var(--primary-light);
+        background: #f9fafb;
+      }
+
+      .option-label.selected {
+        border-color: var(--primary);
+        background: #eef2ff;
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .option-label.correct {
+        border-color: var(--secondary);
+        background: #ecfdf5;
+        color: #065f46;
+      }
+
+      .option-label.wrong {
+        border-color: var(--danger);
+        background: #fef2f2;
+        color: #991b1b;
+      }
+
+      .option-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: #f3f4f6;
+        color: var(--text-light);
+        margin-right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        transition: all 0.2s;
+      }
+
+      .option-label:hover .option-badge {
+        background: #e5e7eb;
+      }
+
+      .option-label.selected .option-badge {
+        background: var(--primary);
+        color: white;
+      }
+
+      .option-label.correct .option-badge {
+        background: var(--secondary);
+        color: white;
+      }
+
+      .option-label.wrong .option-badge {
+        background: var(--danger);
+        color: white;
+      }
+
+      /* Floating Action Button (FAB) */
+      .fab-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 50;
+        transition: transform 0.2s;
+      }
+
+      .fab-btn:hover {
+        transform: scale(1.1);
+      }
+
+      /* Sidebar Drawer */
+      .drawer-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 90;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+      }
+
+      .drawer-overlay.open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 350px;
+        height: 100vh;
+        background: white;
+        z-index: 95;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .drawer.open {
+        right: 0;
+      }
+
+      .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .category-group {
+        margin-bottom: 2rem;
+      }
+
+      .category-title {
+        font-weight: bold;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+      }
+
+      /* API Config Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+      }
+
+      .modal {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 500px;
+      }
+
+      /* Recitation/Subjective */
+      .recite-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .recite-card {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .recite-input {
+        width: 100%;
+        height: 150px;
+        padding: 1rem;
+        margin: 1rem 0;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        resize: vertical;
+      }
+
+      .recite-input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .hidden-answer {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f0fdf4;
+        border: 1px solid var(--secondary);
+        border-radius: 0.5rem;
+        color: #065f46;
+      }
+
+      .match-score {
+        font-weight: bold;
+        margin-top: 0.5rem;
+      }
+
+      /* Nav Grid Button Styles for Drawer */
+      .nav-grid-btn {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        background: white;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .nav-grid-btn:hover {
+        border-color: var(--primary);
+        background: #f3f4f6;
+      }
+
+      .nav-grid-btn.current {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .nav-grid-btn.correct {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+      }
+
+      .nav-grid-btn.wrong {
+        background: var(--danger);
+        color: white;
+        border-color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="logo">
+        <span>🎓</span> 大学语文复习助手
+      </div>
+      <div class="nav-links">
+        <button class="nav-btn active" onclick="switchTab('dashboard')">主页</button>
+        <button class="nav-btn" onclick="switchTab('cards')">重点卡片</button>
+        <button class="nav-btn" onclick="switchTab('quiz')">模拟测试</button>
+        <button class="nav-btn" onclick="switchTab('recite')">背诵自测</button>
+      </div>
+    </nav>
+
+    <main>
+      <!-- Dashboard -->
+      <section id="dashboard" class="view-section active">
+        <div class="dashboard-grid">
+          <div class="stat-card" onclick="switchTab('cards')">
+            <div class="stat-icon">🎴</div>
+            <div class="stat-title">重点知识卡片</div>
+            <div class="stat-desc">依照重点.txt制作，包含4大核心考点</div>
+          </div>
+          <div class="stat-card" onclick="switchTab('quiz')">
+            <div class="stat-icon">📝</div>
+            <div class="stat-title">互动模拟测试</div>
+            <div class="stat-desc">基于课程资料生成的全新选择题</div>
+          </div>
+          <div class="stat-card" onclick="switchTab('recite')">
+            <div class="stat-icon">🗣️</div>
+            <div class="stat-title">智能背诵检查</div>
+            <div class="stat-desc">问答题自测，支持简单的相似度评分</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Knowledge Cards -->
+      <section id="cards" class="view-section">
+        <div class="card-container">
+          <div class="flashcard" onclick="flipCard()">
+            <div class="card-face card-front">
+              <div class="card-title" id="card-front-text">点击开始</div>
+              <div style="font-size: 0.9rem; opacity: 0.8">点击翻转查看详情</div>
+            </div>
+            <div class="card-face card-back">
+              <div class="card-content" id="card-back-text"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-controls">
+          <button class="control-btn" onclick="prevCard()">← 上一张</button>
+          <span id="card-counter" style="display:flex;align-items:center;font-weight:bold;color:var(--text-light)"
+            >1 / 4</span
+          >
+          <button class="control-btn" onclick="nextCard()">下一张 →</button>
+        </div>
+      </section>
+
+      <!-- Quiz -->
+      <section id="quiz" class="view-section">
+        <div class="quiz-container" id="quiz-card">
+          <div class="question-header">
+            <span id="q-counter">Question 1/50</span>
+            <span id="q-category">Category</span>
+          </div>
+          <div id="q-text" class="question-text">Loading...</div>
+          <div id="q-options" class="options-grid"></div>
+
+          <div class="quiz-controls">
+            <button class="control-btn" onclick="prevQuestion()" id="btn-prev" disabled>上一题</button>
+            <button class="control-btn primary" onclick="checkAnswer()" id="btn-check">提交答案</button>
+            <button class="control-btn" onclick="nextQuestion()" id="btn-next" style="display:none">下一题</button>
+          </div>
+
+          <div style="text-align:center; margin-top:2rem;">
+            <button class="control-btn" style="background-color: var(--danger); color: white;" onclick="resetQuiz()"
+              >🗑️ 清空所有测试记录</button
+            >
+          </div>
+        </div>
+
+        <div class="quiz-nav-grid" id="quiz-nav" style="display:none;"></div>
+        <!-- Legacy Grid Hidden -->
+
+        <!-- Floating Action Button for Navigation -->
+        <button class="fab-btn" onclick="toggleDrawer()" title="打开题目导航"> ☰ </button>
+
+        <!-- Sidebar Drawer -->
+        <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+        <div class="drawer" id="drawer">
+          <div class="drawer-header">
+            <div style="font-size:1.2rem; font-weight:bold;">题目导航</div>
+            <button class="nav-btn" onclick="toggleDrawer()" style="padding:0.5rem; font-size:1.5rem;">×</button>
+          </div>
+          <div id="drawer-content"></div>
+        </div>
+      </section>
+
+      <!-- Recitation -->
+      <section id="recite" class="view-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <button
+            class="control-btn"
+            style="background-color: var(--danger); color: white; font-size: 0.9rem;"
+            onclick="resetRecite()">🗑️ 清空所有问答记录</button
+          >
+          <button class="control-btn" onclick="showApiConfig()" style="font-size: 0.9rem;">⚙️ 配置 AI 批改</button>
+        </div>
+        <div id="recite-list">
+          <!-- Recite items injected by JS -->
+        </div>
+      </section>
+
+      <!-- API Config Modal -->
+      <div class="modal-overlay" id="api-modal">
+        <div class="modal">
+          <h2 style="margin-bottom: 1rem;">配置 AI 批改</h2>
+          <p style="margin-bottom: 1rem; color: var(--text-light);">
+            输入兼容 OpenAI 格式的 API Key (如 DeepSeek, Moonshot, ChatGPT 等)，用于智能批改问答题。
+
+            <label style="display:block; margin-bottom:0.5rem; font-weight:bold;">API Endpoint (Base URL)</label>
+            <input
+              type="text"
+              id="api-url"
+              value="https://api.openai.com/v1"
+              class="recite-input"
+              style="height: auto; margin-top:0;"
+              <label
+              style="display:block; margin-bottom:0.5rem; font-weight:bold; margin-top:1rem;"
+            />API Key
+          </p>
+          <input
+            type="password"
+            id="api-key"
+            placeholder="sk-..."
+            class="recite-input"
+            style="height: auto; margin-top:0;"
+            <label
+            style="display:block; margin-bottom:0.5rem; font-weight:bold; margin-top:1rem;"
+          />Model Name
+        </div>
+        <input
+          type="text"
+          id="api-model"
+          value="gpt-3.5-turbo"
+          class="recite-input"
+          style="height: auto; margin-top:0;"
+        />
+
+        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
+          <button class="control-btn" onclick="closeApiConfig()">取消</button>
+          <button class="control-btn primary" onclick="saveApiConfig()">保存配置</button>
+        </div>
+      </div>
+    </main>
+
+    <script is:inline>
+      // --- DATA SOURCE ---
+      // Content from 重点.txt (Verbatim)
+      const keyPoints = [
+        {
+          title: "一、什么是不学诗无以言",
+          content:
+            "不学诗，无以言\n\n《论语·季氏》：“陈亢问于伯鱼曰：‘子亦有异闻乎？’对曰：‘未也。尝独立，鲤趋而过庭。曰：‘学诗乎？’对曰：‘未也。’‘不学诗，无以言。’鲤退而学诗。他日又独立，鲤趋而过庭。曰：‘学礼乎？’对曰：‘未也。’‘不学礼，无以立。’鲤退而学礼。闻斯二者。”陈亢退而喜曰：“问一得三，闻诗，闻礼，又闻君子之远其子也。”",
+        },
+        {
+          title: "二、为什么史记是史家之绝唱无韵之离骚",
+          content:
+            "《史记》其书\n\n> 中国历史上第一部纪传体通史。\n> 最初称为《太史公书》，或《太史公记》。\n> “究天人之际，通古今之变，成一家之言。”\n> “史家之绝唱，无韵之离骚。”\n> “二重证据法”。",
+        },
+        {
+          title: "三、曹丕诗歌的特色",
+          content:
+            "曹丕之诗歌（1）\n\n曹丕现存诗约四十首，主要分为三类：\n第一类为宴游诗，如写夜游铜雀园的《芙蓉池作诗》，纪游玄武池的《于玄武陂作诗》等。这些诗多写游赏之乐，模山范水比较细致，文词富丽，常用对偶，在我国山水诗的发展史上有一定地位。\n\n《芙蓉池作诗》\n乘辇夜行游，逍遥步西园。双渠相溉灌，嘉木绕通川。\n卑枝拂羽盖，修条摩苍天。惊风扶轮毂，飞鸟翔我前。丹霞失明月，华星出云间。上天垂光彩，五色一何鲜。寿命非松乔，谁能得神仙。遨游快心意，保己终百年。",
+        },
+        {
+          title: "四、至情论",
+          content:
+            "“至情”\n\n● 从宏观上看，世界是有情世界，人生是有情人生。“思欢愁悲”等表征、感伤宣泄等渠道，都是情感流程中的不同环节。世间之事，非理所能尽释，但一定都伴随着情感的旋律。\n● 从程度上看，有情人生的最高境界是“至情”，《牡丹亭》便是“至情”的演绎。汤显祖在该剧《题词》中说：“情不知所起，一往而深。生者可以死，死可以生。生而不可与死，死而不可复生者，皆非情之至也。”\n● 从途径上看，最有效的“至情”感悟方式是借戏剧之道来表达。戏剧表演可以“生天生地生鬼生神，损人物之万途，攒古今之千变”，“无情者可使有情，无声者可使有声……人有此声，家有此道，疫疠不作，天下和平”（《宜黄县戏神清源师庙记》）。",
+        },
+      ];
+
+      // Style mimicking 范例.txt but new content
+      const quizQuestions = [
+        // 诗经 (1-10)
+        {
+          id: 1,
+          category: "《诗经》",
+          question: "《诗经》是我国第一部现实主义诗歌总集，收录诗歌多少篇？",
+          options: ["300篇", "305篇", "311篇", "3000篇"],
+          correct: 1,
+        },
+        {
+          id: 2,
+          category: "《诗经》",
+          question: "“风、雅、颂”是按照什么标准对《诗经》进行的分类？",
+          options: ["创作年代", "作者身份", "音乐性质", "内容题材"],
+          correct: 2,
+        },
+        {
+          id: 3,
+          category: "《诗经》",
+          question: "孔子在《论语》中评价《关雎》的名言是？",
+          options: ["思无邪", "乐而不淫，哀而不伤", "温温柔柔", "怨而不怒"],
+          correct: 1,
+        },
+        {
+          id: 4,
+          category: "《诗经》",
+          question: "“关关雎鸠”中“关关”一词的词性是？",
+          options: ["动词（关闭）", "名词（关卡）", "象声词（鸟叫声）", "形容词（关联）"],
+          correct: 2,
+        },
+        {
+          id: 5,
+          category: "《诗经》",
+          question: "所谓“风”，在《诗经》六义中主要指？",
+          options: ["贵族文学", "十五国风（各地的土风歌谣）", "宗庙之音", "天气"],
+          correct: 1,
+        },
+        {
+          id: 6,
+          category: "《诗经》",
+          question: "安徽大学简（安大简）中，《关雎》的“窈窕”写作“要翟”，其意思是？",
+          options: ["幽深娴静", "容貌美丽", "腰身美好", "心地善良"],
+          correct: 2,
+        },
+        {
+          id: 7,
+          category: "《诗经》",
+          question: "朱熹在《诗集传》中认为《关雎》所写的内容是？",
+          options: ["刺康王", "后妃之德（文王之妃）", "弃妇之怨", "淫奔之诗"],
+          correct: 1,
+        },
+        {
+          id: 8,
+          category: "《诗经》",
+          question: "“赋诗言志”是春秋时期的一种重要外交和政治活动，其中“赋”的意思是？",
+          options: ["创作诗歌", "朗诵或引用《诗经》篇章", "编写乐谱", "赠送书籍"],
+          correct: 1,
+        },
+        {
+          id: 9,
+          category: "《诗经》",
+          question: "汉代传习《诗经》的“四家诗”中，唯一流传至今的“古文诗”是？",
+          options: ["鲁诗", "齐诗", "韩诗", "毛诗"],
+          correct: 3,
+        },
+        {
+          id: 10,
+          category: "《诗经》",
+          question: "“兴”这种表现手法的特点是？",
+          options: ["直陈其事", "也就是比喻", "先言他物以引起所咏之词", "托物言志"],
+          correct: 2,
+        },
+
+        // 孟子 (11-20)
+        {
+          id: 11,
+          category: "《孟子》",
+          question: "孟子被后世尊称为“亚圣”，这一封号是在哪个朝代正式确立的？",
+          options: ["唐朝", "宋朝", "元朝", "明朝"],
+          correct: 2,
+        },
+        {
+          id: 12,
+          category: "《孟子》",
+          question: "在《孟子》的“四端”说中，“羞恶之心”是哪种德行的开端？",
+          options: ["仁", "义", "礼", "智"],
+          correct: 1,
+        },
+        {
+          id: 13,
+          category: "《孟子》",
+          question: "孟子反驳告子以“杞柳”喻人性，认为顺应天性如同？",
+          options: ["治水", "杯棬", "白羽", "湍水"],
+          correct: 1,
+        },
+        {
+          id: 14,
+          category: "《孟子》",
+          question: "“富贵不能淫，贫贱不能移，威武不能屈”是孟子对哪种理想人格的描述？",
+          options: ["仁者", "圣人", "大丈夫", "国士"],
+          correct: 2,
+        },
+        {
+          id: 15,
+          category: "《孟子》",
+          question: "孟子认为“浩然之气”需要通过什么方式来培养？",
+          options: ["顿悟", "集义", "避世", "坐忘"],
+          correct: 1,
+        },
+        {
+          id: 16,
+          category: "《孟子》",
+          question: "下列哪位唐代学者最早提出将《孟子》与《论语》、《孝经》兼为一经？",
+          options: ["韩愈", "柳宗元", "杨绾", "皮日休"],
+          correct: 2,
+        },
+        {
+          id: 17,
+          category: "《孟子》",
+          question: "在“牛山之木”的寓言中，孟子提出了什么概念来修养身心，防止良心亡失？",
+          options: ["夜气", "义内", "尽心", "知言"],
+          correct: 0,
+        },
+        {
+          id: 18,
+          category: "《孟子》",
+          question: "宋神宗元丰六年，封孟子为？",
+          options: ["邹国公", "亚圣公", "沂国公", "昌黎伯"],
+          correct: 0,
+        },
+        {
+          id: 19,
+          category: "《孟子》",
+          question: "孟子用“水之就下”来比喻？",
+          options: ["人性本恶", "人性本善", "人性无善无恶", "势能之大"],
+          correct: 1,
+        },
+        {
+          id: 20,
+          category: "《孟子》",
+          question: "朱熹认为配享孔庙时，应该让哪四位“合配”？",
+          options: [
+            "颜子、曾子、子思、孟子",
+            "颜子、闵子、子贡、孟子",
+            "颜子、曾子、荀子、孟子",
+            "颜子、子路、子思、孟子",
+          ],
+          correct: 0,
+        },
+
+        // 史记 (21-30)
+        {
+          id: 21,
+          category: "《史记》",
+          question: "司马迁创作《史记》的根本动力是“发愤著书”，这主要源于他遭受了什么祸事？",
+          options: ["党锢之祸", "李陵之祸", "巫蛊之祸", "焚书坑儒"],
+          correct: 1,
+        },
+        {
+          id: 22,
+          category: "《史记》",
+          question: "《史记》是中国历史上第一部？",
+          options: ["编年体通史", "国别体史书", "纪传体通史", "断代史"],
+          correct: 2,
+        },
+        {
+          id: 23,
+          category: "《史记》",
+          question: "在《伯夷列传》中，伯夷、叔齐拒绝食用周朝的粮食，最终饿死在？",
+          options: ["箕山", "首阳山", "泰山", "华山"],
+          correct: 1,
+        },
+        {
+          id: 24,
+          category: "《史记》",
+          question: "司马迁在《伯夷列传》中通过对比颜回的“屡空”与盗跖的“寿终”，对什么产生了怀疑？",
+          options: ["历史的真实性", "孔子的学说", "天道（善恶报应）", "周朝的合法性"],
+          correct: 2,
+        },
+        {
+          id: 25,
+          category: "《史记》",
+          question: "“究天人之际，通古今之变，成一家之言”是哪部著作的创作宗旨？",
+          options: ["《汉书》", "《左传》", "《史记》", "《战国策》"],
+          correct: 2,
+        },
+        {
+          id: 26,
+          category: "《史记》",
+          question: "伯夷、叔齐扣马而谏，认为武王伐纣是？",
+          options: ["以臣弑君，不孝不仁", "替天行道", "迫不得已", "顺应民心"],
+          correct: 0,
+        },
+        {
+          id: 27,
+          category: "《史记》",
+          question: "下列哪个人物不是《伯夷列传》中提到的推让天下或不食周粟的一类人？",
+          options: ["许由", "务光", "卞随", "伍子胥"],
+          correct: 3,
+        },
+        {
+          id: 28,
+          category: "《史记》",
+          question: "鲁迅评价《史记》为？",
+          options: ["鉴前世之兴衰，考当今之得失", "史家之绝唱，无韵之离骚", "善序事理，辩而不华", "不虚美，不隐恶"],
+          correct: 1,
+        },
+        {
+          id: 29,
+          category: "《史记》",
+          question: "日本东京后乐园中的“得仁堂”是为了纪念？",
+          options: ["孔子", "孟子", "伯夷、叔齐", "司马迁"],
+          correct: 2,
+        },
+        {
+          id: 30,
+          category: "《史记》",
+          question: "《伯夷列传》在《史记》七十列传中排在第几位？",
+          options: ["第一", "第二", "最后", "中间"],
+          correct: 0,
+        },
+
+        // 曹丕 (31-40)
+        {
+          id: 31,
+          category: "曹丕",
+          question: "曹丕在《典论·论文》中提出的著名文学观点是？",
+          options: ["文以气为主", "文以载道", "诗缘绮靡", "不平则鸣"],
+          correct: 0,
+        },
+        {
+          id: 32,
+          category: "曹丕",
+          question: "建安时期，曹操、曹丕、曹植三父子在文学史上合称为？",
+          options: ["三曹", "三苏", "建安七子", "竹林七贤"],
+          correct: 0,
+        },
+        {
+          id: 33,
+          category: "曹丕",
+          question: "曹丕的《燕歌行》是中国文学史上第一首成熟的？",
+          options: ["五言诗", "七言诗", "杂言诗", "乐府诗"],
+          correct: 1,
+        },
+        {
+          id: 34,
+          category: "曹丕",
+          question: "在《与朝歌令吴质书》中，曹丕回忆“南皮之游”时，提到的娱乐活动不包括？",
+          options: ["弹棋", "六博", "蹴鞠", "浮甘瓜于清泉"],
+          correct: 2,
+        },
+        {
+          id: 35,
+          category: "曹丕",
+          question: "曹丕在信中提到的“元瑜”是指建安七子中的哪一位？",
+          options: ["孔融", "王粲", "阮瑀", "刘桢"],
+          correct: 2,
+        },
+        {
+          id: 36,
+          category: "曹丕",
+          question: "后人（如沈德潜）评价曹丕诗歌的风格特点是？",
+          options: ["豪放飘逸", "沉郁顿挫", "便娟婉约（清丽）", "质朴无文"],
+          correct: 2,
+        },
+        {
+          id: 37,
+          category: "曹丕",
+          question: "“少壮不努力，老大徒伤悲”的意境与曹丕信中引用的哪句古诗相似？",
+          options: ["古人思炳烛夜游", "人生几何，去日苦多", "白日既匿，继以朗月", "乐往哀来，怆然伤怀"],
+          correct: 0,
+        },
+        {
+          id: 38,
+          category: "曹丕",
+          question: "曹丕称赞由于“体健心闲”，在打猎时能“终日手获獐鹿九，雉兔三十”的是？",
+          options: ["曹操", "曹植", "曹彰", "自己（曹丕）"],
+          correct: 3,
+        },
+        {
+          id: 39,
+          category: "曹丕",
+          question: "文中提到的“蕤宾”是指农历的几月？",
+          options: ["三月", "五月", "七月", "九月"],
+          correct: 1,
+        },
+        {
+          id: 40,
+          category: "曹丕",
+          question: "《与朝歌令吴质书》中，“恙虫”一词在古代是指？",
+          options: ["一种病毒", "一种食人心的虫子，借指忧愁", "只有名字没有实物的传说生物", "一种噬人鲜血的小虫"],
+          correct: 1,
+        },
+
+        // 长恨歌 (41-50)
+        {
+          id: 41,
+          category: "《长恨歌》",
+          question: "《长恨歌》的作者白居易，字？",
+          options: ["摩诘", "乐天", "义山", "子寿"],
+          correct: 1,
+        },
+        {
+          id: 42,
+          category: "《长恨歌》",
+          question: "“汉皇重色思倾国”中的“汉皇”实际上指的是？",
+          options: ["汉武帝", "唐太宗", "唐玄宗", "汉光武帝"],
+          correct: 2,
+        },
+        {
+          id: 43,
+          category: "《长恨歌》",
+          question:
+            "《长恨歌》中“杨家有女初长成，养在深闺人未识”与历史事实（曾为寿王妃）不符，这是一种什么修辞或写作手法？",
+          options: ["讽刺", "夸张", "为尊者讳", "隐喻"],
+          correct: 2,
+        },
+        {
+          id: 44,
+          category: "《长恨歌》",
+          question: "陈寅恪认为《长恨歌》与陈鸿的《长恨歌传》之间的关系是？",
+          options: ["毫无关系", "不可分离的共同机构", "互相矛盾", "后人伪作"],
+          correct: 1,
+        },
+        {
+          id: 45,
+          category: "《长恨歌》",
+          question: "“在天愿作比翼鸟”的下一句是？",
+          options: ["此恨绵绵无绝期", "在地愿为连理枝", "夜半无人私语时", "两处茫茫皆不见"],
+          correct: 1,
+        },
+        {
+          id: 46,
+          category: "《长恨歌》",
+          question: "《长恨歌》中杨贵妃死于？",
+          options: ["华清池", "马嵬坡", "长生殿", "蓬莱宫"],
+          correct: 1,
+        },
+        {
+          id: 47,
+          category: "《长恨歌》",
+          question: "诗中“渔阳鼙鼓动地来，惊破霓裳羽衣曲”指的是哪一历史事件？",
+          options: ["黄巢起义", "安史之乱", "玄武门之变", "泾原兵变"],
+          correct: 1,
+        },
+        {
+          id: 48,
+          category: "《长恨歌》",
+          question: "“上穷碧落下黄泉”中寻找杨贵妃魂魄的人物是？",
+          options: ["临邛道士", "高力士", "杨国忠", "安禄山"],
+          correct: 0,
+        },
+        {
+          id: 49,
+          category: "《长恨歌》",
+          question: "日本深受《长恨歌》影响，著名的《源氏物语》中桐壶更衣的形象便影射了？",
+          options: ["王昭君", "杨贵妃", "貂蝉", "西施"],
+          correct: 1,
+        },
+        {
+          id: 50,
+          category: "《长恨歌》",
+          question: "“天长地久有时尽，此恨绵绵无绝期”中的“恨”指的是？",
+          options: ["仇恨", "悔恨", "遗憾、惆怅", "痛恨"],
+          correct: 2,
+        },
+
+        // 李清照 (51-60)
+        {
+          id: 51,
+          category: "李清照",
+          question: "李清照的《金石录后序》主要记述了她与丈夫____共同致力于金石书画整理的经历。",
+          options: ["陆游", "赵明诚", "苏轼", "辛弃疾"],
+          correct: 1,
+        },
+        {
+          id: 52,
+          category: "李清照",
+          question: "李清照的号是？",
+          options: ["易安居士", "稼轩", "放翁", "半山"],
+          correct: 0,
+        },
+        {
+          id: 53,
+          category: "李清照",
+          question: "《金石录》是一部关于什么内容的著作？",
+          options: ["诗词选集", "金银珠宝目录", "金石铭刻与考证", "历史小说"],
+          correct: 2,
+        },
+        {
+          id: 54,
+          category: "李清照",
+          question: "李清照在文中用“赌书消得泼茶香”的典故来描写？",
+          options: ["夫妻生活的志趣相投与雅趣", "两人比赛喝茶", "丈夫对妻子的惩罚", "晚年的凄凉"],
+          correct: 0,
+        },
+        {
+          id: 55,
+          category: "李清照",
+          question: "“何义门校正《金石录后序》：‘播’当作‘涯’。”这里提到的“王播（王涯）”之祸是指？",
+          options: ["书画被烧毁", "因贪图字画古董而获罪被杀（以此比喻收藏之累）", "政治斗争", "外敌入侵"],
+          correct: 1,
+        },
+        {
+          id: 56,
+          category: "李清照",
+          question: "李清照晚年遭遇了哪一场历史变故，导致生活流离失所，文物散失？",
+          options: ["安史之乱", "靖康之难", "黄巾起义", "太平天国"],
+          correct: 1,
+        },
+        {
+          id: 57,
+          category: "李清照",
+          question: "文中提到的“脱衣市易”是指李清照夫妇？",
+          options: ["即使卖衣服也要买书画古玩", "生活贫困卖衣服度日", "追求时尚", "也不买贵的书"],
+          correct: 0,
+        },
+        {
+          id: 58,
+          category: "李清照",
+          question: "李清照在《后序》中表达了怎样的人生感悟？",
+          options: ["有聚必有散，乃理之常", "誓死守护宝物", "功名利禄最重要", "悔恨嫁给赵明诚"],
+          correct: 0,
+        },
+        {
+          id: 59,
+          category: "李清照",
+          question: "关于李清照是否改嫁张汝舟，历代争议很大，PPT中提到支持其未改嫁（反方观点）的学者是？",
+          options: ["李心传", "俞正燮", "王灼", "晁公武"],
+          correct: 1,
+        },
+        {
+          id: 60,
+          category: "李清照",
+          question: "“欧赵之学”中的“欧”指的是？",
+          options: ["欧阳修", "欧阳询", "欧阳玄", "欧阳通"],
+          correct: 0,
+        },
+
+        // 牡丹亭 (61-70)
+        {
+          id: 61,
+          category: "《牡丹亭》",
+          question: "汤显祖不仅是剧作家，还做过官，他曾被贬到哪里任典史，后任遂昌知县？",
+          options: ["广东徐闻", "广西桂林", "云南大理", "海南儋州"],
+          correct: 0,
+        },
+        {
+          id: 62,
+          category: "《牡丹亭》",
+          question: "汤显祖提出的核心戏曲理论，也是《牡丹亭》的主题思想是？",
+          options: ["性灵说", "至情论", "文以载道", "格律论"],
+          correct: 1,
+        },
+        {
+          id: 63,
+          category: "《牡丹亭》",
+          question: "“情不知所起，一往而深，生者可以死，死可以生”出自？",
+          options: ["《西厢记》", "《长生殿》", "《牡丹亭·题词》", "《桃花扇》"],
+          correct: 2,
+        },
+        {
+          id: 64,
+          category: "《牡丹亭》",
+          question: "《牡丹亭·惊梦》中，杜丽娘游园时唱的著名曲牌是？",
+          options: ["【山坡羊】", "【皂罗袍】", "【步步娇】", "【醉扶归】"],
+          correct: 1,
+        },
+        {
+          id: 65,
+          category: "《牡丹亭》",
+          question: "杜丽娘在游园惊梦中，梦见的书生是？",
+          options: ["张生", "柳梦梅", "裴少俊", "淳于棼"],
+          correct: 1,
+        },
+        {
+          id: 66,
+          category: "《牡丹亭》",
+          question: "汤显祖的“临川四梦”不包括下列哪一部？",
+          options: ["《紫钗记》", "《南柯记》", "《邯郸记》", "《琵琶记》"],
+          correct: 3,
+        },
+        {
+          id: 67,
+          category: "《牡丹亭》",
+          question: "汤显祖的思想受到了哪一学派的影响，肯定了人的多重欲求？",
+          options: ["程朱理学", "泰州学派（王学左派）", "桐城派", "乾嘉学派"],
+          correct: 1,
+        },
+        {
+          id: 68,
+          category: "《牡丹亭》",
+          question: "杜丽娘死后葬在？",
+          options: ["牡丹亭畔", "芍药栏边", "梅树之下", "太湖石旁"],
+          correct: 2,
+        },
+        {
+          id: 69,
+          category: "《牡丹亭》",
+          question: "当时的人评价《牡丹亭》一出，几乎令哪部作品“减价”？",
+          options: ["《窦娥冤》", "《西厢记》", "《汉宫秋》", "《梧桐雨》"],
+          correct: 1,
+        },
+        {
+          id: 70,
+          category: "《牡丹亭》",
+          question: "下列关于《牡丹亭》文化意义的描述，错误的是？",
+          options: ["崇尚个性解放", "突破禁欲主义", "维护封建礼教", "肯定情感价值"],
+          correct: 2,
+        },
+      ];
+
+      // Recitation Topics (Subjective)
+      const reciteTopics = [
+        {
+          title: "关雎：为什么孔子说“不学《诗》，无以言”？",
+          answer:
+            "【答题思路】\n本题需立足于先秦礼乐文化的背景，从外交辞令（断章取义）、文化身份（百科全书）、道德修养（思无邪）三个维度，层层递进论述《诗经》作为当时社会通行证的重要性。\n\n【参考答案】\n孔子在《论语·季氏》中告诫儿子伯鱼：“不学《诗》，无以言。”这句话深刻揭示了《诗经》在先秦贵族社会中不可替代的三重核心功能，若不掌握，便无法在主流社会中立足：\n\n1. 外交与政治的辞令工具（核心论点：断章取义）：\n在春秋时期的诸侯会盟、朝聘往来等严肃场合，《诗经》是贵族阶层通用的“辞令”。人们在表达政治意图或请求时，往往不直抒胸臆，而是采用“断章取义”（即“取部分意思表达”）的方式，截取诗篇中的特定诗句来委婉传达。\n例如在外交谈判中，若不懂《诗经》，就无法听懂对方引经据典背后的弦外之音，也无法用同样雅正的方式进行得体回应（即“专对”）。这将导致在政治外交场合陷入“言语道断”的尴尬境地，彻底丧失话语权。\n\n2. 社会身份的通行证（文化资本）：\n《诗经》是当时贵族阶层必须掌握的“百科全书”。孔子认为学诗可以“多识于鸟兽草木之名”，它包含了丰富的天文、地理、博物知识。\n同时，《诗经》语言雅正、凝练，运用赋、比、兴等手法，是当时最高级的语言范本。掌握它，标志着拥有了相应的文化教养和贵族身份；否则言语无味、粗俗，无法参与上层社会的对话。\n\n3. 温柔敦厚的道德教化（修身）：\n孔子评价《诗经》“思无邪”，认为其能规范人的情感。以《关雎》为例，孔子称其“乐而不淫，哀而不伤”，这种中正平和的情感表达方式体现了儒家推崇的“温柔敦厚”的诗教传统。\n学诗能让人懂得礼义廉耻，使言谈举止符合“礼”的规范，做到“发乎情，止乎礼义”。这不仅是说话的技巧，更是君子修身养性的根本。",
+        },
+        {
+          title: "伯夷叔齐列传：鲁迅为什么称《史记》为“史家之绝唱，无韵之离骚”？",
+          answer:
+            "【答题思路】\n此题需精准拆解鲁迅的评语：前半句扣“实录”与“体例”（史学成就）；后半句扣“发愤著书”与“借他人酒杯浇心中块垒”（文学/情感成就）。\n\n【参考答案】\n鲁迅的这句评价，高度概括了《史记》在历史学和文学两方面达到的巅峰成就，实现了“实录”与“抒情”的完美统一：\n\n1. “史家之绝唱”——史学的真实性与开创性：\n实录精神： 司马迁继承了古史良直的传统，被班固等后世史家称为“实录”。他坚持“不虚美，不隐恶”，敢于揭露统治者的阴暗面（如在《酷吏列传》中揭露政治的残酷，在《刺客列传》中赞颂反抗精神），具有极高的史料价值，是后世史书无法企及的“绝唱”。\n体例首创： 《史记》开创了“纪传体”通史（本纪、世家、列传、书、表），以人物为中心，构建了“究天人之际，通古今之变，成一家之言”的宏大史学框架，成为后世历代正史的范本。\n\n2. “无韵之离骚”——文学的抒情性（核心论点：发愤著书）：\n情感共鸣： 这一评价的核心在于“发愤著书”。司马迁因李陵之祸遭受腐刑，身心受到极大摧残。他与屈原“忠而被谤”的遭遇相似，其创作精神与《离骚》一脉相承。\n借他人酒杯，浇心中块垒： 这是理解《史记》文学性的关键。司马迁并非客观冷漠地记录历史，而是将个人的爱憎融入其中。在《伯夷列传》中，他借描写伯夷、叔齐积仁洁行却饿死首阳山的悲剧，发出了“天道是邪非邪”的悲愤质问。\n深层含义： 他表面上是写伯夷，实际上是在抒发自己的一腔孤愤和对不公命运的抗争。这种强烈的主观情感色彩、雄浑激荡的文笔以及对悲剧英雄的深切同情，使其超越了普通史书，成为具有震撼人心力量的文学杰作。",
+        },
+        {
+          title: "与朝歌令吴质书：曹丕诗歌的特点？",
+          answer:
+            "【答题思路】\n本题需构建坐标系：横向对比“三曹”风格，纵向定位“七言诗”地位。核心词必须包含“便娟婉约”、“文以气为主”以及具体的题材与形式。\n\n【参考答案】\n作为“建安三曹”之一，曹丕在文学史上起到了承上启下的作用。结合《与朝歌令吴质书》及后世评价，其诗歌特点主要体现在以下三点：\n\n1. 艺术风格：便娟婉约，清丽哀婉（文人化）：\n与父亲曹操的“古直悲凉”（气势雄浑）和弟弟曹植的“辞采华茂”（才气纵横）截然不同，曹丕的诗风被沈德潜等后人评价为“便娟婉约，清丽”。\n他的语言修辞讲究，细腻工整，带有明显的文人雅趣。这与他在《典论·论文》中提出的“文以气为主”的文学主张相呼应，体现了文学的自觉。\n\n2. 情感基调与题材：感伤色彩浓厚，叹人生无常：\n曹丕的诗歌题材主要集中在“宴游、夜行、离别、相思”。他在这些题材中常流露出一种“乐往哀来”的生命虚无感。\n如在《与朝歌令吴质书》中，面对“浮甘瓜于清泉，沈朱李于寒水”的良辰美景，他却发出了“少壮真当努力，年一过往何可攀”的感叹；又因瘟疫流行，“建安七子”凋零，他多写游子思妇的离别之苦，情感真挚深沉，苍凉感伤。\n\n3. 形式贡献：七言诗的奠基者：\n他的《燕歌行》（“秋风萧瑟天气凉，草木摇落露为霜”）是中国文学史上第一首成熟的七言诗。这在诗歌形式发展史上具有里程碑意义，句句用韵，音律和谐，为后世七言诗的繁荣奠定了基础。",
+        },
+        {
+          title: "游园惊梦：至情论的内容？",
+          answer:
+            "【答题思路】\n必须点出“宋明理学”作为对立面，引用《牡丹亭·题词》中的名句，解释“情”如何战胜“理”以及“情”的形而上意义。\n\n【参考答案】\n“至情论”是汤显祖在《牡丹亭·题词》中提出的核心文学与哲学主张，是对当时宋明理学“存天理，灭人欲”思想的有力反叛。其主要内容包括：\n\n1. “情”的定义与力量（核心论点：超越生死）：\n汤显祖认为“情”是生生不息的宇宙力量，具有超越生死的巨大能量。他在题词中写道：“情不知所起，一往而深。生者可以死，死可以生。”\n真正的“至情”可以跨越阴阳界限：剧中的杜丽娘“因梦而死”（生者可以死），又“因情复生”（死可以生）。如果做不到这一点，“生而不可与死，死而不可复生者，皆非情之至也”。\n\n2. “情”与“理”的对抗（反封建礼教）：\n汤显祖特别强调了“情”与“理”的对立。他认为封建礼教（即“理”）往往是僵化、冷酷、压抑人性的（“理之所必无”）；而“情”才是沟通天地、充满灵性的自然欲求（“情之所必有”）。\n他在《牡丹亭》中肯定了杜丽娘追求自由爱情的合理性，这就是用“至情”来对抗“僵死的理”，肯定了人的自然欲望特别是青年男女的爱情权利。\n\n3. 戏剧的功能（以情教化）：\n汤显祖主张通过戏曲表现这种“至情”，以此来感化世人，让“无情者有情”。这不仅是个人的情感解放，更是试图通过艺术的力量冲破礼教的束缚，唤醒社会对真实人性的尊重。",
+        },
+        {
+          title: "长恨歌：如何理解“此恨绵绵无绝期”中的“恨”？",
+          answer:
+            "这里的“恨”并非仇恨，而是遗憾、惆怅。既包含杨贵妃赐死马嵬坡的悲剧结局，也包含两人阴阳两隔、无法兑现“比翼鸟”、“连理枝”誓言的无尽哀伤。作者通过这一句点出全诗主题，是对美的毁灭的沉重感伤，也是对这段爱情悲剧的深切同情。",
+        },
+        {
+          title: "孟子：简述“四端”的内容及其意义。",
+          answer:
+            "四端即：恻隐之心（仁之端）、羞恶之心（义之端）、辞让之心（礼之端）、是非之心（智之端）。\n意义：孟子认为这四种善端是人与生俱来的本性，是人区别于禽兽的关键。人只要扩充这四端，就能成为圣贤；若放弃修养，就会沦为小人。这是孟子“性善论”的理论基础。",
+        },
+      ];
+
+      // --- APP STATE ---
+      let currentCardIndex = 0;
+      let isFlipped = false;
+
+      // Quiz State
+      let currentQuizIndex = 0;
+      const userAnswers = new Array(quizQuestions.length).fill(null); // Store user selected index
+
+      // --- INITIALIZATION ---
+      window.onload = function () {
+        renderCard();
+        initQuiz();
+        renderRecite();
+        loadApiConfig();
+      };
+
+      // --- NAVIGATION ---
+      function switchTab(tabId) {
+        document.querySelectorAll(".view-section").forEach((el) => el.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+
+        document.querySelectorAll(".nav-btn").forEach((el) => el.classList.remove("active"));
+        if (event && event.target) {
+          event.target.classList.add("active");
+        } else {
+          // Fallback for programmatic switches if needed, or simple direct click
+          // For dashboard clicks, we might need to find the specific nav btn
+          const navBtn = document.querySelector(`.nav-btn[onclick="switchTab('${tabId}')"]`);
+          if (navBtn) navBtn.classList.add("active");
+        }
+      }
+
+      // --- CARDS LOGIC ---
+      function renderCard() {
+        const card = keyPoints[currentCardIndex];
+        document.getElementById("card-front-text").textContent = card.title;
+        document.getElementById("card-back-text").textContent = card.content;
+        document.getElementById("card-counter").textContent = `${currentCardIndex + 1} / ${keyPoints.length}`;
+
+        // Reset flip
+        const flashcard = document.querySelector(".flashcard");
+        if (flashcard) {
+          flashcard.classList.remove("flipped");
+          isFlipped = false;
+        }
+      }
+
+      function flipCard() {
+        const flashcard = document.querySelector(".flashcard");
+        if (flashcard) {
+          flashcard.classList.toggle("flipped");
+          isFlipped = !isFlipped;
+        }
+      }
+
+      function nextCard() {
+        currentCardIndex = (currentCardIndex + 1) % keyPoints.length;
+        renderCard();
+      }
+
+      function prevCard() {
+        currentCardIndex = (currentCardIndex - 1 + keyPoints.length) % keyPoints.length;
+        renderCard();
+      }
+
+      // --- QUIZ LOGIC (One Question Per Page) ---
+      function initQuiz() {
+        renderQuestion();
+        renderQuizNav();
+      }
+
+      function renderQuestion() {
+        const q = quizQuestions[currentQuizIndex];
+        const selectedOption = userAnswers[currentQuizIndex];
+        const isAnswered = selectedOption !== null;
+
+        // Header
+        document.getElementById("q-counter").textContent = `Question ${currentQuizIndex + 1}/${quizQuestions.length}`;
+        document.getElementById("q-category").textContent = q.category;
+
+        // Text
+        document.getElementById("q-text").textContent = q.question;
+
+        // Options
+        const optionsHtml = q.options
+          .map((opt, idx) => {
+            let className = "option-label";
+            // If already answered, show correct/wrong state immediately
+            if (isAnswered) {
+              if (idx === q.correct) className += " correct";
+              else if (idx === selectedOption) className += " wrong";
+              else if (idx === selectedOption) className += " selected"; // Fallback
+            } else {
+              if (idx === selectedOption) className += " selected";
+            }
+
+            return `
+                <div class="${className}" onclick="selectOption(${idx})" id="opt-${idx}">
+                    <div class="option-badge">
+                        ${String.fromCharCode(65 + idx)}
+                    </div>
+                    <span>${opt}</span>
+                </div>
+            `;
+          })
+          .join("");
+        document.getElementById("q-options").innerHTML = optionsHtml;
+
+        // Buttons state
+        document.getElementById("btn-prev").disabled = currentQuizIndex === 0;
+
+        // Show "Next" if answered, otherwise "Submit"
+        const btnCheck = document.getElementById("btn-check");
+        const btnNext = document.getElementById("btn-next");
+
+        if (isAnswered) {
+          btnCheck.style.display = "none";
+          btnNext.style.display = "block";
+          if (currentQuizIndex === quizQuestions.length - 1) {
+            btnNext.textContent = "完成测试";
+          } else {
+            btnNext.textContent = "下一题";
+          }
+        } else {
+          btnCheck.style.display = "block";
+          btnNext.style.display = "none";
+        }
+
+        // Update Nav Highlight (Drawer)
+        updateDrawerHighlight();
+      }
+
+      function toggleDrawer() {
+        const drawer = document.getElementById("drawer");
+        const overlay = document.getElementById("drawer-overlay");
+        const isOpen = drawer.classList.contains("open");
+
+        if (isOpen) {
+          drawer.classList.remove("open");
+          overlay.classList.remove("open");
+        } else {
+          drawer.classList.add("open");
+          overlay.classList.add("open");
+          renderQuizNav(); // Re-render to ensure latest state
+        }
+      }
+
+      function selectOption(optIdx) {
+        // If already submitted for this question, ignore clicks
+        if (userAnswers[currentQuizIndex] !== null) return;
+
+        // Visual selection only (not saved yet until checked)
+        document.querySelectorAll(".option-label").forEach((el) => el.classList.remove("selected"));
+        document.getElementById(`opt-${optIdx}`).classList.add("selected");
+
+        // Temporary store for "Check Answer" button
+        window.tempSelectedOption = optIdx;
+      }
+
+      function checkAnswer() {
+        if (window.tempSelectedOption === undefined) {
+          alert("请先选择一个选项");
+          return;
+        }
+
+        // Save answer
+        userAnswers[currentQuizIndex] = window.tempSelectedOption;
+        window.tempSelectedOption = undefined;
+
+        // Re-render to show feedback
+        renderQuestion();
+
+        // Update nav status immediately if drawer is open
+        updateDrawerHighlight();
+      }
+
+      function nextQuestion() {
+        if (currentQuizIndex < quizQuestions.length - 1) {
+          currentQuizIndex++;
+          window.tempSelectedOption = undefined;
+          renderQuestion();
+        } else {
+          const correctCount = userAnswers.filter((a, i) => a === quizQuestions[i].correct).length;
+          alert(`测试结束！你答对了 ${correctCount} / ${quizQuestions.length} 题`);
+        }
+      }
+
+      function prevQuestion() {
+        if (currentQuizIndex > 0) {
+          currentQuizIndex--;
+          window.tempSelectedOption = undefined;
+          renderQuestion();
+        }
+      }
+
+      function jumpToQuestion(idx) {
+        currentQuizIndex = idx;
+        window.tempSelectedOption = undefined;
+        renderQuestion();
+      }
+
+      function resetQuiz() {
+        if (!confirm("确定要清空所有选择题的作答记录吗？")) return;
+
+        userAnswers.fill(null);
+        currentQuizIndex = 0;
+        window.tempSelectedOption = undefined;
+        renderQuestion();
+        renderQuizNav();
+        alert("选择题记录已清空");
+      }
+
+      function updateDrawerHighlight() {
+        const drawer = document.getElementById("drawer");
+        if (drawer.classList.contains("open")) {
+          renderQuizNav();
+        }
+      }
+      function renderQuizNav() {
+        const container = document.getElementById("drawer-content");
+
+        // Group questions by category
+        const groups = {};
+        quizQuestions.forEach((q, idx) => {
+          if (!groups[q.category]) groups[q.category] = [];
+          groups[q.category].push({ ...q, originalIndex: idx });
+        });
+
+        let html = "";
+
+        for (const [category, questions] of Object.entries(groups)) {
+          html += `<div class="category-group">
+                <div class="category-title">${category}</div>
+                <div class="nav-grid">`;
+
+          questions.forEach((q) => {
+            const idx = q.originalIndex;
+            const ans = userAnswers[idx];
+            let className = "nav-grid-btn";
+
+            if (ans !== null) {
+              className += ans === q.correct ? " correct" : " wrong";
+            }
+            if (idx === currentQuizIndex) className += " current";
+
+            html += `<div class="${className}" onclick="jumpToQuestion(${idx}); toggleDrawer();">${idx + 1}</div>`;
+          });
+
+          html += `</div></div>`;
+        }
+
+        container.innerHTML = html;
+      }
+
+      // --- RECITATION LOGIC (Updated with API) ---
+      function renderRecite() {
+        const container = document.getElementById("recite-list");
+        container.innerHTML = reciteTopics
+          .map(
+            (item, idx) => `
+            <div class="recite-card">
+                <div class="stat-title">问答题 ${idx + 1}</div>
+                <div class="question-text" style="margin-bottom:0.5rem; font-size:1.1rem">${item.title}</div>
+                <textarea class="recite-input" placeholder="在此输入你的答案..." id="recite-input-${idx}"></textarea>
+                <div style="display:flex; gap:1rem; align-items:center;">
+                    <button class="control-btn" onclick="checkRecite(${idx})">查看参考答案</button>
+                    <button class="control-btn primary" onclick="gradeWithAI(${idx})">🤖 AI 深度批改</button>
+                </div>
+                <div class="hidden-answer" id="answer-${idx}">
+                    <strong>参考答案：</strong><br>
+                    <div style="white-space: pre-wrap; margin-bottom:1rem">${item.answer}</div>
+                    <div id="ai-feedback-${idx}" style="border-top:1px dashed #ccc; padding-top:1rem; display:none;">
+                        <strong>AI 批改意见：</strong><br>
+                        <span class="loading-spinner">正在分析中...</span>
+                    </div>
+                </div>
+            </div>
+        `,
+          )
+          .join("");
+      }
+
+      function checkRecite(idx) {
+        document.getElementById(`answer-${idx}`).style.display = "block";
+      }
+
+      function resetRecite() {
+        if (!confirm("确定要清空所有问答题的作答内容吗？")) return;
+
+        // Clear all textareas
+        document.querySelectorAll(".recite-input").forEach((el) => (el.value = ""));
+
+        // Hide all answers and feedbacks
+        document.querySelectorAll(".hidden-answer").forEach((el) => (el.style.display = "none"));
+        document.querySelectorAll('[id^="ai-feedback-"]').forEach((el) => (el.style.display = "none"));
+
+        alert("问答题记录已清空");
+      }
+
+      // --- API CONFIG & CALLING ---
+      function showApiConfig() {
+        document.getElementById("api-modal").style.display = "flex";
+      }
+
+      function closeApiConfig() {
+        document.getElementById("api-modal").style.display = "none";
+      }
+
+      function saveApiConfig() {
+        const url = document.getElementById("api-url").value;
+        const key = document.getElementById("api-key").value;
+        const model = document.getElementById("api-model").value;
+
+        localStorage.setItem("ai_config", JSON.stringify({ url, key, model }));
+        closeApiConfig();
+        alert("配置已保存！");
+      }
+
+      function loadApiConfig() {
+        const config = JSON.parse(localStorage.getItem("ai_config"));
+        if (config) {
+          document.getElementById("api-url").value = config.url;
+          document.getElementById("api-key").value = config.key;
+          document.getElementById("api-model").value = config.model;
+        }
+      }
+
+      async function gradeWithAI(idx) {
+        const config = JSON.parse(localStorage.getItem("ai_config"));
+        if (!config || !config.key) {
+          alert("请先点击右上角“配置 AI 批改”设置 API Key");
+          return;
+        }
+
+        const inputVal = document.getElementById(`recite-input-${idx}`).value;
+        const correctVal = reciteTopics[idx].answer;
+        const question = reciteTopics[idx].title;
+        const feedbackBox = document.getElementById(`ai-feedback-${idx}`);
+
+        if (!inputVal.trim()) {
+          alert("请先输入你的答案");
+          return;
+        }
+
+        document.getElementById(`answer-${idx}`).style.display = "block";
+        feedbackBox.style.display = "block";
+        feedbackBox.innerHTML = `<strong>AI 批改意见：</strong><br>⏳ 正在分析中...`;
+
+        try {
+          const prompt = `
+            我是大学语文老师。请对学生的回答进行评分（满分10分）和点评。
+
+            题目：${question}
+
+            标准答案/采分点：
+            ${correctVal}
+
+            学生的回答：
+            ${inputVal}
+
+            请输出格式：
+            【评分】：X/10
+            【点评】：简要指出回答的优点和遗漏的知识点。
+            `;
+
+          const response = await fetch(`${config.url}/chat/completions`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${config.key}`,
+            },
+            body: JSON.stringify({
+              model: config.model,
+              messages: [{ role: "user", content: prompt }],
+            }),
+          });
+
+          if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+          const data = await response.json();
+          const aiText = data.choices[0].message.content;
+
+          feedbackBox.innerHTML = `<strong>AI 批改意见：</strong><br><pre style="white-space: pre-wrap; font-family:inherit; margin-top:0.5rem">${aiText}</pre>`;
+        } catch (error) {
+          feedbackBox.innerHTML = `<strong>AI 批改意见：</strong><br><span style="color:var(--danger)">请求失败: ${error.message}</span>`;
+        }
+      }
+    </script>
+  </body>
+</html>
