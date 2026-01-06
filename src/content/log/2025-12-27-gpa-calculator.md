@@ -1,8 +1,15 @@
 ---
-title: "大学语文复习"
-date: 2026-01-06
+title: "GPA计算器"
+date: 2025-12-27
 ---
 
-# 大学语文复习
+由于深受GPA折磨，添加了GPA计算器。
 
-访问地址: https://www.duskydream.icu/Chinese
+功能包括：
+
+- 支持 4.0制、4.3制、5.0制 绩点转换
+- 自动计算综合GPA和加权平均分
+- 数据自动保存到浏览器本地
+- 支持导出 JSON 和 Markdown 格式
+
+访问地址：[GPA计算器](/gpa)
