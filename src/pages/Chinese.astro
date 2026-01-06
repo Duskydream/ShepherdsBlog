@@ -2,10 +2,12 @@
 // 大学语文互动复习工具
 const title = "大学语文互动复习工具";
 const description = "一个交互式的大学语文课程复习工具，包含知识卡片、模拟测试和背诵自测功能";
+
+import { SITE_LANGUAGE, SITE_THEME } from "@config";
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={SITE_LANGUAGE} data-theme={SITE_THEME.light} data-theme-type="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,14 +16,17 @@ const description = "一个交互式的大学语文课程复习工具，包含�
     <meta name="author" content="Your Blog" />
     <style is:global>
       :root {
-        --primary: #4f46e5;
-        --primary-light: #818cf8;
-        --secondary: #10b981;
-        --bg: #f3f4f6;
-        --card-bg: #ffffff;
-        --text: #1f2937;
-        --text-light: #6b7280;
-        --danger: #ef4444;
+        /* Derive colors from DaisyUI theme variables used across the blog */
+        --primary: oklch(var(--p));
+        --primary-light: color-mix(in oklch, oklch(var(--p)) 65%, oklch(var(--b1)));
+        --secondary: oklch(var(--s));
+        --bg: oklch(var(--b2, var(--b1)));
+        --card-bg: oklch(var(--b1));
+        --text: oklch(var(--bc));
+        --text-light: oklch(var(--bc) / 0.72);
+        --danger: oklch(var(--er));
+        --border: oklch(var(--bc) / 0.18);
+        --border-strong: oklch(var(--bc) / 0.28);
       }
 
       * {
@@ -81,13 +86,22 @@ const description = "一个交互式的大学语文课程复习工具，包含�
       }
 
       .nav-btn.active {
-        background: var(--primary);
-        color: white;
+        background: oklch(var(--p));
+        color: oklch(var(--pc));
+        font-weight: 600;
       }
 
       .nav-btn:hover:not(.active) {
-        background: #e0e7ff;
-        color: var(--primary);
+        background: oklch(var(--p) / 0.12);
+        color: oklch(var(--p));
+      }
+
+      .nav-btn:focus-visible,
+      .control-btn:focus-visible,
+      .fab-btn:focus-visible,
+      .nav-grid-btn:focus-visible {
+        outline: 3px solid oklch(var(--p) / 0.45);
+        outline-offset: 2px;
       }
 
       /* Main Content */
@@ -233,12 +247,12 @@ const description = "一个交互式的大学语文课程复习工具，包含�
       .control-btn {
         padding: 0.75rem 1.5rem;
         border: none;
-        background: var(--card-bg);
-        color: var(--primary);
+        background: oklch(var(--b2, var(--b1)));
+        color: var(--text);
         border-radius: 2rem;
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         transition: all 0.2s;
       }
 
@@ -248,8 +262,8 @@ const description = "一个交互式的大学语文课程复习工具，包含�
       }
 
       .control-btn.primary {
-        background: var(--primary);
-        color: white;
+        background: oklch(var(--p));
+        color: oklch(var(--pc));
       }
 
       /* Quiz Mode */
@@ -293,7 +307,7 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         gap: 1rem;
         margin-top: 2rem;
         padding-top: 2rem;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--border);
         align-items: center;
       }
 
@@ -316,43 +330,45 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         display: flex;
         align-items: center;
         padding: 1.25rem;
-        border: 2px solid #e5e7eb;
+        border: 2px solid var(--border);
         border-radius: 0.75rem;
         cursor: pointer;
         transition: all 0.2s;
         font-size: 1.1rem;
-        background: white;
+        background: var(--card-bg);
       }
 
       .option-label:hover {
-        border-color: var(--primary-light);
-        background: #f9fafb;
+        border-color: oklch(var(--p));
+        background: oklch(var(--b2, var(--b1)));
       }
 
       .option-label.selected {
-        border-color: var(--primary);
-        background: #eef2ff;
-        color: var(--primary);
+        background: oklch(var(--p) / 0.1);
         font-weight: 600;
+        border-width: 3px;
+        border-color: oklch(var(--p));
       }
 
       .option-label.correct {
-        border-color: var(--secondary);
-        background: #ecfdf5;
-        color: #065f46;
+        background: oklch(var(--su));
+        color: oklch(var(--suc));
+        font-weight: 600;
+        border-width: 3px;
+        border-color: oklch(var(--su));
       }
 
       .option-label.wrong {
-        border-color: var(--danger);
-        background: #fef2f2;
-        color: #991b1b;
+        border-color: oklch(var(--er));
+        background: oklch(var(--er) / 0.12);
+        color: oklch(var(--erc));
       }
 
       .option-badge {
         width: 32px;
         height: 32px;
         border-radius: 6px;
-        background: #f3f4f6;
+        background: oklch(var(--b2, var(--b1)));
         color: var(--text-light);
         margin-right: 1rem;
         display: flex;
@@ -365,22 +381,24 @@ const description = "一个交互式的大学语文课程复习工具，包含�
       }
 
       .option-label:hover .option-badge {
-        background: #e5e7eb;
+        background: oklch(var(--b3, var(--b2, var(--b1))));
       }
 
       .option-label.selected .option-badge {
-        background: var(--primary);
-        color: white;
+        background: oklch(var(--p));
+        color: oklch(var(--pc));
+        border-color: oklch(var(--p));
       }
 
       .option-label.correct .option-badge {
-        background: var(--secondary);
-        color: white;
+        background: oklch(var(--b1));
+        color: oklch(var(--su));
+        border-color: oklch(var(--su));
       }
 
       .option-label.wrong .option-badge {
-        background: var(--danger);
-        color: white;
+        background: oklch(var(--er));
+        color: oklch(var(--erc));
       }
 
       /* Floating Action Button (FAB) */
@@ -388,24 +406,25 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         position: fixed;
         bottom: 2rem;
         right: 2rem;
-        width: 60px;
-        height: 60px;
+        background: oklch(var(--p));
+        color: oklch(var(--pc));
+        border: 3px solid oklch(var(--bc) / 0.25);
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
-        background: var(--primary);
-        color: white;
-        border: none;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        font-size: 1.5rem;
+        z-index: 50;
+        transition: transform 0.2s;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        cursor: pointer;
-        z-index: 50;
-        transition: transform 0.2s;
+        box-shadow: 4px 4px 0 oklch(var(--bc) / 0.18);
       }
 
       .fab-btn:hover {
         transform: scale(1.1);
+        background: oklch(var(--p) / 0.8);
       }
 
       /* Sidebar Drawer */
@@ -433,7 +452,7 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         right: -400px;
         width: 350px;
         height: 100vh;
-        background: white;
+        background: var(--card-bg);
         z-index: 95;
         padding: 2rem;
         overflow-y: auto;
@@ -451,7 +470,7 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         align-items: center;
         margin-bottom: 2rem;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid var(--border);
       }
 
       .category-group {
@@ -488,7 +507,7 @@ const description = "一个交互式的大学语文课程复习工具，包含�
       }
 
       .modal {
-        background: white;
+        background: var(--card-bg);
         padding: 2rem;
         border-radius: 1rem;
         width: 90%;
@@ -514,10 +533,12 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         height: 150px;
         padding: 1rem;
         margin: 1rem 0;
-        border: 2px solid #e5e7eb;
+        border: 2px solid var(--border);
         border-radius: 0.5rem;
         font-size: 1rem;
         resize: vertical;
+        background: var(--card-bg);
+        color: var(--text);
       }
 
       .recite-input:focus {
@@ -529,10 +550,10 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         display: none;
         margin-top: 1rem;
         padding: 1rem;
-        background: #f0fdf4;
-        border: 1px solid var(--secondary);
+        background: oklch(var(--su) / 0.12);
+        border: 1px solid oklch(var(--su) / 0.45);
         border-radius: 0.5rem;
-        color: #065f46;
+        color: var(--text);
       }
 
       .match-score {
@@ -547,9 +568,9 @@ const description = "一个交互式的大学语文课程复习工具，包含�
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid #e5e7eb;
+        border: 2px solid var(--border);
         border-radius: 0.5rem;
-        background: white;
+        background: var(--card-bg);
         cursor: pointer;
         font-size: 0.9rem;
         font-weight: 600;
@@ -557,26 +578,26 @@ const description = "一个交互式的大学语文课程复习工具，包含�
       }
 
       .nav-grid-btn:hover {
-        border-color: var(--primary);
-        background: #f3f4f6;
+        border-color: oklch(var(--p));
+        background: oklch(var(--b2, var(--b1)));
       }
 
       .nav-grid-btn.current {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
+        background: oklch(var(--p));
+        color: oklch(var(--pc));
+        border-color: oklch(var(--p));
       }
 
       .nav-grid-btn.correct {
-        background: var(--secondary);
-        color: white;
-        border-color: var(--secondary);
+        background: oklch(var(--su));
+        color: oklch(var(--suc));
+        border-color: oklch(var(--su));
       }
 
       .nav-grid-btn.wrong {
-        background: var(--danger);
-        color: white;
-        border-color: var(--danger);
+        background: oklch(var(--er));
+        color: oklch(var(--erc));
+        border-color: oklch(var(--er));
       }
     </style>
   </head>
@@ -1579,7 +1600,7 @@ const description = "一个交互式的大学语文课程复习工具，包含�
                 <div class="hidden-answer" id="answer-${idx}">
                     <strong>参考答案：</strong><br>
                     <div style="white-space: pre-wrap; margin-bottom:1rem">${item.answer}</div>
-                    <div id="ai-feedback-${idx}" style="border-top:1px dashed #ccc; padding-top:1rem; display:none;">
+                    <div id="ai-feedback-${idx}" style="border-top:1px dashed var(--border-strong); padding-top:1rem; display:none;">
                         <strong>AI 批改意见：</strong><br>
                         <span class="loading-spinner">正在分析中...</span>
                     </div>
