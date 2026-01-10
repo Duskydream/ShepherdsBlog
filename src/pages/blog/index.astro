@@ -140,7 +140,11 @@ const totalPosts = allPosts.length;
           tagEntries.length > 0 ? (
             <div class="tags-cloud justify-start">
               {tagEntries.map(([tag, count], index) => (
-                <div class={`tags-item ${getTagColorClass(count, maxCount)}`} data-index={index}>
+                <a
+                  class={`tags-item ${getTagColorClass(count, maxCount)}`}
+                  data-index={index}
+                  href={`/blog/tag/${encodeURIComponent(tag)}`}
+                >
                   <span class="tags-content">
                     <Icon name="lucide:hash" class="tags-icon" />
                     <span
@@ -151,7 +155,7 @@ const totalPosts = allPosts.length;
                     </span>
                     <span class="tags-count">{count}</span>
                   </span>
-                </div>
+                </a>
               ))}
             </div>
           ) : (
