@@ -12,7 +12,7 @@ const { currentPage } = Astro.props;
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
   <!-- Categories Card -->
   <a
-    href="/blog/categories"
+    href="/blog#categories"
     class:list={[
       "card shadow-lg transition-shadow",
       currentPage === "categories" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
@@ -32,7 +32,7 @@ const { currentPage } = Astro.props;
 
   <!-- Archives Card -->
   <a
-    href="/blog/archives"
+    href="/blog#archives"
     class:list={[
       "card shadow-lg transition-shadow",
       currentPage === "archives" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
@@ -55,7 +55,7 @@ const { currentPage } = Astro.props;
 
   <!-- Tags Card -->
   <a
-    href="/blog/tags"
+    href="/blog#tags"
     class:list={[
       "card shadow-lg transition-shadow",
       currentPage === "tags" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",
@@ -78,7 +78,7 @@ const { currentPage } = Astro.props;
 
   <!-- Search Card -->
   <a
-    href="/blog/search"
+    href="/blog#search"
     class:list={[
       "card shadow-lg transition-shadow",
       currentPage === "search" ? "bg-primary/10 border-2 border-primary" : "bg-base-100 hover:shadow-xl",

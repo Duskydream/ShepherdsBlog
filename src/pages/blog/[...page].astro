@@ -2,13 +2,13 @@
 import type { Post, Page } from "@interfaces/data";
 import PostCard from "@components/PostCard.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
+import BaseCard from "@components/BaseCard.astro";
 import Pagination from "@components/widgets/Pagination.astro";
 import CardGroup from "@components/temple/CardGroup.astro";
 import { Icon } from "astro-icon/components";
 import { t } from "@config";
 import { generatePageLinks } from "@utils/blogUtils";
 import { getMainBlogPaginationPaths } from "@utils/paginationUtils";
-import Card from "@/components/temple/Card.astro";
 
 export async function getStaticPaths({ paginate }: { paginate: any }) {
   return getMainBlogPaginationPaths({ paginate });
@@ -16,81 +16,29 @@ export async function getStaticPaths({ paginate }: { paginate: any }) {
 
 const { page }: { page: Page } = Astro.props;
 
-// 如果是第一页，重定向到分类页面
-if (page.current === 1) {
-  return Astro.redirect('/blog/categories');
-}
-
 const totalPages = Math.ceil(page.total / page.size);
 const pageLinks = generatePageLinks(totalPages);
 ---
 
 <BaseLayout title="Blog">
-  <!-- Blog Navigation Cards -->
-  <CardGroup cols="2">
-    <!-- Categories Card -->
-    <a href="/blog/categories" class="card bg-base-100 shadow-lg">
-      <div class="card-body p-4">
-        <div class="flex items-center gap-3">
-          <div class="rounded-full bg-primary/10 p-3">
-            <Icon name="lucide:folder" class="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h2 class="card-title text-lg">{t("label.categoryPage")}</h2>
-            <p class="text-sm opacity-75">{t("label.categoriesPageDescription")}</p>
-          </div>
-        </div>
+  <BaseCard title="Blog">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center gap-2">
+        <Icon name="lucide:book-open" class="w-6 h-6 text-primary" />
+        <h1 id="h1" class="text-2xl md:text-3xl font-bold">Blog</h1>
+        <div class="badge badge-primary">{page.total} {page.total === 1 ? t("label.post") : t("label.posts")}</div>
       </div>
-    </a>
-
-    <!-- Archives Card -->
-    <a href="/blog/archives" class="card bg-base-100 shadow-lg">
-      <div class="card-body p-4">
-        <div class="flex items-center gap-3">
-          <div class="rounded-full bg-accent/10 p-3">
-            <Icon name="lucide:archive" class="w-6 h-6 text-accent" />
-          </div>
-          <div>
-            <h2 class="card-title text-lg">{t("label.archivePage")}</h2>
-            <p class="text-sm opacity-75">{t("label.archivesPageDescription")}</p>
-          </div>
-        </div>
-      </div>
-    </a>
-
-    <!-- Tags Card -->
-    <a href="/blog/tags" class="card bg-base-100 shadow-lg">
-      <div class="card-body p-4">
-        <div class="flex items-center gap-3">
-          <div class="rounded-full bg-secondary/10 p-3">
-            <Icon name="lucide:tag" class="w-6 h-6 text-secondary" />
-          </div>
-          <div>
-            <h2 class="card-title text-lg">{t("label.tagPage")}</h2>
-            <p class="text-sm opacity-75">{t("label.tagsPageDescription")}</p>
-          </div>
-        </div>
-      </div>
-    </a>
-
-    <!-- Search Card -->
-    <a href="/blog/search" class="card bg-base-100 shadow-lg">
-      <div class="card-body p-4">
-        <div class="flex items-center gap-3">
-          <div class="rounded-full bg-info/10 p-3">
-            <Icon name="lucide:search" class="w-6 h-6 text-info" />
-          </div>
-          <div>
-            <h2 class="card-title text-lg">{t("label.searchPage")}</h2>
-            <p class="text-sm opacity-75">{t("label.searchPageDescription")}</p>
-          </div>
-        </div>
-      </div>
-    </a>
-  </CardGroup>
+      <a href="/blog" class="btn btn-outline btn-sm gap-2">
+        <Icon name="lucide:layout-dashboard" class="w-4 h-4" />
+        <span>{t("label.learnMore")}</span>
+      </a>
+    </div>
+    <div class="divider my-2"></div>
+    <p class="text-sm opacity-75">{t("label.nextPage")}</p>
+  </BaseCard>
 
   <!-- Blog Post List -->
-  <CardGroup cols="1">
+  <CardGroup cols="1" gap="6">
     {
       page.data.map((blog: Post) => (
         <PostCard

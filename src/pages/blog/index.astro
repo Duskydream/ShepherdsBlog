@@ -1,0 +1,299 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { t } from "@config";
+import { Icon } from "astro-icon/components";
+import dayjs from "@utils/dayjs";
+import { DATE_FORMAT } from "@config";
+import type { CollectionEntry } from "astro:content";
+import {
+  getAllPosts,
+  getCategoriesWithPosts,
+  getTagsWithCount,
+  getTagColorClass,
+  getTagFontSize,
+  sortPostsByDate,
+  getPostsByYearAndMonth,
+} from "@utils/blogUtils";
+
+// 获取所有博客文章
+const allPosts = await getAllPosts();
+
+// === 分类数据 ===
+const categoryMap = getCategoriesWithPosts(allPosts);
+const categoryEntries = Array.from(categoryMap.entries());
+categoryEntries.sort((a, b) => a[0].localeCompare(b[0]));
+categoryEntries.forEach(([_, posts]) => {
+  posts.sort(
+    (a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) =>
+      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
+  );
+});
+const totalCategories = categoryMap.size;
+
+// === 标签数据 ===
+const tagMap = getTagsWithCount(allPosts);
+const tagEntries = Array.from(tagMap.entries());
+tagEntries.sort((a, b) => b[1] - a[1]);
+const maxCount = tagMap.size ? Math.max(...tagMap.values()) : 1;
+const minCount = tagMap.size ? Math.min(...tagMap.values()) : 0;
+const totalTags = tagMap.size;
+
+// === 归档数据 ===
+const sortedPosts = sortPostsByDate(allPosts);
+const postsByDate = getPostsByYearAndMonth(sortedPosts);
+const years = Array.from(postsByDate.keys()).sort((a, b) => parseInt(b) - parseInt(a));
+const getMonthName = (month: string): string => {
+  const monthIndex = parseInt(month);
+  return t(`months.${monthIndex}`);
+};
+const totalPosts = allPosts.length;
+---
+
+<BaseLayout title="Blog">
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+
+  <!-- 搜索（已集成，不再跳转） -->
+  <section class="blog-container" id="search">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center gap-2">
+        <Icon name="lucide:search" class="w-6 h-6 text-info" />
+        <h1 id="h1" class="text-2xl md:text-3xl font-bold">{t("label.searchPage")}</h1>
+      </div>
+    </div>
+    <div class="divider my-3"></div>
+    <div id="search-container" class="w-full">
+      <div id="pagefind-search"></div>
+    </div>
+  </section>
+
+  <div class="flex flex-col gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      <!-- 分类 -->
+      <section class="categories-container h-full" id="categories">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2">
+            <Icon name="lucide:folder" class="w-5 h-5 text-primary" />
+            <h2 class="text-lg font-semibold">{t("label.categoryPage")}</h2>
+          </div>
+          <div class="badge badge-primary">{totalCategories}</div>
+        </div>
+
+        {
+          categoryEntries.length > 0 ? (
+            <div class="space-y-3">
+              {categoryEntries.map(([category, posts], index) => (
+                <details class="collapse collapse-arrow bg-base-100/60 border border-base-content/10">
+                  <summary class="collapse-title p-4 text-sm font-medium">
+                    <span class="inline-flex items-center gap-2">
+                      <Icon name="lucide:folder" class="w-4 h-4 text-primary" />
+                      <span class="truncate">{category}</span>
+                      <span class="badge badge-primary badge-sm">{posts.length}</span>
+                    </span>
+                  </summary>
+                  <div class="collapse-content px-4 pb-4">
+                    <ul class="space-y-2">
+                      {posts.slice(0, 8).map((post) => (
+                        <li>
+                          <a
+                            href={`/blog/${post.slug}`}
+                            class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-base-200/60"
+                          >
+                            <span class="text-sm font-medium truncate">{post.data.title}</span>
+                            <span class="text-xs opacity-60 shrink-0">
+                              {dayjs(post.data.pubDate).format(DATE_FORMAT)}
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div class="mt-3">
+                      <a href={`/blog/category/${category}`} class="btn btn-ghost btn-sm w-full justify-between">
+                        <span>{t("label.learnMore")}</span>
+                        <Icon name="lucide:arrow-right" class="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                </details>
+              ))}
+            </div>
+          ) : (
+            <div class="empty-state">
+              <Icon name="lucide:folder-open" class="empty-icon" />
+              <p class="empty-text">{t("label.noCategory")}</p>
+            </div>
+          )
+        }
+      </section>
+
+      <!-- 标签 -->
+      <section class="tags-container h-full" id="tags">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2">
+            <Icon name="lucide:tag" class="w-5 h-5 text-secondary" />
+            <h2 class="text-lg font-semibold">{t("label.tagPage")}</h2>
+          </div>
+          <div class="badge badge-secondary">{totalTags}</div>
+        </div>
+
+        {
+          tagEntries.length > 0 ? (
+            <div class="tags-cloud justify-start">
+              {tagEntries.map(([tag, count], index) => (
+                <div class={`tags-item ${getTagColorClass(count, maxCount)}`} data-index={index}>
+                  <span class="tags-content">
+                    <Icon name="lucide:hash" class="tags-icon" />
+                    <span
+                      class="font-medium"
+                      style={`font-size: ${getTagFontSize(count, maxCount, minCount)}rem; line-height: 1.2;`}
+                    >
+                      {tag}
+                    </span>
+                    <span class="tags-count">{count}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="empty-state">
+              <Icon name="lucide:tag" class="empty-icon" />
+              <p class="empty-text">{t("label.noTag")}</p>
+            </div>
+          )
+        }
+      </section>
+    </div>
+
+    <!-- 归档 -->
+    <section class="archives-container" id="archives">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-2">
+          <Icon name="lucide:archive" class="w-5 h-5 text-accent" />
+          <h2 class="text-lg font-semibold">{t("label.archivePage")}</h2>
+        </div>
+        <div class="badge badge-accent">{totalPosts}</div>
+      </div>
+
+      {
+        years.length > 0 ? (
+          <div class="max-h-[75vh] overflow-y-auto pr-2">
+            <div class="archives-timeline">
+              {years.map((year, yearIndex) => (
+                <details class="timeline-year archive-year" open>
+                  <summary class="year-header cursor-pointer list-none flex items-center gap-3">
+                    <Icon name="lucide:chevron-right" class="w-5 h-5 opacity-70 year-chevron" />
+                    <span class="year-badge">{year}</span>
+                  </summary>
+
+                  <div class="year-content">
+                    {Array.from(postsByDate.get(year)!.entries())
+                      .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))
+                      .map(([month, posts]) => (
+                        <div class="timeline-month">
+                          <div class="month-title">
+                            <Icon name="lucide:calendar" class="month-icon" />
+                            <span>{getMonthName(month)}</span>
+                            <span class="month-count">{posts.length}</span>
+                          </div>
+
+                          <ul class="archive-posts">
+                            {posts.map((post) => (
+                              <li class="archive-item">
+                                <div class="archive-marker">
+                                  <Icon name="lucide:file-text" class="archive-icon" />
+                                </div>
+                                <a href={`/blog/${post.slug}`} class="archive-card">
+                                  <div class="archive-date">{dayjs(post.data.pubDate).format(DATE_FORMAT)}</div>
+                                  <div class="archive-title">{post.data.title}</div>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div class="empty-state">
+            <Icon name="lucide:archive" class="empty-icon" />
+            <p class="empty-text">{t("label.noPosts")}</p>
+          </div>
+        )
+      }
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  document.addEventListener("astro:page-load", initBlogSearch);
+
+  function initBlogSearch() {
+    const pageFindSearch = document.querySelector("#pagefind-search");
+    if (!pageFindSearch) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+
+    onIdle(async () => {
+      try {
+        // @ts-ignore - Pagefind UI types
+        const { PagefindUI } = await import("@pagefind/default-ui");
+
+        const search = new PagefindUI({
+          element: "#pagefind-search",
+          showImages: false,
+          processTerm: function (term: string) {
+            if (term) {
+              params.set("q", term);
+            } else {
+              params.delete("q");
+            }
+            const qs = params.toString();
+            history.replaceState(history.state, "", window.location.pathname + (qs ? "?" + qs : "") + "#search");
+            return term;
+          },
+        });
+
+        const query = params.get("q");
+        if (query) {
+          search.triggerSearch(query);
+        }
+
+        const searchInput = document.querySelector(".pagefind-ui__search-input");
+        const clearButton = document.querySelector(".pagefind-ui__search-clear");
+
+        searchInput?.addEventListener("input", resetSearchParam);
+        clearButton?.addEventListener("click", resetSearchParam);
+
+        function resetSearchParam(e: Event) {
+          const target = e.target as HTMLInputElement | null;
+          if (target?.value === "") {
+            history.replaceState(history.state, "", window.location.pathname + "#search");
+          }
+        }
+      } catch (error) {
+        console.error("Error initializing search:", error);
+        const searchContainer = document.querySelector("#search-container");
+        if (searchContainer) {
+          searchContainer.innerHTML = `
+            <div class="alert alert-error shadow-lg">
+              Error loading search functionality. Please try again later.
+            </div>
+          `;
+        }
+      }
+    });
+  }
+</script>
+
+<style>
+  .archive-year[open] .year-chevron {
+    transform: rotate(90deg);
+  }
+  .year-chevron {
+    transition: transform 200ms ease;
+  }
+</style>

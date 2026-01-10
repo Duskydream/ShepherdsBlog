@@ -738,9 +738,16 @@ code {
   --pagefind-ui-image-box-ratio: 3/2;
   --pagefind-ui-font: var(--font-sans, system-ui, sans-serif);
 
+  .pagefind-ui__form::before {
+    top: 50%;
+    transform: translateY(-50%);
+    left: 1rem;
+  }
+
   .pagefind-ui__search-input {
     @apply input input-bordered w-full;
     border: 1px solid oklch(var(--bc) / 0.2);
+    padding-left: 2.75rem;
   }
 
   .pagefind-ui__search-clear {

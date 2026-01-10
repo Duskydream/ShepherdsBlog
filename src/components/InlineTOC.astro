@@ -14,13 +14,13 @@ const { headings = [] } = Astro.props;
   headings.length > 0 && (
     <Card>
       <details class="collapse collapse-arrow" open>
-        <summary class="collapse-title text-lg font-semibold flex items-center gap-2 cursor-pointer">
-          <Icon name="lucide:list" class="w-5 h-5" />
+        <summary class="collapse-title text-base font-semibold flex items-center gap-2 cursor-pointer py-3">
+          <Icon name="lucide:list" class="w-4 h-4" />
           <span>目录</span>
         </summary>
         <div class="collapse-content">
-          <nav class="toc-nav">
-            <ul class="space-y-1">
+          <nav class="toc-nav bg-base-200/30 rounded-lg p-3">
+            <ul class="space-y-0.5">
               {headings.map((heading, index) => (
                 <li>
                   <a
@@ -28,8 +28,8 @@ const { headings = [] } = Astro.props;
                     data-heading-slug={heading.slug}
                     data-heading-depth={heading.depth}
                     data-index={index}
-                    class={`toc-link block py-1.5 px-2 hover:bg-base-200 rounded transition-colors ${heading.depth === 1 ? "font-medium" : ""}`}
-                    style={`padding-left: ${8 + (heading.depth - 1) * 16}px;`}
+                    class={`toc-link block py-1 px-2 text-sm hover:bg-base-200 rounded transition-colors ${heading.depth === 1 ? "font-medium" : ""}`}
+                    style={`padding-left: ${8 + (heading.depth - 1) * 12}px;`}
                   >
                     {heading.text}
                   </a>
@@ -66,7 +66,9 @@ const { headings = [] } = Astro.props;
         const target = document.getElementById(targetId);
 
         if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
+          // 获取目标位置，向下偏移80px（导航栏高度+缓冲）
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - 80;
+          window.scrollTo({ top: targetPosition, behavior: "smooth" });
           history.pushState(null, "", href);
         }
       });
@@ -79,7 +81,8 @@ const { headings = [] } = Astro.props;
       for (let i = headings.length - 1; i >= 0; i--) {
         const heading = headings[i] as HTMLElement;
         const rect = heading.getBoundingClientRect();
-        if (rect.top <= 100) {
+        // 调整激活判断的阈值，从100改为120
+        if (rect.top <= 120) {
           currentActive = heading.id;
           break;
         }

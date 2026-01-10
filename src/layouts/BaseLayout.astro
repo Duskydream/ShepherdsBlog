@@ -106,13 +106,6 @@ const {
             <InlineSearch />
           </div>
 
-          <!-- 文章目录（仅在文章页显示） -->
-          {showTOC && headings.length > 0 && (
-            <div class="mb-6" id="toc-wrapper" style={isEncrypted ? "display: none;" : ""}>
-              <InlineTOC headings={headings} />
-            </div>
-          )}
-
           <!-- 主内容 -->
           <main class="flex flex-col gap-4">
             <slot />
