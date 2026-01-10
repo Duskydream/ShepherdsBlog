@@ -183,19 +183,18 @@ try {
 
 const TOTAL_WEEKS = 53;
 const DAYS_PER_WEEK = 7;
-const MAX_CELLS = TOTAL_WEEKS * DAYS_PER_WEEK;
 const contributionsMap = new Map(contributions.map((entry) => [entry.date, entry.count]));
 
-const latestContributionDate =
-  contributions.length > 0 ? new Date(contributions[contributions.length - 1].date) : new Date();
+// 结束日期：今天
+const rangeEnd = new Date();
 
-const rangeEnd = new Date(latestContributionDate);
-while (rangeEnd.getDay() !== 6) {
-  rangeEnd.setDate(rangeEnd.getDate() + 1);
-}
-
+// 起始日期：往前推52周，找到那周的周日
 const rangeStart = new Date(rangeEnd);
-rangeStart.setDate(rangeStart.getDate() - (MAX_CELLS - 1));
+rangeStart.setDate(rangeStart.getDate() - 52 * 7);
+// 调整到那周的周日 (getDay() === 0)
+while (rangeStart.getDay() !== 0) {
+  rangeStart.setDate(rangeStart.getDate() - 1);
+}
 
 const recentContributions: ContributionDay[] = [];
 for (let cursor = new Date(rangeStart); cursor <= rangeEnd; cursor.setDate(cursor.getDate() + 1)) {
@@ -208,7 +207,9 @@ for (let cursor = new Date(rangeStart); cursor <= rangeEnd; cursor.setDate(curso
 
 monthLabels = buildMonthLabels(recentContributions);
 
-const weeks = Array.from({ length: TOTAL_WEEKS }, (_, weekIndex) => {
+// 动态计算实际周数
+const actualWeeks = Math.ceil(recentContributions.length / DAYS_PER_WEEK);
+const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
   const start = weekIndex * DAYS_PER_WEEK;
   return recentContributions.slice(start, start + DAYS_PER_WEEK);
 });
