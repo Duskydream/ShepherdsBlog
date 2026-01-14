@@ -121,6 +121,10 @@ user:
         ariaLabel: X(twitter)
         title: X(twitter)
         svg: "ri:twitter-x-fill"
+      - href: "https://leetcode.cn/u/confident-perlman7up/"
+        ariaLabel: LeetCode
+        title: LeetCode
+        svg: "ri:code-s-slash-line"
   footer:
     social:
       # - href: "https://afdian.com/a/saroprock" # 链接
@@ -139,3 +143,7 @@ user:
         ariaLabel: X(twitter)
         title: X(twitter)
         svg: "ri:twitter-x-fill"
+      - href: "https://leetcode.cn/u/confident-perlman7up/"
+        ariaLabel: LeetCode
+        title: LeetCode
+        svg: "ri:code-s-slash-line"
