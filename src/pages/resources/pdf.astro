@@ -1,0 +1,86 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<BaseLayout title="PDF 文档">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex items-center gap-4 mb-8">
+      <a href="/resources" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
+        <Icon name="mdi:arrow-left" class="w-6 h-6" />
+      </a>
+      <h1 class="text-4xl font-bold">📄 PDF 文档</h1>
+    </div>
+
+    <div id="loading" class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <div class="animate-pulse">加载中...</div>
+    </div>
+
+    <div id="file-list" class="space-y-3 hidden"></div>
+
+    <div id="empty-state" class="text-center py-12 text-gray-500 dark:text-gray-400 hidden">
+      <Icon name="mdi:file-pdf-box" class="w-16 h-16 mx-auto mb-4 opacity-50" />
+      <p class="text-lg">暂无 PDF 文件</p>
+      <p class="text-sm mt-2">
+        请将 PDF 文件放入 <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">public/resources/pdf</code> 目录
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  function formatFileSize(bytes: number): string {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  }
+
+  async function loadFiles() {
+    const loading = document.getElementById("loading");
+    const fileList = document.getElementById("file-list");
+    const emptyState = document.getElementById("empty-state");
+
+    try {
+      const response = await fetch("/api/resources/pdf");
+      const files = await response.json();
+
+      loading?.classList.add("hidden");
+
+      if (files.length === 0) {
+        emptyState?.classList.remove("hidden");
+      } else {
+        fileList?.classList.remove("hidden");
+        files.forEach((file: { name: string; size: number; modified: string }) => {
+          const date = new Date(file.modified).toLocaleDateString("zh-CN");
+          const fileItem = document.createElement("a");
+          fileItem.href = `/resources/pdf/${file.name}`;
+          fileItem.download = file.name;
+          fileItem.className =
+            "flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg hover:shadow-lg transition group";
+          fileItem.innerHTML = `
+            <div class="flex items-center gap-3 flex-1">
+              <svg class="w-8 h-8 text-red-500 flex-shrink-0" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18.5,9L13,3.5L18.5,9M6,20V4H13V9H18V20H6Z"/>
+              </svg>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium truncate group-hover:text-red-500 transition">${file.name}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${formatFileSize(file.size)} · ${date}</p>
+              </div>
+            </div>
+            <svg class="w-6 h-6 text-gray-400 group-hover:text-red-500 transition flex-shrink-0" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+            </svg>
+          `;
+          fileList?.appendChild(fileItem);
+        });
+      }
+    } catch (error) {
+      console.error("加载文件列表失败:", error);
+      loading!.innerHTML = '<p class="text-red-500">加载失败，请刷新重试</p>';
+    }
+  }
+
+  loadFiles();
+</script>

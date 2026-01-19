@@ -1,0 +1,48 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<BaseLayout title="资源下载">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">📚 资源下载</h1>
+
+    <div class="prose prose-lg dark:prose-invert">
+      <p>这里存放我的 PPT 演示文稿和 PDF 文档，可供下载和参考。</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-8">
+      <!-- PPT 资源 -->
+      <div class="border dark:border-gray-700 rounded-lg p-6 hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <Icon name="mdi:file-powerpoint" class="w-8 h-8 text-orange-500" />
+          <h2 class="text-2xl font-bold">PPT 演示文稿</h2>
+        </div>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">课程演示、项目展示等 PPT 文件</p>
+        <a
+          href="/resources/ppt"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition"
+        >
+          <Icon name="mdi:folder-open" class="w-5 h-5" />
+          浏览 PPT
+        </a>
+      </div>
+
+      <!-- PDF 资源 -->
+      <div class="border dark:border-gray-700 rounded-lg p-6 hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-4">
+          <Icon name="mdi:file-pdf-box" class="w-8 h-8 text-red-500" />
+          <h2 class="text-2xl font-bold">PDF 文档</h2>
+        </div>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">学习笔记、技术文档等 PDF 文件</p>
+        <a
+          href="/resources/pdf"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+        >
+          <Icon name="mdi:folder-open" class="w-5 h-5" />
+          浏览 PDF
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
