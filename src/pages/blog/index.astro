@@ -81,7 +81,7 @@ const totalPosts = allPosts.length;
         {
           categoryEntries.length > 0 ? (
             <div class="space-y-3">
-              {categoryEntries.map(([category, posts], index) => (
+              {categoryEntries.map(([category, posts]) => (
                 <details class="collapse collapse-arrow bg-base-100/60 border border-base-content/10">
                   <summary class="collapse-title p-4 text-sm font-medium">
                     <span class="inline-flex items-center gap-2">
@@ -182,7 +182,7 @@ const totalPosts = allPosts.length;
         years.length > 0 ? (
           <div class="max-h-[75vh] overflow-y-auto pr-2">
             <div class="archives-timeline">
-              {years.map((year, yearIndex) => (
+              {years.map((year) => (
                 <details class="timeline-year archive-year" open>
                   <summary class="year-header cursor-pointer list-none flex items-center gap-3">
                     <Icon name="lucide:chevron-right" class="w-5 h-5 opacity-70 year-chevron" />

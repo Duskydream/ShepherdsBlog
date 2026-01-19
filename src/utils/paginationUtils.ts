@@ -1,6 +1,6 @@
 import type { CollectionEntry } from "astro:content";
 import { BLOG_PAGE_SIZE } from "@config";
-import { getAllPosts, getPostsWithStats, sortPostsByDate, sortPostsByPinAndDate } from "./blogUtils";
+import { getAllPosts, getPostsWithStats, sortPostsByDate } from "./blogUtils";
 
 /**
  * 获取主博客页面的分页数据

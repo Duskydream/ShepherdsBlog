@@ -12,42 +12,19 @@ import { Icon } from "astro-icon/components";
       <h1 class="text-4xl font-bold">📊 PPT 演示文稿</h1>
     </div>
 
-    {
-      fileInfos.length === 0 ? (
-        <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-          <Icon name="mdi:file-powerpoint" class="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p class="text-lg">暂无 PPT 文件</p>
-          <p class="text-sm mt-2">
-            请将 PPT 文件放入 <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">public/resources/ppt</code>{" "}
-            目录
-          </p>
-        </div>
-      ) : (
-        <div class="space-y-3">
-          {fileInfos.map((file) => (
-            <a
-              href={`/resources/ppt/${file.name}`}
-              class="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg hover:shadow-lg transition group"
-              download
-            >
-              <div class="flex items-center gap-3 flex-1">
-                <Icon name="mdi:file-powerpoint" class="w-8 h-8 text-orange-500 flex-shrink-0" />
-                <div class="flex-1 min-w-0">
-                  <p class="font-medium truncate group-hover:text-orange-500 transition">{file.name}</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {file.size} · {file.modified}
-                  </p>
-                </div>
-              </div>
-              <Icon
-                name="mdi:download"
-                class="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition flex-shrink-0"
-              />
-            </a>
-          ))}
-        </div>
-      )
-    }
+    <div id="loading" class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <div class="animate-pulse">加载中...</div>
+    </div>
+
+    <div id="file-list" class="space-y-3 hidden"></div>
+
+    <div id="empty-state" class="text-center py-12 text-gray-500 dark:text-gray-400 hidden">
+      <Icon name="mdi:file-powerpoint" class="w-16 h-16 mx-auto mb-4 opacity-50" />
+      <p class="text-lg">暂无 PPT 文件</p>
+      <p class="text-sm mt-2">
+        请将 PPT 文件放入 <code class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">public/resources/ppt</code> 目录
+      </p>
+    </div>
   </div>
 </BaseLayout>
 
