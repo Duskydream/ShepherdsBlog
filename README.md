@@ -1,12 +1,65 @@
-<pre align="center">
-A clean, elegant, and fast static blog template! 🚀 Built with Astro
-</pre>
+# Shepherd's Blog (powered by Frosti)
 
-<div align="center">
-<img alt="Frosti Logo" src="https://github.com/EveSunMaple/Frosti/blob/main/docs/logo.png" width="280px">
-</div>
+A personal blog built on the Frosti theme — clean, fast and focused on content. This repository hosts the source of "Shepherd's Blog" and is customized from the open-source Frosti template.
 
-[![license](https://badgen.net/github/license/EveSunMaple/Frosti)](https://github.com/EveSunMaple/Frosti/blob/main/LICENSE)&nbsp;&nbsp;&nbsp;[![release](https://badgen.net/github/release/EveSunMaple/Frosti)](https://github.com/EveSunMaple/Frosti/releases)&nbsp;&nbsp;&nbsp;[![stackblitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/EveSunMaple/Frosti)
+---
+
+## 🔧 About this repo
+- Theme: **Frosti** (kept as upstream base)
+- Site title: **Shepherd's Blog**
+- Purpose: Personal blog and notes
+
+> Note: During cleanup I removed archival backup images and some large historical assets to reduce repository size. You can find a snapshot branch `pre-cleanup-backup` in case you need to restore anything.
+
+---
+
+## 🚀 Quick start
+1. Install dependencies:
+
+```sh
+pnpm install
+```
+
+2. Run development server:
+
+```sh
+pnpm run dev
+```
+
+3. Build for production:
+
+```sh
+pnpm run build
+```
+
+---
+
+## 🧰 Structure overview
+- `src/` — site source, components, pages
+- `content/` — markdown posts and pages
+- `public/` — static assets served by the site
+- `scripts/` — utilities (backup scripts were removed)
+
+---
+
+## ♻️ What changed in cleanup
+- Removed `image-backup/` (archival images)
+- Removed `scripts/backup-images.ps1` and `frosti.update.sh`
+- Removed `public/resources/pdf/` files
+- Historical large files (e.g. Vercel build artifacts, docs images) will be purged from Git history after your confirmation
+
+---
+
+## 📣 Credits
+This project is built on top of the open-source [Frosti](https://github.com/EveSunMaple/Frosti) theme. Thanks to its authors and contributors.
+
+---
+
+If you'd like, I can continue and: 
+- Rewrite more README text to match your personal blog copy and links, or
+- Proceed to scrub history (remove large files from git history) — this requires a force-push and coordination.
+
+Tell me how you want the README copy refined (author name, blog links, short bio, features to highlight) and whether I should proceed with history rewrite now.
 
 [**🖥️ Frosti Demo**](https://frosti.saroprock.com)&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;[**🌏 Chinese README**](https://github.com/EveSunMaple/Frosti/blob/main/docs/README.zh-CN.md)&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;[**❤️ My Blog**](https://www.saroprock.com)
 
