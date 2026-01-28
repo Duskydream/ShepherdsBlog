@@ -2,9 +2,13 @@
 import { Icon } from "astro-icon/components";
 import { SITE_TITLE, SITE_MENU } from "../config";
 import ProfileCard from "@components/ProfileCard.astro";
+import Sidebar from "@components/Sidebar.astro";
 
 // Get current path to determine active link
 const currentPath = Astro.url.pathname;
+
+// Accept headings and showTOC from layout (used to render sidebar TOC)
+const { headings = [], showTOC = true } = Astro.props as { headings?: any[]; showTOC?: boolean };
 
 // Type safely process SITE_MENU before rendering
 type SubMenuItem = {
@@ -51,10 +55,7 @@ const typedMenu = SITE_MENU as MenuItem[];
 
 <!-- Desktop left sidebar -->
 <aside class="hidden md:flex md:flex-col md:items-start md:justify-start w-72 flex-shrink-0 z-40 bg-base-100 p-4 border-r border-base-300/20 overflow-y-auto">
-  <!-- Profile (shows in sidebar on desktop) -->
-  <div class="w-full mb-4">
-    <ProfileCard />
-  </div>
+  <Sidebar headings={headings} showTOC={showTOC} />
 </aside>
 
 <script>

@@ -70,15 +70,11 @@ const {
     <!-- 导航栏 + 主体并列（非固定） -->
     <div class="relative">
       <div class="md:flex md:items-start md:gap-8">
-        <Navbar />
+        <Navbar headings={headings} showTOC={showTOC} />
 
         <!-- Full-width content container so cards can span the page -->
         <div class="flex-1 relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:px-8">
           <div class="bg-base-100 min-h-screen p-4 md:p-8">
-            <!-- 搜索栏 -->
-            <div class="mb-6">
-              <InlineSearch />
-            </div>
 
             <!-- 主内容 -->
             <main class="flex flex-col gap-4">

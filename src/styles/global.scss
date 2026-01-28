@@ -841,6 +841,36 @@ html[data-theme="notion"] .divider {
   border-color: var(--border) !important;
 }
 
+/* Notion-like code block tweaks */
+html[data-theme="notion"] .frosti-code {
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+html[data-theme="notion"] .frosti-code .frosti-code-toolbar {
+  background: transparent;
+  border-bottom: 0;
+  padding: 8px 12px;
+}
+
+html[data-theme="notion"] .frosti-code .frosti-code-toolbar-language {
+  color: var(--secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+html[data-theme="notion"] .frosti-code .frosti-code-content pre {
+  background: transparent;
+  padding: 12px;
+  border-radius: 0;
+}
+
+html[data-theme="notion"] .frosti-code .frosti-code-content .line::before {
+  color: rgb(33 33 33 / 0.5);
+}
+
 /* Prevent horizontal scrollbar (clip overflow horizontally) */
 html, body {
   overflow-x: clip;

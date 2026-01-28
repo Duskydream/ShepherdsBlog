@@ -70,8 +70,8 @@ const isEncrypted = blog.data.encrypted === true;
       <PostFilter categories={blog.data.categories} tags={blog.data.tags} />
     </div>
 
-    <!-- 文章目录（标签栏下方） -->
-    <div class="mb-6" id="toc-wrapper" style={isEncrypted ? "display: none;" : ""}>
+    <!-- 文章目录（标签栏下方，移动端显示） -->
+    <div class="mb-6 md:hidden" id="toc-wrapper" style={isEncrypted ? "display: none;" : ""}>
       <InlineTOC headings={headings} />
     </div>
 
