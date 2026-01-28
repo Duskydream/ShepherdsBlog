@@ -11,7 +11,6 @@ import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import ReadingProgress from "@components/widgets/ReadingProgress.astro";
 import ScrollToTop from "@components/widgets/ScrollToTop.astro";
-import Banner from "../components/Banner.astro";
 import Giscus from "@components/Giscus.astro"; // 评论组件
 
 const {
@@ -83,19 +82,11 @@ const {
     <!-- 导航栏 -->
     <Navbar />
 
-    <!-- Banner + 流星 -->
+    <!-- Main content (Notion style, full-width cards) -->
     <div class="relative">
-      <Banner
-        src="https://pic1.imgdb.cn/item/68ddfebec5157e1a884e700b.jpg"
-        alt="博客头图"
-        title="Shepherd's Blog"
-        subtitle="C'est mon Panache!"
-        class="h-screen"
-      />
-
-      <!-- 主体内容 -->
-      <div class="relative max-w-7xl mx-auto w-full -mt-32 z-20 px-4">
-        <div class="bg-base-100 min-h-screen p-6 md:p-12">
+      <!-- Full-width content container so cards can span the page -->
+      <div class="relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:px-8">
+        <div class="bg-base-100 min-h-screen p-4 md:p-8">
           <!-- 个人资料卡 -->
           <div class="mb-6">
             <ProfileCard />
