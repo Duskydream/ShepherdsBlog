@@ -27,7 +27,7 @@ const {
 ---
 
 <!doctype html>
-<html lang={SITE_LANGUAGE} class="bg-white dark:bg-gray-900" data-theme={SITE_THEME.light} data-theme-type="light">
+<html lang={SITE_LANGUAGE} class="bg-white" data-theme={SITE_THEME.light} data-theme-type="light">
   <head>
     <ClientRouter />
     <ElementCrossing />
@@ -47,30 +47,18 @@ const {
       }
     </script>
 
-    <!-- 主题初始化 -->
+    <!-- 主题初始化（强制单一浅色主题，移除夜间模式） -->
     <script define:vars={{ SITE_THEME }} is:inline>
       (function () {
-        const storedTheme = localStorage.getItem("theme");
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        let theme;
-        if (storedTheme) {
-          theme = storedTheme;
-        } else {
-          theme = prefersDark ? SITE_THEME.dark : SITE_THEME.light;
-          localStorage.setItem("theme", theme);
+        try {
+          const theme = SITE_THEME.light;
+          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute("data-theme-type", "light");
+          // Ensure stored theme doesn't force dark mode
+          localStorage.removeItem("theme");
+        } catch (e) {
+          // noop
         }
-        document.documentElement.setAttribute("data-theme", theme);
-        const themeType = theme === SITE_THEME.dark ? "dark" : "light";
-        document.documentElement.setAttribute("data-theme-type", themeType);
-
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-          if (!localStorage.getItem("theme")) {
-            const newTheme = e.matches ? SITE_THEME.dark : SITE_THEME.light;
-            document.documentElement.setAttribute("data-theme", newTheme);
-            document.documentElement.setAttribute("data-theme-type", e.matches ? "dark" : "light");
-            localStorage.setItem("theme", newTheme);
-          }
-        });
       })();
     </script>
   </head>
@@ -85,10 +73,10 @@ const {
     <!-- Main content (Notion style, full-width cards) -->
     <div class="relative">
       <!-- Full-width content container so cards can span the page -->
-      <div class="relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:px-8">
+      <div class="relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:pl-56 md:pr-8">
         <div class="bg-base-100 min-h-screen p-4 md:p-8">
-          <!-- 个人资料卡 -->
-          <div class="mb-6">
+          <!-- 个人资料卡：仅在小屏显示（桌面侧栏显示头像） -->
+          <div class="mb-6 md:hidden">
             <ProfileCard />
           </div>
 
@@ -112,15 +100,12 @@ const {
 
       <!-- 主题同步 -->
       <script define:vars={{ SITE_THEME }} is:inline>
+        // Ensure theme stays as light after partial navigations
         document.addEventListener("astro:after-swap", () => {
-          const storedTheme = localStorage.getItem("theme");
-          if (storedTheme) {
-            document.documentElement.setAttribute("data-theme", storedTheme);
-            document.documentElement.setAttribute(
-              "data-theme-type",
-              storedTheme === SITE_THEME.dark ? "dark" : "light",
-            );
-          }
+          const theme = SITE_THEME.light;
+          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute("data-theme-type", "light");
+          localStorage.removeItem("theme");
         });
       </script>
 

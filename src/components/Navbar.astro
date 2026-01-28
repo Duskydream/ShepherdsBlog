@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
-import ThemeToggle from "./widgets/ThemeToggle.astro";
 import { SITE_TITLE, SITE_MENU } from "../config";
+import ProfileCard from "@components/ProfileCard.astro";
 
 // Get current path to determine active link
 const currentPath = Astro.url.pathname;
@@ -44,6 +44,23 @@ const typedMenu = SITE_MENU as MenuItem[];
   <div class="navbar-end">
   </div>
 </nav>
+
+<!-- Desktop left sidebar -->
+<aside class="hidden md:flex md:flex-col md:items-start md:justify-start fixed left-0 top-0 h-full w-56 z-40 bg-base-100 p-4 border-r border-base-300/20 overflow-y-auto">
+  <!-- Profile (shows in sidebar on desktop) -->
+  <div class="w-full mb-4">
+    <ProfileCard />
+  </div>
+
+  <nav class="flex flex-col gap-1 w-full mt-2">
+    {typedMenu.map((item) => (
+      <a href={item.href} target={item.target ?? "_self"} class={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-base-200 transition-colors text-sm`}>
+        <Icon name={item.svg} class="w-5 h-5" />
+        <span class="truncate">{item.text}</span>
+      </a>
+    ))}
+  </nav>
+</aside>
 
 <script>
   document.addEventListener("astro:page-load", () => {
