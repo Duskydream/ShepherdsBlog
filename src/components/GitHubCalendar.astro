@@ -347,38 +347,38 @@ const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
     transform: scale(1.2);
   }
 
-  /* 红色主题 - 浅色模式 */
+  /* Grayscale theme - Light mode */
   html:not(.dark) .day[data-level="0"] {
-    background-color: #ebedf0;
+    background-color: #f3f4f6; /* very light */
   }
   html:not(.dark) .day[data-level="1"] {
-    background-color: #ffcdd2;
+    background-color: #e5e7eb; /* light gray */
   }
   html:not(.dark) .day[data-level="2"] {
-    background-color: #ef5350;
+    background-color: #c7c8cc; /* medium gray */
   }
   html:not(.dark) .day[data-level="3"] {
-    background-color: #e53935;
+    background-color: #8e8f94; /* dark gray */
   }
   html:not(.dark) .day[data-level="4"] {
-    background-color: #c62828;
+    background-color: #2b2b2b; /* near black */
   }
 
-  /* 红色主题 - 深色模式 */
+  /* Grayscale theme - Dark mode (fallback if used) */
   html.dark .day[data-level="0"] {
-    background-color: #161b22;
+    background-color: #0b0c0d;
   }
   html.dark .day[data-level="1"] {
-    background-color: #5c1a1a;
+    background-color: #171717;
   }
   html.dark .day[data-level="2"] {
-    background-color: #8b2525;
+    background-color: #2b2b2b;
   }
   html.dark .day[data-level="3"] {
-    background-color: #c62828;
+    background-color: #4b4b4b;
   }
   html.dark .day[data-level="4"] {
-    background-color: #ff5252;
+    background-color: #7a7a7a;
   }
 
   .legend {
