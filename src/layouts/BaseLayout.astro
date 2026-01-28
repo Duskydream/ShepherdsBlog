@@ -35,8 +35,8 @@ const {
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
-    <!-- 不蒜子统计脚本 - 延迟加载以提升首屏性能 -->
-    <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <!-- 不蒜子统计脚本 - 仅在文章页按需加载以避免在非文章页触发外部请求 -->
+    {isPost && <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>}
 
     <!-- 注册 Service Worker 实现离线缓存 -->
     <script is:inline>
@@ -67,32 +67,28 @@ const {
     <!-- 阅读进度条 -->
     <ReadingProgress />
 
-    <!-- 导航栏 -->
-    <Navbar />
-
-    <!-- Main content (Notion style, full-width cards) -->
+    <!-- 导航栏 + 主体并列（非固定） -->
     <div class="relative">
-      <!-- Full-width content container so cards can span the page -->
-      <div class="relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:pl-56 md:pr-8">
-        <div class="bg-base-100 min-h-screen p-4 md:p-8">
-          <!-- 个人资料卡：仅在小屏显示（桌面侧栏显示头像） -->
-          <div class="mb-6 md:hidden">
-            <ProfileCard />
-          </div>
+      <div class="md:flex md:items-start md:gap-8">
+        <Navbar />
 
-          <!-- 搜索栏 -->
-          <div class="mb-6">
-            <InlineSearch />
-          </div>
+        <!-- Full-width content container so cards can span the page -->
+        <div class="flex-1 relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:px-8">
+          <div class="bg-base-100 min-h-screen p-4 md:p-8">
+            <!-- 搜索栏 -->
+            <div class="mb-6">
+              <InlineSearch />
+            </div>
 
-          <!-- 主内容 -->
-          <main class="flex flex-col gap-4">
-            <slot />
-            {isPost && <Giscus />}
-            <!-- 文章页显示评论 -->
-          </main>
+            <!-- 主内容 -->
+            <main class="flex flex-col gap-4">
+              <slot />
+              {isPost && <Giscus />}
+              <!-- 文章页显示评论 -->
+            </main>
+          </div>
+          <Footer />
         </div>
-        <Footer />
       </div>
 
       <!-- 返回顶部按钮 -->

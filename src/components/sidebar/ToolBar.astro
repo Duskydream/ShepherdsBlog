@@ -1,15 +1,12 @@
 ---
 import Card from "../temple/Card.astro";
 import ScrollToTop from "../widgets/ScrollToTop.astro";
-import ThemeToggle from "../widgets/ThemeToggle.astro";
+// ThemeToggle removed: dark mode disabled
 ---
 
 <Card>
   <div class="toolbar-container p-4">
     <div class="flex justify-center items-center gap-4">
-      <!-- Theme toggle -->
-      <ThemeToggle className="sidebar-theme" />
-
       <slot />
     </div>
   </div>

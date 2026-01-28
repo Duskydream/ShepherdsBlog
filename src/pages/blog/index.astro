@@ -50,13 +50,12 @@ const totalPosts = allPosts.length;
 ---
 
 <BaseLayout title="Blog">
-  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <!-- Pagefind CSS is lazy-loaded when search is initialized to avoid render-blocking -->
 
   <!-- 搜索（已集成，不再跳转） -->
   <section class="blog-container" id="search">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="flex items-center gap-2">
-        <Icon name="lucide:search" class="w-6 h-6 text-info" />
+      <div>
         <h1 id="h1" class="text-2xl md:text-3xl font-bold">{t("label.searchPage")}</h1>
       </div>
     </div>
@@ -72,7 +71,6 @@ const totalPosts = allPosts.length;
       <section class="categories-container h-full" id="categories">
         <div class="flex items-center justify-between gap-3 mb-4">
           <div class="flex items-center gap-2">
-            <Icon name="lucide:folder" class="w-5 h-5 text-primary" />
             <h2 class="text-lg font-semibold">{t("label.categoryPage")}</h2>
           </div>
           <div class="badge badge-primary">{totalCategories}</div>
@@ -130,7 +128,6 @@ const totalPosts = allPosts.length;
       <section class="tags-container h-full" id="tags">
         <div class="flex items-center justify-between gap-3 mb-4">
           <div class="flex items-center gap-2">
-            <Icon name="lucide:tag" class="w-5 h-5 text-secondary" />
             <h2 class="text-lg font-semibold">{t("label.tagPage")}</h2>
           </div>
           <div class="badge badge-secondary">{totalTags}</div>
@@ -243,6 +240,16 @@ const totalPosts = allPosts.length;
 
     onIdle(async () => {
       try {
+        // Lazy-load pagefind UI CSS to avoid render-blocking
+        await new Promise((resolve) => {
+          if (document.querySelector('link[href="/pagefind/pagefind-ui.css"]')) return resolve(null);
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = '/pagefind/pagefind-ui.css';
+          link.onload = () => resolve(null);
+          link.onerror = () => resolve(null); // don't block on error
+          document.head.appendChild(link);
+        });
         // @ts-ignore - Pagefind UI types
         const { PagefindUI } = await import("@pagefind/default-ui");
 

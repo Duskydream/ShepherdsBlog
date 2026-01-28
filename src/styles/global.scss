@@ -788,3 +788,60 @@ code {
     @apply block text-center py-8 text-base-content opacity-50;
   }
 }
+/* Notion-like monochrome theme overrides */
+html[data-theme="notion"] {
+  /* Base colors */
+  --base-100: #ffffff;
+  --base-200: #f6f6f6;
+  --base-300: #efefef;
+  --base-content: #0f1720; /* dark text */
+  --primary: #0f1720;
+  --secondary: #6b7280;
+  --accent: #0f1720;
+  --border: #e5e7eb;
+  --bc: #e5e7eb;
+
+  /* Typography */
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+html[data-theme="notion"] a {
+  color: #0f1720;
+  text-decoration-color: transparent;
+  transition: color .15s ease;
+}
+
+html[data-theme="notion"] a:hover {
+  text-decoration-color: #0f1720;
+}
+
+html[data-theme="notion"] .btn,
+html[data-theme="notion"] .badge {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--base-content);
+}
+
+/* Make cards and surfaces subtle */
+html[data-theme="notion"] .bg-base-100 {
+  background: var(--base-100) !important;
+}
+
+html[data-theme="notion"] .shadow-md,
+html[data-theme="notion"] .shadow-lg {
+  box-shadow: 0 1px 0 rgba(15,23,32,0.04), 0 0 0 1px rgba(15,23,32,0.02) !important;
+}
+
+/* Prose/detail adjustments */
+html[data-theme="notion"] .text-base-content\/70 {
+  color: rgb(33 33 33 / 0.7) !important;
+}
+
+html[data-theme="notion"] .divider {
+  border-color: var(--border) !important;
+}
+
+/* Prevent horizontal scrollbar (clip overflow horizontally) */
+html, body {
+  overflow-x: clip;
+}

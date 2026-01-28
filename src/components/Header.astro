@@ -12,14 +12,13 @@ const { title, description, favicon, image, loadKatex = false } = Astro.props as
 <link rel="icon" type="image" href={favicon} />
 <meta name="generator" content={Astro.generator} />
 
-<!-- Preconnect to external domains for faster resource loading -->
+<!-- Preconnect to critical external domains -->
 <link rel="preconnect" href="https://pic1.imgdb.cn" crossorigin />
 <link rel="dns-prefetch" href="https://pic1.imgdb.cn" />
-<link rel="preconnect" href="https://busuanzi.ibruce.info" crossorigin />
-<link rel="dns-prefetch" href="https://busuanzi.ibruce.info" />
+<!-- Busuanzi analytics is loaded deferred on article pages; skip preconnect to avoid early DNS lookups -->
 
-<!-- Preload critical banner image -->
-<link rel="preload" as="image" href="https://pic1.imgdb.cn/item/68ddfebec5157e1a884e700b.jpg" fetchpriority="high" />
+<!-- Preload critical banner image only on homepage -->
+{Astro.url.pathname === '/' && <link rel="preload" as="image" href="https://pic1.imgdb.cn/item/68ddfebec5157e1a884e700b.jpg" fetchpriority="high" />}
 
 <meta name="description" content={description} />
 <meta property="og:title" content={title} />

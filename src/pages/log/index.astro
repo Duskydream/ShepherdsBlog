@@ -84,18 +84,7 @@ const previews = sortedLogs.map((entry) => {
                             <div class="w-0.5 flex-1 bg-base-300 mt-2 md:hidden" />
                           </div>
 
-                          {p.image ? (
-                            <div class="w-48 flex-shrink-0">
-                              <img
-                                src={p.image}
-                                alt={p.title}
-                                loading="lazy"
-                                decoding="async"
-                                fetchpriority="low"
-                                class="w-full h-28 object-cover rounded-lg"
-                              />
-                            </div>
-                          ) : null}
+
 
                           <div class="flex-1">
                             <div class={`text-sm text-base-content/60 mb-1 ${isRight ? "md:text-right" : ""}`}>

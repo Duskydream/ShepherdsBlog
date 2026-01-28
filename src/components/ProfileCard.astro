@@ -3,7 +3,7 @@ import { USER_AVATAR, USER_SIDEBAR_SOCIAL_ICONS, SITE_MENU } from "../config";
 import { Icon } from "astro-icon/components";
 import Card from "./temple/Card.astro";
 import { Image } from "astro:assets";
-import ThemeToggle from "./widgets/ThemeToggle.astro";
+// ThemeToggle removed: dark mode disabled
 
 // Get current path to determine active link
 const currentPath = Astro.url.pathname;
@@ -30,9 +30,7 @@ const typedMenu = SITE_MENU as MenuItem[];
 
 <Card>
   <div class="p-6 relative">
-    <div class="absolute top-4 right-4">
-      <ThemeToggle />
-    </div>
+
     <!-- 头像和社交图标 -->
     <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
       <!-- 头像 -->
