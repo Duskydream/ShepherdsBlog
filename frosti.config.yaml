@@ -38,9 +38,18 @@ site:
       target: _self
     - id: friend
       text: Friends
-      href: /friend
+      href: '#'
       svg: "material-symbols:supervisor-account-outline-rounded"
       target: _self
+      subItems:
+        - id: rock-zhang
+          text: Rock Zhang
+          href: https://blog.282994.xyz/
+          target: _blank
+        - id: gkouen
+          text: gkouen
+          href: https://blog.cya.moe/
+          target: _blank
 
     - id: anime
       text: Anime

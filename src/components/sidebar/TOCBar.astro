@@ -13,7 +13,7 @@ const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
     <div id="toc-container" class="mt-4 z-10 md:max-h-[calc(100vh-2rem)] ">
       <Card>
         <div class="p-4">
-          <nav class="toc-nav max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-none relative">
+          <nav class="toc-nav text-sm max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-none relative">
             {/* Animated active indicator - now moved outside the ul structure */}
             <div
               id="active-indicator"

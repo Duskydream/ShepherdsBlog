@@ -1,18 +1,24 @@
 ﻿---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MainCard from "@/components/MainCard.astro";
+import { Icon } from "astro-icon/components";
 ---
 
 <BaseLayout title="Anime">
   <MainCard title="Anime" description="追番记录">
     <div class="space-y-6 mb-8 max-w-7xl mx-auto px-4">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <input
-          type="text"
-          id="search"
-          placeholder="搜索动画或游戏..."
-          class="px-4 py-2 w-full md:w-80 rounded-full border-2 border-neutral-800 focus:border-neutral-800 focus:ring-2 focus:ring-neutral-800/20 outline-none transition"
-        />
+        <div class="relative w-full md:w-auto">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <Icon name="lucide:search" class="w-5 h-5" />
+          </div>
+          <input
+            type="text"
+            id="search"
+            placeholder="搜索动画或游戏..."
+            class="input input-bordered w-full md:w-80 pl-10 pr-16 py-2"
+          />
+        </div>
         <div class="flex gap-2" id="tab-group">
           <button
             data-tab="watching"
@@ -229,28 +235,25 @@ import MainCard from "@/components/MainCard.astro";
         const open = expanded === id;
 
         return `
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow">
-  <div class="flex gap-4 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50" onclick="toggle(${id})">
-    <div class="w-24 h-32 rounded overflow-hidden bg-gray-200 flex-shrink-0">
+<div class="bg-base-200 rounded-lg border border-base-300">
+  <div class="flex gap-4 p-4 cursor-pointer hover:bg-base-200/60" onclick="toggle(${id})">
+    <div class="w-24 h-32 rounded overflow-hidden bg-base-300 flex-shrink-0">
       ${img ? `<img src="${img}" alt="${t}" class="w-full h-full object-cover"/>` : '<div class="flex items-center justify-center h-full text-3xl">📺</div>'}
     </div>
     <div class="flex-1 min-w-0">
-      <h3 class="font-semibold text-lg mb-1 line-clamp-2">${t}</h3>
-      ${date ? `<p class="text-sm text-gray-500 mb-2">📅 ${date}</p>` : ""}
-      ${cmt ? `<p class="text-sm text-gray-600 line-clamp-2">💬 ${cmt.slice(0, 100)}...</p>` : ""}
+      <h3 class="font-semibold text-lg mb-1 line-clamp-2 text-base-content">${t}</h3>
+      ${date ? `<p class="text-sm text-base-content/70 mb-2">📅 ${date}</p>` : ""}
+      ${cmt ? `<p class="text-sm text-base-content line-clamp-2">💬 ${cmt.slice(0, 100)}...</p>` : ""}
     </div>
-    <svg class="w-6 h-6 text-gray-400 transition-transform ${open ? "rotate-180" : ""}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-6 h-6 text-base-content/50 transition-transform ${open ? "rotate-180" : ""}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
     </svg>
   </div>
   <div style="max-height:${open ? "1500px" : "0"}" class="overflow-hidden transition-all duration-300">
-    <div class="px-4 pb-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-      ${cmt ? `<div class="my-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3"><h4 class="font-semibold text-sm text-gray-700 dark:text-gray-200 mb-2">💭 我的评论</h4><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${cmt}</p></div>` : ""}
-      <a href="https://bgm.tv/subject/${id}" target="_blank" rel="noopener noreferrer"
-         style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #262626; color: white; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.2s;"
-         onmouseover="this.style.backgroundColor='#171717'"
-         onmouseout="this.style.backgroundColor='#262626'">
-        <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="px-4 pb-4 pt-2 border-t border-base-300">
+      ${cmt ? `<div class="my-4 bg-base-100 rounded-lg p-3"><h4 class="font-semibold text-sm text-base-content mb-2">💭 我的评论</h4><p class="text-sm text-base-content/80 whitespace-pre-wrap leading-relaxed">${cmt}</p></div>` : ""}
+      <a href="https://bgm.tv/subject/${id}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 text-white rounded-md text-sm font-medium transition-colors hover:bg-neutral-900">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
         </svg>
         <span>前往 Bangumi</span>

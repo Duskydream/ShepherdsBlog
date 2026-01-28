@@ -14,8 +14,8 @@ const currentPath = Astro.url.pathname;
       <Image
         class="mask mask-circle"
         format="webp"
-        width={250}
-        height={250}
+        width={120}
+        height={120}
         src={USER_AVATAR}
         alt="Profile"
         loading="eager"
@@ -27,7 +27,7 @@ const currentPath = Astro.url.pathname;
           <li class="w-full relative group">
             {item.subItems ? (
               <details class="menu-item w-full" data-submenu-id={item.id} open={currentPath.startsWith(item.href)}>
-                <summary class="justify-center lg:justify-start items-center text-center text-xl md:text-3xl lg:text-xl font-bold p-4 hover:bg-base-200">
+                <summary class="justify-center lg:justify-start items-center text-center text-lg md:text-xl lg:text-lg font-bold p-3 hover:bg-base-200">
                   <Icon name={item.svg} />
                   <span class="hidden lg:inline ml-2">{item.text}</span>
                 </summary>
@@ -36,13 +36,13 @@ const currentPath = Astro.url.pathname;
                     <li class="relative">
                       <a
                         tabindex="0"
-                        class="menu-item text-base md:text-2xl lg:text-base font-bold p-2 hover:bg-base-200"
+                        class="menu-item text-sm md:text-base lg:text-sm font-bold p-2 hover:bg-base-200"
                         id={`header-${subItem.id}`}
                         href={subItem.href}
                         target={subItem.target || "_self"}
                         aria-label={subItem.text}
                       >
-                        <Icon name={subItem.svg} />
+                        {subItem.svg ? <Icon name={subItem.svg} /> : null}
                         <span class="hidden lg:inline ml-2">{subItem.text}</span>
                       </a>
                     </li>
@@ -52,7 +52,7 @@ const currentPath = Astro.url.pathname;
             ) : (
               <a
                 tabindex="0"
-                class="flex justify-center lg:justify-start items-center text-center text-xl md:text-3xl lg:text-xl font-bold p-4 hover:bg-base-200"
+                class="flex justify-center lg:justify-start items-center text-center text-lg md:text-xl lg:text-lg font-bold p-3 hover:bg-base-200"
                 id={item.id}
                 href={item.href}
                 target={item.target || "_self"}
@@ -80,7 +80,7 @@ const currentPath = Astro.url.pathname;
                 target="_blank"
                 class="btn btn-circle btn-ghost"
               >
-                <Icon name={icon.svg} class="text-xl" />
+                <Icon name={icon.svg} class="text-lg" />
               </a>
             </div>
           ))
