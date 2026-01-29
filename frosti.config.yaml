@@ -12,15 +12,10 @@ site:
   blog: # 博客相关配置
     pageSize: 8 # 每页显示的文章数量
   menu: # 菜单配置
-    # - id: home # 菜单项的唯一标识符
-    #  text: Home # 菜单项显示的文本
-    #  href: / # 菜单项链接的地址
-    #  svg: "material-symbols:home-outline-rounded"
-    #  target: _self
-    - id: about
-      text: About
-      href: /about
-      svg: "material-symbols:info-outline-rounded"
+    - id: home # 菜单项的唯一标识符
+      text: Home # 菜单项显示的文本
+      href: /home # 菜单项链接的地址
+      svg: "material-symbols:home-outline-rounded"
       target: _self
     - id: blog
       text: Blogs
