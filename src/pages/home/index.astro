@@ -6,6 +6,8 @@ import GitHubCalendar from "@/components/GitHubCalendar.astro";
 import { getCollection } from "astro:content";
 import { getAllPosts } from "@/utils/blogUtils";
 import { t } from "@/config";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 // Get latest blogs
 const allPosts = await getAllPosts();
@@ -32,10 +34,21 @@ type BangumiData = {
   watching: BangumiItem[];
 };
 
-const bangumiResponse = await fetch(
-  "https://raw.githubusercontent.com/Duskydream/ShepherdsBlog/main/public/data/bangumi.json",
-);
-const bangumiData = (await bangumiResponse.json()) as BangumiData;
+let bangumiData: BangumiData;
+try {
+  // Try to fetch from API first
+  const apiResponse = await fetch("https://frosti.pages.dev/api/bangumi");
+  if (apiResponse.ok) {
+    bangumiData = (await apiResponse.json()) as BangumiData;
+  } else {
+    throw new Error("API not available");
+  }
+} catch {
+  // Fallback to local data
+  const bangumiPath = path.resolve("public/data/bangumi.json");
+  const bangumiContent = await fs.readFile(bangumiPath, "utf-8");
+  bangumiData = JSON.parse(bangumiContent) as BangumiData;
+}
 const watchingAnime: BangumiItem[] = bangumiData.watching.slice(0, 3);
 ---
 
