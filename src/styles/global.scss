@@ -18,6 +18,27 @@ html {
   @apply scroll-smooth;
 }
 
+/* Global image citation blocks - only for content images */
+.prose {
+  /* Ensure prose containers don't clip content */
+  overflow: visible !important;
+}
+
+.prose img {
+  /* Gray citation block below each image - like markdown quote */
+  &::after {
+    content: "" !important;
+    display: block !important;
+    width: 120% !important;
+    height: 16px !important;
+    background-color: #e5e7eb !important;
+    border: 2px solid #d1d5db !important;
+    margin-top: 8px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
 kbd {
   @apply kbd;
 }
@@ -100,6 +121,11 @@ code {
   img {
     @apply transition-opacity duration-500;
     border-radius: 8px;
+    display: block;
+    margin: 1rem 0;
+    max-width: min(100%, 600px);
+    height: auto;
+    width: auto;
 
     &[loading="lazy"] {
       opacity: 0;
@@ -107,6 +133,24 @@ code {
       &.loaded {
         opacity: 1;
       }
+    }
+
+    /* Gray citation block below each image - like markdown quote */
+    &::after {
+      content: "引用";
+      display: block;
+      width: 100%;
+      height: 24px;
+      background-color: #6b7280 !important;
+      border-left: 3px solid #d1d5db;
+      margin-top: 0.75rem;
+      border-radius: 0 4px 4px 0;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+      color: white;
+      text-align: center;
+      font-size: 12px;
+      line-height: 24px;
+      font-weight: bold;
     }
   }
 
@@ -163,29 +207,35 @@ code {
 }
 
 .frosti-code {
-  @apply relative my-6 border border-base-300 bg-transparent overflow-hidden;
+  @apply relative my-6 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", "Courier New", monospace !important;
 
   &-toolbar {
-    @apply sticky top-0 z-10 flex justify-between items-center px-4 py-2 bg-base-200 border-b border-base-content/20;
+    @apply flex justify-between items-center px-4 py-3 bg-gray-100 border-b border-gray-200;
     &-language {
-      @apply text-sm font-semibold text-base-content/80;
+      @apply text-xs font-medium text-gray-600 uppercase tracking-wide;
     }
   }
 
   &-content {
-    @apply overflow-x-auto p-4 bg-transparent;
+    @apply overflow-x-auto p-4 bg-white;
 
     pre {
-      @apply bg-transparent;
+      @apply bg-transparent m-0 p-0;
       counter-reset: line;
+      font-family: inherit !important;
+      font-size: 14px !important;
+      line-height: 1.5 !important;
     }
 
     .line {
       counter-increment: line;
+      padding-left: 1rem;
 
       &::before {
         content: counter(line);
-        @apply text-current mr-4 inline-block w-4 text-right;
+        @apply text-gray-400 mr-4 inline-block w-6 text-right text-xs select-none;
+        font-family: inherit !important;
       }
     }
   }
@@ -802,13 +852,20 @@ html[data-theme="notion"] {
   --bc: #e5e7eb;
 
   /* Typography */
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial;
 }
 
 html[data-theme="notion"] a {
   color: #0f1720;
   text-decoration-color: transparent;
-  transition: color .15s ease;
+  transition: color 0.15s ease;
 }
 
 html[data-theme="notion"] a:hover {
@@ -829,7 +886,9 @@ html[data-theme="notion"] .bg-base-100 {
 
 html[data-theme="notion"] .shadow-md,
 html[data-theme="notion"] .shadow-lg {
-  box-shadow: 0 1px 0 rgba(15,23,32,0.04), 0 0 0 1px rgba(15,23,32,0.02) !important;
+  box-shadow:
+    0 1px 0 rgba(15, 23, 32, 0.04),
+    0 0 0 1px rgba(15, 23, 32, 0.02) !important;
 }
 
 /* Prose/detail adjustments */
@@ -843,35 +902,32 @@ html[data-theme="notion"] .divider {
 
 /* Notion-like code block tweaks */
 html[data-theme="notion"] .frosti-code {
-  background: #fafafa;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
+  @apply bg-gray-50 border border-gray-200 rounded-lg shadow-sm;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", "Courier New", monospace !important;
 }
 
 html[data-theme="notion"] .frosti-code .frosti-code-toolbar {
-  background: transparent;
-  border-bottom: 0;
-  padding: 8px 12px;
+  @apply bg-gray-100 border-b border-gray-200 px-4 py-3;
 }
 
 html[data-theme="notion"] .frosti-code .frosti-code-toolbar-language {
-  color: var(--secondary);
-  font-size: 12px;
-  font-weight: 600;
+  @apply text-xs font-medium text-gray-600 uppercase tracking-wide;
 }
 
 html[data-theme="notion"] .frosti-code .frosti-code-content pre {
-  background: transparent;
-  padding: 12px;
-  border-radius: 0;
+  @apply bg-white p-4;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
 }
 
 html[data-theme="notion"] .frosti-code .frosti-code-content .line::before {
-  color: rgb(33 33 33 / 0.5);
+  @apply text-gray-400 text-xs;
+  font-family: inherit !important;
 }
 
 /* Prevent horizontal scrollbar (clip overflow horizontally) */
-html, body {
+html,
+body {
   overflow-x: clip;
 }

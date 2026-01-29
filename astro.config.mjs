@@ -43,8 +43,20 @@ export default defineConfig({
     updateConfig(),
     expressiveCode({
       themes: [CODE_THEME],
-      styleOverrides: {
-        borderRadius: "0.75rem",
+      plugins: [],
+      defaultProps: {
+        showLineNumbers: true,
+        overridesByLang: {
+          'js,jsx,ts,tsx': {
+            showLineNumbers: true,
+          },
+          'python': {
+            showLineNumbers: true,
+          },
+          'bash,sh,shell': {
+            showLineNumbers: false,
+          },
+        },
       },
     }),
     mdx(),

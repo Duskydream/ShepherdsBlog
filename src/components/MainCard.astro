@@ -93,8 +93,8 @@ const {
     font-style: normal;
   }
 
-  /* 飞书风格的代码块 */
-  .doc-content :global(pre) {
+  /* 飞书风格的代码块 - 不影响自定义代码块 */
+  .doc-content :global(pre:not(.frosti-code pre)) {
     @apply my-6 p-4 bg-base-200 overflow-x-auto;
     border-radius: 8px;
   }
@@ -120,5 +120,26 @@ const {
 
   .doc-content :global(tr:hover) {
     @apply bg-base-200/50;
+  }
+
+  /* Ensure doc-content containers don't clip content */
+  .doc-content {
+    overflow: visible !important;
+  }
+
+  /* Image styling with citation block */
+  .doc-content :global(img) {
+    /* Gray citation block below each image - like markdown quote */
+    &::after {
+      content: "" !important;
+      display: block !important;
+      width: 120% !important;
+      height: 16px !important;
+      background-color: #e5e7eb !important;
+      border: 2px solid #d1d5db !important;
+      margin-top: 8px !important;
+      border-radius: 4px !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
   }
 </style>
