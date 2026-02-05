@@ -11,7 +11,8 @@ import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import ReadingProgress from "@components/widgets/ReadingProgress.astro";
 import ScrollToTop from "@components/widgets/ScrollToTop.astro";
-import Giscus from "@components/Giscus.astro"; // 评论组件
+import Giscus from "@components/Giscus.astro";
+import 'katex/dist/katex.min.css';
 
 const {
   title,
@@ -21,7 +22,7 @@ const {
   showTOC = false,
   isIndexed = true,
   isPost = false, // 文章页传 true 显示评论
-  loadKatex = false, // 是否加载 KaTeX CSS
+  loadKatex = true, // 是否加载 KaTeX CSS
   isEncrypted = false, // 是否加密文章
 } = Astro.props;
 ---
@@ -33,12 +34,12 @@ const {
     <ElementCrossing />
     <PointerOnNavigation />
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
-    
+
     <!-- JetBrains Mono Font for code blocks -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
-    
+
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
     <!-- 不蒜子统计脚本 - 仅在文章页按需加载以避免在非文章页触发外部请求 -->
