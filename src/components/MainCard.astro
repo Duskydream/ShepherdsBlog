@@ -30,17 +30,17 @@ const {
   }
 
   .doc-header {
-    @apply mb-10 pb-0;
+    @apply mb-6 pb-0;
   }
 
   .doc-title {
-    @apply text-4xl md:text-5xl font-bold mb-3;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    @apply text-3xl md:text-4xl font-semibold mb-2;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
   }
 
   .doc-description {
-    @apply text-lg text-base-content/60 mt-4;
+    @apply text-base text-base-content/60 mt-2;
     line-height: 1.6;
   }
 
@@ -48,13 +48,13 @@ const {
     @apply prose prose-lg max-w-none;
   }
 
-  /* 飞书风格的段落间距 */
+  /* 轻量段落间距 */
   .doc-content :global(p) {
     @apply mb-4;
     line-height: 1.7;
   }
 
-  /* 飞书风格的标题 */
+  /* 标题节奏 */
   .doc-content :global(h1),
   .doc-content :global(h2),
   .doc-content :global(h3) {
@@ -77,7 +77,7 @@ const {
     line-height: 1.5;
   }
 
-  /* 飞书风格的列表 */
+  /* 列表节奏 */
   .doc-content :global(ul),
   .doc-content :global(ol) {
     @apply my-4 space-y-2;
@@ -87,13 +87,13 @@ const {
     @apply leading-7;
   }
 
-  /* 飞书风格的引用块 */
+  /* 引用块 */
   .doc-content :global(blockquote) {
     @apply my-6 py-3 px-5 border-l-4 border-primary/40 bg-base-200/30;
     font-style: normal;
   }
 
-  /* 飞书风格的代码块 - 不影响自定义代码块 */
+  /* 代码块 - 不影响自定义代码块 */
   .doc-content :global(pre:not(.frosti-code pre)) {
     @apply my-6 p-4 bg-base-200 overflow-x-auto;
     border-radius: 8px;
@@ -104,7 +104,7 @@ const {
     border-radius: 4px;
   }
 
-  /* 飞书风格的表格 */
+  /* 表格 */
   .doc-content :global(table) {
     @apply w-full my-6;
     border-collapse: collapse;

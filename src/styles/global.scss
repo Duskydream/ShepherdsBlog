@@ -853,13 +853,10 @@ html[data-theme="notion"] {
 
   /* Typography */
   font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
+    "IBM Plex Sans",
     "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial;
+    -apple-system,
+    sans-serif;
 }
 
 html[data-theme="notion"] a {
@@ -877,6 +874,105 @@ html[data-theme="notion"] .badge {
   background: transparent;
   border-color: var(--border);
   color: var(--base-content);
+}
+
+html[data-theme="notion"] body {
+  background: #ffffff;
+  color: var(--base-content);
+}
+
+html[data-theme="notion"] .notion-surface {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+}
+
+html[data-theme="notion"] .card,
+html[data-theme="notion"] .btn,
+html[data-theme="notion"] .badge,
+html[data-theme="notion"] .input,
+html[data-theme="notion"] .textarea,
+html[data-theme="notion"] .select {
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+html[data-theme="notion"] .card {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+html[data-theme="notion"] .btn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #0f1720;
+}
+
+html[data-theme="notion"] .btn-primary {
+  background: #0f1720;
+  border-color: #0f1720;
+  color: #ffffff;
+}
+
+html[data-theme="notion"] .btn-ghost,
+html[data-theme="notion"] .btn-outline {
+  background: transparent;
+}
+
+html[data-theme="notion"] .badge {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+html[data-theme="notion"] .shadow,
+html[data-theme="notion"] .shadow-sm,
+html[data-theme="notion"] .shadow-md,
+html[data-theme="notion"] .shadow-lg,
+html[data-theme="notion"] .shadow-xl,
+html[data-theme="notion"] .shadow-2xl {
+  box-shadow: none !important;
+}
+
+html[data-theme="notion"] .prose {
+  color: #0f1720;
+}
+
+html[data-theme="notion"] .prose h1,
+html[data-theme="notion"] .prose h2,
+html[data-theme="notion"] .prose h3,
+html[data-theme="notion"] .prose h4,
+html[data-theme="notion"] .prose h5,
+html[data-theme="notion"] .prose h6 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+html[data-theme="notion"] .prose blockquote {
+  border-left: 3px solid #e5e7eb;
+  background: transparent;
+  padding-left: 1rem;
+}
+
+html[data-theme="notion"] .prose pre {
+  background: #f7f7f5;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+html[data-theme="notion"] .prose :not(pre) > code {
+  background: #f3f3f1;
+  border-radius: 4px;
+}
+
+html[data-theme="notion"] .prose img {
+  border-radius: 0;
+}
+
+html[data-theme="notion"] .prose img::after,
+html[data-theme="notion"] .doc-content img::after {
+  content: none !important;
+  display: none !important;
 }
 
 /* Make cards and surfaces subtle */

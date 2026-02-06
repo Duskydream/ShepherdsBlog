@@ -54,7 +54,6 @@ import { Icon } from "astro-icon/components";
       const STATIC_FALLBACK = "/data/bangumi.json";
       const CACHE_KEY = "bangumi_cache_v3";
       const CLIENT_TTL = 30 * 60 * 1000;
-      const AUTO_REFRESH_MS = 10 * 60 * 1000;
 
       let tab = "watching";
       let data = { watching: [], wish: [], watched: [] };
@@ -171,55 +170,6 @@ import { Icon } from "astro-icon/components";
         }
       }
 
-      // 直接抓取 Bangumi 上游 API
-      async function directUpstreamFetch() {
-        console.info("[bangumi] 尝试直接抓取上游 API ...");
-        const USER_ID = "851657";
-        const LIMIT = 30;
-        const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
-
-        async function fetchCollection(type) {
-          let page = 1;
-          const all = [];
-          while (true) {
-            const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}`;
-            const res = await fetch(url, {
-              headers: { "User-Agent": "ShepherdBlog/ClientFetch (+github.com/Duskydream)" },
-              cache: "no-store",
-            });
-            if (!res.ok) break;
-            const json = await res.json();
-            if (!json.data || json.data.length === 0) break;
-            all.push(...json.data);
-            if (json.data.length < LIMIT) break;
-            page++;
-            if (page > 10) break;
-          }
-          return all;
-        }
-
-        try {
-          const [watching, wish, watched] = await Promise.all([
-            fetchCollection(3), // 在看
-            fetchCollection(1), // 想看
-            fetchCollection(2), // 看过
-          ]);
-          data = { watching, wish, watched };
-          saveCache(data);
-          render();
-          console.info(
-            "[bangumi] 上游抓取完成: watching=%d wish=%d watched=%d",
-            watching.length,
-            wish.length,
-            watched.length,
-          );
-          return true;
-        } catch (e) {
-          console.error("[bangumi] 上游抓取失败", e);
-          return false;
-        }
-      }
-
       // ============ 渲染 ============
       window.toggle = (id) => {
         expanded = expanded === id ? null : id;
@@ -308,28 +258,7 @@ import { Icon } from "astro-icon/components";
         area.innerHTML = '<div class="text-center py-12 text-sm text-gray-500">加载中...</div>';
 
         // 首次加载强制刷新
-        const meta = await fetchData(true);
-
-        // 如果获取的是静态数据，尝试直接抓取上游
-        if (!meta || (meta.servedFrom && meta.servedFrom.startsWith("static"))) {
-          await directUpstreamFetch();
-        }
-
-        // 自动刷新
-        setInterval(async () => {
-          const m2 = await fetchData(true);
-          if (m2 && m2.servedFrom && m2.servedFrom.startsWith("static")) {
-            // 可选：取消注释以启用自动上游抓取
-            // await directUpstreamFetch();
-          }
-        }, AUTO_REFRESH_MS);
-
-        // 页面可见性检测 - 隐藏时停止刷新
-        document.addEventListener("visibilitychange", () => {
-          if (!document.hidden) {
-            fetchData(true);
-          }
-        });
+        await fetchData(true);
 
         setTab("watching");
       })();

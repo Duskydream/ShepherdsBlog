@@ -35,9 +35,10 @@ const {
     <PointerOnNavigation />
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
 
-    <!-- JetBrains Mono Font for code blocks -->
+    <!-- IBM Plex Sans for UI + JetBrains Mono for code blocks -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
 
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
@@ -76,12 +77,21 @@ const {
 
     <!-- 导航栏 + 主体并列（非固定） -->
     <div class="relative">
-      <div class="md:flex md:items-start md:gap-8">
+      <div class="w-full mt-0">
+        <img
+          src="https://pic1.imgdb.cn/item/6985694cf8ef6591278be0ae.jpg"
+          alt="Page header"
+          class="w-full h-64 md:h-80 lg:h-[420px] object-cover"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+      <div class="md:flex md:items-start md:gap-8 mt-6">
         <Navbar headings={headings} showTOC={showTOC} />
 
         <!-- Full-width content container so cards can span the page -->
         <div class="flex-1 relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:px-8">
-          <div class="bg-base-100 min-h-screen p-4 md:p-8">
+          <div class="notion-surface bg-base-100 min-h-screen p-6 md:p-10">
 
             <!-- 主内容 -->
             <main class="flex flex-col gap-4">

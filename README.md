@@ -5,15 +5,15 @@ A personal blog built on the Frosti theme — clean, fast and focused on content
 ---
 
 ## 🔧 About this repo
+
 - Theme: **Frosti** (kept as upstream base)
 - Site title: **Shepherd's Blog**
 - Purpose: Personal blog and notes
 
-> Note: During cleanup I removed archival backup images and some large historical assets to reduce repository size. You can find a snapshot branch `pre-cleanup-backup` in case you need to restore anything.
-
 ---
 
 ## 🚀 Quick start
+
 1. Install dependencies:
 
 ```sh
@@ -35,6 +35,7 @@ pnpm run build
 ---
 
 ## 🧰 Structure overview
+
 - `src/` — site source, components, pages
 - `content/` — markdown posts and pages
 - `public/` — static assets served by the site
@@ -42,20 +43,14 @@ pnpm run build
 
 ---
 
-## ♻️ What changed in cleanup
-- Removed `image-backup/` (archival images)
-- Removed `scripts/backup-images.ps1` and `frosti.update.sh`
-- Removed `public/resources/pdf/` files
-- Historical large files (e.g. Vercel build artifacts, docs images) will be purged from Git history after your confirmation
-
----
-
 ## 📣 Credits
+
 This project is built on top of the open-source [Frosti](https://github.com/EveSunMaple/Frosti) theme. Thanks to its authors and contributors.
 
 ---
 
-If you'd like, I can continue and: 
+If you'd like, I can continue and:
+
 - Rewrite more README text to match your personal blog copy and links, or
 - Proceed to scrub history (remove large files from git history) — this requires a force-push and coordination.
 

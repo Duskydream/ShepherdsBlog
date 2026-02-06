@@ -7,7 +7,7 @@ const { title, image } = Astro.props as PostData;
 <article class="feishu-doc">
   {image && (
     <div class="mb-8">
-      <Image src={image} width="1920" height="1080" alt={title} loading="eager" class="w-full" style="border-radius: 8px;" />
+      <Image src={image} width="1920" height="1080" alt={title} loading="eager" class="w-full" />
     </div>
   )}
   <div class="doc-content prose prose-lg max-w-none">

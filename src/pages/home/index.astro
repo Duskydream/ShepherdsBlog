@@ -34,20 +34,13 @@ type BangumiData = {
   watching: BangumiItem[];
 };
 
-let bangumiData: BangumiData;
+let bangumiData: BangumiData = { watching: [] };
 try {
-  // Try to fetch from API first
-  const apiResponse = await fetch("https://frosti.pages.dev/api/bangumi");
-  if (apiResponse.ok) {
-    bangumiData = (await apiResponse.json()) as BangumiData;
-  } else {
-    throw new Error("API not available");
-  }
-} catch {
-  // Fallback to local data
   const bangumiPath = path.resolve("public/data/bangumi.json");
   const bangumiContent = await fs.readFile(bangumiPath, "utf-8");
   bangumiData = JSON.parse(bangumiContent) as BangumiData;
+} catch {
+  bangumiData = { watching: [] };
 }
 const watchingAnime: BangumiItem[] = bangumiData.watching.slice(0, 3);
 ---
