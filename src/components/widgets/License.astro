@@ -12,31 +12,26 @@ const socialLinks = [
   {
     name: "X (Twitter)",
     icon: "ri:twitter-x-line",
-    class: "share-option",
     url: `https://twitter.com/intent/tweet/?text=${title}&url=${url}`,
   },
   {
     name: "Telegram",
     icon: "ri:telegram-line",
-    class: "share-option",
     url: `https://telegram.me/share/url?text=${title}&url=${url}`,
   },
   {
     name: "Reddit",
     icon: "ri:reddit-line",
-    class: "share-option",
     url: `https://reddit.com/submit/?url=${url}&title=${title}`,
   },
   {
     name: "Facebook",
     icon: "ri:facebook-circle-line",
-    class: "share-option",
     url: `https://facebook.com/sharer/sharer.php?u=${url}`,
   },
   {
     name: "Email",
     icon: "ri:mail-line",
-    class: "share-option",
     url: `mailto:?subject=${title}&body=${url}`,
   },
 ];
@@ -116,7 +111,7 @@ const socialLinks = [
 
       <!-- Share Button -->
       <div class="flex justify-end mt-4">
-        <button class="btn btn-neutral" onclick="share_modal.showModal()">
+        <button class="btn share-trigger" onclick="share_modal.showModal()">
           {t("label.share")}
           <Icon name="ri:share-line" class="w-5 h-5" />
         </button>
@@ -132,10 +127,10 @@ const socialLinks = [
       </h3>
       <div class="flex flex-wrap gap-4 justify-center">
         {
-          socialLinks.map(({ name, icon, class: bgClass, url }) => (
+          socialLinks.map(({ name, icon, url }) => (
             <a
               href={url}
-              class={`btn btn-circle btn-lg transition-transform hover:scale-110 ${bgClass}`}
+              class="btn btn-circle btn-lg transition-transform hover:scale-110 share-option-btn"
               target="_blank"
               rel="noopener noreferrer"
               title={name}
@@ -158,21 +153,29 @@ const socialLinks = [
       <button>{t("label.close")}</button>
     </form>
   </dialog>
-
-  <style>
-    .share-option {
-      background-color: #111827 !important;
-      color: #f9fafb !important;
-      border: none !important;
-    }
-
-    .share-option:hover {
-      background-color: #1f2937 !important;
-    }
-  </style>
 </div>
 
 <style>
+  .share-trigger {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border: none !important;
+  }
+
+  .share-trigger:hover {
+    background-color: #1f2937 !important;
+  }
+
+  #share_modal .share-option-btn {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border: none !important;
+  }
+
+  #share_modal .share-option-btn:hover {
+    background-color: #1f2937 !important;
+  }
+
   .modal-backdrop button {
     cursor: default;
     width: 100%;
