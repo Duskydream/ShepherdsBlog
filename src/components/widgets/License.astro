@@ -12,31 +12,31 @@ const socialLinks = [
   {
     name: "X (Twitter)",
     icon: "ri:twitter-x-line",
-    class: "bg-black hover:bg-gray-800",
+    class: "share-option",
     url: `https://twitter.com/intent/tweet/?text=${title}&url=${url}`,
   },
   {
     name: "Telegram",
     icon: "ri:telegram-line",
-    class: "bg-[#26a5e4] hover:bg-[#1e96d1]",
+    class: "share-option",
     url: `https://telegram.me/share/url?text=${title}&url=${url}`,
   },
   {
     name: "Reddit",
     icon: "ri:reddit-line",
-    class: "bg-[#ff4500] hover:bg-[#e63e00]",
+    class: "share-option",
     url: `https://reddit.com/submit/?url=${url}&title=${title}`,
   },
   {
     name: "Facebook",
     icon: "ri:facebook-circle-line",
-    class: "bg-[#0866ff] hover:bg-[#0755d6]",
+    class: "share-option",
     url: `https://facebook.com/sharer/sharer.php?u=${url}`,
   },
   {
     name: "Email",
     icon: "ri:mail-line",
-    class: "bg-gray-600 hover:bg-gray-700",
+    class: "share-option",
     url: `mailto:?subject=${title}&body=${url}`,
   },
 ];
@@ -116,7 +116,7 @@ const socialLinks = [
 
       <!-- Share Button -->
       <div class="flex justify-end mt-4">
-        <button class="btn btn-primary btn-outline" onclick="share_modal.showModal()">
+        <button class="btn btn-neutral" onclick="share_modal.showModal()">
           {t("label.share")}
           <Icon name="ri:share-line" class="w-5 h-5" />
         </button>
@@ -158,6 +158,18 @@ const socialLinks = [
       <button>{t("label.close")}</button>
     </form>
   </dialog>
+
+  <style>
+    .share-option {
+      background-color: #111827 !important;
+      color: #f9fafb !important;
+      border: none !important;
+    }
+
+    .share-option:hover {
+      background-color: #1f2937 !important;
+    }
+  </style>
 </div>
 
 <style>
