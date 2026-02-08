@@ -1,5 +1,8 @@
 # build output
 dist/
+# EdgeOne functions compiled output
+functions/
+.edgeone/
 # generated types
 .astro/
 

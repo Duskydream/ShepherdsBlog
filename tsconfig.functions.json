@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "types": [],
     "allowJs": false,
-    "outDir": "./.edgeone/functions",
+    "outDir": "./functions",
     "esModuleInterop": true,
     "isolatedModules": false,
     "skipLibCheck": true,
