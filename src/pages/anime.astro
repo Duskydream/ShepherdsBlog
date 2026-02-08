@@ -264,7 +264,7 @@ import { Icon } from "astro-icon/components";
         area.innerHTML = list.map(card).join("");
       }
 
-      function setMediaType(type) {
+      async function setMediaType(type) {
         mediaType = type;
         expanded = null;
         document.querySelectorAll(".media-btn").forEach((b) => {
@@ -276,10 +276,10 @@ import { Icon } from "astro-icon/components";
               "media-btn pb-2 text-base font-normal transition-all text-gray-400 border-b-2 border-transparent hover:text-gray-600";
           }
         });
-        render();
+        await fetchData(true);
       }
 
-      function setStatus(newStatus) {
+      async function setStatus(newStatus) {
         status = newStatus;
         expanded = null;
         document.querySelectorAll(".status-btn").forEach((b) => {
@@ -291,7 +291,7 @@ import { Icon } from "astro-icon/components";
               "status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-100 text-gray-600 hover:bg-gray-200";
           }
         });
-        render();
+        await fetchData(true);
       }
 
       document
