@@ -1,7 +1,7 @@
 ---
 title: 杂项 | 算竞常用 C++ STL 用法
 author: zouht
-description: Brief Introduction to C++ STL
+description: Brief Introduction to Cpp STL
 pubDate: 2026-02-07
 tags: [Coding,Notes,Cpp]
 categories: [Coding Notes]

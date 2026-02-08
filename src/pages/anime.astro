@@ -5,38 +5,62 @@ import { Icon } from "astro-icon/components";
 ---
 
 <BaseLayout title="Anime">
-  <MainCard title="Anime" description="追番记录">
-    <div class="space-y-6 mb-8 max-w-7xl mx-auto px-4">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="relative w-full md:w-auto">
+  <MainCard title="Reviews" description="动画与游戏评价">
+    <div class="max-w-6xl mx-auto px-4 space-y-6">
+      <!-- 搜索框 -->
+      <div class="flex justify-center">
+        <div class="relative w-full max-w-md">
           <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Icon name="lucide:search" class="w-5 h-5" />
+            <Icon name="lucide:search" class="w-4 h-4 text-gray-400" />
           </div>
           <input
             type="text"
             id="search"
-            placeholder="搜索动画或游戏..."
-            class="input input-bordered w-full md:w-80 pl-10 pr-16 py-2"
+            placeholder="搜索..."
+            class="w-full pl-9 pr-4 py-2 text-sm border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 bg-white transition-colors hover:border-gray-400"
           />
         </div>
-        <div class="flex gap-2" id="tab-group">
-          <button
-            data-tab="watching"
-            class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-neutral-800 text-white font-semibold shadow transition-all"
-            >在看</button
-          >
-          <button
-            data-tab="wish"
-            class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-transparent text-neutral-900 font-semibold transition-all hover:bg-neutral-100"
-            >想看</button
-          >
-          <button
-            data-tab="watched"
-            class="tab-btn px-4 py-2 rounded-full border-2 border-neutral-800 bg-transparent text-neutral-900 font-semibold transition-all hover:bg-neutral-100"
-            >看过</button
-          >
-        </div>
       </div>
+
+      <!-- 媒体类型切换 Tab -->
+      <div class="flex justify-center gap-8">
+        <button
+          data-media="anime"
+          class="media-btn pb-2 text-base font-bold transition-all text-gray-900 border-b-2 border-gray-900"
+        >
+          Anime
+        </button>
+        <button
+          data-media="game"
+          class="media-btn pb-2 text-base font-normal transition-all text-gray-400 border-b-2 border-transparent hover:text-gray-600"
+        >
+          Game
+        </button>
+      </div>
+
+      <!-- 状态切换 Pill 按钮 -->
+      <div class="flex justify-center gap-3">
+        <button
+          data-status="watching"
+          class="status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-900 text-white"
+        >
+          In Progress
+        </button>
+        <button
+          data-status="wish"
+          class="status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-100 text-gray-600 hover:bg-gray-200"
+        >
+          Backlog
+        </button>
+        <button
+          data-status="watched"
+          class="status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-100 text-gray-600 hover:bg-gray-200"
+        >
+          Completed
+        </button>
+      </div>
+
+      <!-- 作品卡片区域 - 一行两个 -->
       <div id="content-area" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="col-span-full text-center py-12 text-sm text-gray-500">加载中...</div>
       </div>
@@ -55,7 +79,9 @@ import { Icon } from "astro-icon/components";
       const CACHE_KEY = "bangumi_cache_v3";
       const CLIENT_TTL = 30 * 60 * 1000;
 
-      let tab = "watching";
+      // 两层筛选状态
+      let mediaType = "anime"; // anime | game
+      let status = "watching"; // watching | wish | watched
       let data = { watching: [], wish: [], watched: [] };
       let expanded = null;
       let isFetching = false;
@@ -178,35 +204,38 @@ import { Icon } from "astro-icon/components";
 
       function card(item) {
         const t = item.subject?.name_cn || item.subject?.name || "?";
-        const img = item.subject?.images?.common || "";
+        const img = item.subject?.images?.large || item.subject?.images?.common || "";
         const id = item.subject?.id || 0;
         const cmt = item.comment?.trim() || "";
-        const date = item.subject?.date || "";
+        const airDate = item.subject?.date || ""; // 发行日期
         const open = expanded === id;
 
         return `
-<div class="bg-base-200 rounded-lg border border-base-300">
-  <div class="flex gap-4 p-4 cursor-pointer hover:bg-base-200/60" onclick="toggle(${id})">
-    <div class="w-24 h-32 rounded overflow-hidden bg-base-300 flex-shrink-0">
+<div class="bg-white rounded-lg border-2 border-gray-200 hover:border-gray-400 transition-all overflow-hidden">
+  <div class="flex gap-4 p-5 cursor-pointer" onclick="toggle(${id})">
+    <div class="w-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 shadow-lg" style="aspect-ratio: 2/3;">
       ${img ? `<img src="${img}" alt="${t}" class="w-full h-full object-cover"/>` : '<div class="flex items-center justify-center h-full text-3xl">📺</div>'}
     </div>
-    <div class="flex-1 min-w-0">
-      <h3 class="font-semibold text-lg mb-1 line-clamp-2 text-base-content">${t}</h3>
-      ${date ? `<p class="text-sm text-base-content/70 mb-2">📅 ${date}</p>` : ""}
-      ${cmt ? `<p class="text-sm text-base-content line-clamp-2">💬 ${cmt.slice(0, 100)}...</p>` : ""}
+    <div class="flex-1 min-w-0 flex flex-col">
+      <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-gray-900">${t}</h3>
+      ${airDate ? `<p class="text-sm text-gray-500 mb-2">发行日期: ${airDate}</p>` : ""}
+      ${cmt ? `<p class="text-sm text-gray-600 line-clamp-3 flex-1">${cmt.slice(0, 120)}${cmt.length > 120 ? "..." : ""}</p>` : '<p class="text-sm text-gray-400 italic">No review yet</p>'}
+      <div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
+        <svg class="w-4 h-4 transition-transform ${open ? "rotate-180" : ""}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+        <span>${open ? "收起" : "展开详情"}</span>
+      </div>
     </div>
-    <svg class="w-6 h-6 text-base-content/50 transition-transform ${open ? "rotate-180" : ""}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-    </svg>
   </div>
-  <div style="max-height:${open ? "1500px" : "0"}" class="overflow-hidden transition-all duration-300">
-    <div class="px-4 pb-4 pt-2 border-t border-base-300">
-      ${cmt ? `<div class="my-4 bg-base-100 rounded-lg p-3"><h4 class="font-semibold text-sm text-base-content mb-2">💭 我的评论</h4><p class="text-sm text-base-content/80 whitespace-pre-wrap leading-relaxed">${cmt}</p></div>` : ""}
-      <a href="https://bgm.tv/subject/${id}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-white text-neutral-900 border border-neutral-800 rounded-md text-sm font-medium transition-colors hover:bg-neutral-100">
+  <div style="max-height:${open ? "2000px" : "0"}" class="overflow-hidden transition-all duration-300">
+    <div class="px-5 pb-5 pt-2 border-t-2 border-gray-100">
+      ${cmt ? `<div class="mb-4 bg-gray-50 rounded-lg p-4 border border-gray-200"><p class="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">${cmt}</p></div>` : ""}
+      <a href="https://bgm.tv/subject/${id}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-900 text-gray-900 rounded-md text-sm font-medium transition-all hover:bg-gray-900 hover:text-white">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
         </svg>
-        <span>前往 Bangumi</span>
+        <span>View on Bangumi</span>
       </a>
     </div>
   </div>
@@ -214,35 +243,64 @@ import { Icon } from "astro-icon/components";
       }
 
       function render() {
-        const list = data[tab] || [];
-        const term = search.value.toLowerCase().trim();
-        const filtered = term
-          ? list.filter((x) => (x.subject?.name_cn || x.subject?.name || "").toLowerCase().includes(term))
-          : list;
+        // 获取当前状态的数据
+        let list = data[status] || [];
 
-        if (!filtered.length) {
-          area.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">📭 暂无内容</div>';
+        // 根据媒介类型过滤
+        const typeFilter = mediaType === "anime" ? 2 : 4;
+        list = list.filter((x) => x.subject?.type === typeFilter);
+
+        // 搜索过滤
+        const term = search.value.toLowerCase().trim();
+        if (term) {
+          list = list.filter((x) => (x.subject?.name_cn || x.subject?.name || "").toLowerCase().includes(term));
+        }
+
+        if (!list.length) {
+          area.innerHTML = '<div class="col-span-full text-center py-12 text-sm text-gray-400">暂无内容</div>';
           return;
         }
 
-        area.innerHTML = filtered.map(card).join("");
+        area.innerHTML = list.map(card).join("");
       }
 
-      function setTab(t) {
-        tab = t;
+      function setMediaType(type) {
+        mediaType = type;
         expanded = null;
-        document.querySelectorAll(".tab-btn").forEach((b) => {
-          const active = b.dataset.tab === t;
-          b.classList.toggle("bg-neutral-800", active);
-          b.classList.toggle("text-white", active);
-          b.classList.toggle("shadow", active);
-          b.classList.toggle("bg-transparent", !active);
-          b.classList.toggle("text-neutral-900", !active);
+        document.querySelectorAll(".media-btn").forEach((b) => {
+          const active = b.dataset.media === type;
+          if (active) {
+            b.className = "media-btn pb-2 text-base font-bold transition-all text-gray-900 border-b-2 border-gray-900";
+          } else {
+            b.className =
+              "media-btn pb-2 text-base font-normal transition-all text-gray-400 border-b-2 border-transparent hover:text-gray-600";
+          }
         });
         render();
       }
 
-      document.querySelectorAll(".tab-btn").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
+      function setStatus(newStatus) {
+        status = newStatus;
+        expanded = null;
+        document.querySelectorAll(".status-btn").forEach((b) => {
+          const active = b.dataset.status === newStatus;
+          if (active) {
+            b.className = "status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-900 text-white";
+          } else {
+            b.className =
+              "status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-100 text-gray-600 hover:bg-gray-200";
+          }
+        });
+        render();
+      }
+
+      document
+        .querySelectorAll(".media-btn")
+        .forEach((b) => b.addEventListener("click", () => setMediaType(b.dataset.media)));
+
+      document
+        .querySelectorAll(".status-btn")
+        .forEach((b) => b.addEventListener("click", () => setStatus(b.dataset.status)));
 
       let timer;
       search.addEventListener("input", () => {
@@ -260,7 +318,9 @@ import { Icon } from "astro-icon/components";
         // 首次加载强制刷新
         await fetchData(true);
 
-        setTab("watching");
+        // 初始化为动画+在看
+        setMediaType("anime");
+        setStatus("watching");
       })();
     </script>
   </MainCard>
