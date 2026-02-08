@@ -133,7 +133,7 @@ import { Icon } from "astro-icon/components";
         fetchAbortController = new AbortController();
 
         try {
-          const res = await fetch(`${API}?t=${Date.now()}`, {
+          const res = await fetch(`${API}?t=${Date.now()}${force ? "&force=true" : ""}`, {
             cache: "no-store",
             signal: fetchAbortController.signal,
           });
@@ -318,9 +318,27 @@ import { Icon } from "astro-icon/components";
         // 首次加载强制刷新
         await fetchData(true);
 
-        // 初始化为动画+在看
-        setMediaType("anime");
-        setStatus("watching");
+        // 初始化为动画+在看（不再重复fetch）
+        mediaType = "anime";
+        status = "watching";
+        document.querySelectorAll(".media-btn").forEach((b) => {
+          const active = b.dataset.media === "anime";
+          if (active) {
+            b.className = "media-btn pb-2 text-base font-bold transition-all text-gray-900 border-b-2 border-gray-900";
+          } else {
+            b.className =
+              "media-btn pb-2 text-base font-normal transition-all text-gray-400 border-b-2 border-transparent hover:text-gray-600";
+          }
+        });
+        document.querySelectorAll(".status-btn").forEach((b) => {
+          const active = b.dataset.status === "watching";
+          if (active) {
+            b.className = "status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-900 text-white";
+          } else {
+            b.className =
+              "status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-100 text-gray-600 hover:bg-gray-200";
+          }
+        });
       })();
     </script>
   </MainCard>
