@@ -75,7 +75,7 @@ import { Icon } from "astro-icon/components";
       } catch {
         /* ignore */
       }
-      const API = (window.__BANGUMI_API__ || _envApi || "/bangumi").replace(/\/$/, "");
+      const API = (window.__BANGUMI_API__ || _envApi || "/api/bangumi").replace(/\/$/, "");
       const STATIC_FALLBACK = "/data/bangumi.json";
       const CACHE_KEY = "bangumi_cache_v3";
       const CLIENT_TTL = 30 * 60 * 1000;
@@ -180,7 +180,7 @@ import { Icon } from "astro-icon/components";
             };
             saveCache(data);
             render();
-            updateDebugInfo("static", json.cachedAt || Date.now());
+            updateDebugInfo("static", json.cachedAt || Date.now(), primaryErr.message);
 
             return { cachedAt: json.cachedAt, servedFrom: "static" };
           } catch (fallbackErr) {
@@ -201,11 +201,14 @@ import { Icon } from "astro-icon/components";
       }
 
       // ============ 渲染 ============
-      function updateDebugInfo(source, timestamp) {
+      function updateDebugInfo(source, timestamp, errorDetail) {
         const el = document.getElementById("debug-info");
         if (el) {
           const date = new Date(timestamp).toLocaleString();
-          el.textContent = `Data source: ${source} | Updated: ${date}`;
+          let msg = `Data source: ${source} | Updated: ${date}`;
+          if (errorDetail) msg += ` | Error: ${errorDetail}`;
+          el.textContent = msg;
+          if (source === "static") el.classList.add("text-red-400");
         }
       }
 

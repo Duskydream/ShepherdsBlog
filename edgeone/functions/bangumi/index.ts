@@ -24,7 +24,11 @@ async function fetchCollection(type: number) {
   while (true) {
     const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}&timestamp=${Date.now()}`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "ShepherdBlog/1.0 (+github.com/Duskydream)" },
+      headers: {
+        "User-Agent": "ShepherdBlog/1.0 (+github.com/Duskydream)",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+      },
       cache: "no-store",
     });
     if (!res.ok)
