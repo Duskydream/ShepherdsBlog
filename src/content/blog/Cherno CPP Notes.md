@@ -378,7 +378,7 @@ x86 是 32 位 win32
 
 然后点确认 我们在 project_test 项目那里右键 - 清理 删除许多旧文件 这样删除不彻底 还是手动去文件资源管理器把有 debug 和 x64 的文件夹都删除 重新 build 现在 exe 文件就在 `D:\coding\C++\Project_test\bin\x64\Debug` 这个文件夹里同时还有 `Project_test.pdb` 和 `Project_test.ilk` 许多中间文件都在 `D:\coding\C++\Project_test\bin\intermediates\x64\Debug`
 
-在 project_test 项目那里右键 - 属性 - 常规 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多 $( ) 这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为 `D:\coding\C++\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 $(SolutionDir) 与 bin 中间 不用写 \
+在 project_test 项目那里右键 - 属性 - 常规 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多 `$( )` 这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为 `D:\coding\C++\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 `$(SolutionDir)` 与 bin 中间 不用写 \
 
 # If 语句
 
@@ -3611,7 +3611,7 @@ ucrt 就是一个 Win10 引入的通用 C 运行时库（ucrtbase.dll） 所以 
 
 在 [Visual Studio设置](#Visual Studio设置) 我们似乎做过类似的工作
 
-解决方案所在的目录为 $(SolutionDir) 先把它输入进去 再点击附加包含目录最右侧的小三角箭头 再点编辑 可以看到计算的值为`D:\coding\C++\Project_test\` 也可以点击宏 在列表中找到 $(SolutionDir)
+解决方案所在的目录为 `$(SolutionDir)` 先把它输入进去 再点击附加包含目录最右侧的小三角箭头 再点编辑 可以看到计算的值为`D:\coding\C++\Project_test\` 也可以点击宏 在列表中找到 `$(SolutionDir)`
 
 而此前我们存放 include 的目录为 `D:\coding\C++\Project_test\dependencies\GLFW\include`
 

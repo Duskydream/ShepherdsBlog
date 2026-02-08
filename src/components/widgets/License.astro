@@ -12,22 +12,22 @@ const socialLinks = [
   {
     name: "X (Twitter)",
     icon: "ri:twitter-x-line",
-    url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title || "")}&url=${encodeURIComponent(url || "")}`,
   },
   {
     name: "Telegram",
     icon: "ri:telegram-line",
-    url: `https://telegram.me/share/url?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    url: `https://telegram.me/share/url?text=${encodeURIComponent(title || "")}&url=${encodeURIComponent(url || "")}`,
   },
   {
     name: "Facebook",
     icon: "ri:facebook-circle-line",
-    url: `https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    url: `https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url || "")}`,
   },
   {
     name: "Email",
     icon: "ri:mail-line",
-    url: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`,
+    url: `mailto:?subject=${encodeURIComponent(title || "")}&body=${encodeURIComponent(url || "")}`,
   },
   {
     name: "Copy Link",
