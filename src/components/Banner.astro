@@ -1,6 +1,5 @@
 ---
 const { src, alt = "", title = "", subtitle = "", class: extraClass = "" } = Astro.props;
-import ShootingStars from "@components/Shootingstars.astro";
 ---
 
 <section class={`banner relative w-full flex items-center justify-center text-center overflow-hidden ${extraClass}`}>
@@ -29,9 +28,6 @@ import ShootingStars from "@components/Shootingstars.astro";
       )
     }
   </div>
-
-  <!-- 流星效果 -->
-  <ShootingStars />
 </section>
 
 <style>
