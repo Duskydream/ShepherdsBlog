@@ -64,6 +64,7 @@ import { Icon } from "astro-icon/components";
       <div id="content-area" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="col-span-full text-center py-12 text-sm text-gray-500">加载中...</div>
       </div>
+      <div id="debug-info" class="text-center text-xs text-gray-300 mt-8 font-mono"></div>
     </div>
 
     <script type="module" is:inline>
@@ -125,6 +126,7 @@ import { Icon } from "astro-icon/components";
           if (cached) {
             data = cached;
             render();
+            updateDebugInfo("cache", cached.cachedAt || Date.now());
             return { cachedAt: Date.now(), servedFrom: "cache" };
           }
         }
@@ -148,6 +150,7 @@ import { Icon } from "astro-icon/components";
           };
           saveCache(data);
           render();
+          updateDebugInfo(json.servedFrom || "api", json.cachedAt || Date.now());
 
           return {
             cachedAt: json.cachedAt || Date.now(),
@@ -177,6 +180,7 @@ import { Icon } from "astro-icon/components";
             };
             saveCache(data);
             render();
+            updateDebugInfo("static", json.cachedAt || Date.now());
 
             return { cachedAt: json.cachedAt, servedFrom: "static" };
           } catch (fallbackErr) {
@@ -197,6 +201,14 @@ import { Icon } from "astro-icon/components";
       }
 
       // ============ 渲染 ============
+      function updateDebugInfo(source, timestamp) {
+        const el = document.getElementById("debug-info");
+        if (el) {
+          const date = new Date(timestamp).toLocaleString();
+          el.textContent = `Data source: ${source} | Updated: ${date}`;
+        }
+      }
+
       window.toggle = (id) => {
         expanded = expanded === id ? null : id;
         render();
@@ -276,7 +288,7 @@ import { Icon } from "astro-icon/components";
               "media-btn pb-2 text-base font-normal transition-all text-gray-400 border-b-2 border-transparent hover:text-gray-600";
           }
         });
-        await fetchData(true);
+        render();
       }
 
       async function setStatus(newStatus) {
@@ -291,7 +303,7 @@ import { Icon } from "astro-icon/components";
               "status-btn px-6 py-2 text-sm font-medium rounded-full transition-all bg-gray-100 text-gray-600 hover:bg-gray-200";
           }
         });
-        await fetchData(true);
+        render();
       }
 
       document
