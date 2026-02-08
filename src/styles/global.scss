@@ -53,11 +53,21 @@ code {
   @apply leading-relaxed;
   font-size: 16px;
   color: var(--fallback-bc, oklch(var(--bc)));
+  overflow-wrap: anywhere;
+  word-break: break-word;
 
+
+/* Extra wrapping for long lines in blog posts */
+.post-content {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
   /* Better paragraph spacing */
   p {
     @apply mb-4;
     line-height: 1.7;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   /* Optimized heading spacing - Feishu style */
@@ -91,6 +101,8 @@ code {
 
     li {
       @apply leading-7;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
   }
 
@@ -98,6 +110,8 @@ code {
   blockquote {
     @apply my-6 py-3 px-5 border-l-4 border-primary/40 bg-base-200/30;
     font-style: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 
     p {
       @apply mb-0 leading-7 text-base-content/90;
@@ -115,6 +129,9 @@ code {
     @apply px-2 py-1 bg-base-200 text-base-content font-mono;
     font-size: 0.9em;
     border-radius: 4px;
+    white-space: break-spaces;
+    overflow-wrap: anywhere;
+    word-break: break-all;
   }
 
   /* Image styling */
@@ -175,6 +192,8 @@ code {
   /* Link hover effects */
   a {
     @apply text-primary transition-colors duration-200;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 
     &:hover {
       @apply text-primary underline decoration-2 underline-offset-4;
@@ -1022,8 +1041,8 @@ html[data-theme="notion"] .frosti-code .frosti-code-content .line::before {
   font-family: inherit !important;
 }
 
-/* Prevent horizontal scrollbar (clip overflow horizontally) */
+/* Allow natural horizontal scrolling when needed */
 html,
 body {
-  overflow-x: clip;
+  overflow-x: auto;
 }

@@ -27,6 +27,9 @@ const {
   .feishu-doc {
     @apply max-w-none;
     line-height: 1.7;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .doc-header {
@@ -46,6 +49,9 @@ const {
 
   .doc-content {
     @apply prose prose-lg max-w-none;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   /* 轻量段落间距 */
@@ -102,6 +108,9 @@ const {
   .doc-content :global(:not(pre) > code) {
     @apply px-2 py-1 bg-base-200 text-base-content font-mono text-sm;
     border-radius: 4px;
+    white-space: break-spaces;
+    overflow-wrap: anywhere;
+    word-break: break-all;
   }
 
   /* 表格 */
