@@ -45,6 +45,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // API 请求和动态数据一律走网络，不经过 SW 缓存
+  if (url.pathname.startsWith("/bangumi") || url.pathname.startsWith("/api/") || url.pathname.startsWith("/data/bangumi")) {
+    return;
+  }
+
   // 对于 HTML 页面，使用 Network First 策略
   if (request.headers.get("Accept")?.includes("text/html")) {
     event.respondWith(

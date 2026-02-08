@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
     "rootDir": "./edgeone/functions",
@@ -11,7 +10,9 @@
     "outDir": "./.edgeone/functions",
     "esModuleInterop": true,
     "isolatedModules": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": false
   },
   "include": ["edgeone/functions/**/*.ts"],
   "exclude": ["node_modules", "dist"]

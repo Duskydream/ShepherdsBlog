@@ -75,7 +75,7 @@ import { Icon } from "astro-icon/components";
       } catch {
         /* ignore */
       }
-      const API = (window.__BANGUMI_API__ || _envApi || "/api/bangumi").replace(/\/$/, "");
+      const API = (window.__BANGUMI_API__ || _envApi || "/bangumi").replace(/\/$/, "");
       const STATIC_FALLBACK = "/data/bangumi.json";
       const CACHE_KEY = "bangumi_cache_v3";
       const CLIENT_TTL = 30 * 60 * 1000;

@@ -1,13 +1,8 @@
 /**
- * Tencent EdgeOne 云函数示例：Bangumi 聚合 API
- * 动态：实时或半实时抓取 + 简单文件级缓存（EdgeOne 运行环境需支持临时写入）
- *
- * 路由建议：部署后通过 /api/bangumi 指向此函数。
+ * Tencent EdgeOne 云函数：Bangumi 聚合 API
+ * 路由：/bangumi（由 edgeone/functions/bangumi/index.ts 目录结构自动映射）
  * 客户端会在失败时回退到 /data/bangumi.json 静态文件。
  */
-
-// EdgeOne 运行时若支持 fetch / Request / Response 接口，可直接使用 Web 标准。
-// 若平台需要特定导出格式，可根据官方文档调整（例如 export default async function handler(evt) {...}）。
 
 const USER_ID = "851657";
 const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
@@ -87,7 +82,7 @@ export async function handleRequest(request: Request): Promise<Response> {
   }
 }
 
-// EdgeOne 可能要求默认导出：尝试兼容（如果平台文档不同，请调整）
-export default {
-  fetch: handleRequest,
-};
+// EdgeOne Pages 边缘函数标准导出格式
+export function onRequest(context: { request: Request }) {
+  return handleRequest(context.request);
+}
