@@ -13,7 +13,7 @@
     "search:index": "astro build --experimental-static-build && pagefind --site dist && mkdirp public/pagefind && cpy 'dist/pagefind/**' public/pagefind",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "node ./scripts/sync.mjs"
+    "deploy": "pnpm build:functions && node ./scripts/sync.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
