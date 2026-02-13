@@ -114,5 +114,15 @@ const isEncrypted = blog.data.encrypted === true;
   </MainCard>
   
   <!-- 移动端目录悬浮按钮 -->
-  <MobileTOC headings={headings} showTOC={true} />
+  <MobileTOC headings={headings} showTOC={true} isEncrypted={isEncrypted} />
 </BaseLayout>
+
+<script>
+  document.addEventListener("blogDecrypted", () => {
+    // Show inline TOC
+    const tocWrapper = document.getElementById("toc-wrapper");
+    if (tocWrapper) {
+      tocWrapper.style.display = "";
+    }
+  });
+</script>

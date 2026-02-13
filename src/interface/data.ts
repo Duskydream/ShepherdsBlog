@@ -101,6 +101,7 @@ export interface CardGroupProps {
 export interface TOCBarProps {
   headings?: Heading[];
   showTOC?: boolean;
+  isEncrypted?: boolean;
 }
 
 export interface Heading {

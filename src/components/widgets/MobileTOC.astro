@@ -3,13 +3,14 @@ import { Icon } from "astro-icon/components";
 import type { TOCBarProps } from "@interfaces/data";
 import { t } from "@config";
 
-const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
+const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as TOCBarProps;
 ---
 
 <button
   id="mobile-toc-button"
   aria-label={t("label.tableOfContents")}
   class="btn btn-circle btn-md fixed bottom-20 right-6 z-50 bg-base-100 md:hidden opacity-0 invisible transition-all hover:scale-110"
+  style={isEncrypted ? "display: none;" : ""}
   onclick="mobile_toc_modal.showModal()"
 >
   <Icon name="lucide:list" class="h-5 w-5" />
@@ -56,6 +57,14 @@ const { headings = [], showTOC = true } = Astro.props as TOCBarProps;
 </dialog>
 
 <script>
+  // Handle blog decryption visibility
+  document.addEventListener("blogDecrypted", () => {
+    const tocButton = document.getElementById("mobile-toc-button");
+    if (tocButton) {
+      tocButton.style.display = "";
+    }
+  });
+
   document.addEventListener("astro:page-load", () => {
     const tocButton = document.getElementById("mobile-toc-button");
     if (!tocButton) return;

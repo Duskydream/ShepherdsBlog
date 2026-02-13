@@ -11,10 +11,11 @@ interface Props {
     text: string;
   }>;
   showTOC?: boolean;
+  isEncrypted?: boolean;
 }
 
 // Get headings from parent component or page
-const { headings = [], showTOC = true } = Astro.props as Props;
+const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as Props;
 ---
 
 <div class="relative mb-4">
@@ -25,5 +26,5 @@ const { headings = [], showTOC = true } = Astro.props as Props;
 </div>
 <div class="md:sticky md:top-4">
   <ToolBar />
-  <TOCBar headings={headings} showTOC={showTOC} />
+  <TOCBar headings={headings} showTOC={showTOC} isEncrypted={isEncrypted} />
 </div>
