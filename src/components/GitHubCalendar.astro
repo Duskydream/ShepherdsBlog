@@ -80,30 +80,24 @@ function toContributionDays(runDates: ContributionDay[]): ContributionDay[] {
   return days;
 }
 
-function buildMonthLabels(contributions: ContributionDay[], startDate: Date): MonthLabel[] {
-  if (contributions.length === 0) {
-    return [];
-  }
+function buildMonthLabels(contributions: ContributionDay[]): MonthLabel[] {
+  if (contributions.length === 0) return [];
 
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const endDate = new Date(contributions[contributions.length - 1].date);
   const labels: MonthLabel[] = [];
+  let lastMonth = -1;
 
-  const iterator = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-
-  while (iterator <= endDate) {
-    const monthStart = new Date(iterator);
-    const daysDiff = Math.floor((monthStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const columnStart = Math.floor(daysDiff / 7) + 1;
-
-    if (columnStart >= 1 && columnStart <= 53) {
-      labels.push({
-        name: monthNames[monthStart.getMonth()],
-        columnStart,
-      });
+  for (let i = 0; i < contributions.length; i++) {
+    const month = new Date(contributions[i].date + "T00:00:00").getMonth();
+    if (month !== lastMonth) {
+      // 第 i 个格子所在的列号（1-based），列 = Math.floor(i / 7) + 1
+      const col = Math.floor(i / 7) + 1;
+      // 跳过第一列（月份标签放不下）并且不超过总列数
+      if (col > 1) {
+        labels.push({ name: monthNames[month], columnStart: col });
+      }
+      lastMonth = month;
     }
-
-    iterator.setMonth(iterator.getMonth() + 1);
   }
 
   return labels;
@@ -202,7 +196,7 @@ for (let cursor = new Date(rangeStart); cursor <= rangeEnd; cursor.setDate(curso
   });
 }
 
-monthLabels = buildMonthLabels(recentContributions, rangeStart);
+monthLabels = buildMonthLabels(recentContributions);
 
 // 动态计算实际周数
 const actualWeeks = Math.ceil(recentContributions.length / DAYS_PER_WEEK);
@@ -431,4 +425,3 @@ const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
     }
   }
 </style>
-
