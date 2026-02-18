@@ -80,16 +80,13 @@ function toContributionDays(runDates: ContributionDay[]): ContributionDay[] {
   return days;
 }
 
-function buildMonthLabels(contributions: ContributionDay[]): MonthLabel[] {
+function buildMonthLabels(contributions: ContributionDay[], startDate: Date): MonthLabel[] {
   if (contributions.length === 0) {
     return [];
   }
 
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const endDate = new Date(contributions[contributions.length - 1].date);
-  const startDate = new Date(endDate);
-  startDate.setFullYear(startDate.getFullYear() - 1);
-  startDate.setDate(startDate.getDate() + 1);
   const labels: MonthLabel[] = [];
 
   const iterator = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
@@ -205,7 +202,7 @@ for (let cursor = new Date(rangeStart); cursor <= rangeEnd; cursor.setDate(curso
   });
 }
 
-monthLabels = buildMonthLabels(recentContributions);
+monthLabels = buildMonthLabels(recentContributions, rangeStart);
 
 // 动态计算实际周数
 const actualWeeks = Math.ceil(recentContributions.length / DAYS_PER_WEEK);
@@ -434,3 +431,4 @@ const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
     }
   }
 </style>
+
