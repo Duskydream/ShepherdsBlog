@@ -224,18 +224,9 @@ const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
   </div>
 
   <div class="calendar-graph">
-    <div class="months" id="months-container">
-      {
-        monthLabels.map((label) => (
-          <span class="month-label" style={`grid-column: ${label.columnStart}`}>
-            {label.name}
-          </span>
-        ))
-      }
-    </div>
-
     <div class="calendar-grid">
       <div class="days-labels">
+        <div class="month-spacer"></div>
         <span></span>
         <span>Mon</span>
         <span></span>
@@ -245,20 +236,32 @@ const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
         <span></span>
       </div>
 
-      <div class="weeks">
-        {
-          weeks.map((week) => (
-            <div class="week">
-              {Array.from({ length: 7 }).map((_, dayIndex) => {
-                const day = week[dayIndex];
-                const level = day ? computeLevel(day.count) : 0;
-                const title = day ? `${day.count} deploys on ${day.date}` : "No deployment data";
+      <div class="data-column">
+        <div class="months" id="months-container">
+          {
+            monthLabels.map((label) => (
+              <span class="month-label" style={`grid-column: ${label.columnStart}`}>
+                {label.name}
+              </span>
+            ))
+          }
+        </div>
 
-                return <div class="day" data-level={level} title={title} />;
-              })}
-            </div>
-          ))
-        }
+        <div class="weeks">
+          {
+            weeks.map((week) => (
+              <div class="week">
+                {Array.from({ length: 7 }).map((_, dayIndex) => {
+                  const day = week[dayIndex];
+                  const level = day ? computeLevel(day.count) : 0;
+                  const title = day ? `${day.count} deploys on ${day.date}` : "No deployment data";
+
+                  return <div class="day" data-level={level} title={title} />;
+                })}
+              </div>
+            ))
+          }
+        </div>
       </div>
     </div>
   </div>
@@ -306,7 +309,16 @@ const weeks = Array.from({ length: actualWeeks }, (_, weekIndex) => {
   }
 
   .calendar-grid {
-    @apply flex gap-3;
+    @apply flex gap-2;
+  }
+
+  .data-column {
+    @apply flex flex-col;
+    min-width: 0;
+  }
+
+  .month-spacer {
+    height: 18px;
   }
 
   .days-labels {
