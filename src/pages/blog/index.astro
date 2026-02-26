@@ -60,7 +60,10 @@ const totalPosts = allPosts.length;
       </div>
     </div>
     <div class="divider my-3"></div>
-    <div id="search-container" class="w-full">
+    <div id="search-container" class="w-full relative">
+      <div id="blog-search-icon" class="absolute left-4 z-10 pointer-events-none text-base-content/70" style="top: 24px; transform: translateY(-50%);">
+        <Icon name="lucide:search" class="w-5 h-5" />
+      </div>
       <div id="pagefind-search"></div>
     </div>
   </section>
@@ -235,6 +238,17 @@ const totalPosts = allPosts.length;
     const pageFindSearch = document.querySelector("#pagefind-search");
     if (!pageFindSearch) return;
 
+    function syncBlogSearchIconPosition() {
+      const container = document.getElementById("search-container");
+      const icon = document.getElementById("blog-search-icon");
+      const searchInput = document.querySelector(".pagefind-ui__search-input") as HTMLElement | null;
+      if (!container || !icon || !searchInput) return;
+
+      const top = searchInput.offsetTop + searchInput.offsetHeight / 2;
+      icon.style.top = `${top}px`;
+      icon.style.transform = "translateY(-50%)";
+    }
+
     const params = new URLSearchParams(window.location.search);
     const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
 
@@ -275,6 +289,9 @@ const totalPosts = allPosts.length;
 
         const searchInput = document.querySelector(".pagefind-ui__search-input");
         const clearButton = document.querySelector(".pagefind-ui__search-clear");
+
+        syncBlogSearchIconPosition();
+        window.addEventListener("resize", syncBlogSearchIconPosition);
 
         searchInput?.addEventListener("input", resetSearchParam);
         clearButton?.addEventListener("click", resetSearchParam);

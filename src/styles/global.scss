@@ -56,12 +56,11 @@ code {
   overflow-wrap: anywhere;
   word-break: break-word;
 
-
-/* Extra wrapping for long lines in blog posts */
-.post-content {
-  overflow-wrap: anywhere;
-  word-break: break-all;
-}
+  /* Extra wrapping for long lines in blog posts */
+  .post-content {
+    overflow-wrap: anywhere;
+    word-break: break-all;
+  }
   /* Better paragraph spacing */
   p {
     @apply mb-4;
@@ -302,7 +301,7 @@ code {
 
 // Common container for blog pages
 .blog-container {
-  @apply p-4 rounded-2xl bg-base-200/30 backdrop-blur-md border border-base-300/20;
+  @apply p-4 rounded-[6px] bg-base-200/30 backdrop-blur-md border border-base-content/15;
 }
 
 // Common stats box
@@ -541,7 +540,7 @@ code {
   }
 
   &-content {
-    @apply flex items-center gap-2 px-4 py-2 rounded-full bg-base-100 shadow-sm border border-transparent;
+    @apply flex items-center gap-2 px-4 py-2 rounded-[6px] bg-base-100 shadow-sm border border-base-content/15;
   }
 
   &-icon {
@@ -687,7 +686,7 @@ code {
   }
 
   &-card {
-    @apply block p-5 bg-base-100 border border-base-content/20 rounded-xl shadow-sm transition-transform duration-300;
+    @apply block p-5 bg-base-100 border border-base-content/15 rounded-[6px] shadow-sm transition-transform duration-300;
 
     &:hover {
       @apply -translate-y-1 shadow-md border-primary/50 bg-base-200;

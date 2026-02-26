@@ -6,6 +6,7 @@ import Sidebar from "@components/Sidebar.astro";
 
 // Get current path to determine active link
 const currentPath = Astro.url.pathname;
+const isHomeActive = currentPath === "/" || currentPath === "/home";
 
 // Accept headings and showTOC from layout (used to render sidebar TOC)
 const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as { headings?: any[]; showTOC?: boolean; isEncrypted?: boolean };
@@ -41,7 +42,17 @@ const typedMenu = SITE_MENU as MenuItem[];
       <label for="menu-toggle" class="btn btn-ghost btn-square p-2">
         <Icon name="lucide:menu" class="w-5 h-5" />
       </label>
-      <a href="/" class="btn btn-ghost text-lg font-semibold px-3 py-2">{SITE_TITLE}</a>
+      <a
+        href="/"
+        class:list={[
+          "btn btn-ghost text-lg font-semibold px-3 py-2 border-l-2",
+          isHomeActive
+            ? "bg-base-200/45 border-base-content/25 text-base-content"
+            : "border-transparent",
+        ]}
+      >
+        {SITE_TITLE}
+      </a>
     </div>
   </div>
 </nav>

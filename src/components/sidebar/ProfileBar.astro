@@ -6,6 +6,14 @@ import { Image } from "astro:assets";
 
 // Get current path to determine active link
 const currentPath = Astro.url.pathname;
+
+const isInternalPath = (href: string) => href.startsWith("/");
+
+const isPathActive = (href: string) => {
+  if (!isInternalPath(href) || href === "#") return false;
+  if (href === "/") return currentPath === "/";
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+};
 ---
 
 <Card>
@@ -23,47 +31,71 @@ const currentPath = Astro.url.pathname;
     </div>
     <ul class="menu bg-transparent w-full m-0 p-0 hidden md:flex flex-col items-center lg:items-start">
       {
-        SITE_MENU.map((item) => (
-          <li class="w-full relative group">
-            {item.subItems ? (
-              <details class="menu-item w-full" data-submenu-id={item.id} open={currentPath.startsWith(item.href)}>
-                <summary class="justify-center lg:justify-start items-center text-center text-lg md:text-xl lg:text-lg font-bold p-3 hover:bg-base-200">
+        SITE_MENU.map((item) => {
+          const isParentActive = isPathActive(item.href);
+          const hasActiveSubItem = item.subItems?.some((subItem) => isPathActive(subItem.href)) ?? false;
+          const isMenuActive = isParentActive || hasActiveSubItem;
+
+          return (
+            <li class="w-full relative group">
+              {item.subItems ? (
+                <details class="menu-item w-full" data-submenu-id={item.id} open={isMenuActive}>
+                  <summary
+                    class={`justify-center lg:justify-start items-center text-center text-lg md:text-xl lg:text-lg font-bold p-3 border-l-2 ${
+                      isMenuActive
+                        ? "bg-base-200/45 border-base-content/25 text-base-content"
+                        : "border-transparent hover:bg-base-200"
+                    }`}
+                  >
+                    <Icon name={item.svg} />
+                    <span class="hidden lg:inline ml-2">{item.text}</span>
+                  </summary>
+                  <ul>
+                    {item.subItems.map((subItem) => {
+                      const isSubActive = isPathActive(subItem.href);
+
+                      return (
+                        <li class="relative">
+                          <a
+                            tabindex="0"
+                            class={`menu-item text-sm md:text-base lg:text-sm font-bold p-2 border-l-2 ${
+                              isSubActive
+                                ? "bg-base-200/45 border-base-content/25 text-base-content"
+                                : "border-transparent hover:bg-base-200"
+                            }`}
+                            id={`header-${subItem.id}`}
+                            href={subItem.href}
+                            target={subItem.target || "_self"}
+                            aria-label={subItem.text}
+                          >
+                            {subItem.svg ? <Icon name={subItem.svg} /> : null}
+                            <span class="hidden lg:inline ml-2">{subItem.text}</span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </details>
+              ) : (
+                <a
+                  tabindex="0"
+                  class={`flex justify-center lg:justify-start items-center text-center text-lg md:text-xl lg:text-lg font-bold p-3 border-l-2 ${
+                    isParentActive
+                      ? "bg-base-200/45 border-base-content/25 text-base-content"
+                      : "border-transparent hover:bg-base-200"
+                  }`}
+                  id={item.id}
+                  href={item.href}
+                  target={item.target || "_self"}
+                  aria-label={item.text}
+                >
                   <Icon name={item.svg} />
                   <span class="hidden lg:inline ml-2">{item.text}</span>
-                </summary>
-                <ul>
-                  {item.subItems.map((subItem) => (
-                    <li class="relative">
-                      <a
-                        tabindex="0"
-                        class="menu-item text-sm md:text-base lg:text-sm font-bold p-2 hover:bg-base-200"
-                        id={`header-${subItem.id}`}
-                        href={subItem.href}
-                        target={subItem.target || "_self"}
-                        aria-label={subItem.text}
-                      >
-                        {subItem.svg ? <Icon name={subItem.svg} /> : null}
-                        <span class="hidden lg:inline ml-2">{subItem.text}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ) : (
-              <a
-                tabindex="0"
-                class="flex justify-center lg:justify-start items-center text-center text-lg md:text-xl lg:text-lg font-bold p-3 hover:bg-base-200"
-                id={item.id}
-                href={item.href}
-                target={item.target || "_self"}
-                aria-label={item.text}
-              >
-                <Icon name={item.svg} />
-                <span class="hidden lg:inline ml-2">{item.text}</span>
-              </a>
-            )}
-          </li>
-        ))
+                </a>
+              )}
+            </li>
+          );
+        })
       }
     </ul>
 

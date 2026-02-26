@@ -12,7 +12,7 @@ import Navbar from "@components/Navbar.astro";
 import ReadingProgress from "@components/widgets/ReadingProgress.astro";
 import ScrollToTop from "@components/widgets/ScrollToTop.astro";
 import Giscus from "@components/Giscus.astro";
-import 'katex/dist/katex.min.css';
+import "katex/dist/katex.min.css";
 
 const {
   title,
@@ -36,21 +36,27 @@ const {
     <Header title={title} description={description} favicon={SITE_FAVICON} image={image} loadKatex={loadKatex} />
 
     <!-- IBM Plex Sans for UI + JetBrains Mono for code blocks -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      rel="stylesheet"
+    />
 
     <title>{title ? title + " - " + SITE_TAB : SITE_TAB}</title>
 
     <!-- 不蒜子统计脚本 - 仅在文章页按需加载以避免在非文章页触发外部请求 -->
-    {isPost && <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>}
+    {isPost && <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" />}
 
     <!-- 注册 Service Worker 实现离线缓存 -->
     <script is:inline>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
         });
       }
     </script>
@@ -77,22 +83,15 @@ const {
 
     <!-- 导航栏 + 主体并列（非固定） -->
     <div class="relative">
-      <div class="w-full mt-0">
-        <img
-          src="https://pic1.imgdb.cn/item/6985694cf8ef6591278be0ae.jpg"
-          alt="Page header"
-          class="w-full h-64 md:h-80 lg:h-[420px] object-cover"
-          loading="eager"
-          decoding="async"
-        />
-      </div>
-      <div class="md:flex md:items-start md:gap-8 mt-6">
+      <div class="md:flex md:items-start md:gap-8">
         <Navbar headings={headings} showTOC={showTOC} isEncrypted={isEncrypted} />
 
         <!-- Full-width content container so cards can span the page -->
-        <div class="flex-1 relative w-full max-w-none mx-auto mt-8 z-20 px-4 md:px-8" style="min-width: 0;">
-          <div class="notion-surface bg-base-100 min-h-screen p-6 md:p-10" style="overflow-wrap: anywhere; word-break: break-word;">
-
+        <div class="flex-1 relative w-full max-w-none mx-auto z-20 px-4 md:px-8" style="min-width: 0;">
+          <div
+            class="notion-surface bg-base-100 min-h-screen p-6 md:p-10"
+            style="overflow-wrap: anywhere; word-break: break-word;"
+          >
             <!-- 主内容 -->
             <main class="flex flex-col gap-4">
               <slot />
