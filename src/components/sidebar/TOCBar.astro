@@ -73,10 +73,20 @@ const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as TO
     if (tocContainer) {
       tocContainer.style.display = "";
     }
+
+    // Try initialize TOC again in case headings are injected after decryption
+    try {
+      initTOC();
+    } catch (e) {
+      // noop
+    }
   });
 
-  // Highlight active heading in TOC and manage the active indicator
-  document.addEventListener("astro:page-load", () => {
+  // Wrap the TOC initialization logic so it can be retried after decryption
+  function initTOC() {
+    // Prevent double initialization
+    if ((window as any).__frosti_toc_initialized) return;
+
     // Cache DOM elements and reduce DOM queries
     const tocNav = document.querySelector(".toc-nav") as HTMLElement;
     const activeIndicator = document.getElementById("active-indicator") as HTMLElement;
@@ -303,5 +313,17 @@ const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as TO
         disableObserverUpdates = false;
       }, 1000);
     });
+
+    // Mark initialized
+    (window as any).__frosti_toc_initialized = true;
+  }
+
+  // Try initialize on page load as usual
+  document.addEventListener("astro:page-load", () => {
+    try {
+      initTOC();
+    } catch (e) {
+      // noop
+    }
   });
 </script>

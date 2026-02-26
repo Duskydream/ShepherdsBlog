@@ -44,7 +44,7 @@ kbd {
 }
 
 code {
-  font-size: 0.875em;
+  font-size: 0.95em;
 }
 
 /* Enhanced reading experience - Feishu Style */
@@ -144,7 +144,7 @@ code {
   /* Inline code improvements - Feishu style */
   :not(pre) > code {
     @apply px-2 py-1 bg-base-200 text-base-content font-mono;
-    font-size: 0.9em;
+    font-size: 1em;
     border-radius: 4px;
     white-space: break-spaces;
     overflow-wrap: anywhere;
@@ -260,7 +260,7 @@ code {
       @apply bg-transparent m-0 p-0;
       counter-reset: line;
       font-family: inherit !important;
-      font-size: 14px !important;
+      font-size: 16px !important;
       line-height: 1.5 !important;
     }
 
