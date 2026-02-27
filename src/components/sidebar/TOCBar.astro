@@ -23,7 +23,7 @@ const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as TO
               {headings.map((heading, index) => (
                 <li>
                   <a
-                    href={`#heading-${index}`}
+                    href={`#${heading.slug}`}
                     data-heading-slug={heading.slug}
                     data-heading-depth={heading.depth}
                     data-index={index}
@@ -101,26 +101,6 @@ const { headings = [], showTOC = true, isEncrypted = false } = Astro.props as TO
     let activeLink: HTMLAnchorElement | null = null;
     let disableObserverUpdates = false;
     let resizeTimer: number | null = null;
-
-    // Update IDs only once at initialization
-    const headingIds = new Map<string, string>();
-    tocLinks.forEach((link, index) => {
-      const slug = link.dataset.headingSlug;
-      if (!slug) return;
-
-      const heading = document.getElementById(slug);
-      const newId = `heading-${index}`;
-
-      if (heading && heading.id !== newId) {
-        heading.setAttribute("id", newId);
-        headingIds.set(slug, newId);
-
-        // Only update non-TOC links that point to this heading
-        document
-          .querySelectorAll(`a[href="#${slug}"]:not(.toc-nav a)`)
-          .forEach((otherLink) => otherLink.setAttribute("href", `#${newId}`));
-      }
-    });
 
     // Position the active indicator - optimized
     function updateActiveIndicator(link: HTMLAnchorElement, animate = true): void {
