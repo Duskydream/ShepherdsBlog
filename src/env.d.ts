@@ -5,6 +5,9 @@ interface ImportMeta {
   env: {
     PROD: boolean;
     DEV: boolean;
+    OPENAI_API_KEY?: string;
+    SCHEDULE_AI_BASE_URL?: string;
+    SCHEDULE_AI_MODEL?: string;
   };
 }
 

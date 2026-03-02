@@ -1,0 +1,1313 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MainCard from "@/components/MainCard.astro";
+import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/schedule";
+---
+
+<BaseLayout title="我的课表">
+  <MainCard title="我的课表" description="高度自定义的课程表，支持 AI 识别教务图片生成课表">
+    <div class="bg-base-100 rounded-2xl shadow-lg p-4 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 id="current-date" class="text-2xl font-bold text-base-content"></h2>
+          <p id="week-info" class="text-base-content/70 mt-1"></p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="navigateWeek(-1)" class="btn btn-sm btn-outline">← 上周</button>
+          <button onclick="goToToday()" class="btn btn-sm btn-primary">今天</button>
+          <button onclick="navigateWeek(1)" class="btn btn-sm btn-outline">下周 →</button>
+          <button id="toggle-view-btn" onclick="toggleView()" class="btn btn-sm btn-ghost">日历</button>
+          <button onclick="showAddCourse()" class="btn btn-sm btn-primary">+ 添加课程</button>
+          <button onclick="exportSchedule()" class="btn btn-sm btn-ghost" title="导出">导出</button>
+          <label class="btn btn-sm btn-ghost cursor-pointer" title="导入">
+            导入
+            <input type="file" accept=".json" onchange="importSchedule(event)" class="hidden" />
+          </label>
+          <button onclick="clearAllCourses()" class="btn btn-sm btn-ghost" title="清空所有课程">清空</button>
+          <button onclick="toggleSettings()" class="btn btn-sm btn-ghost" title="设置">设置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 智能识别课表 -->
+    <div class="bg-base-100 border border-base-300 rounded-lg shadow-sm p-4 mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <h3 class="text-base font-semibold text-base-content mb-1">AI 智能识别课表</h3>
+          <p class="text-xs text-base-content/60">上传教务系统截图，自动生成可编辑课程卡片</p>
+        </div>
+        <button onclick="showAIModal()" class="btn btn-sm btn-neutral">开始识别</button>
+      </div>
+    </div>
+
+    <div id="schedule-container" class="bg-base-100 rounded-2xl shadow-xl overflow-hidden mb-4"></div>
+
+    <div class="space-y-2">
+      <div class="collapse collapse-arrow bg-base-200">
+        <input type="checkbox" />
+        <div class="collapse-title text-base font-medium">使用说明</div>
+        <div class="collapse-content">
+          <ol class="list-decimal pl-5 space-y-1 text-sm">
+            <li><strong>添加课程：</strong>点击「+ 添加课程」录入课程信息</li>
+            <li><strong>切换视图：</strong>点击「日历」按钮切换月历与周课表</li>
+            <li><strong>AI 识别：</strong>上传教务截图，自动填充课程草稿</li>
+            <li><strong>导入导出：</strong>支持 JSON 导入与导出，便于备份和迁移</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <script is:inline define:vars={{ DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES }}>
+      const COLORS = (COLOR_THEMES || []).map((theme) => theme.bg);
+      const AI_TOKEN_KEY = "frosti-schedule-ai-token";
+
+      const DEFAULT_CONFIG = {
+        name: "我的课表",
+        semester: "2025-2026 学年 第 2 学期",
+        weekCount: 20,
+        currentWeek: 1,
+        startDate: new Date().toISOString().split("T")[0],
+        timeSlots: DEFAULT_TIME_SLOTS,
+        courses: [],
+      };
+
+      let state = {
+        config: structuredClone(DEFAULT_CONFIG),
+        viewMode: "schedule",
+        selectedDate: new Date(),
+      };
+
+      function createDefaultCourses() {
+        return [
+          {
+            id: "1",
+            name: "高等数学",
+            teacher: "张三",
+            location: "东教楼 108",
+            weekStart: 1,
+            weekEnd: 16,
+            weekType: "all",
+            dayOfWeek: 1,
+            periodStart: 1,
+            periodCount: 2,
+            color: COLORS[0] || "bg-blue-500",
+          },
+          {
+            id: "2",
+            name: "大学英语",
+            teacher: "李四",
+            location: "文科楼 201",
+            weekStart: 1,
+            weekEnd: 18,
+            weekType: "all",
+            dayOfWeek: 2,
+            periodStart: 3,
+            periodCount: 2,
+            color: COLORS[6] || "bg-indigo-500",
+          },
+          {
+            id: "3",
+            name: "计算机基础",
+            teacher: "王五",
+            location: "实验楼 305",
+            weekStart: 1,
+            weekEnd: 14,
+            weekType: "all",
+            dayOfWeek: 3,
+            periodStart: 5,
+            periodCount: 2,
+            color: COLORS[4] || "bg-green-500",
+          },
+          {
+            id: "4",
+            name: "体育",
+            teacher: "赵六",
+            location: "体育馆",
+            weekStart: 1,
+            weekEnd: 18,
+            weekType: "all",
+            dayOfWeek: 4,
+            periodStart: 7,
+            periodCount: 2,
+            color: COLORS[2] || "bg-orange-500",
+          },
+        ];
+      }
+
+      function normalizeConfig(raw) {
+        const cfg = { ...DEFAULT_CONFIG, ...(raw || {}) };
+        if (!Array.isArray(cfg.timeSlots) || cfg.timeSlots.length === 0) {
+          cfg.timeSlots = DEFAULT_TIME_SLOTS;
+        }
+        if (!Array.isArray(cfg.courses)) {
+          cfg.courses = [];
+        }
+        cfg.weekCount = Number.isFinite(Number(cfg.weekCount)) ? Number(cfg.weekCount) : 20;
+        cfg.currentWeek = Number.isFinite(Number(cfg.currentWeek)) ? Number(cfg.currentWeek) : 1;
+        cfg.startDate = typeof cfg.startDate === "string" && cfg.startDate ? cfg.startDate : DEFAULT_CONFIG.startDate;
+        cfg.courses = cfg.courses.map((course) => ({
+          ...course,
+          dayOfWeek: Number(course.dayOfWeek),
+          periodStart: Number(course.periodStart),
+          periodCount: Number(course.periodCount),
+          weekStart: Number(course.weekStart),
+          weekEnd: Number(course.weekEnd),
+          color: course.color || COLORS[0] || "bg-blue-500",
+        }));
+        return cfg;
+      }
+
+      function saveConfig() {
+        localStorage.setItem("frosti-schedule", JSON.stringify(state.config));
+      }
+
+      function getLocalAIToken() {
+        return localStorage.getItem(AI_TOKEN_KEY)?.trim() || "";
+      }
+
+      function setLocalAIToken(token) {
+        const value = String(token || "").trim();
+        if (!value) {
+          localStorage.removeItem(AI_TOKEN_KEY);
+          return;
+        }
+        localStorage.setItem(AI_TOKEN_KEY, value);
+      }
+
+      // 快速配置 API 服务
+      window.setupBailian = () => {
+        localStorage.setItem("frosti-schedule-api-base", "https://dashscope.aliyuncs.com/compatible-mode/v1");
+        localStorage.setItem("frosti-schedule-api-model", "qwen-vl-max");
+        localStorage.removeItem("frosti-schedule-api-temperature");
+        localStorage.removeItem("frosti-schedule-api-max-tokens");
+        alert(
+          "已配置阿里云百炼\n\nAPI 端点: dashscope.aliyuncs.com\n模型: qwen-vl-max\n\n请在上方输入框填入你的 API Key 并保存",
+        );
+        document
+          .querySelector("#ai-base-url")
+          ?.setAttribute("value", "https://dashscope.aliyuncs.com/compatible-mode/v1");
+        document.querySelector("#ai-model")?.setAttribute("value", "qwen-vl-max");
+      };
+
+      window.setupOpenAI = () => {
+        localStorage.setItem("frosti-schedule-api-base", "https://api.openai.com/v1");
+        localStorage.setItem("frosti-schedule-api-model", "gpt-4o-mini");
+        localStorage.setItem("frosti-schedule-api-temperature", "0.7");
+        localStorage.setItem("frosti-schedule-api-max-tokens", "2000");
+        alert("已配置 OpenAI\n\nAPI 端点: api.openai.com\n模型: gpt-4o-mini\n\n请在上方输入框填入你的 API Key 并保存");
+        document.querySelector("#ai-base-url")?.setAttribute("value", "https://api.openai.com/v1");
+        document.querySelector("#ai-model")?.setAttribute("value", "gpt-4o-mini");
+        document.querySelector("#ai-temperature")?.setAttribute("value", "0.7");
+        document.querySelector("#ai-max-tokens")?.setAttribute("value", "2000");
+      };
+
+      window.setupSiliconFlow = () => {
+        localStorage.setItem("frosti-schedule-api-base", "https://api.siliconflow.cn/v1");
+        localStorage.setItem("frosti-schedule-api-model", "Qwen/Qwen2-VL-7B-Instruct");
+        localStorage.setItem("frosti-schedule-api-temperature", "0.7");
+        localStorage.setItem("frosti-schedule-api-max-tokens", "2000");
+        alert(
+          "已配置硅基流动\n\nAPI 端点: api.siliconflow.cn\n模型: Qwen2-VL-7B-Instruct\n\n请在上方输入框填入你的 API Key 并保存",
+        );
+        document.querySelector("#ai-base-url")?.setAttribute("value", "https://api.siliconflow.cn/v1");
+        document.querySelector("#ai-model")?.setAttribute("value", "Qwen/Qwen2-VL-7B-Instruct");
+        document.querySelector("#ai-temperature")?.setAttribute("value", "0.7");
+        document.querySelector("#ai-max-tokens")?.setAttribute("value", "2000");
+      };
+
+      window.setupCustomAPI = () => {
+        const customToggle = document.querySelector("#custom-api-toggle");
+        if (customToggle) {
+          customToggle.checked = true;
+        }
+        alert("请在下方高级配置中填写自定义 API 端点、模型名称及参数");
+      };
+
+      window.saveCustomAPIConfig = () => {
+        const baseUrl = document.querySelector("#ai-base-url")?.value || "";
+        const model = document.querySelector("#ai-model")?.value || "";
+        const temperature = document.querySelector("#ai-temperature")?.value || "";
+        const maxTokens = document.querySelector("#ai-max-tokens")?.value || "";
+
+        if (baseUrl) localStorage.setItem("frosti-schedule-api-base", baseUrl);
+        if (model) localStorage.setItem("frosti-schedule-api-model", model);
+        if (temperature) localStorage.setItem("frosti-schedule-api-temperature", temperature);
+        if (maxTokens) localStorage.setItem("frosti-schedule-api-max-tokens", maxTokens);
+
+        alert(
+          `已保存自定义配置\n\nAPI 端点: ${baseUrl || "未设置"}\n模型: ${model || "未设置"}\nTemperature: ${temperature || "未设置"}\nMax Tokens: ${maxTokens || "未设置"}`,
+        );
+
+        // 刷新tip显示
+        const tokenTip = document.querySelector("#ai-token-tip");
+        if (tokenTip) {
+          const token = getLocalAIToken();
+          if (token) {
+            tokenTip.textContent = `已保存 Token | 端点: ${baseUrl || "默认"} | 模型: ${model || "默认"}`;
+          }
+        }
+      };
+
+      function loadConfig() {
+        const saved = localStorage.getItem("frosti-schedule");
+        if (!saved) {
+          state.config = normalizeConfig({ ...DEFAULT_CONFIG, courses: createDefaultCourses() });
+          saveConfig();
+          return;
+        }
+
+        try {
+          state.config = normalizeConfig(JSON.parse(saved));
+        } catch {
+          state.config = normalizeConfig({ ...DEFAULT_CONFIG, courses: createDefaultCourses() });
+          saveConfig();
+        }
+      }
+
+      function dateOnly(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+
+      function getWeekInfo(date) {
+        const start = new Date(state.config.startDate + "T00:00:00");
+        const selected = dateOnly(date);
+        const diffDays = Math.floor((selected - start) / (1000 * 60 * 60 * 24));
+        const week = Math.max(1, Math.floor(diffDays / 7) + 1);
+        const weekday = selected.getDay() || 7;
+        return { week, weekday, date: selected };
+      }
+
+      function isCourseActiveInWeek(course, week) {
+        // 优先使用 weeks 数组（具体周次）
+        if (Array.isArray(course.weeks) && course.weeks.length > 0) {
+          return course.weeks.includes(week);
+        }
+
+        // 检查是否在周次范围内
+        if (week < course.weekStart || week > course.weekEnd) {
+          return false;
+        }
+
+        // 处理单双周
+        const weekType = course.weekType || "all";
+        if (weekType === "odd") {
+          return week % 2 === 1; // 单周：1, 3, 5, 7...
+        } else if (weekType === "even") {
+          return week % 2 === 0; // 双周：2, 4, 6, 8...
+        }
+
+        return true; // 'all' - 所有周
+      }
+
+      function getCoursesForDate(date) {
+        const info = getWeekInfo(date);
+        const day = info.weekday;
+        return state.config.courses.filter(
+          (course) => course.dayOfWeek === day && isCourseActiveInWeek(course, info.week),
+        );
+      }
+
+      function renderHeader(info) {
+        const currentDate = document.getElementById("current-date");
+        const weekInfo = document.getElementById("week-info");
+        const toggleBtn = document.getElementById("toggle-view-btn");
+
+        currentDate.textContent = info.date.toLocaleDateString("zh-CN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "long",
+        });
+        weekInfo.textContent = `第${info.week}周 · 周${WEEKDAYS[info.weekday - 1]}${info.week === state.config.currentWeek ? "（本周）" : ""}`;
+        toggleBtn.textContent = state.viewMode === "schedule" ? "日历" : "课表";
+      }
+
+      function renderSchedule(container, info) {
+        const slots = state.config.timeSlots;
+        const spanTracker = Array(8).fill(0);
+
+        let html = '<div class="overflow-x-auto"><table class="table table-fixed min-w-[980px]"><thead>';
+        html += '<tr class="bg-base-200"><th class="w-24 text-center">节次</th>';
+
+        for (let day = 1; day <= 7; day++) {
+          const date = new Date(info.date);
+          date.setDate(date.getDate() - info.weekday + day);
+          const isToday = dateOnly(date).getTime() === dateOnly(new Date()).getTime();
+          const isSelectedDay = day === info.weekday;
+          html += `<th class="text-center ${isSelectedDay ? "text-primary" : ""}">
+            <div class="text-xs text-base-content/60">周${WEEKDAYS[day - 1]}</div>
+            <div class="text-lg font-semibold ${isToday ? "text-primary" : ""}">${date.getDate()}</div>
+            <div class="text-xs text-base-content/50">${MONTHS[date.getMonth()]}</div>
+          </th>`;
+        }
+        html += "</tr></thead><tbody>";
+
+        for (let rowIndex = 0; rowIndex < slots.length; rowIndex++) {
+          const slot = slots[rowIndex];
+          html += '<tr class="align-top">';
+          html += `<td class="text-center border-r border-base-300 py-2 cursor-pointer hover:bg-base-200 transition-colors" onclick="editTimeSlot(${slot.period})" title="点击编辑时间">
+            <div class="font-bold">${slot.period}</div>
+            <div class="text-xs text-base-content/60">${slot.startTime}-${slot.endTime}</div>
+          </td>`;
+
+          for (let day = 1; day <= 7; day++) {
+            if (spanTracker[day] > 0) {
+              spanTracker[day] -= 1;
+              continue;
+            }
+
+            const course = state.config.courses.find((c) => {
+              if (c.dayOfWeek !== day) return false;
+              if (!isCourseActiveInWeek(c, info.week)) return false;
+              return Number(c.periodStart) === Number(slot.period);
+            });
+
+            if (!course) {
+              html += '<td class="h-[68px] border border-base-200"></td>';
+              continue;
+            }
+
+            const maxSpan = Math.max(1, Math.min(Number(course.periodCount) || 1, slots.length - rowIndex));
+            spanTracker[day] = maxSpan - 1;
+
+            html += `<td rowspan="${maxSpan}" class="border border-base-200 p-1">
+              <button onclick="editCourse('${course.id}')" class="w-full h-full rounded-lg p-2 text-left text-white shadow hover:opacity-95 ${course.color}">
+                <div class="font-bold text-sm truncate">${course.name}</div>
+                <div class="text-xs opacity-90 truncate">@ ${course.location || "待定"}</div>
+                <div class="text-xs opacity-80 truncate">${course.teacher || "未填写"}</div>
+                <div class="text-[11px] opacity-75 mt-1">${course.weekStart}-${course.weekEnd}周</div>
+              </button>
+            </td>`;
+          }
+
+          html += "</tr>";
+        }
+
+        html += "</tbody></table></div>";
+        container.innerHTML = html;
+      }
+
+      function renderCalendar(container) {
+        const year = state.selectedDate.getFullYear();
+        const month = state.selectedDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay() || 7;
+
+        let html = '<div class="p-4"><div class="flex items-center justify-between mb-4">';
+        html += '<button onclick="navigateMonth(-1)" class="btn btn-sm btn-ghost">◀</button>';
+        html += `<h3 class="text-xl font-bold">${year}年 ${MONTHS[month]}</h3>`;
+        html += '<button onclick="navigateMonth(1)" class="btn btn-sm btn-ghost">▶</button>';
+        html += '</div><div class="grid grid-cols-7 gap-1">';
+
+        WEEKDAYS.forEach((day) => {
+          html += `<div class="text-center font-semibold py-2 text-base-content/60">${day}</div>`;
+        });
+
+        for (let i = 0; i < startDay - 1; i++) {
+          html += '<div class="aspect-square"></div>';
+        }
+
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+          const date = new Date(year, month, day);
+          const isToday = dateOnly(date).getTime() === dateOnly(new Date()).getTime();
+          const isSelected = dateOnly(state.selectedDate).getTime() === dateOnly(date).getTime();
+          const courses = getCoursesForDate(date);
+
+          html += `<button onclick="selectDate('${date.toISOString()}')" class="aspect-square p-1 border rounded-lg text-left transition-all ${
+            isSelected
+              ? "bg-primary text-primary-content border-primary"
+              : isToday
+                ? "bg-primary/10 border-primary"
+                : "hover:bg-base-200 border-base-300"
+          }">
+            <div class="text-sm font-semibold">${day}</div>
+            <div class="text-[11px] leading-tight mt-1 space-y-0.5 max-h-8 overflow-hidden">
+              ${courses
+                .slice(0, 2)
+                .map((c) => `<div class="truncate ${c.color.replace("bg-", "text-")}">${c.name}</div>`)
+                .join("")}
+            </div>
+          </button>`;
+        }
+
+        html += "</div></div>";
+        container.innerHTML = html;
+      }
+
+      function render() {
+        const info = getWeekInfo(state.selectedDate);
+        renderHeader(info);
+        const container = document.getElementById("schedule-container");
+        if (state.viewMode === "schedule") {
+          renderSchedule(container, info);
+        } else {
+          renderCalendar(container);
+        }
+      }
+
+      function closeModal(el) {
+        el?.closest(".modal-overlay")?.remove();
+      }
+
+      function showModal(content, maxWidth = "max-w-lg") {
+        const modal = document.createElement("div");
+        modal.className =
+          "modal-overlay fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4";
+        modal.innerHTML = `<div class="bg-base-100 text-base-content rounded-2xl shadow-2xl ${maxWidth} w-full max-h-[90vh] overflow-y-auto">${content}</div>`;
+        document.body.appendChild(modal);
+        return modal;
+      }
+
+      function showCourseModal(course) {
+        const data = course || {
+          id: Date.now().toString(),
+          name: "",
+          teacher: "",
+          location: "",
+          weekStart: 1,
+          weekEnd: state.config.weekCount,
+          dayOfWeek: 1,
+          periodStart: 1,
+          periodCount: 2,
+          weekType: "all",
+          color: COLORS[0] || "bg-blue-500",
+        };
+
+        const modal = showModal(`
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold">${course ? "编辑课程" : "添加课程"}</h3>
+              <button onclick="closeModal(this)" class="btn btn-ghost btn-sm">×</button>
+            </div>
+            <form onsubmit="saveCourse(event, '${data.id}', ${!course})" class="space-y-3">
+              <div>
+                <label class="label"><span class="label-text font-semibold">课程名称 *</span></label>
+                <input type="text" name="name" class="input input-bordered w-full" required value="${data.name}" placeholder="如：高等数学" />
+              </div>
+              <div>
+                <label class="label"><span class="label-text font-semibold">教师</span></label>
+                <input type="text" name="teacher" class="input input-bordered w-full" value="${data.teacher || ""}" placeholder="如：张三 教授" />
+              </div>
+              <div>
+                <label class="label"><span class="label-text font-semibold">地点 *</span></label>
+                <input type="text" name="location" class="input input-bordered w-full" required value="${data.location}" placeholder="如：东教楼 108" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="label"><span class="label-text font-semibold">星期</span></label>
+                  <select name="dayOfWeek" class="select select-bordered w-full">
+                    ${WEEKDAYS.map((d, i) => `<option value="${i + 1}" ${Number(data.dayOfWeek) === i + 1 ? "selected" : ""}>周${d}</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="label"><span class="label-text font-semibold">开始节次</span></label>
+                  <select name="periodStart" class="select select-bordered w-full">
+                    ${state.config.timeSlots.map((s) => `<option value="${s.period}" ${Number(data.periodStart) === Number(s.period) ? "selected" : ""}>第${s.period}节</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="label"><span class="label-text font-semibold">持续节次</span></label>
+                  <select name="periodCount" class="select select-bordered w-full">
+                    ${[1, 2, 3, 4].map((n) => `<option value="${n}" ${Number(data.periodCount) === n ? "selected" : ""}>${n}节</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="label"><span class="label-text font-semibold">颜色</span></label>
+                  <div class="flex gap-1 flex-wrap mt-2" data-color-picker>
+                    ${COLORS.map((c) => `<button type="button" class="w-6 h-6 rounded-full ${c} ${data.color === c ? "ring-2 ring-offset-2 ring-primary" : ""}" onclick="selectColor('${c}', this)"></button>`).join("")}
+                    <input type="hidden" name="color" value="${data.color}" />
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="label"><span class="label-text font-semibold">起始周</span></label>
+                  <input type="number" name="weekStart" class="input input-bordered w-full" min="1" max="${state.config.weekCount}" value="${data.weekStart}" />
+                </div>
+                <div>
+                  <label class="label"><span class="label-text font-semibold">结束周</span></label>
+                  <input type="number" name="weekEnd" class="input input-bordered w-full" min="1" max="${state.config.weekCount}" value="${data.weekEnd}" />
+                </div>
+              </div>
+              <div>
+                <label class="label"><span class="label-text font-semibold">周次类型</span></label>
+                <select name="weekType" class="select select-bordered w-full">
+                  <option value="all" ${(data.weekType || "all") === "all" ? "selected" : ""}>每周都上</option>
+                  <option value="odd" ${data.weekType === "odd" ? "selected" : ""}>单周（1, 3, 5, 7...）</option>
+                  <option value="even" ${data.weekType === "even" ? "selected" : ""}>双周（2, 4, 6, 8...）</option>
+                </select>
+                <div class="label">
+                  <span class="label-text-alt text-base-content/60">单双周会自动应用在起始周和结束周范围内</span>
+                </div>
+              </div>
+              <div class="flex justify-end gap-2 pt-2">
+                ${course ? `<button type="button" onclick="deleteCourse('${course.id}')" class="btn btn-error text-white">删除</button>` : ""}
+                <button type="button" onclick="closeModal(this)" class="btn btn-ghost">取消</button>
+                <button type="submit" class="btn btn-primary">${course ? "保存" : "添加"}</button>
+              </div>
+            </form>
+          </div>
+        `);
+        return modal;
+      }
+
+      async function recognizeScheduleImage(file) {
+        const token = getLocalAIToken();
+        if (!token) {
+          return {
+            success: false,
+            error: "请先配置本地 API Token",
+            detail: "点击「阿里云百炼」按钮配置端点，然后填入你的 API Key",
+            source: "no-token",
+          };
+        }
+
+        try {
+          const bytes = await file.arrayBuffer();
+
+          // 安全的 base64 转换（分块处理，避免大文件堆栈溢出）
+          const uint8Array = new Uint8Array(bytes);
+          let binary = "";
+          const chunkSize = 8192;
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.subarray(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          const base64 = btoa(binary);
+          const mimeType = file.type || "image/png";
+
+          const apiBaseUrl = localStorage.getItem("frosti-schedule-api-base") || "https://api.openai.com/v1";
+          const model = localStorage.getItem("frosti-schedule-api-model") || "gpt-4o-mini";
+          const temperature = localStorage.getItem("frosti-schedule-api-temperature");
+          const maxTokens = localStorage.getItem("frosti-schedule-api-max-tokens");
+          const isBailian = apiBaseUrl.includes("dashscope.aliyuncs.com");
+
+          const prompt = [
+            "你是专业的课表识别助手。请仔细分析图片中的课程表，提取所有课程信息。",
+            "",
+            "**务必注意：图片中的时间信息（如 8:00-9:40）需要映射到节次：**",
+            "- 第1节: 08:00-08:50 或 08:00-09:40（2节连上）",
+            "- 第2节: 09:00-09:50",
+            "- 第3节: 10:10-11:00 或 10:00-11:50（2节连上）",
+            "- 第4节: 11:00-11:50",
+            "- 第5节: 14:00-14:50",
+            "- 第6节: 15:00-15:50",
+            "- 以此类推...",
+            "",
+            "**分析要点：**",
+            "- 图片可能是课表截图、表格、或手写课表",
+            "- 横轴通常是星期（周一到周日），纵轴是节次或时间段",
+            "- 每个单元格可能包含：课程名、教师、教室、周次范围",
+            "- **周次格式识别（重要）：**",
+            '  - "1-16周" → weekStart:1, weekEnd:16, weekType:"all"',
+            '  - "单周" 或 "1,3,5周" → weekType:"odd"（奇数周）',
+            '  - "双周" 或 "2,4,6周" → weekType:"even"（偶数周）',
+            '  - "1-8,10-16周" → 提取起止范围，weekType:"all"',
+            "- **关键：如果图片显示具体时间（如8:00-9:40），请根据时间推断对应的节次**",
+            "",
+            "**输出格式（纯 JSON，不要markdown代码块）：**",
+            '{"courses":[{"name":"高等数学","teacher":"张三","location":"东教108","weekStart":1,"weekEnd":16,"weekType":"all","dayOfWeek":1,"periodStart":1,"periodCount":2,"timeSlot":"08:00-09:40"}]}',
+            "",
+            "**字段说明：**",
+            "- name: 课程名称（必填）",
+            '- teacher: 教师姓名（不清楚填"待确认"）',
+            '- location: 上课地点（不清楚填"待确认"）',
+            "- weekStart: 起始周（1-20）",
+            "- weekEnd: 结束周（1-20）",
+            '- weekType: 周次类型（"all"=每周, "odd"=单周, "even"=双周）',
+            "- dayOfWeek: 星期几（1=周一, 7=周日）",
+            "- periodStart: 开始节次（1-12，根据时间推断）",
+            "- periodCount: 持续节数（1-4，连续上几节）",
+            '- timeSlot: 原始时间段（可选，如"08:00-09:40"）',
+            "",
+            "**注意：**",
+            '- 如果看到"单周"或"1,3,5,7..."，设置 weekType:"odd"',
+            '- 如果看到"双周"或"2,4,6,8..."，设置 weekType:"even"',
+            '- 如果没有特殊标记，默认 weekType:"all"',
+            "- 如果一门课跨多个单元格（如上午2节），periodCount 设为 2",
+            "- **如果图片显示时间而非节次，请根据时间推断节次（如8:00对应第1节）**",
+            "- 尽可能提取所有能看到的课程",
+            "- 输出纯 JSON，不要包含 ```json 这样的标记",
+          ].join("\n");
+
+          // 构建请求头（阿里云百炼需要特殊处理）
+          const headers = {
+            "Content-Type": "application/json",
+          };
+
+          if (isBailian) {
+            headers["Authorization"] = `Bearer ${token}`;
+          } else {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          // 构建请求体
+          const requestBody = {
+            model,
+            messages: [
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: prompt },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: `data:${mimeType};base64,${base64}`,
+                    },
+                  },
+                ],
+              },
+            ],
+          };
+
+          // 添加可选参数（阿里云百炼不支持某些参数）
+          if (!isBailian && temperature) {
+            requestBody.temperature = parseFloat(temperature);
+          }
+          if (maxTokens) {
+            requestBody.max_tokens = parseInt(maxTokens, 10);
+          }
+
+          const response = await fetch(`${apiBaseUrl}/chat/completions`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(requestBody),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              errorData = { message: errorText };
+            }
+
+            const errorMsg =
+              errorData?.error?.message ||
+              errorData?.message ||
+              errorText.substring(0, 200) ||
+              `HTTP ${response.status}`;
+
+            console.error("API 调用失败:", {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorData,
+              apiBaseUrl,
+              model,
+            });
+
+            return {
+              success: false,
+              error: `API 调用失败 (${response.status})`,
+              detail: errorMsg,
+              source: "api-error",
+            };
+          }
+
+          const data = await response.json();
+          const content = data?.choices?.[0]?.message?.content;
+
+          if (!content) {
+            return {
+              success: false,
+              error: "API 返回为空",
+              detail: "未收到有效响应内容",
+              source: "empty-response",
+            };
+          }
+
+          const trimmed = content.trim();
+          let parsed;
+          try {
+            parsed = JSON.parse(trimmed);
+          } catch {
+            const match = trimmed.match(/\{[\s\S]*\}/);
+            if (!match) {
+              return {
+                success: false,
+                error: "无法解析识别结果",
+                detail: "AI 返回的不是有效 JSON 格式",
+                source: "parse-error",
+              };
+            }
+            try {
+              parsed = JSON.parse(match[0]);
+            } catch {
+              return {
+                success: false,
+                error: "无法解析识别结果",
+                detail: "JSON 格式错误",
+                source: "parse-error",
+              };
+            }
+          }
+
+          const courses = Array.isArray(parsed?.courses) ? parsed.courses : [];
+          const normalized = courses
+            .map((course, index) => {
+              const weekStart = Number(course.weekStart || 1);
+              const weekEnd = Number(course.weekEnd || Math.max(16, weekStart));
+              const periodStart = Number(course.periodStart || 1);
+              const periodCount = Number(course.periodCount || 2);
+              const dayOfWeek = Number(course.dayOfWeek || 1);
+              const weekType = String(course.weekType || "all");
+
+              const normalizedCourse = {
+                id: `ai-${Date.now()}-${index}`,
+                name: String(course.name || "未命名课程").trim(),
+                teacher: String(course.teacher || "待确认").trim(),
+                location: String(course.location || "待确认").trim(),
+                weekStart: Number.isFinite(weekStart) ? Math.max(1, weekStart) : 1,
+                weekEnd: Number.isFinite(weekEnd) ? Math.max(1, weekEnd) : Math.max(16, weekStart),
+                dayOfWeek: Number.isFinite(dayOfWeek) ? Math.min(7, Math.max(1, dayOfWeek)) : 1,
+                periodStart: Number.isFinite(periodStart) ? Math.max(1, periodStart) : 1,
+                periodCount: Number.isFinite(periodCount) ? Math.max(1, periodCount) : 2,
+                weekType: ["all", "odd", "even"].includes(weekType) ? weekType : "all",
+                color: COLORS[index % COLORS.length] || "bg-blue-500",
+              };
+
+              // 根据 weekType 生成 weeks 数组
+              if (weekType === "odd" || weekType === "even") {
+                normalizedCourse.weeks = [];
+                for (let w = normalizedCourse.weekStart; w <= normalizedCourse.weekEnd; w++) {
+                  if (weekType === "odd" && w % 2 === 1) {
+                    normalizedCourse.weeks.push(w);
+                  } else if (weekType === "even" && w % 2 === 0) {
+                    normalizedCourse.weeks.push(w);
+                  }
+                }
+              }
+
+              return normalizedCourse;
+            })
+            .filter((course) => course.name && course.name !== "未命名课程");
+
+          if (normalized.length === 0) {
+            return {
+              success: false,
+              error: "未识别到有效课程",
+              detail: "请确保图片清晰且包含课程表信息",
+              source: "empty-result",
+            };
+          }
+
+          return {
+            success: true,
+            courses: normalized,
+            source: "browser-direct",
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: "识别过程异常",
+            detail: error?.message || String(error),
+            source: "exception",
+          };
+        }
+      }
+
+      window.navigateWeek = (delta) => {
+        state.selectedDate = new Date(state.selectedDate);
+        state.selectedDate.setDate(state.selectedDate.getDate() + delta * 7);
+        render();
+      };
+
+      window.goToToday = () => {
+        state.selectedDate = new Date();
+        render();
+      };
+
+      window.toggleView = () => {
+        state.viewMode = state.viewMode === "schedule" ? "calendar" : "schedule";
+        render();
+      };
+
+      window.navigateMonth = (delta) => {
+        state.selectedDate = new Date(state.selectedDate);
+        state.selectedDate.setMonth(state.selectedDate.getMonth() + delta);
+        render();
+      };
+
+      window.selectDate = (iso) => {
+        state.selectedDate = new Date(iso);
+        state.viewMode = "schedule";
+        render();
+      };
+
+      window.showAddCourse = () => showCourseModal(null);
+
+      window.editTimeSlot = (period) => {
+        const slot = state.config.timeSlots.find((s) => s.period === period);
+        if (!slot) return;
+
+        const modal = showModal(`
+          <div class="p-6 max-w-md">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold">编辑第 ${period} 节时间</h3>
+              <button onclick="closeModal(this)" class="btn btn-ghost btn-sm">×</button>
+            </div>
+            <form onsubmit="saveTimeSlot(event, ${period})" class="space-y-3">
+              <div>
+                <label class="label"><span class="label-text font-semibold">开始时间</span></label>
+                <input type="time" name="startTime" class="input input-bordered w-full" required value="${slot.startTime}" />
+              </div>
+              <div>
+                <label class="label"><span class="label-text font-semibold">结束时间</span></label>
+                <input type="time" name="endTime" class="input input-bordered w-full" required value="${slot.endTime}" />
+              </div>
+              <div class="text-xs text-base-content/60 bg-base-200 p-2 rounded">
+                提示：修改后将应用到所有周的第 ${period} 节课程
+              </div>
+              <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeModal(this)" class="btn btn-ghost">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+              </div>
+            </form>
+          </div>
+        `);
+      };
+
+      window.saveTimeSlot = (event, period) => {
+        event.preventDefault();
+        const fd = new FormData(event.target);
+
+        const startTime = String(fd.get("startTime") || "");
+        const endTime = String(fd.get("endTime") || "");
+
+        if (!startTime || !endTime) {
+          alert("请填写完整的时间");
+          return;
+        }
+
+        if (startTime >= endTime) {
+          alert("结束时间必须晚于开始时间");
+          return;
+        }
+
+        const slotIndex = state.config.timeSlots.findIndex((s) => s.period === period);
+        if (slotIndex >= 0) {
+          state.config.timeSlots[slotIndex].startTime = startTime;
+          state.config.timeSlots[slotIndex].endTime = endTime;
+          saveConfig();
+          render();
+          document.querySelector(".modal-overlay")?.remove();
+        }
+      };
+
+      window.editCourse = (id) => {
+        const course = state.config.courses.find((c) => c.id === id);
+        if (course) showCourseModal(course);
+      };
+
+      window.selectColor = (color, btn) => {
+        const group = btn.parentElement;
+        group.querySelectorAll("button").forEach((b) => b.classList.remove("ring-2", "ring-offset-2", "ring-primary"));
+        btn.classList.add("ring-2", "ring-offset-2", "ring-primary");
+        const hidden = group.querySelector('input[name="color"]');
+        hidden.value = color;
+      };
+
+      window.saveCourse = (event, id, isNew) => {
+        event.preventDefault();
+        const fd = new FormData(event.target);
+
+        const weekStart = Number(fd.get("weekStart"));
+        const weekEnd = Number(fd.get("weekEnd"));
+        const periodStart = Number(fd.get("periodStart"));
+        const periodCount = Number(fd.get("periodCount"));
+        const weekType = String(fd.get("weekType") || "all");
+
+        if (weekEnd < weekStart) {
+          alert("结束周不能小于起始周");
+          return;
+        }
+
+        if (periodStart + periodCount - 1 > state.config.timeSlots.length) {
+          alert("节次超出当天课程最大节数");
+          return;
+        }
+
+        const course = {
+          id,
+          name: String(fd.get("name") || "").trim(),
+          teacher: String(fd.get("teacher") || "").trim(),
+          location: String(fd.get("location") || "").trim(),
+          dayOfWeek: Number(fd.get("dayOfWeek")),
+          periodStart,
+          periodCount,
+          color: String(fd.get("color") || COLORS[0] || "bg-blue-500"),
+          weekStart,
+          weekEnd,
+          weekType,
+        };
+
+        // 根据 weekType 生成 weeks 数组（可选，用于兼容性）
+        if (weekType === "odd" || weekType === "even") {
+          course.weeks = [];
+          for (let w = weekStart; w <= weekEnd; w++) {
+            if (weekType === "odd" && w % 2 === 1) {
+              course.weeks.push(w);
+            } else if (weekType === "even" && w % 2 === 0) {
+              course.weeks.push(w);
+            }
+          }
+        }
+
+        if (isNew) {
+          state.config.courses.push(course);
+        } else {
+          const idx = state.config.courses.findIndex((c) => c.id === id);
+          if (idx >= 0) state.config.courses[idx] = course;
+        }
+
+        saveConfig();
+        render();
+        document.querySelector(".modal-overlay")?.remove();
+      };
+
+      window.deleteCourse = (id) => {
+        if (!confirm("确定删除该课程吗？")) return;
+        state.config.courses = state.config.courses.filter((c) => c.id !== id);
+        saveConfig();
+        render();
+        document.querySelector(".modal-overlay")?.remove();
+      };
+
+      window.toggleSettings = () => {
+        showModal(
+          `
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold">课表设置</h3>
+              <button onclick="closeModal(this)" class="btn btn-ghost btn-sm">×</button>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="label"><span class="label-text">课表名称</span></label>
+                <input type="text" id="set-name" class="input input-bordered w-full" value="${state.config.name}" />
+              </div>
+              <div>
+                <label class="label"><span class="label-text">学期</span></label>
+                <input type="text" id="set-semester" class="input input-bordered w-full" value="${state.config.semester}" />
+              </div>
+              <div>
+                <label class="label"><span class="label-text">开学日期</span></label>
+                <input type="date" id="set-start" class="input input-bordered w-full" value="${state.config.startDate}" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="label"><span class="label-text">总周数</span></label>
+                  <input type="number" id="set-weekcount" class="input input-bordered w-full" min="1" max="30" value="${state.config.weekCount}" />
+                </div>
+                <div>
+                  <label class="label"><span class="label-text">当前周</span></label>
+                  <input type="number" id="set-current" class="input input-bordered w-full" min="1" max="30" value="${state.config.currentWeek}" />
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+              <button onclick="closeModal(this)" class="btn btn-ghost">取消</button>
+              <button onclick="saveSettings()" class="btn btn-primary">保存</button>
+            </div>
+          </div>
+        `,
+          "max-w-md",
+        );
+      };
+
+      window.saveSettings = () => {
+        state.config.name = document.getElementById("set-name").value.trim() || "我的课表";
+        state.config.semester = document.getElementById("set-semester").value.trim();
+        state.config.startDate = document.getElementById("set-start").value;
+        state.config.weekCount = Number(document.getElementById("set-weekcount").value) || 20;
+        state.config.currentWeek = Number(document.getElementById("set-current").value) || 1;
+        saveConfig();
+        render();
+        document.querySelector(".modal-overlay")?.remove();
+      };
+
+      window.exportSchedule = () => {
+        const blob = new Blob([JSON.stringify(state.config, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${state.config.name || "schedule"}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      window.importSchedule = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            state.config = normalizeConfig(JSON.parse(String(e.target?.result || "{}")));
+            saveConfig();
+            render();
+            alert("导入成功");
+          } catch (error) {
+            alert(`导入失败：${error.message || "格式错误"}`);
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      window.clearAllCourses = () => {
+        if (!confirm(`确定要清空所有课程吗？\n\n当前共有 ${state.config.courses.length} 门课程，此操作不可恢复。`)) {
+          return;
+        }
+        state.config.courses = [];
+        saveConfig();
+        render();
+        alert("已清空所有课程");
+      };
+
+      window.showAIModal = () => {
+        reader.readAsText(file);
+      };
+
+      window.showAIModal = () => {
+        const modal = showModal(`
+          <div class="p-6 max-w-3xl">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-base-content">AI 识别课表</h3>
+              <button onclick="closeModal(this)" class="btn btn-ghost btn-sm">×</button>
+            </div>
+
+            <!-- 使用提示 -->
+            <div class="alert bg-base-200 border border-base-300 mb-3">
+              <div class="text-sm">
+                <div class="font-semibold mb-1">温馨提示</div>
+                <ul class="list-disc pl-5 space-y-0.5 text-xs text-base-content/70">
+                  <li><strong>务必截图截全：</strong>包括上课时间段（如"8:00-9:40"）、星期、课程名称等完整信息</li>
+                  <li><strong>清晰度：</strong>确保文字清晰可读，避免模糊或反光</li>
+                  <li><strong>自动适配：</strong>AI会自动提取时间段，并匹配到课表左侧时间栏</li>
+                  <li><strong>手动校正：</strong>识别结果可在生成后手动编辑调整</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 学期配置 -->
+            <div class="rounded-lg border border-base-300 bg-base-100 p-3 mb-3">
+              <div class="text-sm font-semibold mb-2">学期设置</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="label label-text text-xs">开学日期（第一周周一）</label>
+                  <input id="ai-start-date" type="date" class="input input-bordered input-sm w-full" value="${state.config.startDate}" />
+                </div>
+                <div>
+                  <label class="label label-text text-xs">当前是第几周</label>
+                  <input id="ai-current-week" type="number" min="1" max="30" class="input input-bordered input-sm w-full" value="${state.config.currentWeek}" />
+                </div>
+              </div>
+            </div>
+
+            <!-- API 配置 -->
+            <div class="rounded-lg border border-base-300 bg-base-100 p-3 mb-3">
+              <div class="text-sm font-semibold mb-2">API 配置（本地存储，不上传服务器）</div>
+
+              <!-- 快速配置 -->
+              <div class="flex flex-wrap gap-1 mb-2">
+                <button type="button" onclick="setupBailian()" class="btn btn-xs btn-outline">阿里云百炼</button>
+                <button type="button" onclick="setupOpenAI()" class="btn btn-xs btn-outline">OpenAI</button>
+                <button type="button" onclick="setupSiliconFlow()" class="btn btn-xs btn-outline">硅基流动</button>
+                <button type="button" onclick="setupCustomAPI()" class="btn btn-xs btn-outline">自定义</button>
+              </div>
+
+              <!-- API Token -->
+              <div class="mb-2">
+                <label class="label label-text text-xs">API Token / Key</label>
+                <div class="flex gap-2">
+                  <input id="ai-token-input" type="password" class="input input-bordered input-sm flex-1" placeholder="sk-..." autocomplete="off" />
+                  <button id="ai-token-save" type="button" class="btn btn-sm btn-primary">保存</button>
+                  <button id="ai-token-clear" type="button" class="btn btn-sm btn-ghost">清除</button>
+                </div>
+              </div>
+
+              <!-- 自定义配置（折叠） -->
+              <div class="collapse collapse-arrow bg-base-200">
+                <input type="checkbox" id="custom-api-toggle" />
+                <div class="collapse-title text-xs font-medium py-2 min-h-0">高级配置（可选）</div>
+                <div class="collapse-content px-2">
+                  <div class="space-y-2">
+                    <div>
+                      <label class="label label-text text-xs">API 端点</label>
+                      <input id="ai-base-url" type="text" class="input input-bordered input-sm w-full" placeholder="https://api.openai.com/v1" />
+                    </div>
+                    <div>
+                      <label class="label label-text text-xs">模型名称</label>
+                      <input id="ai-model" type="text" class="input input-bordered input-sm w-full" placeholder="gpt-4o-mini" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="label label-text text-xs">Temperature (0-2)</label>
+                        <input id="ai-temperature" type="number" step="0.1" min="0" max="2" class="input input-bordered input-sm w-full" placeholder="0.7" />
+                      </div>
+                      <div>
+                        <label class="label label-text text-xs">Max Tokens</label>
+                        <input id="ai-max-tokens" type="number" step="100" min="100" class="input input-bordered input-sm w-full" placeholder="2000" />
+                      </div>
+                    </div>
+                    <button type="button" onclick="saveCustomAPIConfig()" class="btn btn-xs btn-primary w-full">保存自定义配置</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="ai-token-tip" class="text-xs text-base-content/60 mt-2"></div>
+            </div>
+
+            <!-- 上传区域 -->
+            <div class="border-2 border-dashed border-base-300 rounded-lg p-6 text-center transition-colors" id="drop-zone">
+              <div class="text-3xl mb-2">[ 图片 ]</div>
+              <p class="font-medium mb-1 text-sm">拖拽图片到这里，或点击按钮上传</p>
+              <p class="text-xs text-base-content/60 mb-3">支持 PNG / JPG / JPEG，建议小于 8MB</p>
+              <input type="file" id="ai-input" accept="image/*" class="hidden" />
+              <button type="button" onclick="this.closest('.modal-overlay').querySelector('#ai-input').click()" class="btn btn-primary btn-sm">选择图片</button>
+              <p id="ai-file-info" class="text-xs text-base-content/60 mt-2"></p>
+            </div>
+            <div id="ai-status" class="mt-2 text-xs text-base-content/60"></div>
+          </div>
+        `);
+
+        const input = modal.querySelector("#ai-input");
+        const dropZone = modal.querySelector("#drop-zone");
+        const fileInfo = modal.querySelector("#ai-file-info");
+        const statusEl = modal.querySelector("#ai-status");
+        const tokenInput = modal.querySelector("#ai-token-input");
+        const tokenTip = modal.querySelector("#ai-token-tip");
+        const tokenSaveBtn = modal.querySelector("#ai-token-save");
+        const tokenClearBtn = modal.querySelector("#ai-token-clear");
+        const startDateInput = modal.querySelector("#ai-start-date");
+        const currentWeekInput = modal.querySelector("#ai-current-week");
+
+        // 加载自定义配置到输入框
+        const loadCustomConfig = () => {
+          modal.querySelector("#ai-base-url").value = localStorage.getItem("frosti-schedule-api-base") || "";
+          modal.querySelector("#ai-model").value = localStorage.getItem("frosti-schedule-api-model") || "";
+          modal.querySelector("#ai-temperature").value = localStorage.getItem("frosti-schedule-api-temperature") || "";
+          modal.querySelector("#ai-max-tokens").value = localStorage.getItem("frosti-schedule-api-max-tokens") || "";
+        };
+        loadCustomConfig();
+
+        const refreshTokenTip = () => {
+          const token = getLocalAIToken();
+          const baseUrl = localStorage.getItem("frosti-schedule-api-base") || "";
+          const model = localStorage.getItem("frosti-schedule-api-model") || "";
+          if (token) {
+            tokenTip.textContent = `已保存 Token | 端点: ${baseUrl || "默认"} | 模型: ${model || "默认"}`;
+          } else {
+            tokenTip.textContent = "未保存 Token，请先配置";
+          }
+        };
+
+        tokenInput.value = getLocalAIToken();
+        refreshTokenTip();
+
+        tokenSaveBtn.addEventListener("click", () => {
+          setLocalAIToken(tokenInput.value);
+          tokenInput.value = getLocalAIToken();
+          refreshTokenTip();
+        });
+
+        tokenClearBtn.addEventListener("click", () => {
+          setLocalAIToken("");
+          tokenInput.value = "";
+          refreshTokenTip();
+        });
+
+        const runRecognition = async (file) => {
+          if (!file || !file.type.startsWith("image/")) {
+            statusEl.textContent = "仅支持图片文件，请重新选择";
+            return;
+          }
+          if (file.size > 8 * 1024 * 1024) {
+            statusEl.textContent = "图片过大，请控制在 8MB 以内";
+            return;
+          }
+
+          // 更新学期设置
+          state.config.startDate = startDateInput.value;
+          state.config.currentWeek = Number(currentWeekInput.value) || 1;
+          saveConfig();
+
+          fileInfo.textContent = `已选择：${file.name}（${(file.size / 1024 / 1024).toFixed(2)} MB）`;
+          dropZone.innerHTML = '<div class="text-2xl mb-2">[ ⌛ ]</div><p class="text-sm">正在识别，请稍候...</p>';
+          statusEl.textContent = "识别进行中...";
+
+          const result = await recognizeScheduleImage(file);
+
+          if (!result?.success) {
+            dropZone.innerHTML = '<div class="text-2xl mb-2">[ ✗ ]</div><p class="text-error text-sm">识别失败</p>';
+            const errorMsg = result.error || "未知错误";
+            const detailMsg = result.detail ? `<br><span class="text-xs opacity-75">${result.detail}</span>` : "";
+            statusEl.innerHTML = `<span class="text-error">${errorMsg}${detailMsg}</span>`;
+            return;
+          }
+
+          state.config.courses.push(
+            ...result.courses.map((c) => ({ ...c, id: c.id || `ai-${Date.now()}-${Math.random()}` })),
+          );
+          saveConfig();
+          render();
+
+          dropZone.innerHTML = `<div class="text-2xl mb-2">[ ✓ ]</div><p class="font-semibold text-success text-sm">识别成功</p><p class="text-xs text-base-content/60">已添加 ${result.courses.length} 门课程</p>`;
+          statusEl.textContent = `识别成功`;
+          setTimeout(() => modal.remove(), 1500);
+        };
+
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropZone.classList.add("border-primary", "bg-primary/5");
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+          dropZone.classList.remove("border-primary", "bg-primary/5");
+        });
+
+        dropZone.addEventListener("drop", async (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("border-primary", "bg-primary/5");
+          const file = e.dataTransfer?.files?.[0];
+          await runRecognition(file);
+        });
+
+        input.addEventListener("change", async (e) => {
+          const file = e.target.files?.[0];
+          await runRecognition(file);
+        });
+      };
+
+      window.closeModal = closeModal;
+
+      loadConfig();
+      render();
+    </script>
+  </MainCard>
+</BaseLayout>
+
+<style is:global>
+  #schedule-container::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  #schedule-container::-webkit-scrollbar-track {
+    background: hsl(var(--b2));
+    border-radius: 4px;
+  }
+
+  #schedule-container::-webkit-scrollbar-thumb {
+    background: hsl(var(--bc) / 0.25);
+    border-radius: 4px;
+  }
+
+  #schedule-container::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--bc) / 0.45);
+  }
+</style>
