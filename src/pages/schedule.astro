@@ -16,7 +16,6 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
           <button onclick="navigateWeek(-1)" class="btn btn-sm btn-outline">← 上周</button>
           <button onclick="goToToday()" class="btn btn-sm btn-primary">今天</button>
           <button onclick="navigateWeek(1)" class="btn btn-sm btn-outline">下周 →</button>
-          <button id="toggle-view-btn" onclick="toggleView()" class="btn btn-sm btn-ghost">日历</button>
           <button onclick="showAddCourse()" class="btn btn-sm btn-primary">+ 添加课程</button>
           <button onclick="exportSchedule()" class="btn btn-sm btn-ghost" title="导出">导出</button>
           <label class="btn btn-sm btn-ghost cursor-pointer" title="导入">
@@ -49,7 +48,7 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
         <div class="collapse-content">
           <ol class="list-decimal pl-5 space-y-1 text-sm">
             <li><strong>添加课程：</strong>点击「+ 添加课程」录入课程信息</li>
-            <li><strong>切换视图：</strong>点击「日历」按钮切换月历与周课表</li>
+            <li><strong>查看课表：</strong>按周查看课程，支持上一周/下一周切换</li>
             <li><strong>AI 识别：</strong>上传教务截图，自动填充课程草稿</li>
             <li><strong>导入导出：</strong>支持 JSON 导入与导出，便于备份和迁移</li>
           </ol>
@@ -73,7 +72,6 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
 
       let state = {
         config: structuredClone(DEFAULT_CONFIG),
-        viewMode: "schedule",
         selectedDate: new Date(),
       };
 
@@ -152,6 +150,7 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
           periodCount: Number(course.periodCount),
           weekStart: Number(course.weekStart),
           weekEnd: Number(course.weekEnd),
+          weekType: ["all", "odd", "even"].includes(String(course.weekType)) ? String(course.weekType) : "all",
           color: course.color || COLORS[0] || "bg-blue-500",
         }));
         return cfg;
@@ -299,18 +298,9 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
         return true; // 'all' - 所有周
       }
 
-      function getCoursesForDate(date) {
-        const info = getWeekInfo(date);
-        const day = info.weekday;
-        return state.config.courses.filter(
-          (course) => course.dayOfWeek === day && isCourseActiveInWeek(course, info.week),
-        );
-      }
-
       function renderHeader(info) {
         const currentDate = document.getElementById("current-date");
         const weekInfo = document.getElementById("week-info");
-        const toggleBtn = document.getElementById("toggle-view-btn");
 
         currentDate.textContent = info.date.toLocaleDateString("zh-CN", {
           year: "numeric",
@@ -319,7 +309,6 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
           weekday: "long",
         });
         weekInfo.textContent = `第${info.week}周 · 周${WEEKDAYS[info.weekday - 1]}${info.week === state.config.currentWeek ? "（本周）" : ""}`;
-        toggleBtn.textContent = state.viewMode === "schedule" ? "日历" : "课表";
       }
 
       function renderSchedule(container, info) {
@@ -375,7 +364,7 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
                 <div class="font-bold text-sm truncate">${course.name}</div>
                 <div class="text-xs opacity-90 truncate">@ ${course.location || "待定"}</div>
                 <div class="text-xs opacity-80 truncate">${course.teacher || "未填写"}</div>
-                <div class="text-[11px] opacity-75 mt-1">${course.weekStart}-${course.weekEnd}周</div>
+                <div class="text-[11px] opacity-75 mt-1">${course.weekStart}-${course.weekEnd}周${course.weekType === "odd" ? " · 单周" : course.weekType === "even" ? " · 双周" : ""}</div>
               </button>
             </td>`;
           }
@@ -387,63 +376,78 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
         container.innerHTML = html;
       }
 
-      function renderCalendar(container) {
-        const year = state.selectedDate.getFullYear();
-        const month = state.selectedDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const startDay = firstDay.getDay() || 7;
-
-        let html = '<div class="p-4"><div class="flex items-center justify-between mb-4">';
-        html += '<button onclick="navigateMonth(-1)" class="btn btn-sm btn-ghost">◀</button>';
-        html += `<h3 class="text-xl font-bold">${year}年 ${MONTHS[month]}</h3>`;
-        html += '<button onclick="navigateMonth(1)" class="btn btn-sm btn-ghost">▶</button>';
-        html += '</div><div class="grid grid-cols-7 gap-1">';
-
-        WEEKDAYS.forEach((day) => {
-          html += `<div class="text-center font-semibold py-2 text-base-content/60">${day}</div>`;
-        });
-
-        for (let i = 0; i < startDay - 1; i++) {
-          html += '<div class="aspect-square"></div>';
-        }
-
-        for (let day = 1; day <= lastDay.getDate(); day++) {
-          const date = new Date(year, month, day);
-          const isToday = dateOnly(date).getTime() === dateOnly(new Date()).getTime();
-          const isSelected = dateOnly(state.selectedDate).getTime() === dateOnly(date).getTime();
-          const courses = getCoursesForDate(date);
-
-          html += `<button onclick="selectDate('${date.toISOString()}')" class="aspect-square p-1 border rounded-lg text-left transition-all ${
-            isSelected
-              ? "bg-primary text-primary-content border-primary"
-              : isToday
-                ? "bg-primary/10 border-primary"
-                : "hover:bg-base-200 border-base-300"
-          }">
-            <div class="text-sm font-semibold">${day}</div>
-            <div class="text-[11px] leading-tight mt-1 space-y-0.5 max-h-8 overflow-hidden">
-              ${courses
-                .slice(0, 2)
-                .map((c) => `<div class="truncate ${c.color.replace("bg-", "text-")}">${c.name}</div>`)
-                .join("")}
-            </div>
-          </button>`;
-        }
-
-        html += "</div></div>";
-        container.innerHTML = html;
-      }
-
       function render() {
         const info = getWeekInfo(state.selectedDate);
         renderHeader(info);
         const container = document.getElementById("schedule-container");
-        if (state.viewMode === "schedule") {
-          renderSchedule(container, info);
-        } else {
-          renderCalendar(container);
+        renderSchedule(container, info);
+      }
+
+      function extractRangeFromText(text) {
+        const source = String(text || "");
+        const m = source.match(/(\d{1,2})\s*[-~至]\s*(\d{1,2})/);
+        if (m) {
+          const start = Number(m[1]);
+          const end = Number(m[2]);
+          if (Number.isFinite(start) && Number.isFinite(end)) {
+            return [Math.min(start, end), Math.max(start, end)];
+          }
         }
+        const allNums =
+          source
+            .match(/\d{1,2}/g)
+            ?.map(Number)
+            .filter((n) => Number.isFinite(n)) || [];
+        if (allNums.length > 0) {
+          return [Math.min(...allNums), Math.max(...allNums)];
+        }
+        return null;
+      }
+
+      function parseWeekType(rawText) {
+        const text = String(rawText || "").toLowerCase();
+        if (text.includes("单周") || text.includes("奇数周") || text.includes("odd")) return "odd";
+        if (text.includes("双周") || text.includes("偶数周") || text.includes("even")) return "even";
+        return "all";
+      }
+
+      function parseDayOfWeek(rawText, rawNumber) {
+        const value = String(rawText ?? "").trim();
+        const mapping = {
+          一: 1,
+          二: 2,
+          三: 3,
+          四: 4,
+          五: 5,
+          六: 6,
+          日: 7,
+          天: 7,
+        };
+        const m = value.match(/(?:周|星期)?([一二三四五六日天])/);
+        if (m) return mapping[m[1]];
+
+        const num = Number(rawNumber ?? rawText);
+        if (Number.isFinite(num) && num >= 1 && num <= 7) return num;
+        return 1;
+      }
+
+      function parsePeriodStartAndCount(courseLike) {
+        const directStart = Number(courseLike?.periodStart);
+        const directCount = Number(courseLike?.periodCount);
+        if (Number.isFinite(directStart) && directStart > 0) {
+          return [directStart, Number.isFinite(directCount) && directCount > 0 ? directCount : 1];
+        }
+
+        const periodText = String(
+          courseLike?.period || courseLike?.periodText || courseLike?.rawPeriodText || courseLike?.timeSlot || "",
+        );
+        const periodRange = extractRangeFromText(periodText);
+        if (periodRange) {
+          const [start, end] = periodRange;
+          return [start, Math.max(1, end - start + 1)];
+        }
+
+        return [1, 2];
       }
 
       function closeModal(el) {
@@ -587,6 +591,7 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
 
           const prompt = [
             "你是专业的课表识别助手。请仔细分析图片中的课程表，提取所有课程信息。",
+            "只输出 JSON，不要输出解释文字。",
             "",
             "**务必注意：图片中的时间信息（如 8:00-9:40）需要映射到节次：**",
             "- 第1节: 08:00-08:50 或 08:00-09:40（2节连上）",
@@ -600,16 +605,18 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
             "**分析要点：**",
             "- 图片可能是课表截图、表格、或手写课表",
             "- 横轴通常是星期（周一到周日），纵轴是节次或时间段",
+            "- 有些课表列头从周日开始，有些从周一开始；无论列顺序如何，dayOfWeek 都必须按 周一=1...周日=7",
             "- 每个单元格可能包含：课程名、教师、教室、周次范围",
             "- **周次格式识别（重要）：**",
             '  - "1-16周" → weekStart:1, weekEnd:16, weekType:"all"',
             '  - "单周" 或 "1,3,5周" → weekType:"odd"（奇数周）',
             '  - "双周" 或 "2,4,6周" → weekType:"even"（偶数周）',
             '  - "1-8,10-16周" → 提取起止范围，weekType:"all"',
+            "- **不要把‘周次/节次/老师/教室’拼进课程名字段**",
             "- **关键：如果图片显示具体时间（如8:00-9:40），请根据时间推断对应的节次**",
             "",
             "**输出格式（纯 JSON，不要markdown代码块）：**",
-            '{"courses":[{"name":"高等数学","teacher":"张三","location":"东教108","weekStart":1,"weekEnd":16,"weekType":"all","dayOfWeek":1,"periodStart":1,"periodCount":2,"timeSlot":"08:00-09:40"}]}',
+            '{"courses":[{"name":"高等数学","teacher":"张三","location":"东教108","weekStart":1,"weekEnd":16,"weekType":"all","weekText":"1-16周","dayOfWeek":1,"dayText":"周一","periodStart":1,"periodCount":2,"periodText":"1-2节","timeSlot":"08:00-09:40"}]}',
             "",
             "**字段说明：**",
             "- name: 课程名称（必填）",
@@ -618,9 +625,12 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
             "- weekStart: 起始周（1-20）",
             "- weekEnd: 结束周（1-20）",
             '- weekType: 周次类型（"all"=每周, "odd"=单周, "even"=双周）',
+            '- weekText: 原始周次文本（可选，如"1-16周"、"1,3,5周"）',
             "- dayOfWeek: 星期几（1=周一, 7=周日）",
+            '- dayText: 原始星期文本（可选，如"周三"）',
             "- periodStart: 开始节次（1-12，根据时间推断）",
             "- periodCount: 持续节数（1-4，连续上几节）",
+            '- periodText: 原始节次文本（可选，如"3-4节"）',
             '- timeSlot: 原始时间段（可选，如"08:00-09:40"）',
             "",
             "**注意：**",
@@ -630,6 +640,7 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
             "- 如果一门课跨多个单元格（如上午2节），periodCount 设为 2",
             "- **如果图片显示时间而非节次，请根据时间推断节次（如8:00对应第1节）**",
             "- 尽可能提取所有能看到的课程",
+            "- 只要能识别出星期文本，必须填 dayText，并让 dayOfWeek 与 dayText 一致",
             "- 输出纯 JSON，不要包含 ```json 这样的标记",
           ].join("\n");
 
@@ -749,16 +760,31 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
           const courses = Array.isArray(parsed?.courses) ? parsed.courses : [];
           const normalized = courses
             .map((course, index) => {
-              const weekStart = Number(course.weekStart || 1);
-              const weekEnd = Number(course.weekEnd || Math.max(16, weekStart));
-              const periodStart = Number(course.periodStart || 1);
-              const periodCount = Number(course.periodCount || 2);
-              const dayOfWeek = Number(course.dayOfWeek || 1);
-              const weekType = String(course.weekType || "all");
+              const weekText = String(
+                course.weekText || course.weeksText || course.week || course.rawWeekText || course.note || "",
+              );
+              const rawWeekStart = Number(course.weekStart);
+              const rawWeekEnd = Number(course.weekEnd);
+              const weekRange = extractRangeFromText(weekText);
+              const weekStart = Number.isFinite(rawWeekStart) ? rawWeekStart : weekRange ? weekRange[0] : 1;
+              const weekEnd = Number.isFinite(rawWeekEnd)
+                ? rawWeekEnd
+                : weekRange
+                  ? weekRange[1]
+                  : Math.max(16, weekStart);
+
+              const [periodStart, periodCount] = parsePeriodStartAndCount(course);
+              const dayOfWeek = parseDayOfWeek(
+                course.dayText || course.day || course.weekdayText || course.weekday || course.dayOfWeekText,
+                course.dayOfWeek,
+              );
+              const weekType = ["all", "odd", "even"].includes(String(course.weekType))
+                ? String(course.weekType)
+                : parseWeekType(weekText);
 
               const normalizedCourse = {
                 id: `ai-${Date.now()}-${index}`,
-                name: String(course.name || "未命名课程").trim(),
+                name: String(course.name || course.courseName || "未命名课程").trim(),
                 teacher: String(course.teacher || "待确认").trim(),
                 location: String(course.location || "待确认").trim(),
                 weekStart: Number.isFinite(weekStart) ? Math.max(1, weekStart) : 1,
@@ -818,23 +844,6 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
 
       window.goToToday = () => {
         state.selectedDate = new Date();
-        render();
-      };
-
-      window.toggleView = () => {
-        state.viewMode = state.viewMode === "schedule" ? "calendar" : "schedule";
-        render();
-      };
-
-      window.navigateMonth = (delta) => {
-        state.selectedDate = new Date(state.selectedDate);
-        state.selectedDate.setMonth(state.selectedDate.getMonth() + delta);
-        render();
-      };
-
-      window.selectDate = (iso) => {
-        state.selectedDate = new Date(iso);
-        state.viewMode = "schedule";
         render();
       };
 
@@ -1069,10 +1078,6 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
       };
 
       window.showAIModal = () => {
-        reader.readAsText(file);
-      };
-
-      window.showAIModal = () => {
         const modal = showModal(`
           <div class="p-6 max-w-3xl">
             <div class="flex justify-between items-center mb-4">
@@ -1171,6 +1176,18 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
               <button type="button" onclick="this.closest('.modal-overlay').querySelector('#ai-input').click()" class="btn btn-primary btn-sm">选择图片</button>
               <p id="ai-file-info" class="text-xs text-base-content/60 mt-2"></p>
             </div>
+
+            <div id="ai-preview" class="hidden mt-3 rounded-lg border border-base-300 bg-base-100 p-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-semibold">识别结果预览（确认后才会写入课表）</div>
+                <button type="button" id="ai-preview-reset" class="btn btn-xs btn-ghost">重新识别</button>
+              </div>
+              <div id="ai-preview-list" class="max-h-56 overflow-auto text-xs"></div>
+              <div class="flex justify-end gap-2 mt-3">
+                <button type="button" id="ai-preview-cancel" class="btn btn-sm btn-ghost">取消</button>
+                <button type="button" id="ai-preview-confirm" class="btn btn-sm btn-primary">确认导入</button>
+              </div>
+            </div>
             <div id="ai-status" class="mt-2 text-xs text-base-content/60"></div>
           </div>
         `);
@@ -1185,6 +1202,12 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
         const tokenClearBtn = modal.querySelector("#ai-token-clear");
         const startDateInput = modal.querySelector("#ai-start-date");
         const currentWeekInput = modal.querySelector("#ai-current-week");
+        const previewWrap = modal.querySelector("#ai-preview");
+        const previewList = modal.querySelector("#ai-preview-list");
+        const previewConfirmBtn = modal.querySelector("#ai-preview-confirm");
+        const previewCancelBtn = modal.querySelector("#ai-preview-cancel");
+        const previewResetBtn = modal.querySelector("#ai-preview-reset");
+        let pendingCourses = [];
 
         // 加载自定义配置到输入框
         const loadCustomConfig = () => {
@@ -1221,6 +1244,190 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
           refreshTokenTip();
         });
 
+        const resetPreview = () => {
+          pendingCourses = [];
+          previewList.innerHTML = "";
+          previewWrap.classList.add("hidden");
+        };
+
+        const openEditPreviewCourse = (index) => {
+          const target = pendingCourses[index];
+          if (!target) return;
+
+          const editModal = showModal(
+            `
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-base font-semibold">编辑识别结果</h3>
+                <button type="button" id="preview-edit-close" class="btn btn-xs btn-ghost">×</button>
+              </div>
+              <form id="preview-edit-form" class="space-y-2">
+                <div>
+                  <label class="label label-text text-xs">课程名</label>
+                  <input name="name" class="input input-bordered input-sm w-full" value="${target.name || ""}" />
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="label label-text text-xs">教师</label>
+                    <input name="teacher" class="input input-bordered input-sm w-full" value="${target.teacher || ""}" />
+                  </div>
+                  <div>
+                    <label class="label label-text text-xs">地点</label>
+                    <input name="location" class="input input-bordered input-sm w-full" value="${target.location || ""}" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="label label-text text-xs">星期</label>
+                    <select name="dayOfWeek" class="select select-bordered select-sm w-full">
+                      ${WEEKDAYS.map((d, i) => `<option value="${i + 1}" ${Number(target.dayOfWeek) === i + 1 ? "selected" : ""}>周${d}</option>`).join("")}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="label label-text text-xs">开始节次</label>
+                    <input name="periodStart" type="number" min="1" max="12" class="input input-bordered input-sm w-full" value="${target.periodStart || 1}" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="label label-text text-xs">持续节次</label>
+                    <input name="periodCount" type="number" min="1" max="4" class="input input-bordered input-sm w-full" value="${target.periodCount || 1}" />
+                  </div>
+                  <div>
+                    <label class="label label-text text-xs">周次类型</label>
+                    <select name="weekType" class="select select-bordered select-sm w-full">
+                      <option value="all" ${(target.weekType || "all") === "all" ? "selected" : ""}>每周</option>
+                      <option value="odd" ${target.weekType === "odd" ? "selected" : ""}>单周</option>
+                      <option value="even" ${target.weekType === "even" ? "selected" : ""}>双周</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="label label-text text-xs">起始周</label>
+                    <input name="weekStart" type="number" min="1" max="30" class="input input-bordered input-sm w-full" value="${target.weekStart || 1}" />
+                  </div>
+                  <div>
+                    <label class="label label-text text-xs">结束周</label>
+                    <input name="weekEnd" type="number" min="1" max="30" class="input input-bordered input-sm w-full" value="${target.weekEnd || 16}" />
+                  </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                  <button type="button" id="preview-edit-cancel" class="btn btn-sm btn-ghost">取消</button>
+                  <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                </div>
+              </form>
+            </div>
+          `,
+            "max-w-md",
+          );
+
+          const closeEdit = () => editModal.remove();
+          editModal.querySelector("#preview-edit-close")?.addEventListener("click", closeEdit);
+          editModal.querySelector("#preview-edit-cancel")?.addEventListener("click", closeEdit);
+
+          editModal.querySelector("#preview-edit-form")?.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const fd = new FormData(event.target);
+
+            const weekStart = Number(fd.get("weekStart") || 1);
+            const weekEnd = Number(fd.get("weekEnd") || weekStart);
+            const periodStart = Number(fd.get("periodStart") || 1);
+            const periodCount = Number(fd.get("periodCount") || 1);
+            const weekType = String(fd.get("weekType") || "all");
+
+            if (weekEnd < weekStart) {
+              alert("结束周不能小于起始周");
+              return;
+            }
+
+            pendingCourses[index] = {
+              ...pendingCourses[index],
+              name: String(fd.get("name") || "").trim() || "未命名课程",
+              teacher: String(fd.get("teacher") || "").trim() || "待确认",
+              location: String(fd.get("location") || "").trim() || "待确认",
+              dayOfWeek: Number(fd.get("dayOfWeek") || 1),
+              periodStart: Math.max(1, periodStart),
+              periodCount: Math.max(1, periodCount),
+              weekStart: Math.max(1, weekStart),
+              weekEnd: Math.max(1, weekEnd),
+              weekType,
+            };
+
+            renderPreview(pendingCourses);
+            closeEdit();
+          });
+        };
+
+        const renderPreview = (courses) => {
+          previewList.innerHTML = courses
+            .map(
+              (c, i) => `
+              <div class="rounded border border-base-300 p-2 mb-2">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="font-semibold">${i + 1}. ${c.name || "未命名课程"}</div>
+                  <div class="flex items-center gap-1">
+                    <button type="button" data-preview-edit="${i}" class="btn btn-xs btn-outline">编辑</button>
+                    <button type="button" data-preview-delete="${i}" class="btn btn-xs btn-ghost">删除</button>
+                  </div>
+                </div>
+                <div class="text-base-content/70 mt-1">周${WEEKDAYS[(c.dayOfWeek || 1) - 1]} · 第${c.periodStart}-${c.periodStart + c.periodCount - 1}节 · ${c.weekStart}-${c.weekEnd}周${c.weekType === "odd" ? "（单周）" : c.weekType === "even" ? "（双周）" : ""}</div>
+                <div class="text-base-content/70">${c.location || "待确认"} · ${c.teacher || "待确认"}</div>
+              </div>
+            `,
+            )
+            .join("");
+
+          previewList.querySelectorAll("[data-preview-edit]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const index = Number(btn.getAttribute("data-preview-edit"));
+              openEditPreviewCourse(index);
+            });
+          });
+
+          previewList.querySelectorAll("[data-preview-delete]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const index = Number(btn.getAttribute("data-preview-delete"));
+              if (!Number.isFinite(index)) return;
+              pendingCourses = pendingCourses.filter((_, i) => i !== index);
+              if (!pendingCourses.length) {
+                resetPreview();
+                statusEl.textContent = "预览列表已清空，请重新识别";
+                return;
+              }
+              renderPreview(pendingCourses);
+            });
+          });
+
+          previewWrap.classList.remove("hidden");
+        };
+
+        previewConfirmBtn.addEventListener("click", () => {
+          if (!pendingCourses.length) {
+            statusEl.textContent = "没有可导入的课程";
+            return;
+          }
+          state.config.courses.push(
+            ...pendingCourses.map((c) => ({ ...c, id: c.id || `ai-${Date.now()}-${Math.random()}` })),
+          );
+          saveConfig();
+          render();
+          statusEl.textContent = `识别成功，已导入 ${pendingCourses.length} 门课程`;
+          dropZone.innerHTML = `<div class="text-2xl mb-2">[ ✓ ]</div><p class="font-semibold text-success text-sm">导入完成</p><p class="text-xs text-base-content/60">已添加 ${pendingCourses.length} 门课程</p>`;
+          resetPreview();
+          setTimeout(() => modal.remove(), 1000);
+        });
+
+        previewCancelBtn.addEventListener("click", () => {
+          resetPreview();
+          statusEl.textContent = "已取消导入，你可以重新上传图片";
+        });
+
+        previewResetBtn.addEventListener("click", () => {
+          resetPreview();
+          statusEl.textContent = "请重新上传图片识别";
+        });
+
         const runRecognition = async (file) => {
           if (!file || !file.type.startsWith("image/")) {
             statusEl.textContent = "仅支持图片文件，请重新选择";
@@ -1247,18 +1454,19 @@ import { DEFAULT_TIME_SLOTS, MONTHS, WEEKDAYS, COLOR_THEMES } from "@/interface/
             const errorMsg = result.error || "未知错误";
             const detailMsg = result.detail ? `<br><span class="text-xs opacity-75">${result.detail}</span>` : "";
             statusEl.innerHTML = `<span class="text-error">${errorMsg}${detailMsg}</span>`;
+            resetPreview();
             return;
           }
 
-          state.config.courses.push(
-            ...result.courses.map((c) => ({ ...c, id: c.id || `ai-${Date.now()}-${Math.random()}` })),
-          );
-          saveConfig();
-          render();
+          pendingCourses = Array.isArray(result.courses) ? result.courses : [];
+          if (!pendingCourses.length) {
+            statusEl.textContent = "识别成功，但没有可导入课程";
+            return;
+          }
 
-          dropZone.innerHTML = `<div class="text-2xl mb-2">[ ✓ ]</div><p class="font-semibold text-success text-sm">识别成功</p><p class="text-xs text-base-content/60">已添加 ${result.courses.length} 门课程</p>`;
-          statusEl.textContent = `识别成功`;
-          setTimeout(() => modal.remove(), 1500);
+          dropZone.innerHTML = `<div class="text-2xl mb-2">[ ✓ ]</div><p class="font-semibold text-success text-sm">识别完成</p><p class="text-xs text-base-content/60">请在下方预览后确认导入</p>`;
+          statusEl.textContent = `识别完成：共 ${pendingCourses.length} 门课程，等待确认`;
+          renderPreview(pendingCourses);
         };
 
         dropZone.addEventListener("dragover", (e) => {
