@@ -63,6 +63,11 @@ site:
           href: /gpa
           target: _self
           svg: "material-symbols:calculate-rounded"
+        - id: schedule
+          text: 课程表
+          href: /schedule
+          target: _self
+          svg: "material-symbols:calendar-month-outline-rounded"
 
     - id: link
       text: Links
