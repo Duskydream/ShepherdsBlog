@@ -1,8 +1,6 @@
 import type { APIRoute } from "astro";
 import { Buffer } from "node:buffer";
 
-export const prerender = false;
-
 interface RecognizedCourse {
   name: string;
   teacher?: string;
