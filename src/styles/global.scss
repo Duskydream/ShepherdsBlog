@@ -44,7 +44,7 @@ kbd {
 }
 
 code {
-  font-size: 0.95em;
+  font-size: 1.05em;
 }
 
 /* Enhanced reading experience - Feishu Style */
@@ -260,7 +260,7 @@ code {
       @apply bg-transparent m-0 p-0;
       counter-reset: line;
       font-family: inherit !important;
-      font-size: 16px !important;
+      font-size: 18px !important;
       line-height: 1.5 !important;
     }
 
@@ -1049,7 +1049,7 @@ html[data-theme="notion"] .frosti-code .frosti-code-toolbar-language {
 html[data-theme="notion"] .frosti-code .frosti-code-content pre {
   @apply bg-white p-4;
   font-family: inherit !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   line-height: 1.5 !important;
 }
 
