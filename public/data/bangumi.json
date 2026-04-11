@@ -1587,7 +1587,7 @@
         "id": 76912,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 8413,
+        "collection_total": 8414,
         "rank": 676
       },
       "subject_id": 76912,
@@ -2268,7 +2268,7 @@
         "id": 604826,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 35878,
+        "collection_total": 35880,
         "rank": 181
       },
       "subject_id": 604826,
@@ -5208,7 +5208,7 @@
         "id": 316247,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 26110,
+        "collection_total": 26111,
         "rank": 732
       },
       "subject_id": 316247,
@@ -5544,7 +5544,7 @@
         "id": 332649,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 21884,
+        "collection_total": 21885,
         "rank": 368
       },
       "subject_id": 332649,
@@ -5915,7 +5915,7 @@
           },
           {
             "name": "音乐",
-            "count": 4347,
+            "count": 4348,
             "total_cont": 0
           },
           {
@@ -5930,7 +5930,7 @@
           },
           {
             "name": "青春",
-            "count": 2890,
+            "count": 2891,
             "total_cont": 0
           },
           {
@@ -7644,7 +7644,7 @@
         "id": 294135,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 19955,
+        "collection_total": 19956,
         "rank": 42
       },
       "subject_id": 294135,
@@ -8664,5 +8664,5 @@
       "private": false
     }
   ],
-  "cachedAt": 1775895915490
+  "cachedAt": 1775896909311
 }

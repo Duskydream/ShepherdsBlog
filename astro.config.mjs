@@ -9,7 +9,7 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeRapide()],
       title: "Shepherd's Blog",
-      description: "櫻の森の上を舞う — Writing, Coding Notes & Reviews",
+      description: "櫻の森の上を舞う",
       defaultLocale: "zh",
       locales: {
         root: { label: "简体中文", lang: "zh-CN" },
