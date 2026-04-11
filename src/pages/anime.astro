@@ -1,0 +1,751 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+---
+
+<StarlightPage
+  frontmatter={{ title: 'Anime Reviews' }}
+  hasSidebar={true}
+>
+  <div class="bangumi-page">
+    <div class="bangumi-shell">
+      <div class="bangumi-toolbar">
+        <div class="bangumi-search">
+          <svg class="bangumi-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            type="text"
+            id="bangumi-search"
+            placeholder="搜索动画 / 游戏..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="bangumi-filterbar">
+          <div class="bangumi-filterbar-group">
+            <span class="bangumi-filterbar-label">Media</span>
+            <div class="bangumi-filterbar-options">
+              <button type="button" data-media="anime" class="bangumi-chip is-active">动画</button>
+              <button type="button" data-media="game" class="bangumi-chip">游戏</button>
+            </div>
+          </div>
+
+          <span class="bangumi-filterbar-divider" aria-hidden="true"></span>
+
+          <div class="bangumi-filterbar-group bangumi-filterbar-group-status">
+            <span class="bangumi-filterbar-label">Status</span>
+            <div class="bangumi-filterbar-options bangumi-filterbar-options-status">
+              <button type="button" data-status="watching" class="bangumi-pill is-active">进行中</button>
+              <button type="button" data-status="wish" class="bangumi-pill">待补完</button>
+              <button type="button" data-status="watched" class="bangumi-pill">已完成</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="bangumi-meta" class="bangumi-meta" aria-live="polite"></div>
+
+      <div id="bangumi-grid" class="bangumi-grid" aria-live="polite" aria-busy="false">
+        <div class="bangumi-message is-pulse">加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    const API = '/bangumi';
+    const STATIC_FALLBACK = '/data/bangumi.json';
+    const CACHE_KEY = 'bangumi_cache_v3';
+    const CLIENT_TTL = 30 * 60 * 1000;
+    const MEDIA_SUBJECT_TYPE = { anime: 2, game: 4 };
+    const MEDIA_LABEL = { anime: '动画', game: '游戏' };
+    const STATUS_LABEL = { watching: '进行中', wish: '待补完', watched: '已完成' };
+
+    const state = {
+      mediaType: 'anime',
+      status: 'watching',
+      data: { watching: [], wish: [], watched: [] },
+      expanded: null,
+      isFetching: false,
+      fetchAbortController: null,
+    };
+
+    const search = document.getElementById('bangumi-search');
+    const area = document.getElementById('bangumi-grid');
+    const resultsMeta = document.getElementById('bangumi-meta');
+    const mediaButtons = [...document.querySelectorAll('.bangumi-chip')];
+    const statusButtons = [...document.querySelectorAll('.bangumi-pill')];
+
+    function escapeHTML(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function readCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed.__cachedAt && Date.now() - parsed.__cachedAt < CLIENT_TTL) {
+          return {
+            watching: parsed.watching || [],
+            wish: parsed.wish || [],
+            watched: parsed.watched || [],
+          };
+        }
+      } catch { /* ignore */ }
+      return null;
+    }
+
+    function saveCache(payload) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ...payload, __cachedAt: Date.now() }));
+      } catch { /* ignore */ }
+    }
+
+    function normalizePayload(payload) {
+      return {
+        watching: Array.isArray(payload?.watching) ? payload.watching : [],
+        wish: Array.isArray(payload?.wish) ? payload.wish : [],
+        watched: Array.isArray(payload?.watched) ? payload.watched : [],
+      };
+    }
+
+    function renderMessage(message, tone, pulse) {
+      area.innerHTML = '<div class="bangumi-message' + (tone === 'error' ? ' is-error' : '') + (pulse ? ' is-pulse' : '') + '">' + escapeHTML(message) + '</div>';
+    }
+
+    function setFetching(isFetching) {
+      area.setAttribute('aria-busy', String(isFetching));
+      area.dataset.fetching = String(isFetching);
+    }
+
+    async function requestJSON(url, signal) {
+      const response = await fetch(url, { cache: 'no-store', signal });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
+      return response.json();
+    }
+
+    async function fetchData(force) {
+      if (state.isFetching) return null;
+
+      if (!force) {
+        const cached = readCache();
+        if (cached) {
+          state.data = cached;
+          render();
+          return cached;
+        }
+      }
+
+      state.isFetching = true;
+      state.fetchAbortController = new AbortController();
+      setFetching(true);
+
+      try {
+        const query = API + '?t=' + Date.now() + (force ? '&force=true' : '');
+        const payload = await requestJSON(query, state.fetchAbortController.signal);
+        state.data = normalizePayload(payload);
+        saveCache(state.data);
+        render();
+        return state.data;
+      } catch (primaryError) {
+        if (primaryError.name === 'AbortError') return null;
+        try {
+          const payload = await requestJSON(STATIC_FALLBACK + '?t=' + Date.now(), state.fetchAbortController.signal);
+          state.data = normalizePayload(payload);
+          saveCache(state.data);
+          render();
+          return state.data;
+        } catch (fallbackError) {
+          if (fallbackError.name === 'AbortError') return null;
+          if (!state.data.watching.length && !state.data.wish.length && !state.data.watched.length) {
+            renderMessage('无法加载数据，请检查网络连接后刷新页面', 'error');
+          }
+          return null;
+        }
+      } finally {
+        state.isFetching = false;
+        state.fetchAbortController = null;
+        setFetching(false);
+      }
+    }
+
+    function getFilteredList() {
+      const source = state.data[state.status] || [];
+      const typeFilter = MEDIA_SUBJECT_TYPE[state.mediaType];
+      const keyword = search.value.toLowerCase().trim();
+
+      return source
+        .filter(item => item.subject?.type === typeFilter)
+        .filter((item) => {
+          if (!keyword) return true;
+          const title = item.subject?.name_cn || item.subject?.name || '';
+          return title.toLowerCase().includes(keyword);
+        });
+    }
+
+    function updateResultsMeta(total) {
+      const keyword = search.value.trim();
+      const base = MEDIA_LABEL[state.mediaType] + ' · ' + STATUS_LABEL[state.status] + ' · ' + total + ' 项';
+      resultsMeta.textContent = keyword ? base + ' · 关键词「' + keyword + '」' : base;
+    }
+
+    function getEmptyMessage() {
+      if (search.value.trim()) return '没有找到匹配的内容';
+      return '当前分类下还没有' + MEDIA_LABEL[state.mediaType] + '条目';
+    }
+
+    function renderCard(item, index) {
+      const titleText = item.subject?.name_cn || item.subject?.name || '?';
+      const title = escapeHTML(titleText);
+      const image = item.subject?.images?.large || item.subject?.images?.common || '';
+      const id = item.subject?.id || 0;
+      const commentText = item.comment?.trim() || '';
+      const comment = escapeHTML(commentText);
+      const preview = escapeHTML(commentText.slice(0, 120) + (commentText.length > 120 ? '...' : ''));
+      const airDate = escapeHTML(item.subject?.date || '');
+      const open = state.expanded === id;
+
+      return '<article class="bangumi-card' + (open ? ' is-open' : '') + '" data-card-id="' + id + '" style="--enter-index:' + index + ';">' +
+        '<button type="button" class="bangumi-card-trigger" data-toggle-id="' + id + '" aria-expanded="' + open + '">' +
+        '<div class="bangumi-cover">' +
+        (image
+          ? '<img src="' + image + '" alt="' + title + '" loading="lazy" decoding="async" />'
+          : '<div class="bangumi-cover-placeholder">?</div>') +
+        '</div>' +
+        '<div class="bangumi-card-info">' +
+        '<h3>' + title + '</h3>' +
+        (airDate ? '<p class="bangumi-date">发行日期: ' + airDate + '</p>' : '') +
+        (commentText
+          ? '<p class="bangumi-preview">' + preview + '</p>'
+          : '<p class="bangumi-preview bangumi-no-review">No review yet</p>') +
+        '<span class="bangumi-toggle-hint">' +
+        '<svg class="bangumi-toggle-icon' + (open ? ' rotate-180' : '') + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>' +
+        '<span class="bangumi-toggle-text">' + (open ? '收起' : '展开详情') + '</span>' +
+        '</span>' +
+        '</div>' +
+        '</button>' +
+        '<div class="bangumi-detail' + (open ? ' is-open' : '') + '" data-detail-id="' + id + '">' +
+        '<div class="bangumi-detail-inner">' +
+        '<div class="bangumi-detail-panel">' +
+        (commentText ? '<div class="bangumi-review-box"><p>' + comment + '</p></div>' : '') +
+        '<a href="https://bgm.tv/subject/' + id + '" target="_blank" rel="noopener noreferrer" class="bangumi-link">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>' +
+        '<span>View on Bangumi</span>' +
+        '</a>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</article>';
+    }
+
+    function syncControls() {
+      mediaButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.media === state.mediaType);
+      });
+      statusButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.status === state.status);
+      });
+    }
+
+    function render() {
+      const list = getFilteredList();
+      updateResultsMeta(list.length);
+
+      if (!list.length) {
+        renderMessage(getEmptyMessage());
+        return;
+      }
+
+      area.innerHTML = list.map((item, index) => renderCard(item, index)).join('');
+    }
+
+    function updateExpandedState(nextId) {
+      const cards = area.querySelectorAll('[data-card-id]');
+      cards.forEach((card) => {
+        const cardId = Number(card.getAttribute('data-card-id'));
+        const open = cardId === nextId;
+        card.classList.toggle('is-open', open);
+        const trigger = card.querySelector('[data-toggle-id]');
+        const detail = card.querySelector('.bangumi-detail');
+        const icon = card.querySelector('.bangumi-toggle-icon');
+        const text = card.querySelector('.bangumi-toggle-text');
+        trigger?.setAttribute('aria-expanded', String(open));
+        detail?.classList.toggle('is-open', open);
+        icon?.classList.toggle('rotate-180', open);
+        if (text) text.textContent = open ? '收起' : '展开详情';
+      });
+    }
+
+    function setMediaType(type) {
+      state.mediaType = type;
+      state.expanded = null;
+      syncControls();
+      render();
+    }
+
+    function setStatus(status) {
+      state.status = status;
+      state.expanded = null;
+      syncControls();
+      render();
+    }
+
+    mediaButtons.forEach(button => button.addEventListener('click', () => setMediaType(button.dataset.media)));
+    statusButtons.forEach(button => button.addEventListener('click', () => setStatus(button.dataset.status)));
+
+    area.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const trigger = event.target.closest('[data-toggle-id]');
+      if (!trigger) return;
+      const nextId = Number(trigger.dataset.toggleId);
+      state.expanded = state.expanded === nextId ? null : nextId;
+      updateExpandedState(state.expanded);
+    });
+
+    let searchTimer;
+    search.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        state.expanded = null;
+        render();
+      }, 180);
+    });
+
+    (async () => {
+      renderMessage('加载中...', 'muted', true);
+      syncControls();
+      await fetchData(true);
+    })();
+  </script>
+</StarlightPage>
+
+<style is:global>
+  .bangumi-page {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .bangumi-shell {
+    position: relative;
+    padding: 1.5rem;
+    border-radius: 1.75rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-6);
+    overflow: hidden;
+  }
+
+  .bangumi-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .bangumi-search {
+    position: relative;
+    max-width: 28rem;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .bangumi-search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sl-color-gray-4);
+    pointer-events: none;
+  }
+
+  .bangumi-search input {
+    width: 100%;
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    color: var(--sl-color-white);
+    font-size: 0.9rem;
+    transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  }
+
+  .bangumi-search input:hover {
+    transform: translateY(-1px);
+    border-color: var(--sl-color-gray-4);
+  }
+
+  .bangumi-search input:focus {
+    outline: none;
+    border-color: var(--sl-color-text);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-color-text) 25%, transparent);
+  }
+
+  .bangumi-filterbar {
+    width: min(100%, 42rem);
+    padding: 0.8rem 1rem;
+    border-radius: 1.2rem;
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0 auto;
+  }
+
+  .bangumi-filterbar-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+  }
+
+  .bangumi-filterbar-group-status {
+    flex: 1 1 auto;
+  }
+
+  .bangumi-filterbar-label {
+    flex-shrink: 0;
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  .bangumi-filterbar-options {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .bangumi-filterbar-options-status {
+    justify-content: flex-start;
+  }
+
+  .bangumi-filterbar-divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--sl-color-gray-6);
+  }
+
+  .bangumi-chip,
+  .bangumi-pill {
+    min-width: 0;
+    padding: 0.52rem 0.88rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-5);
+    background: transparent;
+    color: var(--sl-color-gray-3);
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: transform 220ms ease, color 220ms ease, background-color 220ms ease, border-color 220ms ease;
+  }
+
+  .bangumi-chip:hover,
+  .bangumi-pill:hover {
+    transform: translateY(-1px);
+    border-color: var(--sl-color-gray-4);
+  }
+
+  .bangumi-chip.is-active,
+  .bangumi-pill.is-active {
+    color: var(--sl-color-text);
+    background: var(--sl-color-text);
+    color: var(--sl-color-text-invert);
+    border-color: var(--sl-color-text);
+  }
+
+  .bangumi-meta {
+    text-align: center;
+    color: var(--sl-color-gray-3);
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    min-height: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .bangumi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .bangumi-card {
+    position: relative;
+    border-radius: 1.5rem;
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-bg);
+    overflow: hidden;
+    animation: bangumiCardIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--enter-index, 0) * 45ms);
+    transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+  }
+
+  .bangumi-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--sl-color-gray-5);
+  }
+
+  .bangumi-card.is-open {
+    border-color: var(--sl-color-gray-5);
+  }
+
+  .bangumi-card-trigger {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    padding: 1.35rem;
+    align-items: stretch;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--sl-color-white);
+    text-align: left;
+  }
+
+  .bangumi-cover {
+    width: 5.5rem;
+    min-width: 5.5rem;
+    height: 7.5rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  }
+
+  .bangumi-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bangumi-cover-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 2rem;
+    color: var(--sl-color-gray-4);
+  }
+
+  .bangumi-card-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bangumi-card-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    line-height: 1.35;
+    margin: 0 0 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .bangumi-date {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-4);
+    margin: 0 0 0.4rem;
+  }
+
+  .bangumi-preview {
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-3);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .bangumi-no-review {
+    color: var(--sl-color-gray-5);
+    font-style: italic;
+  }
+
+  .bangumi-toggle-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+    font-size: 0.75rem;
+    color: var(--sl-color-gray-4);
+    transition: color 220ms ease;
+  }
+
+  .bangumi-card:hover .bangumi-toggle-hint {
+    color: var(--sl-color-gray-2);
+  }
+
+  .bangumi-toggle-icon {
+    transition: transform 220ms ease;
+  }
+
+  .bangumi-toggle-icon.rotate-180 {
+    transform: rotate(180deg);
+  }
+
+  .bangumi-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease;
+  }
+
+  .bangumi-detail.is-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .bangumi-detail-inner {
+    overflow: hidden;
+  }
+
+  .bangumi-detail-panel {
+    padding: 0 1.35rem 1.35rem;
+    border-top: 1px solid var(--sl-color-gray-6);
+  }
+
+  .bangumi-review-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  }
+
+  .bangumi-review-box p {
+    font-size: 0.88rem;
+    color: var(--sl-color-gray-2);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin: 0;
+  }
+
+  .bangumi-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 220ms ease, color 220ms ease, background-color 220ms ease;
+  }
+
+  .bangumi-link:hover {
+    transform: translateY(-1px);
+    background: var(--sl-color-text);
+    color: var(--sl-color-text-invert);
+  }
+
+  .bangumi-message {
+    grid-column: 1 / -1;
+    padding: 3rem 1.25rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--sl-color-gray-3);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    border: 1px dashed var(--sl-color-gray-6);
+  }
+
+  .bangumi-message.is-error {
+    color: var(--sl-color-red);
+    background: color-mix(in srgb, var(--sl-color-red) 8%, transparent);
+    border-color: var(--sl-color-red);
+  }
+
+  .bangumi-message.is-pulse {
+    animation: bangumiPulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes bangumiCardIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes bangumiPulse {
+    0%, 100% { opacity: 0.65; }
+    50% { opacity: 1; }
+  }
+
+  @media (max-width: 768px) {
+    .bangumi-shell {
+      padding: 1rem;
+      border-radius: 1.4rem;
+    }
+
+    .bangumi-card-trigger {
+      padding: 1rem;
+      gap: 0.875rem;
+    }
+
+    .bangumi-cover {
+      width: 4.8rem;
+      min-width: 4.8rem;
+      height: 6.8rem;
+    }
+
+    .bangumi-filterbar {
+      width: 100%;
+      padding: 0.8rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.7rem;
+    }
+
+    .bangumi-filterbar-group {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.55rem;
+    }
+
+    .bangumi-filterbar-options,
+    .bangumi-filterbar-options-status {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .bangumi-filterbar-divider {
+      width: 100%;
+      height: 1px;
+    }
+
+    .bangumi-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bangumi-chip,
+    .bangumi-pill,
+    .bangumi-card,
+    .bangumi-link,
+    .bangumi-detail,
+    .bangumi-message,
+    .bangumi-search input {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
