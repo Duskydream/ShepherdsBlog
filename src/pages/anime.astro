@@ -112,6 +112,10 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       };
     }
 
+    function hasBangumiItems(payload) {
+      return payload.watching.length > 0 || payload.wish.length > 0 || payload.watched.length > 0;
+    }
+
     function renderMessage(message, tone, pulse) {
       area.innerHTML = '<div class="bangumi-message' + (tone === 'error' ? ' is-error' : '') + (pulse ? ' is-pulse' : '') + '">' + escapeHTML(message) + '</div>';
     }
@@ -145,16 +149,18 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
       try {
         const query = API + '?t=' + Date.now() + (force ? '&force=true' : '');
-        const payload = await requestJSON(query, state.fetchAbortController.signal);
-        state.data = normalizePayload(payload);
+        const payload = normalizePayload(await requestJSON(query, state.fetchAbortController.signal));
+        if (!hasBangumiItems(payload)) throw new Error('Empty Bangumi payload');
+        state.data = payload;
         saveCache(state.data);
         render();
         return state.data;
       } catch (primaryError) {
         if (primaryError.name === 'AbortError') return null;
         try {
-          const payload = await requestJSON(STATIC_FALLBACK + '?t=' + Date.now(), state.fetchAbortController.signal);
-          state.data = normalizePayload(payload);
+          const payload = normalizePayload(await requestJSON(STATIC_FALLBACK + '?t=' + Date.now(), state.fetchAbortController.signal));
+          if (!hasBangumiItems(payload)) throw new Error('Empty Bangumi fallback payload');
+          state.data = payload;
           saveCache(state.data);
           render();
           return state.data;

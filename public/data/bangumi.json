@@ -357,12 +357,12 @@
         "tags": [
           {
             "name": "Galgame",
-            "count": 1115,
+            "count": 1116,
             "total_cont": 0
           },
           {
             "name": "FAVORITE",
-            "count": 1093,
+            "count": 1094,
             "total_cont": 0
           },
           {
@@ -570,7 +570,7 @@
           },
           {
             "name": "PC",
-            "count": 47,
+            "count": 48,
             "total_cont": 0
           }
         ],
@@ -579,7 +579,7 @@
         "id": 7868,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 3893,
+        "collection_total": 3894,
         "rank": 153
       },
       "subject_id": 7868,
@@ -1083,7 +1083,7 @@
         "id": 1012,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 5387,
+        "collection_total": 5388,
         "rank": 201
       },
       "subject_id": 1012,
@@ -1671,7 +1671,7 @@
         "id": 37685,
         "eps": 22,
         "volumes": 0,
-        "collection_total": 31069,
+        "collection_total": 31070,
         "rank": 284
       },
       "subject_id": 37685,
@@ -1755,7 +1755,7 @@
         "id": 110467,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 49909,
+        "collection_total": 49910,
         "rank": 14
       },
       "subject_id": 110467,
@@ -2007,7 +2007,7 @@
         "id": 144881,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 2888,
+        "collection_total": 2889,
         "rank": 93
       },
       "subject_id": 144881,
@@ -2466,52 +2466,52 @@
         "tags": [
           {
             "name": "百合",
-            "count": 5478,
+            "count": 5481,
             "total_cont": 0
           },
           {
             "name": "剧场版",
-            "count": 4444,
+            "count": 4446,
             "total_cont": 0
           },
           {
             "name": "原创",
-            "count": 4338,
+            "count": 4340,
             "total_cont": 0
           },
           {
             "name": "音乐",
-            "count": 3367,
+            "count": 3369,
             "total_cont": 0
           },
           {
             "name": "科幻",
-            "count": 2758,
+            "count": 2759,
             "total_cont": 0
           },
           {
             "name": "2026年1月",
-            "count": 2149,
+            "count": 2151,
             "total_cont": 0
           },
           {
             "name": "奇幻",
-            "count": 2131,
+            "count": 2132,
             "total_cont": 0
           },
           {
             "name": "日本",
-            "count": 1922,
+            "count": 1923,
             "total_cont": 0
           },
           {
             "name": "山下清悟",
-            "count": 1914,
+            "count": 1915,
             "total_cont": 0
           },
           {
             "name": "2026",
-            "count": 1364,
+            "count": 1365,
             "total_cont": 0
           }
         ],
@@ -2520,7 +2520,7 @@
         "id": 604826,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 36022,
+        "collection_total": 36035,
         "rank": 181
       },
       "subject_id": 604826,
@@ -2856,7 +2856,7 @@
         "id": 565802,
         "eps": 2,
         "volumes": 0,
-        "collection_total": 16506,
+        "collection_total": 16508,
         "rank": 96
       },
       "subject_id": 565802,
@@ -2886,7 +2886,7 @@
         "tags": [
           {
             "name": "电波",
-            "count": 190,
+            "count": 191,
             "total_cont": 0
           },
           {
@@ -2901,7 +2901,7 @@
           },
           {
             "name": "视觉小说",
-            "count": 167,
+            "count": 168,
             "total_cont": 0
           },
           {
@@ -2930,7 +2930,7 @@
             "total_cont": 0
           },
           {
-            "name": "2025",
+            "name": "ADV",
             "count": 73,
             "total_cont": 0
           }
@@ -2940,7 +2940,7 @@
         "id": 604105,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 2062,
+        "collection_total": 2063,
         "rank": 929
       },
       "subject_id": 604105,
@@ -3024,7 +3024,7 @@
         "id": 995,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 22672,
+        "collection_total": 22678,
         "rank": 144
       },
       "subject_id": 995,
@@ -3528,7 +3528,7 @@
         "id": 1130,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 6916,
+        "collection_total": 6917,
         "rank": 1158
       },
       "subject_id": 1130,
@@ -3612,7 +3612,7 @@
         "id": 4639,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 15474,
+        "collection_total": 15475,
         "rank": 31
       },
       "subject_id": 4639,
@@ -3696,7 +3696,7 @@
         "id": 488392,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 6890,
+        "collection_total": 6889,
         "rank": 2106
       },
       "subject_id": 488392,
@@ -3780,7 +3780,7 @@
         "id": 5418,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 12784,
+        "collection_total": 12785,
         "rank": 51
       },
       "subject_id": 5418,
@@ -3864,7 +3864,7 @@
         "id": 1424,
         "eps": 14,
         "volumes": 0,
-        "collection_total": 57383,
+        "collection_total": 57386,
         "rank": 106
       },
       "subject_id": 1424,
@@ -3894,12 +3894,12 @@
         "tags": [
           {
             "name": "BanGDream",
-            "count": 4787,
+            "count": 4790,
             "total_cont": 0
           },
           {
             "name": "原创",
-            "count": 4517,
+            "count": 4519,
             "total_cont": 0
           },
           {
@@ -3914,7 +3914,7 @@
           },
           {
             "name": "无法预测的命运之舞台",
-            "count": 2884,
+            "count": 2885,
             "total_cont": 0
           },
           {
@@ -3924,7 +3924,7 @@
           },
           {
             "name": "TV",
-            "count": 2542,
+            "count": 2543,
             "total_cont": 0
           },
           {
@@ -3939,7 +3939,7 @@
           },
           {
             "name": "日本",
-            "count": 1370,
+            "count": 1371,
             "total_cont": 0
           }
         ],
@@ -3948,7 +3948,7 @@
         "id": 454684,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 37468,
+        "collection_total": 37473,
         "rank": 9966
       },
       "subject_id": 454684,
@@ -4116,7 +4116,7 @@
         "id": 160209,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 56541,
+        "collection_total": 56543,
         "rank": 191
       },
       "subject_id": 160209,
@@ -4151,7 +4151,7 @@
           },
           {
             "name": "偶像",
-            "count": 4412,
+            "count": 4413,
             "total_cont": 0
           },
           {
@@ -4171,12 +4171,12 @@
           },
           {
             "name": "恋爱",
-            "count": 2616,
+            "count": 2617,
             "total_cont": 0
           },
           {
             "name": "悬疑",
-            "count": 2124,
+            "count": 2125,
             "total_cont": 0
           },
           {
@@ -4186,7 +4186,7 @@
           },
           {
             "name": "漫改",
-            "count": 1514,
+            "count": 1515,
             "total_cont": 0
           },
           {
@@ -4200,7 +4200,7 @@
         "id": 386809,
         "eps": 11,
         "volumes": 0,
-        "collection_total": 39594,
+        "collection_total": 39597,
         "rank": 1237
       },
       "subject_id": 386809,
@@ -4230,12 +4230,12 @@
         "tags": [
           {
             "name": "恋爱",
-            "count": 3246,
+            "count": 3247,
             "total_cont": 0
           },
           {
             "name": "狗粮",
-            "count": 2023,
+            "count": 2024,
             "total_cont": 0
           },
           {
@@ -4250,7 +4250,7 @@
           },
           {
             "name": "日常",
-            "count": 1400,
+            "count": 1401,
             "total_cont": 0
           },
           {
@@ -4284,7 +4284,7 @@
         "id": 301541,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 22891,
+        "collection_total": 22893,
         "rank": 6379
       },
       "subject_id": 301541,
@@ -4368,7 +4368,7 @@
         "id": 102134,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 36021,
+        "collection_total": 36023,
         "rank": 1110
       },
       "subject_id": 102134,
@@ -4536,7 +4536,7 @@
         "id": 132734,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 30555,
+        "collection_total": 30556,
         "rank": 1333
       },
       "subject_id": 132734,
@@ -4620,7 +4620,7 @@
         "id": 277954,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 25700,
+        "collection_total": 25704,
         "rank": 4016
       },
       "subject_id": 277954,
@@ -4650,12 +4650,12 @@
         "tags": [
           {
             "name": "恋爱",
-            "count": 4105,
+            "count": 4106,
             "total_cont": 0
           },
           {
             "name": "校园",
-            "count": 2945,
+            "count": 2946,
             "total_cont": 0
           },
           {
@@ -4675,7 +4675,7 @@
           },
           {
             "name": "狗粮",
-            "count": 1312,
+            "count": 1313,
             "total_cont": 0
           },
           {
@@ -4685,7 +4685,7 @@
           },
           {
             "name": "日常",
-            "count": 1096,
+            "count": 1097,
             "total_cont": 0
           },
           {
@@ -4704,7 +4704,7 @@
         "id": 315069,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 28379,
+        "collection_total": 28384,
         "rank": 3562
       },
       "subject_id": 315069,
@@ -4734,12 +4734,12 @@
         "tags": [
           {
             "name": "原创",
-            "count": 5220,
+            "count": 5221,
             "total_cont": 0
           },
           {
             "name": "百合",
-            "count": 5106,
+            "count": 5107,
             "total_cont": 0
           },
           {
@@ -4764,7 +4764,7 @@
           },
           {
             "name": "日常",
-            "count": 1905,
+            "count": 1906,
             "total_cont": 0
           },
           {
@@ -4788,7 +4788,7 @@
         "id": 364450,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 38526,
+        "collection_total": 38529,
         "rank": 6572
       },
       "subject_id": 364450,
@@ -4872,7 +4872,7 @@
         "id": 240038,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 46747,
+        "collection_total": 46748,
         "rank": 1057
       },
       "subject_id": 240038,
@@ -4956,7 +4956,7 @@
         "id": 326895,
         "eps": 25,
         "volumes": 0,
-        "collection_total": 42772,
+        "collection_total": 42775,
         "rank": 961
       },
       "subject_id": 326895,
@@ -5040,7 +5040,7 @@
         "id": 100403,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 39805,
+        "collection_total": 39807,
         "rank": 1680
       },
       "subject_id": 100403,
@@ -5095,7 +5095,7 @@
           },
           {
             "name": "漫画改",
-            "count": 4484,
+            "count": 4485,
             "total_cont": 0
           },
           {
@@ -5124,7 +5124,7 @@
         "id": 328609,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 71549,
+        "collection_total": 71554,
         "rank": 71
       },
       "subject_id": 328609,
@@ -5154,22 +5154,22 @@
         "tags": [
           {
             "name": "乐队",
-            "count": 7084,
+            "count": 7087,
             "total_cont": 0
           },
           {
             "name": "原创",
-            "count": 6681,
+            "count": 6684,
             "total_cont": 0
           },
           {
             "name": "音乐",
-            "count": 4084,
+            "count": 4087,
             "total_cont": 0
           },
           {
             "name": "2024年4月",
-            "count": 3682,
+            "count": 3683,
             "total_cont": 0
           },
           {
@@ -5179,22 +5179,22 @@
           },
           {
             "name": "东映动画",
-            "count": 3389,
+            "count": 3390,
             "total_cont": 0
           },
           {
             "name": "3D",
-            "count": 2983,
+            "count": 2984,
             "total_cont": 0
           },
           {
             "name": "百合",
-            "count": 2449,
+            "count": 2450,
             "total_cont": 0
           },
           {
             "name": "TV",
-            "count": 2297,
+            "count": 2298,
             "total_cont": 0
           },
           {
@@ -5208,7 +5208,7 @@
         "id": 431767,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 44795,
+        "collection_total": 44804,
         "rank": 653
       },
       "subject_id": 431767,
@@ -5292,7 +5292,7 @@
         "id": 120925,
         "eps": 14,
         "volumes": 0,
-        "collection_total": 37494,
+        "collection_total": 37498,
         "rank": 6022
       },
       "subject_id": 120925,
@@ -5376,7 +5376,7 @@
         "id": 218711,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 27981,
+        "collection_total": 27982,
         "rank": 7062
       },
       "subject_id": 218711,
@@ -5460,7 +5460,7 @@
         "id": 316247,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 26153,
+        "collection_total": 26156,
         "rank": 729
       },
       "subject_id": 316247,
@@ -5628,7 +5628,7 @@
         "id": 242216,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 20279,
+        "collection_total": 20280,
         "rank": 774
       },
       "subject_id": 242216,
@@ -5712,7 +5712,7 @@
         "id": 183878,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 45682,
+        "collection_total": 45684,
         "rank": 782
       },
       "subject_id": 183878,
@@ -5796,7 +5796,7 @@
         "id": 332649,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 21903,
+        "collection_total": 21907,
         "rank": 370
       },
       "subject_id": 332649,
@@ -5880,7 +5880,7 @@
         "id": 372010,
         "eps": 25,
         "volumes": 0,
-        "collection_total": 12843,
+        "collection_total": 12845,
         "rank": 1552
       },
       "subject_id": 372010,
@@ -5964,7 +5964,7 @@
         "id": 23119,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 27649,
+        "collection_total": 27653,
         "rank": 337
       },
       "subject_id": 23119,
@@ -6048,7 +6048,7 @@
         "id": 207573,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 34833,
+        "collection_total": 34834,
         "rank": 314
       },
       "subject_id": 207573,
@@ -6132,7 +6132,7 @@
         "id": 214265,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 31279,
+        "collection_total": 31280,
         "rank": 294
       },
       "subject_id": 214265,
@@ -6162,12 +6162,12 @@
         "tags": [
           {
             "name": "恋爱",
-            "count": 5697,
+            "count": 5698,
             "total_cont": 0
           },
           {
             "name": "音乐",
-            "count": 4351,
+            "count": 4352,
             "total_cont": 0
           },
           {
@@ -6182,12 +6182,12 @@
           },
           {
             "name": "青春",
-            "count": 2894,
+            "count": 2895,
             "total_cont": 0
           },
           {
             "name": "催泪",
-            "count": 2777,
+            "count": 2778,
             "total_cont": 0
           },
           {
@@ -6216,7 +6216,7 @@
         "id": 100444,
         "eps": 22,
         "volumes": 0,
-        "collection_total": 47421,
+        "collection_total": 47430,
         "rank": 241
       },
       "subject_id": 100444,
@@ -6246,27 +6246,27 @@
         "tags": [
           {
             "name": "BanGDream",
-            "count": 7825,
+            "count": 7826,
             "total_cont": 0
           },
           {
             "name": "原创",
-            "count": 7215,
+            "count": 7216,
             "total_cont": 0
           },
           {
             "name": "音乐",
-            "count": 6586,
+            "count": 6587,
             "total_cont": 0
           },
           {
             "name": "百合",
-            "count": 5796,
+            "count": 5797,
             "total_cont": 0
           },
           {
             "name": "扭曲",
-            "count": 5390,
+            "count": 5391,
             "total_cont": 0
           },
           {
@@ -6281,7 +6281,7 @@
           },
           {
             "name": "乐队",
-            "count": 2835,
+            "count": 2836,
             "total_cont": 0
           },
           {
@@ -6300,7 +6300,7 @@
         "id": 428735,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 53680,
+        "collection_total": 53684,
         "rank": 263
       },
       "subject_id": 428735,
@@ -6384,7 +6384,7 @@
         "id": 772,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 29080,
+        "collection_total": 29083,
         "rank": 212
       },
       "subject_id": 772,
@@ -6468,7 +6468,7 @@
         "id": 129807,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 34324,
+        "collection_total": 34329,
         "rank": 122
       },
       "subject_id": 129807,
@@ -6552,7 +6552,7 @@
         "id": 27364,
         "eps": 22,
         "volumes": 0,
-        "collection_total": 62761,
+        "collection_total": 62767,
         "rank": 149
       },
       "subject_id": 27364,
@@ -6636,7 +6636,7 @@
         "id": 51,
         "eps": 23,
         "volumes": 0,
-        "collection_total": 55394,
+        "collection_total": 55399,
         "rank": 75
       },
       "subject_id": 51,
@@ -6720,7 +6720,7 @@
         "id": 29883,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 27435,
+        "collection_total": 27438,
         "rank": 70
       },
       "subject_id": 29883,
@@ -6804,7 +6804,7 @@
         "id": 3302,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 31787,
+        "collection_total": 31790,
         "rank": 57
       },
       "subject_id": 3302,
@@ -7056,7 +7056,7 @@
         "id": 851,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 11560,
+        "collection_total": 11561,
         "rank": 1179
       },
       "subject_id": 851,
@@ -7140,7 +7140,7 @@
         "id": 233926,
         "eps": 6,
         "volumes": 0,
-        "collection_total": 13239,
+        "collection_total": 13241,
         "rank": 296
       },
       "subject_id": 233926,
@@ -7224,7 +7224,7 @@
         "id": 148037,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 17784,
+        "collection_total": 17787,
         "rank": 117
       },
       "subject_id": 148037,
@@ -7308,7 +7308,7 @@
         "id": 148036,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 16814,
+        "collection_total": 16816,
         "rank": 230
       },
       "subject_id": 148036,
@@ -7392,7 +7392,7 @@
         "id": 7707,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 18940,
+        "collection_total": 18942,
         "rank": 273
       },
       "subject_id": 7707,
@@ -7476,7 +7476,7 @@
         "id": 475354,
         "eps": 15,
         "volumes": 0,
-        "collection_total": 14286,
+        "collection_total": 14289,
         "rank": 123
       },
       "subject_id": 475354,
@@ -7560,7 +7560,7 @@
         "id": 138829,
         "eps": 13,
         "volumes": 0,
-        "collection_total": 18691,
+        "collection_total": 18694,
         "rank": 457
       },
       "subject_id": 138829,
@@ -7644,7 +7644,7 @@
         "id": 68812,
         "eps": 26,
         "volumes": 0,
-        "collection_total": 25991,
+        "collection_total": 25995,
         "rank": 115
       },
       "subject_id": 68812,
@@ -7728,7 +7728,7 @@
         "id": 23161,
         "eps": 11,
         "volumes": 0,
-        "collection_total": 28584,
+        "collection_total": 28586,
         "rank": 330
       },
       "subject_id": 23161,
@@ -7812,7 +7812,7 @@
         "id": 1671,
         "eps": 15,
         "volumes": 0,
-        "collection_total": 47156,
+        "collection_total": 47160,
         "rank": 64
       },
       "subject_id": 1671,
@@ -8178,7 +8178,7 @@
         "tags": [
           {
             "name": "Galgame",
-            "count": 2679,
+            "count": 2680,
             "total_cont": 0
           },
           {
@@ -8188,7 +8188,7 @@
           },
           {
             "name": "枕",
-            "count": 1882,
+            "count": 1883,
             "total_cont": 0
           },
           {
@@ -8232,7 +8232,7 @@
         "id": 22423,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 13468,
+        "collection_total": 13469,
         "rank": 24
       },
       "subject_id": 22423,
@@ -8316,7 +8316,7 @@
         "id": 22290,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 12090,
+        "collection_total": 12091,
         "rank": 6
       },
       "subject_id": 22290,
@@ -8400,7 +8400,7 @@
         "id": 400602,
         "eps": 28,
         "volumes": 0,
-        "collection_total": 70004,
+        "collection_total": 70008,
         "rank": 40
       },
       "subject_id": 400602,
@@ -8484,7 +8484,7 @@
         "id": 4019,
         "eps": 11,
         "volumes": 0,
-        "collection_total": 31687,
+        "collection_total": 31689,
         "rank": 33
       },
       "subject_id": 4019,
@@ -8568,7 +8568,7 @@
         "id": 216371,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 38752,
+        "collection_total": 38754,
         "rank": 27
       },
       "subject_id": 216371,
@@ -8652,7 +8652,7 @@
         "id": 265,
         "eps": 26,
         "volumes": 0,
-        "collection_total": 61257,
+        "collection_total": 61259,
         "rank": 20
       },
       "subject_id": 265,
@@ -8736,7 +8736,7 @@
         "id": 10380,
         "eps": 25,
         "volumes": 0,
-        "collection_total": 74195,
+        "collection_total": 74203,
         "rank": 8
       },
       "subject_id": 10380,
@@ -8820,7 +8820,7 @@
         "id": 6049,
         "eps": 2,
         "volumes": 0,
-        "collection_total": 38287,
+        "collection_total": 38289,
         "rank": 7
       },
       "subject_id": 6049,
@@ -8904,7 +8904,7 @@
         "id": 876,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 56603,
+        "collection_total": 56606,
         "rank": 2
       },
       "subject_id": 876,
@@ -8916,5 +8916,5 @@
       "private": false
     }
   ],
-  "cachedAt": 1775996097138
+  "cachedAt": 1776000278606
 }

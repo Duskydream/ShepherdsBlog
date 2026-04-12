@@ -37,6 +37,12 @@ async function main() {
       fetchCollection(2), // watched
     ]);
 
+    const totalItems = watching.length + wish.length + watched.length;
+    if (totalItems === 0) {
+      console.warn("[bangumi] 抓取结果为空，跳过写入，保留现有 public/data/bangumi.json");
+      return;
+    }
+
     const payload = { watching, wish, watched, cachedAt: Date.now() };
     const outDir = path.resolve(process.cwd(), "public", "data");
     await fs.mkdir(outDir, { recursive: true });
