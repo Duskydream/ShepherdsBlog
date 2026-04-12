@@ -3,10 +3,12 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import fs from "node:fs";
 import path from "node:path";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import { friendLinks } from './src/data/friend-links.js';
 import starlightThemeRapide from "starlight-theme-rapide";
 
 const DOCS_ROOT = path.resolve("src/content/docs");
-
 function parseDateFromFrontmatter(filePath) {
   const content = fs.readFileSync(filePath, "utf8");
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -53,10 +55,22 @@ function buildSidebarItems(directory) {
 
 export default defineConfig({
   site: "https://duskydream.icu",
+  markdown: {
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex],
+  },
   integrations: [
     starlight({
       plugins: [starlightThemeRapide()],
       title: "Shepherd's Blog",
+      components: {
+        Sidebar: './src/components/Sidebar.astro',
+        Footer: './src/components/Footer.astro',
+      },
+      tableOfContents: {
+        minHeadingLevel: 1,
+        maxHeadingLevel: 6,
+      },
       customCss: ["./src/styles/custom.css"],
       description: "櫻の森の上を舞う",
       defaultLocale: "zh",
@@ -87,11 +101,16 @@ export default defineConfig({
           collapsed: false,
           items: buildSidebarItems("log"),
         },
-
         {
           label: "Anime",
           link: "/anime",
         },
+        {
+          label: "Links",
+          collapsed: true,
+          items: friendLinks,
+        },
+
       ],
       editLink: {
         baseUrl: "https://github.com/Duskydream/Frosti/edit/main/Starlight/",
