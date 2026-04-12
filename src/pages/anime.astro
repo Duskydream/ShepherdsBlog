@@ -454,10 +454,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-chip.is-active,
   .bangumi-pill.is-active {
-    color: var(--sl-color-text);
-    background: var(--sl-color-text);
     color: var(--sl-color-text-invert);
-    border-color: var(--sl-color-text);
+    background: #16436E;
+    border-color: #16436E;
   }
 
   .bangumi-meta {
@@ -473,7 +472,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1rem;
-    align-items: start;
+    align-items: stretch;
   }
 
   .bangumi-card {
@@ -482,6 +481,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     border: 1px solid var(--sl-color-gray-6);
     background: var(--sl-color-bg);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     animation: bangumiCardIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: calc(var(--enter-index, 0) * 45ms);
     transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
@@ -507,6 +509,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     border: none;
     color: var(--sl-color-white);
     text-align: left;
+    flex: 1;
   }
 
   .bangumi-cover {

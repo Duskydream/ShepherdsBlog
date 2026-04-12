@@ -1,0 +1,6 @@
+/* Starlight 主题色配置 */
+:root {
+  --sl-color-accent-low: #0d2a42;
+  --sl-color-accent: #16436E;
+  --sl-color-accent-high: #1e5a94;
+}

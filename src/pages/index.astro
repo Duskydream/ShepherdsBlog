@@ -6,6 +6,14 @@ import path from "node:path";
 
 const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
 
+type WatchingAnimeItem = {
+  subject?: {
+    name_cn?: string;
+    name?: string;
+    short_summary?: string;
+  };
+};
+
 // Fetch latest blogs
 const blogPosts = await getCollection("docs", (entry) => entry.id.startsWith("blog/") && entry.id !== "blog/index.md");
 const latestBlogs = blogPosts
@@ -26,12 +34,17 @@ const latestLogs = logPosts
   })
   .slice(0, 3);
 
+const latestBlogLink = latestBlogs[0] ? `/${latestBlogs[0].id}` : "/blog";
+const latestLogLink = latestLogs[0] ? `/${latestLogs[0].id}` : "/log";
+
 // Fetch bangumi data
-let watchingAnime = [];
+let watchingAnime: WatchingAnimeItem[] = [];
 try {
   const bangumiPath = path.resolve("public/data/bangumi.json");
   const bangumiContent = await fs.readFile(bangumiPath, "utf-8");
-  const bangumiData = JSON.parse(bangumiContent);
+  const bangumiData = JSON.parse(bangumiContent) as {
+    watching?: WatchingAnimeItem[];
+  };
   watchingAnime = (bangumiData.watching || []).slice(0, 3);
 } catch {
   watchingAnime = [];
@@ -168,7 +181,7 @@ try {
               >
               <span>Blogs</span>
             </div>
-            <a href="/blog" class="home-card-more">
+            <a href={latestBlogLink} class="home-card-more">
               <span>View all</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
@@ -201,7 +214,7 @@ try {
               >
               <span>Logs</span>
             </div>
-            <a href="/log" class="home-card-more">
+            <a href={latestLogLink} class="home-card-more">
               <span>View all</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
@@ -276,6 +289,7 @@ try {
       gap: 1rem;
       width: 100%;
       box-sizing: border-box;
+      zoom: 1.1;
     }
 
     .home-hero {

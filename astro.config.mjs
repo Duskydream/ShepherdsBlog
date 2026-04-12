@@ -1,7 +1,55 @@
 import starlight from "@astrojs/starlight";
 // @ts-check
 import { defineConfig } from "astro/config";
+import fs from "node:fs";
+import path from "node:path";
 import starlightThemeRapide from "starlight-theme-rapide";
+
+const DOCS_ROOT = path.resolve("src/content/docs");
+
+function parseDateFromFrontmatter(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return null;
+
+  const dateMatch = match[1].match(/^date:\s*([^\r\n]+)$/m);
+  if (!dateMatch) return null;
+
+  const timestamp = new Date(dateMatch[1].trim()).getTime();
+  return Number.isNaN(timestamp) ? null : timestamp;
+}
+
+function filenameToSlug(fileName) {
+  const stem = fileName.replace(/\.md$/i, "");
+  return stem
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[\s_]+/g, "-")
+    .replace(/[^\p{Letter}\p{Number}-]+/gu, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function buildSidebarItems(directory) {
+  const directoryPath = path.join(DOCS_ROOT, directory);
+  const entries = fs
+    .readdirSync(directoryPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".md") && entry.name !== "index.md")
+    .map((entry) => {
+      const filePath = path.join(directoryPath, entry.name);
+      return {
+        slug: `${directory}/${filenameToSlug(entry.name)}`,
+        timestamp: parseDateFromFrontmatter(filePath),
+      };
+    })
+    .filter((entry) => entry.timestamp !== null)
+    .sort((left, right) => {
+      if (left.timestamp !== right.timestamp) return right.timestamp - left.timestamp;
+      return left.slug.localeCompare(right.slug, "zh-CN");
+    });
+
+  return entries.map((entry) => ({ slug: entry.slug }));
+}
 
 export default defineConfig({
   site: "https://duskydream.icu",
@@ -9,6 +57,7 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeRapide()],
       title: "Shepherd's Blog",
+      customCss: ["./src/styles/custom.css"],
       description: "櫻の森の上を舞う",
       defaultLocale: "zh",
       locales: {
@@ -25,20 +74,20 @@ export default defineConfig({
       sidebar: [
         {
           label: "Blog",
-          autogenerate: { directory: "blog", collapsed: false },
+          collapsed: false,
+          items: buildSidebarItems("blog"),
         },
         {
           label: "Coding Notes",
-          autogenerate: { directory: "coding-notes", collapsed: false },
+          collapsed: false,
+          items: buildSidebarItems("coding-notes"),
         },
         {
           label: "Log",
-          autogenerate: { directory: "log", collapsed: false },
+          collapsed: false,
+          items: buildSidebarItems("log"),
         },
-        {
-          label: "Apps",
-          items: [{ label: "GPA Calculator", link: "/apps/gpa" }],
-        },
+
         {
           label: "Anime",
           link: "/anime",
