@@ -1,5 +1,13 @@
 ﻿# Starlight
 
+お持ちなさい  
+
+あなたの望んだその星を  
+
+And it shall be bestowed upon you,  
+
+the Star which you have longed for—  
+
 一个基于 Astro + Starlight 搭建、并按我自己的写作习惯深度客制化的个人博客。
 
 这里不只是文章归档，也包含了日志、编程笔记、追番/游戏记录，以及一套更贴近个人表达的侧边栏、页面组织和数据同步流程。
