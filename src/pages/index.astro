@@ -168,9 +168,10 @@ try {
           </li>
         </ul>
       </div>
+    </section>
 
-      <!-- Content Grid: Blogs | Logs | Anime -->
-      <div class="home-grid">
+    <!-- Content Grid: Blogs | Logs | Anime -->
+    <div class="home-grid">
         <!-- Blogs -->
         <section class="home-card home-card--blogs">
           <div class="home-card-head">
@@ -276,7 +277,6 @@ try {
           </div>
         </section>
       </div>
-    </section>
   </div>
 
   <style is:global>
@@ -472,9 +472,19 @@ try {
     }
 
     .home-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.95fr 0.95fr;
+      display: flex;
       gap: 1rem;
+    }
+
+    .home-grid > .home-card {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-grid > .home-card > .home-card-body {
+      flex: 1;
     }
 
     .home-list-item {
@@ -556,7 +566,7 @@ try {
       line-height: 1.4;
       margin: 0.2rem 0 0;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -581,10 +591,15 @@ try {
 
     @media (max-width: 960px) {
       .home-grid {
-        grid-template-columns: 1fr 1fr;
+        flex-wrap: wrap;
+      }
+      .home-grid > .home-card {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: calc(50% - 0.5rem);
       }
       .home-card--anime {
-        grid-column: 1 / -1;
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
       }
       .home-card--anime .home-card-body {
         display: grid;
@@ -614,10 +629,11 @@ try {
         font-size: 1.1rem;
       }
       .home-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
       }
-      .home-card--anime {
-        grid-column: auto;
+      .home-grid > .home-card {
+        flex: 1 1 100%;
+        min-width: 100%;
       }
       .home-card--anime .home-card-body {
         display: flex;
