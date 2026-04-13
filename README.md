@@ -75,7 +75,7 @@ pnpm dev
 | `pnpm build` | 构建站点，构建前会先抓取 Bangumi 数据 |
 | `pnpm build:functions` | 编译云函数 |
 | `pnpm preview` | 本地预览构建结果 |
-| `pnpm deploy` | 执行完整部署流程 |
+| `pnpm run deploy` | 执行完整部署流程 |
 
 ## 内容维护方式
 
@@ -114,7 +114,7 @@ description: 一句话简介
 
 ## 部署说明
 
-`pnpm deploy` 会按下面流程执行：
+`pnpm run deploy` 会按下面流程执行：
 
 1. 清理 Astro 构建缓存
 2. 构建站点
