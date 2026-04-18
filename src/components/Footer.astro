@@ -6,7 +6,9 @@ import config from 'virtual:starlight/user-config';
 import { Icon } from '@astrojs/starlight/components';
 
 const filePath = Astro.locals.starlightRoute.entry.filePath.replaceAll('\\', '/');
-const hideEditLink = filePath.startsWith('src/content/docs/blog/');
+const hideEditLink =
+	filePath.startsWith('src/content/docs/blog/') ||
+	filePath.startsWith('src/content/docs/log/');
 ---
 
 <footer class="sl-flex">

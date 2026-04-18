@@ -9,7 +9,7 @@
     "prebuild": "node ./scripts/fetch-bangumi.mjs",
     "build": "astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
-    "deploy": "node ./scripts/clean-astro.mjs && pnpm run build && pnpm run build:functions && node ./scripts/deploy.mjs",
+    "deploy": "node ./scripts/clean-astro.mjs && pnpm run build && node ./scripts/deploy.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
