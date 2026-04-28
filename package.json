@@ -9,11 +9,12 @@
     "prebuild": "node ./scripts/fetch-bangumi.mjs",
     "build": "astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
-    "deploy": "node ./scripts/clean-astro.mjs && pnpm run build && node ./scripts/deploy.mjs",
+    "deploy": "pnpm run check && node ./scripts/deploy.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.9",
     "@astrojs/internal-helpers": "0.8.0",
     "@astrojs/starlight": "^0.38.3",
     "astro": "^6.1.5",
