@@ -5,7 +5,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const USER_ID = "851657";
+const USER_ID = "duskydream";
 const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
 const LIMIT = 30;
 const DEBUG_MAX_BODY = 400;
