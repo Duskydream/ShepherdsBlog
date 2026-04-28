@@ -1,6 +1,90 @@
 {
   "watching": [
     {
+      "updated_at": "2026-04-28T23:26:21+08:00",
+      "comment": null,
+      "tags": [],
+      "subject": {
+        "date": "2014-10-09",
+        "images": {
+          "small": "https://lain.bgm.tv/r/200/pic/cover/l/73/26/110467_Fx9tT.jpg",
+          "grid": "https://lain.bgm.tv/r/100/pic/cover/l/73/26/110467_Fx9tT.jpg",
+          "large": "https://lain.bgm.tv/pic/cover/l/73/26/110467_Fx9tT.jpg",
+          "medium": "https://lain.bgm.tv/r/800/pic/cover/l/73/26/110467_Fx9tT.jpg",
+          "common": "https://lain.bgm.tv/r/400/pic/cover/l/73/26/110467_Fx9tT.jpg"
+        },
+        "name": "SHIROBAKO",
+        "name_cn": "白箱",
+        "short_summary": "本作的故事主要围绕追逐梦想的五名女生——宫森葵、安原绘麻、坂木静香、藤堂美沙、今井绿展开，是一部描写以白箱的完成为目标而奋斗的她们，每天遇到的麻烦以及策划工作时碰到的纠葛与挫折，还有制作组在制作作品时的团结和冲突的动画业界的日常的群像剧作品",
+        "tags": [
+          {
+            "name": "P.A.WORKS",
+            "count": 7536,
+            "total_cont": 0
+          },
+          {
+            "name": "原创",
+            "count": 5742,
+            "total_cont": 0
+          },
+          {
+            "name": "励志",
+            "count": 4768,
+            "total_cont": 0
+          },
+          {
+            "name": "白箱",
+            "count": 3627,
+            "total_cont": 0
+          },
+          {
+            "name": "2014年10月",
+            "count": 2812,
+            "total_cont": 0
+          },
+          {
+            "name": "水岛努",
+            "count": 2714,
+            "total_cont": 0
+          },
+          {
+            "name": "动画制作",
+            "count": 2677,
+            "total_cont": 0
+          },
+          {
+            "name": "TV",
+            "count": 2434,
+            "total_cont": 0
+          },
+          {
+            "name": "青春",
+            "count": 2079,
+            "total_cont": 0
+          },
+          {
+            "name": "职场",
+            "count": 1811,
+            "total_cont": 0
+          }
+        ],
+        "score": 8.7,
+        "type": 2,
+        "id": 110467,
+        "eps": 24,
+        "volumes": 0,
+        "collection_total": 50167,
+        "rank": 14
+      },
+      "subject_id": 110467,
+      "vol_status": 0,
+      "ep_status": 0,
+      "subject_type": 2,
+      "type": 3,
+      "rate": 0,
+      "private": false
+    },
+    {
       "updated_at": "2026-04-28T21:38:41+08:00",
       "comment": null,
       "tags": [],
@@ -355,12 +439,12 @@
         "tags": [
           {
             "name": "key",
-            "count": 283,
+            "count": 284,
             "total_cont": 0
           },
           {
             "name": "Galgame",
-            "count": 272,
+            "count": 273,
             "total_cont": 0
           },
           {
@@ -400,7 +484,7 @@
           },
           {
             "name": "水月陵",
-            "count": 44,
+            "count": 45,
             "total_cont": 0
           }
         ],
@@ -409,7 +493,7 @@
         "id": 465493,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 1933,
+        "collection_total": 1935,
         "rank": 2385
       },
       "subject_id": 465493,
@@ -1767,90 +1851,6 @@
       "private": false
     },
     {
-      "updated_at": "2026-02-09T18:24:17+08:00",
-      "comment": null,
-      "tags": [],
-      "subject": {
-        "date": "2014-10-09",
-        "images": {
-          "small": "https://lain.bgm.tv/r/200/pic/cover/l/73/26/110467_Fx9tT.jpg",
-          "grid": "https://lain.bgm.tv/r/100/pic/cover/l/73/26/110467_Fx9tT.jpg",
-          "large": "https://lain.bgm.tv/pic/cover/l/73/26/110467_Fx9tT.jpg",
-          "medium": "https://lain.bgm.tv/r/800/pic/cover/l/73/26/110467_Fx9tT.jpg",
-          "common": "https://lain.bgm.tv/r/400/pic/cover/l/73/26/110467_Fx9tT.jpg"
-        },
-        "name": "SHIROBAKO",
-        "name_cn": "白箱",
-        "short_summary": "本作的故事主要围绕追逐梦想的五名女生——宫森葵、安原绘麻、坂木静香、藤堂美沙、今井绿展开，是一部描写以白箱的完成为目标而奋斗的她们，每天遇到的麻烦以及策划工作时碰到的纠葛与挫折，还有制作组在制作作品时的团结和冲突的动画业界的日常的群像剧作品",
-        "tags": [
-          {
-            "name": "P.A.WORKS",
-            "count": 7536,
-            "total_cont": 0
-          },
-          {
-            "name": "原创",
-            "count": 5742,
-            "total_cont": 0
-          },
-          {
-            "name": "励志",
-            "count": 4768,
-            "total_cont": 0
-          },
-          {
-            "name": "白箱",
-            "count": 3627,
-            "total_cont": 0
-          },
-          {
-            "name": "2014年10月",
-            "count": 2812,
-            "total_cont": 0
-          },
-          {
-            "name": "水岛努",
-            "count": 2714,
-            "total_cont": 0
-          },
-          {
-            "name": "动画制作",
-            "count": 2677,
-            "total_cont": 0
-          },
-          {
-            "name": "TV",
-            "count": 2434,
-            "total_cont": 0
-          },
-          {
-            "name": "青春",
-            "count": 2079,
-            "total_cont": 0
-          },
-          {
-            "name": "职场",
-            "count": 1811,
-            "total_cont": 0
-          }
-        ],
-        "score": 8.7,
-        "type": 2,
-        "id": 110467,
-        "eps": 24,
-        "volumes": 0,
-        "collection_total": 50167,
-        "rank": 14
-      },
-      "subject_id": 110467,
-      "vol_status": 0,
-      "ep_status": 0,
-      "subject_type": 2,
-      "type": 1,
-      "rate": 0,
-      "private": false
-    },
-    {
       "updated_at": "2026-02-09T18:22:07+08:00",
       "comment": null,
       "tags": [],
@@ -2604,7 +2604,7 @@
         "id": 604826,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 37160,
+        "collection_total": 37161,
         "rank": 181
       },
       "subject_id": 604826,
@@ -3024,7 +3024,7 @@
         "id": 604105,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 2156,
+        "collection_total": 2157,
         "rank": 953
       },
       "subject_id": 604105,
@@ -3444,7 +3444,7 @@
         "id": 163041,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 4037,
+        "collection_total": 4038,
         "rank": 286
       },
       "subject_id": 163041,
@@ -3528,7 +3528,7 @@
         "id": 37311,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 4115,
+        "collection_total": 4116,
         "rank": 1775
       },
       "subject_id": 37311,
@@ -3612,7 +3612,7 @@
         "id": 1130,
         "eps": 0,
         "volumes": 0,
-        "collection_total": 6964,
+        "collection_total": 6965,
         "rank": 1166
       },
       "subject_id": 1130,
@@ -3948,7 +3948,7 @@
         "id": 1424,
         "eps": 14,
         "volumes": 0,
-        "collection_total": 57789,
+        "collection_total": 57790,
         "rank": 105
       },
       "subject_id": 1424,
@@ -5040,7 +5040,7 @@
         "id": 326895,
         "eps": 25,
         "volumes": 0,
-        "collection_total": 43131,
+        "collection_total": 43132,
         "rank": 966
       },
       "subject_id": 326895,
@@ -5208,7 +5208,7 @@
         "id": 328609,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 72124,
+        "collection_total": 72125,
         "rank": 71
       },
       "subject_id": 328609,
@@ -5544,7 +5544,7 @@
         "id": 316247,
         "eps": 12,
         "volumes": 0,
-        "collection_total": 26429,
+        "collection_total": 26430,
         "rank": 732
       },
       "subject_id": 316247,
@@ -5742,7 +5742,7 @@
         "tags": [
           {
             "name": "京阿尼",
-            "count": 6579,
+            "count": 6580,
             "total_cont": 0
           },
           {
@@ -5752,7 +5752,7 @@
           },
           {
             "name": "紫罗兰永恒花园",
-            "count": 2986,
+            "count": 2987,
             "total_cont": 0
           },
           {
@@ -5762,12 +5762,12 @@
           },
           {
             "name": "2018年1月",
-            "count": 2683,
+            "count": 2684,
             "total_cont": 0
           },
           {
             "name": "TV",
-            "count": 2087,
+            "count": 2088,
             "total_cont": 0
           },
           {
@@ -5777,7 +5777,7 @@
           },
           {
             "name": "奇幻",
-            "count": 1325,
+            "count": 1326,
             "total_cont": 0
           },
           {
@@ -6048,7 +6048,7 @@
         "id": 23119,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 27859,
+        "collection_total": 27860,
         "rank": 334
       },
       "subject_id": 23119,
@@ -6552,7 +6552,7 @@
         "id": 129807,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 34621,
+        "collection_total": 34622,
         "rank": 122
       },
       "subject_id": 129807,
@@ -7980,7 +7980,7 @@
         "id": 294135,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 20116,
+        "collection_total": 20117,
         "rank": 42
       },
       "subject_id": 294135,
@@ -8568,7 +8568,7 @@
         "id": 4019,
         "eps": 11,
         "volumes": 0,
-        "collection_total": 31880,
+        "collection_total": 31881,
         "rank": 33
       },
       "subject_id": 4019,
@@ -8652,7 +8652,7 @@
         "id": 216371,
         "eps": 1,
         "volumes": 0,
-        "collection_total": 39075,
+        "collection_total": 39076,
         "rank": 27
       },
       "subject_id": 216371,
@@ -8736,7 +8736,7 @@
         "id": 265,
         "eps": 26,
         "volumes": 0,
-        "collection_total": 61626,
+        "collection_total": 61627,
         "rank": 20
       },
       "subject_id": 265,
@@ -8904,7 +8904,7 @@
         "id": 6049,
         "eps": 2,
         "volumes": 0,
-        "collection_total": 38543,
+        "collection_total": 38544,
         "rank": 7
       },
       "subject_id": 6049,
@@ -8988,7 +8988,7 @@
         "id": 876,
         "eps": 24,
         "volumes": 0,
-        "collection_total": 56957,
+        "collection_total": 56958,
         "rank": 2
       },
       "subject_id": 876,
@@ -9000,5 +9000,5 @@
       "private": false
     }
   ],
-  "cachedAt": 1777389684199
+  "cachedAt": 1777390241370
 }
