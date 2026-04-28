@@ -19,9 +19,6 @@ function run(command, { silent = false, capture = false } = {}) {
 
 console.log("Starting Starlight deploy...");
 
-run("pnpm run build");
-run("pnpm run build:functions");
-
 try {
   run("git add .");
   try {
