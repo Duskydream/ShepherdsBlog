@@ -17,7 +17,10 @@ function run(command, { silent = false, capture = false } = {}) {
   }
 }
 
-console.log("🚀 Starting Starlight deploy...");
+console.log("Starting Starlight deploy...");
+
+run("pnpm run build");
+run("pnpm run build:functions");
 
 try {
   run("git add .");
@@ -54,9 +57,9 @@ if (remotes.length === 0) {
   console.log(`Found remotes: ${remotes.join(", ")}`);
   console.log(`Current branch: ${currentBranch}`);
   for (const remote of remotes) {
-    console.log(`\n📤 Pushing to ${remote}...`);
+    console.log(`\nPushing to ${remote}...`);
     run(`git push ${remote} ${currentBranch}`);
   }
 }
 
-console.log("\n✅ Deploy process finished.");
+console.log("\nDeploy process finished.");
