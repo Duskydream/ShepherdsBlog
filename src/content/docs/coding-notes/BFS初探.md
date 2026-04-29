@@ -164,3 +164,57 @@ public:
 **时间复杂度**：$O(mn)$，其中 $m$ 和 $n$ 分别为 $maze$ 的行数和列数。
 
 **空间复杂度**：$O(\min(m, n))$。BFS 按曼哈顿距离逐层扩展。在无限平面上，距离起点为 $d$ 的格子个数为 $4d$（菱形周长）。在网格图上，这会受到 $\min(m, n)$ 的限制，导致每次扩展的格子个数是 $O(\min(m, n))$。所以队列的大小只有 $O(\min(m, n))$。
+
+### 3、带权图的最短路径：Dijkstra
+
+如果把 BFS 看成“按步数一层一层扩展”的最短路算法，那么 Dijkstra 就是它在**带权图**上的推广。
+
+它们的共同点是：都从起点出发，优先处理“更近”的状态。
+不同点是：BFS 只适用于**边权相同**的图，而 Dijkstra 通过 **优先队列** 每次取出当前距离最小的点，从而处理正权边。
+
+适用于以下场景：
+
+> 带权最短路径： 例如地图导航、网络延迟、路由开销等问题，只要边权非负，Dijkstra 都能求出从起点到其他点的最短距离。
+
+> BFS 的升级版： 如果所有边权都等于 1，那么 Dijkstra 会退化成 BFS；所以可以把 BFS 理解为 Dijkstra 的特例。
+
+> 状态图最短路： 许多题目不是直接在图上走，而是在“状态图”上转移，只要转移代价非负，也可以用 Dijkstra。
+
+```cpp
+#include <vector>
+#include <queue>
+#include <functional>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> dijkstra(int n, vector<vector<pair<int, int>>>& graph, int start) {
+        const int INF = 1e9;
+        vector<int> dist(n, INF);
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+        dist[start] = 0;
+        pq.push({0, start});
+
+        while (!pq.empty()) {
+            auto [d, u] = pq.top();
+            pq.pop();
+            if (d != dist[u]) continue; // 过期状态直接跳过
+
+            for (auto [v, w] : graph[u]) {
+                if (dist[v] > d + w) {
+                    dist[v] = d + w;
+                    pq.push({dist[v], v});
+                }
+            }
+        }
+
+        return dist;
+    }
+};
+```
+
+**时间复杂度**：$O((n + m)\log n)$，其中 $n$ 是点数，$m$ 是边数。
+
+**空间复杂度**：$O(n + m)$，主要来自邻接表、距离数组和优先队列。
