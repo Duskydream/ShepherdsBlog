@@ -14,7 +14,7 @@ the Star which you have longed for—
 
 ## 预览
 
-- 站点地址：<https://duskydream.icu>
+- 站点地址：<https://www.lxzm.space>
 - 框架：Astro + Starlight
 - 语言：中文为主
 
