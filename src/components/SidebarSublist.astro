@@ -16,8 +16,8 @@ const { sublist, nested } = Astro.props;
 			if (entry.type === 'link') {
 				const isAnimeLink = entry.href.includes('/anime');
 				const href = entry.href.replace(/^\/([a-z][a-z0-9+.-]*:)/i, '$1');
-				const animeLinkStyle = isAnimeLink
-					? 'font-size: var(--sl-text-base); font-weight: 600; color: var(--sl-color-white);'
+				const topLevelLinkStyle = !nested || isAnimeLink
+					? 'font-size: var(--sl-text-base); font-weight: 600; color: var(--sl-color-white); background-color: transparent;'
 					: undefined;
 				return (
 					<li>
@@ -25,7 +25,7 @@ const { sublist, nested } = Astro.props;
 							href={href}
 							aria-current={entry.isCurrent ? 'page' : undefined}
 							class:list={[{ large: !nested || isAnimeLink }, entry.attrs.class]}
-							style={animeLinkStyle}
+							style={topLevelLinkStyle}
 							{...entry.attrs}
 						>
 							<span>{entry.label}</span>
@@ -141,6 +141,13 @@ const { sublist, nested } = Astro.props;
 			background-color: var(--sl-color-text-accent);
 		}
 
+		.top-level > li > a.large[aria-current='page'],
+		.top-level > li > a.large[aria-current='page']:hover,
+		.top-level > li > a.large[aria-current='page']:focus {
+			color: var(--sl-color-white);
+			background-color: transparent;
+		}
+
 		a > *:not(:last-child),
 		.group-label > *:not(:last-child) {
 			margin-inline-end: 0.25em;
@@ -155,6 +162,11 @@ const { sublist, nested } = Astro.props;
 			}
 			a {
 				font-size: var(--sl-text-sm);
+			}
+			a.large {
+				font-size: var(--sl-text-base);
+				font-weight: 600;
+				color: var(--sl-color-white);
 			}
 		}
 	}
