@@ -87,6 +87,10 @@ export default defineConfig({
       ],
       sidebar: [
         {
+          label: "Home",
+          link: "/",
+        },
+        {
           label: "Blog",
           collapsed: false,
           items: buildSidebarItems("blog"),
