@@ -2,6 +2,7 @@
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getCollection } from "astro:content";
 import { execSync } from "node:child_process";
+import { transitionNameForPath, transitionNameForTag } from "../utils/view-transitions";
 
 const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
 
@@ -14,7 +15,7 @@ const codingNotePosts = await getCollection(
 
 const timelineSectionOrder = ["blog", "log", "coding-notes"];
 const timelineSectionLabels = new Map([
-  ["blog", "Blog"],
+  ["blog", "Article"],
   ["log", "Log"],
   ["coding-notes", "Coding Notes"],
 ]);
@@ -41,13 +42,36 @@ function timelineEntry(post: (typeof blogPosts)[number]) {
 }
 
 const allPosts = [...blogPosts, ...logPosts, ...codingNotePosts];
-const tagsSet = new Set<string>();
-allPosts.forEach(post => {
+const tagCounts = new Map<string, number>();
+allPosts.forEach((post) => {
   if (post.data.tags) {
-    post.data.tags.forEach((tag: string) => tagsSet.add(tag));
+    new Set(post.data.tags).forEach((tag: string) => {
+      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+    });
   }
 });
-const allTags = Array.from(tagsSet).sort();
+const tagCountValues = Array.from(tagCounts.values());
+const minTagCount = tagCountValues.length ? Math.min(...tagCountValues) : 0;
+const maxTagCount = tagCountValues.length ? Math.max(...tagCountValues) : 0;
+const tagSpread = Math.max(1, maxTagCount - minTagCount);
+const allTags = Array.from(tagCounts.entries())
+  .map(([tag, count]) => ({
+    tag,
+    count,
+    weight: (count - minTagCount) / tagSpread,
+  }))
+  .map(({ tag, count, weight }) => ({
+    tag,
+    count,
+    level: Math.round(weight * 4) + 1,
+    size: 0.82 + weight * 0.55,
+    fontWeight: Math.round(520 + weight * 180),
+  }))
+  .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
+function tagHref(value: string) {
+  return `/tags/${encodeURIComponent(value)}`;
+}
 
 const contentTimeline = allPosts.map(timelineEntry)
   .sort((a, b) => {
@@ -282,8 +306,18 @@ try {
       <div class="home-card-body">
         <div class="home-tags-container">
           {
-            allTags.map((tag) => (
-              <a href={`/tags/${tag}`} class="home-tag">#{tag}</a>
+            allTags.map(({ tag, count, level, size, fontWeight }) => (
+              <a
+                href={tagHref(tag)}
+                class="home-tag"
+                data-level={level}
+                transition:name={transitionNameForTag(tag)}
+                style={`--tag-size: ${size.toFixed(2)}rem; --tag-font-weight: ${fontWeight}`}
+                title={`${count} article${count === 1 ? "" : "s"}`}
+                aria-label={`#${tag}, ${count} article${count === 1 ? "" : "s"}`}
+              >
+                #{tag}
+              </a>
             ))
           }
         </div>
@@ -300,7 +334,7 @@ try {
           <span>Content Timeline</span>
         </div>
         <div class="home-timeline-links" aria-label="Timeline sections">
-          <span data-section="blog">Blog</span>
+          <span data-section="blog">Article</span>
           <span data-section="log">Log</span>
           <span data-section="coding-notes">Coding Notes</span>
         </div>
@@ -322,13 +356,19 @@ try {
                         {section}
                       </span>
                       {post.data.tags && post.data.tags.map((tag: string) => (
-                        <a href={`/tags/${tag}`} class="home-timeline-tag" style="position: relative; z-index: 2;">#{tag}</a>
+                        <a href={tagHref(tag)} class="home-timeline-tag" style="position: relative; z-index: 2;">#{tag}</a>
                       ))}
                     </div>
                     <time>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ""}</time>
                   </div>
                   <div class="home-timeline-title">
-                    <a href={`/${post.id}`} class="home-timeline-title-link">{post.data.title}</a>
+                    <a
+                      href={`/${post.id}`}
+                      class="home-timeline-title-link"
+                      transition:name={transitionNameForPath(post.id)}
+                    >
+                      {post.data.title}
+                    </a>
                   </div>
                   {post.data.description && <div class="home-timeline-desc">{post.data.description}</div>}
                 </div>
@@ -355,23 +395,41 @@ try {
     .home-tags-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      align-items: baseline;
+      gap: 0.35rem 1rem;
+      padding: 0.3rem 0;
     }
     .home-tag {
       display: inline-flex;
       align-items: center;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      border: 1px solid var(--sl-color-gray-6);
-      background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-      color: var(--sl-color-text);
-      font-size: 0.75rem;
+      padding: 0.08rem 0;
+      color: var(--tag-color, var(--sl-color-text));
+      font-size: var(--tag-size, 0.82rem);
+      font-weight: var(--tag-font-weight, 520);
+      line-height: 1.35;
       text-decoration: none;
-      transition: all 0.2s ease;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .home-tag[data-level="1"] {
+      --tag-color: var(--sl-color-gray-3);
+    }
+    .home-tag[data-level="2"] {
+      --tag-color: color-mix(in srgb, var(--sl-color-text) 82%, var(--sl-color-accent));
+    }
+    .home-tag[data-level="3"] {
+      --tag-color: color-mix(in srgb, var(--sl-color-text) 68%, var(--sl-color-accent));
+    }
+    .home-tag[data-level="4"] {
+      --tag-color: color-mix(in srgb, var(--sl-color-text) 54%, var(--sl-color-accent));
+    }
+    .home-tag[data-level="5"] {
+      --tag-color: var(--sl-color-accent);
     }
     .home-tag:hover {
-      border-color: var(--sl-color-gray-4);
       color: var(--sl-color-white);
+      border-color: var(--sl-color-accent);
+      transform: translateY(-1px);
     }
     .home-timeline-tag {
       font-size: 0.68rem;
@@ -407,6 +465,8 @@ try {
     }
 
     .home-hero-content {
+      position: relative;
+      z-index: 2;
       padding: 1.5rem 1.75rem;
       display: flex;
       align-items: center;

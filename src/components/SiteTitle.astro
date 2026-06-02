@@ -1,0 +1,107 @@
+---
+import Default from '@astrojs/starlight/components/SiteTitle.astro';
+import { getCollection } from 'astro:content';
+
+const pathname = new URL(Astro.request.url).pathname;
+
+function isActive(path: string) {
+  if (path === '/' && pathname === '/') return true;
+  if (path !== '/' && pathname.startsWith(path)) return true;
+  return false;
+}
+
+const { sidebar } = Astro.locals.starlightRoute;
+const docs = await getCollection('docs');
+const dateByPath = new Map(
+	docs
+		.filter((entry) => entry.data.date instanceof Date)
+		.map((entry) => [entry.id.toLowerCase(), entry.data.date!.getTime()])
+);
+
+function pathKey(href: string) {
+	try { return decodeURIComponent(href).replace(/^\/+|\/+$/g, '').toLowerCase(); }
+    catch { return href.replace(/^\/+|\/+$/g, '').toLowerCase(); }
+}
+
+function getEntryDate(entry: any) {
+	return entry.type === 'link' ? dateByPath.get(pathKey(entry.href)) : undefined;
+}
+
+function getFirstLink(label: string) {
+  const item = sidebar.find((item: any) => item.label === label);
+  if (item) {
+    if (item.type === 'link') return item.href;
+    if (item.type === 'group') {
+      const allLinks: any[] = [];
+      const flatten = (entries: any[]) => {
+         for(const e of entries) {
+           if (e.type === 'link') allLinks.push(e);
+           if (e.type === 'group') flatten(e.entries);
+         }
+      }
+      flatten(item.entries);
+      
+      allLinks.sort((a, b) => {
+         const dateA = getEntryDate(a);
+         const dateB = getEntryDate(b);
+         if (dateA !== undefined && dateB !== undefined) return dateB - dateA;
+         if (dateA !== undefined && dateB === undefined) return -1;
+         if (dateA === undefined && dateB !== undefined) return 1;
+         return b.href.localeCompare(a.href);
+      });
+      
+      return allLinks.length > 0 ? allLinks[0].href : '/';
+    }
+  }
+  return '/';
+}
+---
+
+<div class="site-title-wrapper">
+  <Default {...Astro.props} />
+  <nav class="top-nav-links">
+    <a href="/" class={isActive('/') ? 'active' : ''}>HOME</a>
+    <a href={getFirstLink('Article')} class={isActive('/blog') ? 'active' : ''}>ARTICLE</a>
+    <a href={getFirstLink('Log')} class={isActive('/log') ? 'active' : ''}>LOG</a>
+    <a href={getFirstLink('Coding Notes')} class={isActive('/coding-notes') ? 'active' : ''}>CODING</a>
+    <a href={getFirstLink('Anime')} class={isActive('/anime') ? 'active' : ''}>ANIME</a>
+    <a href={getFirstLink('Links')} class={isActive('/links') ? 'active' : ''}>LINKS</a>
+  </nav>
+</div>
+
+<style>
+  .site-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .top-nav-links {
+    display: none;
+    align-items: center;
+    gap: 1.25rem;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--sl-color-gray-5);
+  }
+  @media (min-width: 50rem) {
+    .top-nav-links { display: flex; }
+  }
+  .top-nav-links a {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+    letter-spacing: 0.1em;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+  .top-nav-links a:hover {
+    color: var(--sl-color-white);
+  }
+  .top-nav-links a.active {
+    color: var(--sl-color-accent);
+    text-shadow: 0 0 8px rgba(22, 67, 110, 0.5);
+  }
+  :global([data-theme="dark"]) .top-nav-links a.active {
+    text-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
+  }
+</style>

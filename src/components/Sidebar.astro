@@ -1,57 +1,130 @@
 ---
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
-import SidebarSublist from './SidebarSublist.astro';
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import { getCollection } from 'astro:content';
 
-let { sidebar } = Astro.locals.starlightRoute;
+const { sidebar } = Astro.locals.starlightRoute;
 
-// 1. 获取所有文档，并建立 "链接 -> 日期" 的映射表
-const allDocs = await getCollection('docs');
-const dateMap = new Map<string, number>();
+const docs = await getCollection('docs');
+const dateByPath = new Map(
+	docs
+		.filter((entry) => entry.data.date instanceof Date)
+		.map((entry) => [entry.id.toLowerCase(), entry.data.date!.getTime()])
+);
 
-function normalizeHref(href: string) {
-  try {
-    return decodeURI(href).toLowerCase().replace(/^\/|\/$/g, '');
-  } catch {
-    return href.toLowerCase().replace(/^\/|\/$/g, '');
-  }
+function pathKey(href: string) {
+	try {
+		return decodeURIComponent(href).replace(/^\/+|\/+$/g, '').toLowerCase();
+	} catch {
+		return href.replace(/^\/+|\/+$/g, '').toLowerCase();
+	}
 }
 
-allDocs.forEach((doc: any) => {
-  if (doc.data.date) {
-    const timestamp = new Date(doc.data.date).getTime();
-    const slug = doc.id.replace(/\.mdx?$/, '');
-    dateMap.set(normalizeHref(slug), timestamp);
-  }
-});
-
-// 2. 将 Starlight 自动生成的侧边栏按时间重排序
-function applySorting(groupName: string) {
-  const group = sidebar.find((item: any) => item.type === 'group' && item.label === groupName) as any;
-  if (group && group.entries) {
-    // 过滤掉没有日期的文章，并按时间倒序排列
-    group.entries = group.entries
-      .filter((item: any) => {
-        if (item.type !== 'link') return false;
-        const norm = normalizeHref(item.href);
-        // 排除掉目录的 index 本身
-        if (norm === 'blog' || norm === 'log' || norm === 'coding-notes') return false;
-        return dateMap.has(norm);
-      })
-      .sort((a: any, b: any) => {
-        const dateA = dateMap.get(normalizeHref(a.href)) || 0;
-        const dateB = dateMap.get(normalizeHref(b.href)) || 0;
-        if (dateA !== dateB) return dateB - dateA; // 最新在前
-        return a.label.localeCompare(b.label, 'zh-CN');
-      });
-  }
+function getEntryDate(entry: any) {
+	return entry.type === 'link' ? dateByPath.get(pathKey(entry.href)) : undefined;
 }
 
-applySorting('Blog');
-applySorting('Coding Notes');
-applySorting('Log');
+function sortEntries(entries: any[]): any[] {
+	return entries
+		.map((entry, index) => ({
+			index,
+			entry: entry.type === 'group' ? { ...entry, entries: sortEntries(entry.entries) } : entry,
+		}))
+		.sort((left, right) => {
+			const leftDate = getEntryDate(left.entry);
+			const rightDate = getEntryDate(right.entry);
+
+			if (leftDate !== undefined && rightDate !== undefined && leftDate !== rightDate) {
+				return rightDate - leftDate;
+			}
+			if (leftDate !== undefined && rightDate === undefined) return -1;
+			if (leftDate === undefined && rightDate !== undefined) return 1;
+			return left.index - right.index;
+		})
+		.map(({ entry }) => entry);
+}
+
+function hasCurrent(items: any[]): boolean {
+	return items.some(item => item.type === 'link' ? item.isCurrent : hasCurrent(item.entries));
+}
+
+function getActiveContext(items: any[]): any[] {
+	for (const item of items) {
+		if (item.type === 'group' && hasCurrent(item.entries)) {
+            if (item.label === 'Links') return []; // 强制隐藏 Links
+			return [{ ...item, label: `ACT // ${item.label.toUpperCase()}` }];
+		}
+	}
+	return [];
+}
+
+const contextSidebar = getActiveContext(sidebar);
+
+// 提取所有链接为扁平结构，移除 details 折叠逻辑
+const flattenedLinks: any[] = [];
+let currentCategory = "";
+
+function flatten(items: any[], isTop = true) {
+    for (const item of items) {
+        if (item.type === 'group') {
+            if (isTop) currentCategory = item.label;
+            flatten(sortEntries(item.entries), false);
+        } else if (item.type === 'link') {
+            flattenedLinks.push(item);
+        }
+    }
+}
+flatten(contextSidebar);
 ---
 
 <SidebarPersister>
-	<SidebarSublist sublist={sidebar} />
+    {currentCategory && (
+        <div class="sidebar-category-title">{currentCategory}</div>
+    )}
+    <ul class="flat-sidebar-list">
+        {flattenedLinks.map(link => (
+            <li>
+                <a href={link.href} aria-current={link.isCurrent ? 'page' : undefined} class={link.isCurrent ? 'active large' : 'large'}>
+                    <span>{link.label}</span>
+                </a>
+            </li>
+        ))}
+    </ul>
 </SidebarPersister>
+
+<div class="md:sl-hidden">
+	<MobileMenuFooter />
+</div>
+
+<style>
+.sidebar-category-title {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 0.85rem;
+    color: var(--sl-color-text);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+.flat-sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.flat-sidebar-list a {
+    display: block;
+    text-decoration: none;
+    color: var(--sl-color-gray-3);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    padding: 0.3rem 0;
+}
+.flat-sidebar-list a:hover {
+    color: var(--sl-color-white);
+}
+</style>
+
+

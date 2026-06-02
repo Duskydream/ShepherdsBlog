@@ -2,7 +2,7 @@
 // ShootingStars.astro
 // Pure CSS Shooting Star Animation for Revue Starlight Dark Theme
 ---
-<div class="shooting-stars-container">
+<div class="shooting-stars-container" transition:persist>
   <div class="star"></div>
   <div class="star"></div>
   <div class="star"></div>
@@ -29,17 +29,20 @@
 
   .star {
     position: absolute;
-    /* Center it initially but we override with nth-child */
-    top: 50%;
-    left: 50%;
-    width: 4px;
-    height: 4px;
+    top: var(--star-top);
+    left: var(--star-left);
+    width: 3px;
+    height: 3px;
     background: #fff;
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1),
-                0 0 0 8px rgba(255, 255, 255, 0.1),
-                0 0 20px rgba(255, 255, 255, 1);
-    animation: animate 6s linear infinite;
+    opacity: 0;
+    box-shadow:
+      0 0 0 4px rgba(255, 255, 255, 0.08),
+      0 0 16px rgba(255, 255, 255, 0.85);
+    animation: shooting-star-sweep var(--star-duration) linear infinite;
+    animation-delay: var(--star-delay);
+    animation-fill-mode: both;
+    will-change: transform, opacity;
   }
 
   /* The glowing tail of the star */
@@ -47,54 +50,60 @@
     content: '';
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    width: 300px;
+    left: 0;
+    transform: translateY(-50%) rotate(-45deg);
+    transform-origin: left center;
+    width: clamp(7rem, 18vw, 14rem);
     height: 1px;
-    background: linear-gradient(90deg, #fff, transparent);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), transparent);
   }
 
   /* Assign random-looking positions and delays to each star */
   .star:nth-child(1) {
-    top: 0;
-    right: 0;
-    left: initial;
-    animation-delay: 0s;
-    animation-duration: 6s;
+    --star-top: -8vh;
+    --star-left: 92vw;
+    --star-delay: -1s;
+    --star-duration: 6s;
   }
   .star:nth-child(2) {
-    top: 5%;
-    right: 200px;
-    left: initial;
-    animation-delay: 2.5s;
-    animation-duration: 5s;
+    --star-top: -4vh;
+    --star-left: 72vw;
+    --star-delay: 2.5s;
+    --star-duration: 5s;
   }
   .star:nth-child(3) {
-    top: 20%;
-    right: 0px;
-    left: initial;
-    animation-delay: 5s;
-    animation-duration: 7s;
+    --star-top: 10vh;
+    --star-left: 96vw;
+    --star-delay: 5s;
+    --star-duration: 7s;
   }
   .star:nth-child(4) {
-    top: 0;
-    right: 400px;
-    left: initial;
-    animation-delay: 8.5s;
-    animation-duration: 6.5s;
+    --star-top: -10vh;
+    --star-left: 55vw;
+    --star-delay: 8.5s;
+    --star-duration: 6.5s;
   }
 
-  /* Sweeping 45-degree angle (rotate(315deg) usually equals down-left movement) */
-  @keyframes animate {
+  @keyframes shooting-star-sweep {
     0% {
-      transform: rotate(315deg) translateX(0);
-      opacity: 0.35;
+      transform: translate3d(0, 0, 0);
+      opacity: 0;
+    }
+    8% {
+      opacity: 0.65;
     }
     70% {
-      opacity: 0.35;
+      opacity: 0.55;
     }
     100% {
-      transform: rotate(315deg) translateX(-1500px);
+      transform: translate3d(-120vw, 120vh, 0);
       opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shooting-stars-container {
+      display: none !important;
     }
   }
 </style>

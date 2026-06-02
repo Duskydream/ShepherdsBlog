@@ -1,0 +1,25 @@
+---
+import { transitionNameForPath } from "../utils/view-transitions";
+
+const PAGE_TITLE_ID = "_top";
+const pathname = new URL(Astro.request.url).pathname;
+const transitionName = transitionNameForPath(pathname);
+---
+
+<h1 id={PAGE_TITLE_ID} transition:name={transitionName} data-page-title-transition>
+  {Astro.locals.starlightRoute.entry.data.title}
+</h1>
+
+<style>
+  @layer starlight.core {
+    h1 {
+      margin-top: 1rem;
+      font-size: var(--sl-text-h1);
+      line-height: var(--sl-line-height-headings);
+      font-weight: 600;
+      color: var(--sl-color-white);
+      width: fit-content;
+      max-width: 100%;
+    }
+  }
+</style>

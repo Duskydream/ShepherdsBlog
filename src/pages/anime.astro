@@ -6,7 +6,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   frontmatter={{ title: 'Anime Reviews' }}
   hasSidebar={true}
 >
-  <div class="bangumi-page">
+  <div class="bangumi-page not-content">
     <div class="bangumi-shell">
       <div class="bangumi-toolbar">
         <div class="bangumi-search">
@@ -49,7 +49,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     </div>
   </div>
 
-  <script is:inline>
+  <script is:inline data-astro-rerun>
+    (function initBangumiPage() {
     const API = '/bangumi';
     const STATIC_FALLBACK = '/data/bangumi.json';
     const CACHE_KEY = 'bangumi_cache_v3';
@@ -72,6 +73,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     const resultsMeta = document.getElementById('bangumi-meta');
     const mediaButtons = [...document.querySelectorAll('.bangumi-chip')];
     const statusButtons = [...document.querySelectorAll('.bangumi-pill')];
+    let searchTimer;
+
+    if (!search || !area || !resultsMeta) return;
 
     function escapeHTML(value) {
       return String(value)
@@ -311,7 +315,6 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       updateExpandedState(state.expanded);
     });
 
-    let searchTimer;
     search.addEventListener('input', () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
@@ -325,6 +328,12 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       syncControls();
       await fetchData(true);
     })();
+    
+    document.addEventListener('astro:before-swap', () => {
+      clearTimeout(searchTimer);
+      state.fetchAbortController?.abort();
+    }, { once: true });
+    })();
   </script>
 </StarlightPage>
 
@@ -336,30 +345,27 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-shell {
     position: relative;
-    padding: 1.5rem;
-    border-radius: 1.75rem;
-    background: var(--sl-color-bg);
-    border: 1px solid var(--sl-color-gray-6);
-    overflow: hidden;
+    padding: 1rem 0;
   }
 
   .bangumi-toolbar {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+    padding-bottom: 1.5rem;
   }
 
   .bangumi-search {
     position: relative;
-    max-width: 28rem;
-    margin: 0 auto;
     width: 100%;
+    max-width: 30rem;
   }
 
   .bangumi-search-icon {
     position: absolute;
-    left: 0.85rem;
+    left: 0;
     top: 50%;
     transform: translateY(-50%);
     color: var(--sl-color-gray-4);
@@ -368,178 +374,166 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-search input {
     width: 100%;
-    padding: 0.7rem 1rem 0.7rem 2.5rem;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 999px;
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    padding: 0.75rem 0 0.75rem 2rem;
+    border: none;
+    border-bottom: 2px solid var(--sl-color-gray-5);
+    border-radius: 0;
+    background: transparent;
     color: var(--sl-color-white);
-    font-size: 0.9rem;
-    transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
-  }
-
-  .bangumi-search input:hover {
-    transform: translateY(-1px);
-    border-color: var(--sl-color-gray-4);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
   }
 
   .bangumi-search input:focus {
     outline: none;
-    border-color: var(--sl-color-text);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-color-text) 25%, transparent);
+    border-bottom-color: var(--sl-color-accent);
   }
 
   .bangumi-filterbar {
-    width: min(100%, 42rem);
-    padding: 0.8rem 1rem;
-    border-radius: 1.2rem;
-    border: 1px solid var(--sl-color-gray-6);
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin: 0 auto;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .bangumi-page :where(
+    .bangumi-filterbar-group,
+    .bangumi-filterbar-options,
+    .bangumi-filterbar-options > *,
+    .bangumi-card-trigger > *,
+    .bangumi-card-info > *
+  ) {
+    margin-top: 0;
   }
 
   .bangumi-filterbar-group {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
-    min-width: 0;
-  }
-
-  .bangumi-filterbar-group-status {
-    flex: 1 1 auto;
+    gap: 1rem;
   }
 
   .bangumi-filterbar-label {
-    flex-shrink: 0;
-    font-size: 0.74rem;
-    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--sl-color-gray-3);
+    color: var(--sl-color-gray-4);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   .bangumi-filterbar-options {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .bangumi-filterbar-options > .bangumi-chip,
-  .bangumi-filterbar-options > .bangumi-pill {
-    margin-block: 0;
-  }
-
-  .bangumi-filterbar-options-status {
-    justify-content: flex-start;
+    gap: 1.5rem;
   }
 
   .bangumi-filterbar-divider {
-    width: 1px;
-    align-self: stretch;
-    background: var(--sl-color-gray-6);
+    display: none; /* Hide divider for a cleaner look */
   }
 
   .bangumi-chip,
   .bangumi-pill {
     appearance: none;
-    box-sizing: border-box;
-    min-width: 0;
-    min-height: 2.25rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 0.88rem;
-    border-radius: 999px;
-    border: 1px solid var(--sl-color-gray-5);
     background: transparent;
+    border: none;
     color: var(--sl-color-gray-3);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    line-height: 1;
     cursor: pointer;
-    transition: transform 220ms ease, color 220ms ease, background-color 220ms ease, border-color 220ms ease;
+    padding: 0.25rem 0;
+    position: relative;
+    transition: color 0.2s ease;
   }
 
   .bangumi-chip:hover,
   .bangumi-pill:hover {
-    transform: translateY(-1px);
-    border-color: var(--sl-color-gray-4);
+    color: var(--sl-color-white);
   }
 
   .bangumi-chip.is-active,
   .bangumi-pill.is-active {
-    color: var(--sl-color-text-invert);
-    background: #16436E;
-    border-color: #16436E;
+    color: var(--sl-color-accent);
+  }
+
+  .bangumi-chip::after,
+  .bangumi-pill::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--sl-color-accent);
+    transition: width 0.2s ease;
+  }
+
+  .bangumi-chip.is-active::after,
+  .bangumi-pill.is-active::after {
+    width: 100%;
   }
 
   .bangumi-meta {
-    text-align: center;
-    color: var(--sl-color-gray-3);
-    font-size: 0.875rem;
-    letter-spacing: 0.02em;
-    min-height: 1.25rem;
-    margin-bottom: 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: var(--sl-color-gray-4);
+    font-size: 0.8rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-left: 3px solid var(--sl-color-accent);
+    padding-left: 0.75rem;
+    text-align: left;
   }
 
   .bangumi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1rem;
-    align-items: stretch;
-  }
-
-  .bangumi-grid > .bangumi-card {
-    margin-block: 0;
+    gap: 1.5rem;
   }
 
   .bangumi-card {
-    position: relative;
-    border-radius: 1.5rem;
+    border-radius: 0;
     border: 1px solid var(--sl-color-gray-6);
-    background: var(--sl-color-bg);
-    overflow: hidden;
+    background: transparent;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    animation: bangumiCardIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: bangumiCardIn 0.5s ease both;
     animation-delay: calc(var(--enter-index, 0) * 45ms);
-    transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease, filter 0.4s ease;
+  }
+
+  /* 聚光灯效应 (Spotlight Effect) */
+  .bangumi-grid:has(.bangumi-card.is-open) .bangumi-card:not(.is-open) {
+    opacity: 0.35;
+    filter: grayscale(80%) blur(1px);
+    transform: scale(0.98);
   }
 
   .bangumi-card:hover {
-    transform: translateY(-4px);
     border-color: var(--sl-color-gray-5);
+    transform: translateY(-4px);
   }
 
   .bangumi-card.is-open {
-    border-color: var(--sl-color-gray-5);
+    border-color: var(--sl-color-accent);
   }
 
   .bangumi-card-trigger {
     width: 100%;
     display: flex;
     gap: 1rem;
-    padding: 1.35rem;
+    padding: 1rem;
     align-items: stretch;
     cursor: pointer;
     background: none;
     border: none;
-    color: var(--sl-color-white);
     text-align: left;
-    flex: 1;
   }
 
   .bangumi-cover {
-    width: 5.5rem;
-    min-width: 5.5rem;
-    height: 7.5rem;
-    overflow: hidden;
-    border-radius: 1rem;
+    width: 5rem;
+    min-width: 5rem;
+    height: 7rem;
     background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    border-radius: 0; /* 直角边框 */
   }
 
   .bangumi-cover img {
@@ -554,8 +548,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     align-items: center;
     justify-content: center;
     height: 100%;
+    font-family: monospace;
     font-size: 2rem;
-    color: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-5);
   }
 
   .bangumi-card-info {
@@ -566,33 +561,29 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-card-info h3 {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--sl-color-white);
-    line-height: 1.35;
-    margin: 0 0 0.25rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
   }
 
   .bangumi-date {
-    font-size: 0.8rem;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.75rem;
     color: var(--sl-color-gray-4);
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.5rem;
   }
 
   .bangumi-preview {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: var(--sl-color-gray-3);
     line-height: 1.5;
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    flex: 1;
   }
 
   .bangumi-no-review {
@@ -601,23 +592,19 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-toggle-hint {
-    display: inline-flex;
+    margin-top: auto;
+    display: flex;
     align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.6rem;
+    gap: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, monospace;
     font-size: 0.75rem;
-    color: var(--sl-color-gray-4);
-    transition: color 220ms ease;
-  }
-
-  .bangumi-card:hover .bangumi-toggle-hint {
-    color: var(--sl-color-gray-2);
+    color: var(--sl-color-accent);
+    text-transform: uppercase;
   }
 
   .bangumi-toggle-icon {
-    transition: transform 220ms ease;
+    transition: transform 0.2s ease;
   }
-
   .bangumi-toggle-icon.rotate-180 {
     transform: rotate(180deg);
   }
@@ -626,12 +613,14 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     display: grid;
     grid-template-rows: 0fr;
     opacity: 0;
-    transition: grid-template-rows 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease;
+    transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
   }
 
   .bangumi-detail.is-open {
     grid-template-rows: 1fr;
     opacity: 1;
+    border-top: 1px solid var(--sl-color-gray-6);
   }
 
   .bangumi-detail-inner {
@@ -639,137 +628,60 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-detail-panel {
-    padding: 0 1.35rem 1.35rem;
-    border-top: 1px solid var(--sl-color-gray-6);
+    padding: 1.25rem;
   }
 
   .bangumi-review-box {
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid var(--sl-color-gray-6);
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    border-left: 3px solid var(--sl-color-accent);
+    padding-left: 1rem;
+    margin-bottom: 1.25rem;
   }
 
   .bangumi-review-box p {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: var(--sl-color-gray-2);
-    line-height: 1.7;
-    white-space: pre-wrap;
+    line-height: 1.6;
     margin: 0;
+    white-space: pre-wrap;
   }
 
   .bangumi-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 1rem;
-    padding: 0.65rem 1rem;
-    border-radius: 999px;
+    padding: 0.5rem 1rem;
     border: 1px solid var(--sl-color-gray-5);
-    background: var(--sl-color-bg);
     color: var(--sl-color-text);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.8rem;
     text-decoration: none;
-    transition: transform 220ms ease, color 220ms ease, background-color 220ms ease;
+    transition: all 0.2s ease;
   }
 
   .bangumi-link:hover {
-    transform: translateY(-1px);
     background: var(--sl-color-text);
-    color: var(--sl-color-text-invert);
+    color: var(--sl-color-bg);
   }
 
   .bangumi-message {
-    grid-column: 1 / -1;
-    padding: 3rem 1.25rem;
-    border-radius: 1.5rem;
+    padding: 3rem 1rem;
     text-align: center;
-    font-size: 0.95rem;
-    color: var(--sl-color-gray-3);
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    color: var(--sl-color-gray-4);
     border: 1px dashed var(--sl-color-gray-6);
-  }
-
-  .bangumi-message.is-error {
-    color: var(--sl-color-red);
-    background: color-mix(in srgb, var(--sl-color-red) 8%, transparent);
-    border-color: var(--sl-color-red);
-  }
-
-  .bangumi-message.is-pulse {
-    animation: bangumiPulse 1.8s ease-in-out infinite;
+    grid-column: 1 / -1;
   }
 
   @keyframes bangumiCardIn {
-    from { opacity: 0; transform: translateY(18px) scale(0.985); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  @keyframes bangumiPulse {
-    0%, 100% { opacity: 0.65; }
-    50% { opacity: 1; }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @media (max-width: 768px) {
-    .bangumi-shell {
-      padding: 1rem;
-      border-radius: 1.4rem;
-    }
-
-    .bangumi-card-trigger {
-      padding: 1rem;
-      gap: 0.875rem;
-    }
-
-    .bangumi-cover {
-      width: 4.8rem;
-      min-width: 4.8rem;
-      height: 6.8rem;
-    }
-
     .bangumi-filterbar {
-      width: 100%;
-      padding: 0.8rem;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.7rem;
+      gap: 1rem;
     }
-
-    .bangumi-filterbar-group {
-      width: 100%;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.55rem;
-    }
-
-    .bangumi-filterbar-options,
-    .bangumi-filterbar-options-status {
-      width: 100%;
-      justify-content: flex-start;
-    }
-
-    .bangumi-filterbar-divider {
-      width: 100%;
-      height: 1px;
-    }
-
     .bangumi-grid {
       grid-template-columns: 1fr;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .bangumi-chip,
-    .bangumi-pill,
-    .bangumi-card,
-    .bangumi-link,
-    .bangumi-detail,
-    .bangumi-message,
-    .bangumi-search input {
-      animation: none !important;
-      transition: none !important;
     }
   }
 </style>

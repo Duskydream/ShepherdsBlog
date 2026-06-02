@@ -3,7 +3,6 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
-import { friendLinks } from './src/data/friend-links.js';
 import starlightThemeRapide from "starlight-theme-rapide";
 
 export default defineConfig({
@@ -17,8 +16,13 @@ export default defineConfig({
       plugins: [starlightThemeRapide()],
       title: "Shepherd's Blog",
       components: {
+        Head: './src/components/Head.astro',
+        PageFrame: './src/components/PageFrame.astro',
+        TwoColumnContent: './src/components/TwoColumnContent.astro',
         Sidebar: './src/components/Sidebar.astro',
         Footer: './src/components/Footer.astro',
+        SiteTitle: './src/components/SiteTitle.astro',
+        PageTitle: './src/components/PageTitle.astro',
       },
       tableOfContents: {
         minHeadingLevel: 1,
@@ -30,6 +34,40 @@ export default defineConfig({
       locales: {
         root: { label: "简体中文", lang: "zh-CN" },
       },
+      head: [
+        {
+          tag: "script",
+          content: `
+            (() => {
+              let frame = 0;
+              let mouseX = "80vw";
+              let mouseY = "20vh";
+
+              function applyPointerPosition() {
+                frame = 0;
+                document.documentElement.style.setProperty("--mouse-x", mouseX);
+                document.documentElement.style.setProperty("--mouse-y", mouseY);
+              }
+
+              document.addEventListener("mousemove", (event) => {
+                if (document.documentElement.dataset.routeTransition === "active") return;
+                mouseX = event.clientX + "px";
+                mouseY = event.clientY + "px";
+                if (!frame) frame = requestAnimationFrame(applyPointerPosition);
+              }, { passive: true });
+
+              document.addEventListener("astro:before-preparation", () => {
+                document.documentElement.dataset.routeTransition = "active";
+              });
+              document.addEventListener("astro:page-load", () => {
+                requestAnimationFrame(() => {
+                  delete document.documentElement.dataset.routeTransition;
+                });
+              });
+            })();
+          `,
+        },
+      ],
       social: [
         {
           icon: "github",
@@ -44,7 +82,7 @@ export default defineConfig({
           link: "/",
         },
         {
-          label: "Blog",
+          label: "Article",
           collapsed: false,
           autogenerate: { directory: "blog" },
         },
@@ -64,12 +102,11 @@ export default defineConfig({
         },
         {
           label: "Links",
-          collapsed: true,
-          items: friendLinks,
+          link: "/links",
         },
       ],
       editLink: {
-        baseUrl: "https://github.com/Duskydream/Frosti/edit/main/Starlight/",
+        baseUrl: "https://github.com/Duskydream/ShepherdsBlog/tree/main/",
       },
       lastUpdated: true,
     }),

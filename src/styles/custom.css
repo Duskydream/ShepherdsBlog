@@ -1,40 +1,451 @@
 @import "katex/dist/katex.min.css";
 
-/* Starlight 主题色配置 */
-
-/* Default (Dark Theme) */
 :root {
-  /* 夜空蓝、星光金和星白 */
+  --sl-color-accent-low: #0d2a42;
+  --sl-color-accent: #16436e;
+  --sl-color-accent-high: #1e5a94;
+  --route-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+@keyframes starlight-route-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes starlight-route-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(*) {
+    animation-timing-function: var(--route-transition-ease);
+  }
+
+  ::view-transition-old(root) {
+    animation: starlight-route-out 160ms var(--route-transition-ease) both;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-new(root) {
+    animation: starlight-route-in 180ms var(--route-transition-ease) both;
+    mix-blend-mode: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+:root[data-theme="dark"] {
   --sl-color-accent-low: #151b2b;
   --sl-color-accent: #ffd166;
   --sl-color-accent-high: #118ab2;
-  
   --sl-color-white: #f8f9fa;
   --sl-color-text: #c5c6c7;
   --sl-color-bg: #0b0c10;
   --sl-color-bg-nav: #0b0c10;
-  --sl-color-bg-sidebar: #0b0c10; /* 同步侧边栏颜色 */
+  --sl-color-bg-sidebar: #0b0c10;
 }
 
-/* Light Theme */
-:root[data-theme='light'] {
-  /* 恢复原来的主题蓝 */
-  --sl-color-accent-low: #0d2a42;
-  --sl-color-accent: #16436E;
-  --sl-color-accent-high: #1e5a94;
-  
-  /* 修复 Light 模式下的字体和背景映射 */
-  --sl-color-white: #212529; /* 在 Light 模式中，白色变量实际上被用于深色文本 */
-  --sl-color-black: #ffffff; /* 黑色变量被用于纯白背景 */
-  --sl-color-text: #495057;
-  
-  --sl-color-bg: #f8f9fa;
-  --sl-color-bg-nav: #ffffff;
-  --sl-color-bg-sidebar: #f0f2f5; /* 确保 Light 模式侧边栏是浅色 */
-}
-
-/* 黑暗模式增加淡淡的星空渐变背景 */
-:root[data-theme='dark'] body {
-  background: radial-gradient(circle at top right, #151b2b 0%, #0b0c10 60%);
+:root[data-theme="dark"] body {
+  /* 全局高光 Spotlight 追踪鼠标坐标 */
+  background: 
+    radial-gradient(
+      800px circle at var(--mouse-x, 80vw) var(--mouse-y, 20vh), 
+      rgba(22, 67, 110, 0.35), 
+      transparent 50%
+    ), 
+    #07080a;
   background-attachment: fixed;
 }
+
+:root[data-theme="dark"] .home-card,
+:root[data-theme="dark"] .home-hero,
+:root[data-theme="dark"] .bangumi-shell,
+:root[data-theme="dark"] .bangumi-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 40%),
+    var(--sl-color-bg);
+}
+
+/* Keep default docs pages aligned with custom pages like /anime. */
+@media (min-width: 50rem) {
+  .main-frame {
+    padding-top: var(--sl-nav-height) !important;
+  }
+
+  .main-pane,
+  main[data-pagefind-body] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:first-child {
+    padding-block: 1.6rem 0.65rem !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:first-child .sl-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:first-child h1:first-child {
+    margin-block-start: 0 !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:nth-child(2) {
+    padding-top: 0.25rem !important;
+  }
+}
+
+@media (max-width: 49.999rem) {
+  main[data-pagefind-body] {
+    padding-top: 0 !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:first-child {
+    padding-block: 1.25rem 0.5rem !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:first-child h1:first-child {
+    margin-top: 0 !important;
+  }
+
+  main[data-pagefind-body] > .content-panel:nth-child(2) {
+    padding-top: 0.25rem !important;
+  }
+}
+
+/* =========================================
+   Revue Starlight & Furukawa Aesthetics
+   Documentation-First Mode
+========================================= */
+
+/* 1. 舞台眩光 Hover (Spotlight Glow on Links) */
+body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link) {
+  transition: all 0.2s ease-in-out;
+}
+body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link):hover {
+  text-shadow: 0 0 8px var(--sl-color-accent-high) !important;
+  color: var(--sl-color-accent) !important;
+}
+
+body .sl-markdown-content .friend-links {
+  padding-left: 1.25rem;
+}
+
+body .sl-markdown-content .friend-links li {
+  margin-top: 0.65rem;
+}
+
+body .sl-markdown-content .friend-links a {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  font-weight: 600;
+}
+
+/* 2. Minimal quote mark for prose blockquotes. */
+body .sl-markdown-content blockquote {
+  border: none !important;
+  border-radius: 0.15rem !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 0.95rem;
+  padding: 0.55rem 1rem !important;
+  position: relative;
+  overflow: visible;
+}
+
+body .sl-markdown-content blockquote::before {
+  content: ">";
+  grid-column: 1;
+  grid-row: 1;
+  align-self: baseline;
+  color: var(--sl-color-accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: inherit;
+}
+
+body .sl-markdown-content blockquote > * {
+  grid-column: 2;
+}
+
+body .sl-markdown-content blockquote > :first-child {
+  margin-top: 0 !important;
+}
+
+:root[data-theme="dark"] body .sl-markdown-content blockquote::before {
+  color: #ffd166;
+}
+
+/* 3. 古典对称分割线 (Symmetrical Divider) */
+body .sl-markdown-content hr {
+  border: none !important;
+  height: 1px !important;
+  background: transparent !important;
+  position: relative;
+  margin: 3.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body .sl-markdown-content hr::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sl-color-gray-4), transparent);
+}
+body .sl-markdown-content hr::after {
+  content: "✦"; /* Meta Symbol: Star */
+  position: absolute;
+  color: var(--sl-color-accent);
+  font-size: 1.2rem;
+  background: var(--sl-color-bg);
+  padding: 0 1.5rem;
+}
+
+/* 4. 骨骼化标题 (Typography for Headers) */
+body .sl-markdown-content h2 {
+  --heading-corner-size: 0.85rem;
+  --heading-corner-thickness: 2px;
+  --heading-corner-top: 0.35rem;
+  position: relative;
+  padding-left: 1.15rem;
+  padding-bottom: 0.35rem;
+  letter-spacing: 0.02em;
+}
+body .sl-markdown-content h2::before,
+body .sl-markdown-content h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  background-color: var(--sl-color-accent);
+  transition: opacity 0.2s ease;
+}
+body .sl-markdown-content h2::before {
+  top: var(--heading-corner-top);
+  width: var(--heading-corner-thickness);
+  height: var(--heading-corner-size);
+}
+body .sl-markdown-content h2::after {
+  top: calc(var(--heading-corner-top) + var(--heading-corner-size) - var(--heading-corner-thickness));
+  width: var(--heading-corner-size);
+  height: var(--heading-corner-thickness);
+}
+body .sl-markdown-content h2:hover::after {
+  width: 70px; /* 标题 Hover 时的轻微几何动态 */
+}
+
+/* 5. 目录 (TOC) 的追光灯高亮 (Spotlight on Active TOC) */
+body .sl-markdown-content h2:hover::after {
+  width: var(--heading-corner-size);
+  opacity: 0.8;
+}
+
+starlight-toc nav a[aria-current="true"] {
+  position: relative;
+  font-weight: 600;
+  color: var(--sl-color-accent) !important;
+  padding-inline-start: calc(1rem * var(--depth, 0) + 1.75rem) !important;
+}
+starlight-toc nav a[aria-current="true"]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 14px;
+  background-color: var(--sl-color-accent);
+  border-radius: 0;
+}
+:root[data-theme="dark"] starlight-toc nav a[aria-current="true"]::before {
+  box-shadow: 0 0 8px var(--sl-color-accent);
+}
+
+/* =========================================
+   方案 C：非对称纵向排版 & 侧边栏重构
+   (Editorial Grid & Radical Sidebar)
+========================================= */
+
+/* 1. 侧边栏重构 (Constructivist Sidebar) */
+.sidebar-pane {
+  border-inline-end: none !important;
+  box-shadow: none !important;
+  padding-left: 1rem !important;
+}
+
+/* 舞台极细基准线 (Stage Zero Line) */
+.sidebar-pane::before {
+  content: "";
+  position: absolute;
+  left: 0.25rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--sl-color-accent);
+  opacity: 0.5;
+}
+
+/* 巨型底层水印 (Vertical Backdrop Watermark) - Removed */
+
+/* 构成主义折叠符 (Constructivist Caret) */
+.sidebar-pane details summary svg {
+  display: none !important; /* 隐藏原生箭头 */
+}
+.sidebar-pane details summary::before {
+  content: "[+]";
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  color: var(--sl-color-accent);
+  margin-right: 0.4rem;
+  font-weight: bold;
+}
+.sidebar-pane details[open] summary::before {
+  content: "[-]";
+}
+
+.sidebar-pane .top-level > li > details > summary .large,
+.sidebar-pane .top-level > li > a > span.large,
+.sidebar-pane .top-level > li > a.large {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace !important;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.85rem !important;
+  color: var(--sl-color-text) !important;
+  font-weight: 600 !important;
+}
+
+/* 侧边栏条目基础极简锐化 */
+.sidebar-pane a {
+  position: relative;
+  transition: all 0.2s ease !important;
+  border-left: 2px solid transparent !important;
+  border-radius: 0 !important;
+}
+
+.sidebar-pane .flat-sidebar-list a {
+  padding: 0.3rem 1.75rem 0.3rem 1.15rem !important;
+}
+
+/* 侧边栏 Hover 动画：极简的左侧推入 */
+.sidebar-pane a:not([aria-current='page']):hover {
+  transform: translateX(4px);
+  border-left: 2px solid var(--sl-color-accent-high) !important;
+  color: var(--sl-color-text-accent) !important;
+  background: transparent !important;
+}
+
+/* 侧边栏 Active 状态：尖锐的几何切割 */
+.sidebar-pane a[aria-current='page'] {
+  border-left: 2px solid var(--sl-color-accent) !important;
+  background: linear-gradient(90deg, rgba(22, 67, 110, 0.15), transparent) !important;
+  color: var(--sl-color-accent) !important;
+  font-weight: 600;
+}
+.sidebar-pane a[aria-current='page']::after {
+  content: "▪";
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--sl-color-accent);
+  font-size: 1rem;
+}
+
+/* 2. 悬挂式标题 (Hanging Indent Headers) */
+@media (min-width: 50rem) {
+  body .sl-markdown-content h2 {
+    transform: translateX(-0.75rem);
+    border-left: none;
+    width: calc(100% + 0.75rem);
+  }
+  
+  body .sl-markdown-content h3 {
+    transform: translateX(-0.75rem);
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--sl-color-accent-high);
+  }
+}
+
+/* 3. 纵向水印编排 (Vertical Meta Watermark) */
+body::after {
+  content: "THESTARLIGHTGATHERERS";
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: right center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.8em;
+  color: var(--sl-color-gray-5);
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 100;
+  white-space: nowrap;
+}
+
+:root[data-theme="light"] body::after {
+  opacity: 0.4;
+  color: var(--sl-color-gray-4);
+}
+
+/* =========================================
+   方案 A：「追光舞台」沉浸式阅读模式
+   (Stage Focus Reading Mode)
+========================================= */
+
+/* 给所有主要区块添加过渡效果 */
+body .sl-markdown-content > * {
+  transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease !important;
+  transform-origin: left center;
+}
+
+/* 仅当鼠标悬停在特定阅读区块时，降低非 Hover 区块的亮度和饱和度 */
+body .sl-markdown-content:has(> p:hover, > blockquote:hover, > .expressive-code:hover, > ul:hover, > ol:hover, > table:hover, > .starlight-aside:hover) > *:not(:hover) {
+  opacity: 0.35 !important;
+  filter: grayscale(60%) !important;
+}
+
+/* 保持被 Hover 的元素高亮，并给予轻微的“上台”推入感和侧边辉光 */
+body .sl-markdown-content > p:hover,
+body .sl-markdown-content > blockquote:hover,
+body .sl-markdown-content > .expressive-code:hover,
+body .sl-markdown-content > ul:hover,
+body .sl-markdown-content > ol:hover,
+body .sl-markdown-content > table:hover,
+body .sl-markdown-content > .starlight-aside:hover {
+  transform: translateX(4px) !important;
+  position: relative;
+  z-index: 2;
+  border-radius: 0.25rem;
+  /* 左侧溢出一点点光晕 */
+  box-shadow: -6px 0 16px -6px var(--sl-color-accent);
+}
+
+/* 对于本来就有明显边界的块，加强光晕 */
+body .sl-markdown-content > .expressive-code:hover,
+body .sl-markdown-content > blockquote:hover,
+body .sl-markdown-content > .starlight-aside:hover {
+  box-shadow: -8px 0 20px -8px var(--sl-color-accent-high);
+}
+
+

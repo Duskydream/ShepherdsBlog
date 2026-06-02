@@ -7,9 +7,6 @@ import { Icon } from '@astrojs/starlight/components';
 import ShootingStars from './ShootingStars.astro';
 
 const filePath = Astro.locals.starlightRoute.entry.filePath.replaceAll('\\', '/');
-const hideEditLink =
-	filePath.startsWith('src/content/docs/blog/') ||
-	filePath.startsWith('src/content/docs/log/');
 const showComments = 
     filePath.startsWith('src/content/docs/blog/') ||
     filePath.startsWith('src/content/docs/log/') ||
@@ -18,7 +15,7 @@ const showComments =
 
 <footer class="sl-flex">
 	<div class="meta sl-flex">
-		{!hideEditLink && <EditLink {...Astro.props} />}
+		<EditLink {...Astro.props} />
 		<LastUpdated {...Astro.props} />
 	</div>
 	<Pagination {...Astro.props} />
@@ -45,10 +42,13 @@ const showComments =
 </div>
 )}
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   (function() {
+    window.__starlightGiscusObserver?.disconnect?.();
+
     const container = document.querySelector('.giscus-container');
     if (!container) return;
+    container.innerHTML = '';
 
     const getTheme = () => {
       const isDark = document.documentElement.dataset.theme === 'dark';
@@ -84,6 +84,8 @@ const showComments =
       });
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    window.__starlightGiscusObserver = observer;
+    document.addEventListener('astro:before-swap', () => observer.disconnect(), { once: true });
   })();
 </script>
 
