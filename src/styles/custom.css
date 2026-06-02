@@ -1,8 +1,40 @@
 @import "katex/dist/katex.min.css";
 
 /* Starlight 主题色配置 */
+
+/* Default (Dark Theme) */
 :root {
+  /* 夜空蓝、星光金和星白 */
+  --sl-color-accent-low: #151b2b;
+  --sl-color-accent: #ffd166;
+  --sl-color-accent-high: #118ab2;
+  
+  --sl-color-white: #f8f9fa;
+  --sl-color-text: #c5c6c7;
+  --sl-color-bg: #0b0c10;
+  --sl-color-bg-nav: #0b0c10;
+  --sl-color-bg-sidebar: #0b0c10; /* 同步侧边栏颜色 */
+}
+
+/* Light Theme */
+:root[data-theme='light'] {
+  /* 恢复原来的主题蓝 */
   --sl-color-accent-low: #0d2a42;
   --sl-color-accent: #16436E;
   --sl-color-accent-high: #1e5a94;
+  
+  /* 修复 Light 模式下的字体和背景映射 */
+  --sl-color-white: #212529; /* 在 Light 模式中，白色变量实际上被用于深色文本 */
+  --sl-color-black: #ffffff; /* 黑色变量被用于纯白背景 */
+  --sl-color-text: #495057;
+  
+  --sl-color-bg: #f8f9fa;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #f0f2f5; /* 确保 Light 模式侧边栏是浅色 */
+}
+
+/* 黑暗模式增加淡淡的星空渐变背景 */
+:root[data-theme='dark'] body {
+  background: radial-gradient(circle at top right, #151b2b 0%, #0b0c10 60%);
+  background-attachment: fixed;
 }

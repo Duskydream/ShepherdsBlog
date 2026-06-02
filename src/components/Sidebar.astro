@@ -1,8 +1,55 @@
 ---
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import SidebarSublist from './SidebarSublist.astro';
+import { getCollection } from 'astro:content';
 
-const { sidebar } = Astro.locals.starlightRoute;
+let { sidebar } = Astro.locals.starlightRoute;
+
+// 1. 获取所有文档，并建立 "链接 -> 日期" 的映射表
+const allDocs = await getCollection('docs');
+const dateMap = new Map<string, number>();
+
+function normalizeHref(href: string) {
+  try {
+    return decodeURI(href).toLowerCase().replace(/^\/|\/$/g, '');
+  } catch {
+    return href.toLowerCase().replace(/^\/|\/$/g, '');
+  }
+}
+
+allDocs.forEach((doc: any) => {
+  if (doc.data.date) {
+    const timestamp = new Date(doc.data.date).getTime();
+    const slug = doc.id.replace(/\.mdx?$/, '');
+    dateMap.set(normalizeHref(slug), timestamp);
+  }
+});
+
+// 2. 将 Starlight 自动生成的侧边栏按时间重排序
+function applySorting(groupName: string) {
+  const group = sidebar.find((item: any) => item.type === 'group' && item.label === groupName) as any;
+  if (group && group.entries) {
+    // 过滤掉没有日期的文章，并按时间倒序排列
+    group.entries = group.entries
+      .filter((item: any) => {
+        if (item.type !== 'link') return false;
+        const norm = normalizeHref(item.href);
+        // 排除掉目录的 index 本身
+        if (norm === 'blog' || norm === 'log' || norm === 'coding-notes') return false;
+        return dateMap.has(norm);
+      })
+      .sort((a: any, b: any) => {
+        const dateA = dateMap.get(normalizeHref(a.href)) || 0;
+        const dateB = dateMap.get(normalizeHref(b.href)) || 0;
+        if (dateA !== dateB) return dateB - dateA; // 最新在前
+        return a.label.localeCompare(b.label, 'zh-CN');
+      });
+  }
+}
+
+applySorting('Blog');
+applySorting('Coding Notes');
+applySorting('Log');
 ---
 
 <SidebarPersister>

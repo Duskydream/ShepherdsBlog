@@ -1,0 +1,100 @@
+---
+// ShootingStars.astro
+// Pure CSS Shooting Star Animation for Revue Starlight Dark Theme
+---
+<div class="shooting-stars-container">
+  <div class="star"></div>
+  <div class="star"></div>
+  <div class="star"></div>
+  <div class="star"></div>
+</div>
+
+<style>
+  .shooting-stars-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0; /* Ensures it sits behind the main content if page has z-index */
+    overflow: hidden;
+  }
+
+  /* Only display the stars when the dark theme is active */
+  :global(:root[data-theme="dark"]) .shooting-stars-container {
+    display: block;
+  }
+
+  .star {
+    position: absolute;
+    /* Center it initially but we override with nth-child */
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1),
+                0 0 0 8px rgba(255, 255, 255, 0.1),
+                0 0 20px rgba(255, 255, 255, 1);
+    animation: animate 6s linear infinite;
+  }
+
+  /* The glowing tail of the star */
+  .star::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    height: 1px;
+    background: linear-gradient(90deg, #fff, transparent);
+  }
+
+  /* Assign random-looking positions and delays to each star */
+  .star:nth-child(1) {
+    top: 0;
+    right: 0;
+    left: initial;
+    animation-delay: 0s;
+    animation-duration: 6s;
+  }
+  .star:nth-child(2) {
+    top: 5%;
+    right: 200px;
+    left: initial;
+    animation-delay: 2.5s;
+    animation-duration: 5s;
+  }
+  .star:nth-child(3) {
+    top: 20%;
+    right: 0px;
+    left: initial;
+    animation-delay: 5s;
+    animation-duration: 7s;
+  }
+  .star:nth-child(4) {
+    top: 0;
+    right: 400px;
+    left: initial;
+    animation-delay: 8.5s;
+    animation-duration: 6.5s;
+  }
+
+  /* Sweeping 45-degree angle (rotate(315deg) usually equals down-left movement) */
+  @keyframes animate {
+    0% {
+      transform: rotate(315deg) translateX(0);
+      opacity: 0.35;
+    }
+    70% {
+      opacity: 0.35;
+    }
+    100% {
+      transform: rotate(315deg) translateX(-1500px);
+      opacity: 0;
+    }
+  }
+</style>
