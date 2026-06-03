@@ -206,7 +206,9 @@
   }
 
   mobile-starlight-toc details[open] .mobile-toc-toggle {
-    background: var(--sl-color-accent) !important;
+    border-color: var(--sl-color-accent) !important;
+    color: var(--sl-color-accent) !important;
+    background: var(--sl-color-bg) !important;
   }
 
   mobile-starlight-toc .mobile-toc-current {
