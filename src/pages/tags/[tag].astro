@@ -90,11 +90,10 @@ const contentTimeline = posts
                     </div>
                     <time>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ""}</time>
                   </div>
-                  <div class="home-timeline-title">
+                  <div class="home-timeline-title" transition:name={transitionNameForPath(post.id)}>
                     <a
                       href={`/${post.id}`}
                       class="home-timeline-title-link"
-                      transition:name={transitionNameForPath(post.id)}
                     >
                       {post.data.title}
                     </a>

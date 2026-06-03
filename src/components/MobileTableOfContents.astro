@@ -1,0 +1,299 @@
+---
+import MobileTocList from "./MobileTocList.astro";
+
+const { toc } = Astro.locals.starlightRoute;
+---
+
+{
+  toc && (
+    <mobile-starlight-toc data-min-h={toc.minHeadingLevel} data-max-h={toc.maxHeadingLevel}>
+      <nav class="mobile-toc-shell" aria-labelledby="starlight__on-this-page--mobile">
+        <details id="starlight__mobile-toc">
+          <summary id="starlight__on-this-page--mobile" class="mobile-toc-summary">
+            <span class="mobile-toc-toggle">
+              {Astro.locals.t("tableOfContents.onThisPage")}
+              <svg class="mobile-toc-caret" aria-hidden="true" viewBox="0 0 16 16" width="16" height="16">
+                <path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+            <span class="mobile-toc-current" />
+          </summary>
+          <div class="mobile-toc-scrim" aria-hidden="true"></div>
+          <div class="mobile-toc-panel">
+            <MobileTocList items={toc.items} />
+          </div>
+        </details>
+      </nav>
+    </mobile-starlight-toc>
+  )
+}
+
+<style>
+  @layer starlight.core {
+    mobile-starlight-toc {
+      display: block;
+      --sl-mobile-toc-bg-solid: #fff;
+      --sl-mobile-toc-bg: var(--sl-mobile-toc-bg-solid);
+      --sl-mobile-toc-bg-glass: rgba(255, 255, 255, 0.88);
+      --sl-mobile-toc-bg-glass-highlight: rgba(255, 255, 255, 0.32);
+      --sl-mobile-toc-edge-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0));
+      --sl-mobile-toc-glass-filter: blur(8px) saturate(1.12);
+    }
+
+    .mobile-toc-shell {
+      position: fixed;
+      z-index: 1000;
+      top: calc(var(--sl-nav-height) - 1px);
+      inset-inline: 0;
+      border-top: 1px solid var(--sl-color-gray-5);
+      background: var(--sl-mobile-toc-bg-glass);
+      backdrop-filter: var(--sl-mobile-toc-glass-filter);
+      -webkit-backdrop-filter: var(--sl-mobile-toc-glass-filter);
+      box-shadow:
+        0 1px 0 var(--sl-color-hairline-shade),
+        0 8px 16px rgba(0, 0, 0, 0.06);
+      isolation: isolate;
+    }
+
+    .mobile-toc-shell::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      background: linear-gradient(180deg, var(--sl-mobile-toc-bg-glass-highlight), transparent);
+      pointer-events: none;
+    }
+
+    .mobile-toc-shell::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      right: 0;
+      top: 100%;
+      left: 0;
+      height: 1.35rem;
+      background: var(--sl-mobile-toc-edge-glass);
+      pointer-events: none;
+    }
+
+    .mobile-toc-summary {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      height: var(--sl-mobile-toc-height);
+      border-bottom: 1px solid var(--sl-color-hairline-shade);
+      padding: 0.5rem 1rem;
+      background: transparent;
+      font-size: var(--sl-text-xs);
+      outline-offset: var(--sl-outline-offset-inside);
+    }
+
+    .mobile-toc-shell:has(details[open]),
+    details[open] .mobile-toc-summary {
+      background: var(--sl-mobile-toc-bg-solid);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .mobile-toc-shell:has(details[open])::before,
+    .mobile-toc-shell:has(details[open])::after {
+      display: none;
+    }
+
+    .mobile-toc-summary::marker,
+    .mobile-toc-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .mobile-toc-toggle {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 0.5rem;
+      padding: 0.55rem 0.65rem 0.55rem 0.85rem;
+      color: var(--sl-color-text);
+      background: var(--sl-color-bg);
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    details[open] .mobile-toc-toggle {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-white);
+      background: var(--sl-color-accent);
+    }
+
+    .mobile-toc-caret {
+      transition: transform 0.15s ease;
+    }
+
+    details[open] .mobile-toc-caret {
+      transform: rotate(90deg);
+    }
+
+    .mobile-toc-current {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--sl-color-gray-2);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-toc-scrim,
+    .mobile-toc-panel {
+      display: none;
+    }
+
+    details[open] .mobile-toc-scrim {
+      display: block;
+      position: fixed;
+      z-index: 1000;
+      top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: var(--sl-mobile-toc-bg-solid);
+    }
+
+    details[open] .mobile-toc-panel {
+      display: block;
+      position: fixed;
+      z-index: 1001;
+      top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      border-top: 1px solid var(--sl-color-hairline-shade);
+      background: var(--sl-mobile-toc-bg-solid);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      contain: layout paint style;
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      box-shadow: inset 0 1px 0 var(--sl-color-hairline-shade), var(--sl-shadow-md);
+    }
+
+    :global(:root[data-theme="dark"]) .mobile-toc-shell {
+      --sl-mobile-toc-bg-solid: #0b0c10;
+      --sl-mobile-toc-bg-glass: rgba(11, 12, 16, 0.84);
+      --sl-mobile-toc-bg-glass-highlight: rgba(255, 255, 255, 0.05);
+      --sl-mobile-toc-edge-glass: linear-gradient(180deg, rgba(11, 12, 16, 0.68), rgba(11, 12, 16, 0));
+    }
+
+    @media (min-width: 50rem) {
+      mobile-starlight-toc {
+        display: none;
+      }
+    }
+  }
+</style>
+
+<style is:global>
+  body[data-mobile-toc-expanded] {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  class MobileStarlightTOC extends HTMLElement {
+    details: HTMLDetailsElement | null = null;
+    panel: HTMLElement | null = null;
+    currentDisplay: HTMLSpanElement | null = null;
+    links: HTMLAnchorElement[] = [];
+    targets: { link: HTMLAnchorElement; heading: HTMLElement }[] = [];
+    currentLink: HTMLAnchorElement | null = null;
+    frame = 0;
+
+    connectedCallback() {
+      this.details = this.querySelector("details");
+      this.panel = this.querySelector(".mobile-toc-panel");
+      this.currentDisplay = this.querySelector(".mobile-toc-current");
+      this.links = Array.from(this.querySelectorAll<HTMLAnchorElement>(".mobile-toc-panel a"));
+      this.targets = this.links.flatMap((link) => {
+        const id = decodeURIComponent(link.hash.slice(1));
+        const heading = document.getElementById(id);
+        return heading ? [{ link, heading }] : [];
+      });
+      if (!this.details) return;
+
+      this.details.addEventListener("toggle", this.onToggle);
+      this.panel?.addEventListener("click", this.onPanelClick);
+      this.querySelector(".mobile-toc-scrim")?.addEventListener("click", this.close);
+      window.addEventListener("keydown", this.onKeydown);
+      window.addEventListener("scroll", this.scheduleCurrentUpdate, { passive: true });
+      window.addEventListener("resize", this.scheduleCurrentUpdate, { passive: true });
+      this.scheduleCurrentUpdate();
+    }
+
+    disconnectedCallback() {
+      this.details?.removeEventListener("toggle", this.onToggle);
+      this.panel?.removeEventListener("click", this.onPanelClick);
+      this.querySelector(".mobile-toc-scrim")?.removeEventListener("click", this.close);
+      window.removeEventListener("keydown", this.onKeydown);
+      window.removeEventListener("scroll", this.scheduleCurrentUpdate);
+      window.removeEventListener("resize", this.scheduleCurrentUpdate);
+      document.body.removeAttribute("data-mobile-toc-expanded");
+      if (this.frame) cancelAnimationFrame(this.frame);
+    }
+
+    onToggle = () => {
+      document.body.toggleAttribute("data-mobile-toc-expanded", Boolean(this.details?.open));
+      this.scheduleCurrentUpdate();
+    };
+
+    onPanelClick = (event: MouseEvent) => {
+      if (event.target instanceof Element && event.target.closest("a")) this.close();
+    };
+
+    close = () => {
+      if (this.details) this.details.open = false;
+    };
+
+    onKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && this.details?.open) {
+        this.close();
+        this.querySelector<HTMLElement>("summary")?.focus();
+      }
+    };
+
+    scheduleCurrentUpdate = () => {
+      if (this.frame) return;
+      this.frame = requestAnimationFrame(() => {
+        this.frame = 0;
+        this.updateCurrent();
+      });
+    };
+
+    updateCurrent() {
+      let current = this.targets[0]?.link || this.links[0];
+      const offset = this.getHeaderOffset();
+
+      for (const { link, heading } of this.targets) {
+        if (heading.getBoundingClientRect().top <= offset) current = link;
+        else break;
+      }
+
+      if (!current || current === this.currentLink) return;
+      this.currentLink?.removeAttribute("aria-current");
+      current.setAttribute("aria-current", "true");
+      this.currentLink = current;
+      if (this.currentDisplay) this.currentDisplay.textContent = current.textContent?.trim() || "";
+    }
+
+    getHeaderOffset() {
+      const styles = getComputedStyle(document.documentElement);
+      const navHeight = Number.parseFloat(styles.getPropertyValue("--sl-nav-height")) || 56;
+      const tocHeight = Number.parseFloat(styles.getPropertyValue("--sl-mobile-toc-height")) || 48;
+      return navHeight + tocHeight + 8;
+    }
+  }
+
+  if (!customElements.get("mobile-starlight-toc")) {
+    customElements.define("mobile-starlight-toc", MobileStarlightTOC);
+  }
+</script>

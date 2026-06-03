@@ -61,14 +61,7 @@
 }
 
 :root[data-theme="dark"] body {
-  /* 全局高光 Spotlight 追踪鼠标坐标 */
-  background: 
-    radial-gradient(
-      800px circle at var(--mouse-x, 80vw) var(--mouse-y, 20vh), 
-      rgba(22, 67, 110, 0.35), 
-      transparent 50%
-    ), 
-    #07080a;
+  background: #07080a;
   background-attachment: fixed;
 }
 
@@ -112,6 +105,177 @@
 }
 
 @media (max-width: 49.999rem) {
+  .header {
+    gap: 0.55rem !important;
+  }
+
+  :root[data-has-sidebar] .header {
+    padding-inline-end: var(--sl-nav-pad-x) !important;
+  }
+
+  .header .title-wrapper {
+    flex: 1 1 auto;
+  }
+
+  .header .right-group {
+    display: flex !important;
+    flex: 0 0 auto;
+    gap: 0;
+    align-items: center;
+  }
+
+  .header .social-icons,
+  .header starlight-lang-select {
+    display: none !important;
+  }
+
+  .header starlight-theme-select select {
+    width: 2.25rem;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding-inline: 0;
+    color: transparent;
+    background-position: center;
+  }
+
+  .header starlight-theme-select option {
+    color: initial;
+  }
+
+  .sidebar > starlight-menu-button {
+    display: none !important;
+  }
+
+  mobile-starlight-toc {
+    --sl-mobile-toc-bg-solid: #fff;
+    --sl-mobile-toc-bg: var(--sl-mobile-toc-bg-solid);
+    --sl-mobile-toc-bg-glass: rgba(255, 255, 255, 0.88);
+    --sl-mobile-toc-bg-glass-highlight: rgba(255, 255, 255, 0.32);
+    --sl-mobile-toc-edge-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0));
+    --sl-mobile-toc-glass-filter: blur(8px) saturate(1.12);
+  }
+
+  :root[data-theme="dark"] mobile-starlight-toc {
+    --sl-mobile-toc-bg-solid: #0b0c10;
+    --sl-mobile-toc-bg-glass: rgba(11, 12, 16, 0.84);
+    --sl-mobile-toc-bg-glass-highlight: rgba(255, 255, 255, 0.05);
+    --sl-mobile-toc-edge-glass: linear-gradient(180deg, rgba(11, 12, 16, 0.68), rgba(11, 12, 16, 0));
+  }
+
+  mobile-starlight-toc .mobile-toc-shell {
+    z-index: 1000 !important;
+    background: var(--sl-mobile-toc-bg-glass) !important;
+    backdrop-filter: var(--sl-mobile-toc-glass-filter) !important;
+    -webkit-backdrop-filter: var(--sl-mobile-toc-glass-filter) !important;
+    box-shadow:
+      0 1px 0 var(--sl-color-hairline-shade),
+      0 8px 16px rgba(0, 0, 0, 0.06) !important;
+    isolation: isolate;
+  }
+
+  mobile-starlight-toc nav {
+    overflow: visible !important;
+  }
+
+  mobile-starlight-toc .mobile-toc-shell::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: linear-gradient(180deg, var(--sl-mobile-toc-bg-glass-highlight), transparent);
+    pointer-events: none;
+  }
+
+  mobile-starlight-toc .mobile-toc-shell::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    right: 0;
+    top: 100%;
+    left: 0;
+    height: 1.35rem;
+    background: var(--sl-mobile-toc-edge-glass);
+    pointer-events: none;
+  }
+
+  mobile-starlight-toc summary,
+  mobile-starlight-toc .mobile-toc-summary {
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+  }
+
+  mobile-starlight-toc details[open] .mobile-toc-toggle {
+    background: var(--sl-color-accent) !important;
+  }
+
+  mobile-starlight-toc .mobile-toc-current {
+    color: var(--sl-color-gray-2) !important;
+  }
+
+  :root[data-theme="dark"] mobile-starlight-toc .mobile-toc-shell {
+    box-shadow:
+      0 1px 0 var(--sl-color-hairline-shade),
+      0 8px 16px rgba(0, 0, 0, 0.22) !important;
+  }
+
+  body[data-mobile-toc-expanded] mobile-starlight-toc .mobile-toc-shell,
+  mobile-starlight-toc .mobile-toc-shell:has(details[open]),
+  mobile-starlight-toc details[open],
+  mobile-starlight-toc details[open] summary,
+  mobile-starlight-toc details[open] .mobile-toc-summary {
+    background: var(--sl-mobile-toc-bg-solid) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  body[data-mobile-toc-expanded] mobile-starlight-toc .mobile-toc-shell::before,
+  body[data-mobile-toc-expanded] mobile-starlight-toc .mobile-toc-shell::after,
+  mobile-starlight-toc .mobile-toc-shell:has(details[open])::before,
+  mobile-starlight-toc .mobile-toc-shell:has(details[open])::after {
+    display: none !important;
+  }
+
+  mobile-starlight-toc details[open] .dropdown,
+  mobile-starlight-toc details[open] .mobile-toc-scrim {
+    display: block !important;
+    position: fixed !important;
+    z-index: 1000 !important;
+    inset: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px) 0 0 !important;
+    background: var(--sl-mobile-toc-bg-solid) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  mobile-starlight-toc details[open] .mobile-toc-panel {
+    display: block !important;
+    position: fixed !important;
+    z-index: 1001 !important;
+    inset: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px) 0 0 !important;
+    background: var(--sl-mobile-toc-bg-solid) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+  }
+
+  mobile-starlight-toc details[open] .dropdown a,
+  mobile-starlight-toc details[open] .mobile-toc-panel a {
+    background: var(--sl-mobile-toc-bg-solid) !important;
+  }
+
+  body[data-mobile-toc-expanded] .main-pane {
+    position: relative;
+    z-index: 0;
+    filter: none;
+    opacity: 1;
+    pointer-events: none;
+  }
+
+  body[data-mobile-toc-expanded]::after {
+    opacity: 0 !important;
+  }
+
   main[data-pagefind-body] {
     padding-top: 0 !important;
   }
@@ -260,6 +424,16 @@ body .sl-markdown-content h2:hover::after {
   opacity: 0.8;
 }
 
+:root[data-theme="dark"] body .sl-markdown-content h2::before,
+:root[data-theme="dark"] body .sl-markdown-content h2::after {
+  background-color: #ffd166;
+}
+
+:root[data-theme="dark"] .section-index .section-index-item h2::before,
+:root[data-theme="dark"] .section-index .section-index-item h2::after {
+  background-color: var(--section-index-blue) !important;
+}
+
 starlight-toc nav a[aria-current="true"] {
   position: relative;
   font-weight: 600;
@@ -278,6 +452,7 @@ starlight-toc nav a[aria-current="true"]::before {
   border-radius: 0;
 }
 :root[data-theme="dark"] starlight-toc nav a[aria-current="true"]::before {
+  background-color: #ffd166;
   box-shadow: 0 0 8px var(--sl-color-accent);
 }
 
@@ -383,6 +558,10 @@ starlight-toc nav a[aria-current="true"]::before {
     padding-left: 0.75rem;
     border-left: 2px solid var(--sl-color-accent-high);
   }
+
+  :root[data-theme="dark"] body .sl-markdown-content h3 {
+    border-left-color: #ffd166;
+  }
 }
 
 /* 3. 纵向水印编排 (Vertical Meta Watermark) */
@@ -414,6 +593,7 @@ body::after {
 ========================================= */
 
 /* 给所有主要区块添加过渡效果 */
+@media (min-width: 50rem) and (hover: hover) {
 body .sl-markdown-content > * {
   transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease !important;
   transform-origin: left center;
@@ -446,6 +626,7 @@ body .sl-markdown-content > .expressive-code:hover,
 body .sl-markdown-content > blockquote:hover,
 body .sl-markdown-content > .starlight-aside:hover {
   box-shadow: -8px 0 20px -8px var(--sl-color-accent-high);
+}
 }
 
 

@@ -19,10 +19,12 @@ export default defineConfig({
         Head: './src/components/Head.astro',
         PageFrame: './src/components/PageFrame.astro',
         TwoColumnContent: './src/components/TwoColumnContent.astro',
+        PageSidebar: './src/components/PageSidebar.astro',
         Sidebar: './src/components/Sidebar.astro',
         Footer: './src/components/Footer.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         PageTitle: './src/components/PageTitle.astro',
+        MobileTableOfContents: './src/components/MobileTableOfContents.astro',
       },
       tableOfContents: {
         minHeadingLevel: 1,
@@ -34,40 +36,6 @@ export default defineConfig({
       locales: {
         root: { label: "简体中文", lang: "zh-CN" },
       },
-      head: [
-        {
-          tag: "script",
-          content: `
-            (() => {
-              let frame = 0;
-              let mouseX = "80vw";
-              let mouseY = "20vh";
-
-              function applyPointerPosition() {
-                frame = 0;
-                document.documentElement.style.setProperty("--mouse-x", mouseX);
-                document.documentElement.style.setProperty("--mouse-y", mouseY);
-              }
-
-              document.addEventListener("mousemove", (event) => {
-                if (document.documentElement.dataset.routeTransition === "active") return;
-                mouseX = event.clientX + "px";
-                mouseY = event.clientY + "px";
-                if (!frame) frame = requestAnimationFrame(applyPointerPosition);
-              }, { passive: true });
-
-              document.addEventListener("astro:before-preparation", () => {
-                document.documentElement.dataset.routeTransition = "active";
-              });
-              document.addEventListener("astro:page-load", () => {
-                requestAnimationFrame(() => {
-                  delete document.documentElement.dataset.routeTransition;
-                });
-              });
-            })();
-          `,
-        },
-      ],
       social: [
         {
           icon: "github",

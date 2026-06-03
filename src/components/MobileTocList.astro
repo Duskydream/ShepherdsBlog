@@ -1,0 +1,81 @@
+---
+type TocItem = {
+  text: string;
+  slug: string;
+  children: TocItem[];
+};
+
+interface Props {
+  items: TocItem[];
+  depth?: number;
+}
+
+const { items, depth = 0 } = Astro.props;
+---
+
+<ul class="mobile-toc-list" style={`--depth: ${depth}`}>
+  {
+    items.map((heading) => (
+      <li>
+        <a href={`#${heading.slug}`}>
+          <span>{heading.text}</span>
+        </a>
+        {heading.children.length > 0 && <Astro.self items={heading.children} depth={depth + 1} />}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .mobile-toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    contain: content;
+  }
+
+  .mobile-toc-list li {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2.75rem;
+  }
+
+  .mobile-toc-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--sl-color-hairline-shade);
+    padding: 0.8rem 1rem;
+    padding-inline-start: calc(1rem + 1rem * var(--depth));
+    color: var(--sl-color-text);
+    background: var(--sl-mobile-toc-bg, #fff);
+    font-size: var(--sl-text-sm);
+    line-height: 1.35;
+    text-decoration: none;
+    outline-offset: var(--sl-outline-offset-inside);
+  }
+
+  .mobile-toc-list:first-child > li:first-child > a {
+    border-top: 0;
+  }
+
+  .mobile-toc-list a:hover,
+  .mobile-toc-list a:focus {
+    color: var(--sl-color-white);
+    background: color-mix(in srgb, var(--sl-color-accent) 10%, var(--sl-mobile-toc-bg, #fff));
+  }
+
+  .mobile-toc-list a[aria-current="true"] {
+    color: var(--sl-color-accent);
+    font-weight: 700;
+  }
+
+  .mobile-toc-list a[aria-current="true"]::after {
+    content: "";
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    background-color: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M10.914 4.206a.583.583 0 0 0-.828 0L5.74 8.557 3.914 6.726a.596.596 0 0 0-.828.857l2.24 2.24a.583.583 0 0 0 .828 0l4.76-4.76a.583.583 0 0 0 0-.857Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+</style>

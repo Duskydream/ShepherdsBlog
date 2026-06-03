@@ -1,6 +1,5 @@
 ---
 import Default from '@astrojs/starlight/components/SiteTitle.astro';
-import { getCollection } from 'astro:content';
 
 const pathname = new URL(Astro.request.url).pathname;
 
@@ -10,62 +9,50 @@ function isActive(path: string) {
   return false;
 }
 
-const { sidebar } = Astro.locals.starlightRoute;
-const docs = await getCollection('docs');
-const dateByPath = new Map(
-	docs
-		.filter((entry) => entry.data.date instanceof Date)
-		.map((entry) => [entry.id.toLowerCase(), entry.data.date!.getTime()])
-);
-
-function pathKey(href: string) {
-	try { return decodeURIComponent(href).replace(/^\/+|\/+$/g, '').toLowerCase(); }
-    catch { return href.replace(/^\/+|\/+$/g, '').toLowerCase(); }
-}
-
-function getEntryDate(entry: any) {
-	return entry.type === 'link' ? dateByPath.get(pathKey(entry.href)) : undefined;
-}
-
-function getFirstLink(label: string) {
-  const item = sidebar.find((item: any) => item.label === label);
-  if (item) {
-    if (item.type === 'link') return item.href;
-    if (item.type === 'group') {
-      const allLinks: any[] = [];
-      const flatten = (entries: any[]) => {
-         for(const e of entries) {
-           if (e.type === 'link') allLinks.push(e);
-           if (e.type === 'group') flatten(e.entries);
-         }
-      }
-      flatten(item.entries);
-      
-      allLinks.sort((a, b) => {
-         const dateA = getEntryDate(a);
-         const dateB = getEntryDate(b);
-         if (dateA !== undefined && dateB !== undefined) return dateB - dateA;
-         if (dateA !== undefined && dateB === undefined) return -1;
-         if (dateA === undefined && dateB !== undefined) return 1;
-         return b.href.localeCompare(a.href);
-      });
-      
-      return allLinks.length > 0 ? allLinks[0].href : '/';
-    }
-  }
-  return '/';
-}
+const navLinks = [
+  { href: '/', label: 'HOME', active: isActive('/') },
+  { href: '/article/', label: 'ARTICLE', active: isActive('/article') || isActive('/blog') },
+  { href: '/log/', label: 'LOG', active: isActive('/log') },
+  { href: '/coding/', label: 'CODING', active: isActive('/coding') || isActive('/coding-notes') },
+  { href: '/anime/', label: 'ANIME', active: isActive('/anime') },
+  { href: '/links/', label: 'LINKS', active: isActive('/links') },
+];
 ---
 
 <div class="site-title-wrapper">
   <Default {...Astro.props} />
+  <details class="mobile-nav-bubble">
+    <summary aria-label="Open site navigation">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <path d="M14 2v6h6"></path>
+        <path d="M8 13h8"></path>
+        <path d="M8 17h8"></path>
+        <path d="M8 9h2"></path>
+      </svg>
+    </summary>
+    <div class="mobile-nav-popover">
+      {
+        navLinks.map(({ href, label, active }) =>
+          active ? (
+            <a href={href} class="active">{label}</a>
+          ) : (
+            <a href={href}>{label}</a>
+          )
+        )
+      }
+    </div>
+  </details>
   <nav class="top-nav-links">
-    <a href="/" class={isActive('/') ? 'active' : ''}>HOME</a>
-    <a href={getFirstLink('Article')} class={isActive('/blog') ? 'active' : ''}>ARTICLE</a>
-    <a href={getFirstLink('Log')} class={isActive('/log') ? 'active' : ''}>LOG</a>
-    <a href={getFirstLink('Coding Notes')} class={isActive('/coding-notes') ? 'active' : ''}>CODING</a>
-    <a href={getFirstLink('Anime')} class={isActive('/anime') ? 'active' : ''}>ANIME</a>
-    <a href={getFirstLink('Links')} class={isActive('/links') ? 'active' : ''}>LINKS</a>
+    {
+      navLinks.map(({ href, label, active }) =>
+        active ? (
+          <a href={href} class="active">{label}</a>
+        ) : (
+          <a href={href}>{label}</a>
+        )
+      )
+    }
   </nav>
 </div>
 
@@ -73,7 +60,93 @@ function getFirstLink(label: string) {
   .site-title-wrapper {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+  :global(.header:has(.mobile-nav-bubble[open])) {
+    z-index: 3000 !important;
+  }
+  .site-title-wrapper :global(a) {
+    min-width: 0;
+  }
+  :global(:root[data-theme="dark"]) .site-title-wrapper > :global(a),
+  :global(:root[data-theme="dark"]) .site-title-wrapper > :global(a:hover) {
+    color: var(--sl-color-accent);
+    text-shadow: 0 0 8px rgba(255, 209, 102, 0.28);
+  }
+  .mobile-nav-bubble {
+    position: relative;
+    z-index: 3001;
+    flex: 0 0 auto;
+  }
+  .mobile-nav-bubble summary {
+    position: relative;
+    z-index: 3004;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    padding: 0;
+    color: var(--sl-color-accent);
+    background: var(--sl-color-bg-nav);
+    line-height: 1;
+    list-style: none;
+    cursor: pointer;
+  }
+  .mobile-nav-bubble summary::marker,
+  .mobile-nav-bubble summary::-webkit-details-marker {
+    display: none;
+  }
+  .mobile-nav-bubble[open] summary {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-white);
+  }
+  .mobile-nav-bubble[open]::before {
+    content: "";
+    position: fixed;
+    z-index: 3002;
+    top: var(--sl-nav-height);
+    right: 0;
+    left: 0;
+    height: calc(var(--sl-mobile-toc-height) + 13rem);
+    background: var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+    pointer-events: none;
+  }
+  .mobile-nav-popover {
+    position: fixed;
+    z-index: 3003;
+    top: calc(var(--sl-nav-height) + 0.5rem);
+    left: var(--sl-nav-pad-x);
+    right: var(--sl-nav-pad-x);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    border: 1px solid var(--sl-color-hairline-shade);
+    border-radius: 0.75rem;
+    padding: 0.65rem;
+    background: var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+  }
+  .mobile-nav-popover a {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  .mobile-nav-popover a.active {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
   }
   .top-nav-links {
     display: none;
@@ -83,6 +156,12 @@ function getFirstLink(label: string) {
     border-left: 1px solid var(--sl-color-gray-5);
   }
   @media (min-width: 50rem) {
+    .site-title-wrapper {
+      gap: 1.5rem;
+    }
+    .mobile-nav-bubble {
+      display: none;
+    }
     .top-nav-links { display: flex; }
   }
   .top-nav-links a {

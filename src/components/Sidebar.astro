@@ -2,6 +2,7 @@
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import { getCollection } from 'astro:content';
+import { transitionNameForPath } from '../utils/view-transitions';
 
 const { sidebar } = Astro.locals.starlightRoute;
 
@@ -84,9 +85,17 @@ flatten(contextSidebar);
     <ul class="flat-sidebar-list">
         {flattenedLinks.map(link => (
             <li>
-                <a href={link.href} aria-current={link.isCurrent ? 'page' : undefined} class={link.isCurrent ? 'active large' : 'large'}>
-                    <span>{link.label}</span>
-                </a>
+                {
+                    link.isCurrent || !link.href?.startsWith('/') ? (
+                        <a href={link.href} aria-current={link.isCurrent ? 'page' : undefined} class={link.isCurrent ? 'active large' : 'large'}>
+                            <span>{link.label}</span>
+                        </a>
+                    ) : (
+                        <a href={link.href} class="large" transition:name={transitionNameForPath(link.href)}>
+                            <span>{link.label}</span>
+                        </a>
+                    )
+                }
             </li>
         ))}
     </ul>
@@ -126,5 +135,3 @@ flatten(contextSidebar);
     color: var(--sl-color-white);
 }
 </style>
-
-

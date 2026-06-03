@@ -1,0 +1,94 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
+import { transitionNameForTag } from "../utils/view-transitions";
+
+const posts = await getCollection("docs");
+const tagCounts = new Map<string, number>();
+
+posts.forEach((post) => {
+  post.data.tags?.forEach((tag: string) => {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  });
+});
+
+const tags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<StarlightPage frontmatter={{ title: "Tags" }} hasSidebar={true}>
+  <section class="tags-index">
+    <header class="tags-index-head">
+      <p>Index</p>
+      <h1>Tags</h1>
+    </header>
+    <div class="tags-index-list">
+      {
+        tags.map(([tag, count]) => (
+          <a href={`/tags/${encodeURIComponent(tag)}`} transition:name={transitionNameForTag(tag)}>
+            <span>#{tag}</span>
+            <small>{count}</small>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <style>
+    .tags-index {
+      max-width: 58rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .tags-index-head {
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--sl-color-hairline-shade);
+      padding-bottom: 1rem;
+    }
+
+    .tags-index-head p {
+      margin: 0 0 0.35rem;
+      color: var(--sl-color-accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tags-index-head h1 {
+      margin: 0;
+      color: var(--sl-color-white);
+      font-size: clamp(2rem, 7vw, 4.25rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .tags-index-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .tags-index-list a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid var(--sl-color-hairline-shade);
+      border-radius: 999px;
+      padding: 0.5rem 0.75rem;
+      color: var(--sl-color-text);
+      text-decoration: none;
+    }
+
+    .tags-index-list a:hover {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-accent);
+    }
+
+    .tags-index-list small {
+      color: var(--sl-color-gray-4);
+      font-size: 0.72rem;
+    }
+  </style>
+</StarlightPage>

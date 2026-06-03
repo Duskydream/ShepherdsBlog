@@ -1,0 +1,388 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
+import { transitionNameForPath } from "../utils/view-transitions";
+
+type Props = {
+  title: string;
+  section: string;
+  eyebrow?: string;
+};
+
+const { title, section, eyebrow = title } = Astro.props;
+
+const posts = await getCollection("docs", (entry) => entry.id.startsWith(`${section}/`) && !entry.id.endsWith("/index.md"))
+  .then((entries) =>
+    entries.sort((a, b) => {
+      const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+      const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+      return dateB - dateA || b.id.localeCompare(a.id);
+    })
+  );
+
+function formatDate(value: Date | undefined) {
+  return value ? new Date(value).toISOString().slice(0, 10) : "";
+}
+
+function labelFromSlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+const knownSections = ["blog", "log", "coding-notes"];
+const sectionLevel = (knownSections.includes(section) ? knownSections.indexOf(section) : 3) + 1;
+const sectionLabel = title || labelFromSlug(section);
+---
+
+<StarlightPage frontmatter={{ title }} hasSidebar={true}>
+  <section class="section-index">
+    <header class="section-index-head">
+      <p>{eyebrow}</p>
+      <h1>{title}</h1>
+    </header>
+
+    <div class="section-index-card">
+      <div class="section-index-card-head">
+        <div class="section-index-card-title">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 4v16"></path>
+            <circle cx="6" cy="7" r="2"></circle>
+            <circle cx="6" cy="17" r="2"></circle>
+            <path d="M10 7h9"></path>
+            <path d="M10 17h9"></path>
+          </svg>
+          <span>{sectionLabel} Timeline</span>
+        </div>
+        <span class="section-index-count">{posts.length} posts</span>
+      </div>
+
+      <div class="section-index-card-body">
+        <div class="section-index-timeline">
+          {
+            posts.map((post) => (
+              <article class="section-index-item" data-level={sectionLevel}>
+                <div class="section-index-marker" data-level={sectionLevel}></div>
+                <div class="section-index-content">
+                  <div class="section-index-meta">
+                    <div class="section-index-meta-left">
+                      <span class="section-index-section" data-level={sectionLevel}>{sectionLabel}</span>
+                      {post.data.tags && (
+                        <div class="section-index-tags">
+                          {post.data.tags.map((tag: string) => (
+                            <a href={`/tags/${encodeURIComponent(tag)}`}>
+                              #{tag}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <time>{formatDate(post.data.date)}</time>
+                  </div>
+
+                  <h2 transition:name={transitionNameForPath(post.id)}>
+                    <a href={`/${post.id}`}>
+                      {post.data.title}
+                    </a>
+                  </h2>
+                  {post.data.description && <p class="section-index-desc">{post.data.description}</p>}
+                </div>
+              </article>
+            ))
+          }
+          {posts.length === 0 && <p class="section-index-empty">No posts found.</p>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .section-index {
+      max-width: 64rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .section-index-head {
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--sl-color-hairline-shade);
+      padding-bottom: 1rem;
+    }
+
+    .section-index-head p {
+      margin: 0 0 0.35rem;
+      color: var(--sl-color-accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-index-head h1 {
+      margin: 0;
+      color: var(--sl-color-white);
+      font-size: clamp(2rem, 7vw, 3.75rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .section-index-card {
+      margin: 0;
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: 1rem;
+      background: var(--sl-color-bg);
+      overflow: hidden;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .section-index-card:hover {
+      border-color: var(--sl-color-gray-5);
+    }
+
+    .section-index-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+      padding: 0.75rem 1rem;
+    }
+
+    .section-index-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--sl-color-white);
+      font-size: 0.85rem;
+      font-weight: 650;
+    }
+
+    .section-index-card-title svg {
+      flex: 0 0 auto;
+      color: var(--sl-color-gray-3);
+    }
+
+    .section-index-count {
+      color: var(--sl-color-gray-4);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .section-index-card-body {
+      padding: 0.75rem 1rem;
+    }
+
+    .section-index-timeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-index-timeline::before {
+      content: "";
+      position: absolute;
+      top: 0.4rem;
+      bottom: 0.4rem;
+      left: 0.36rem;
+      width: 1px;
+      background: var(--sl-color-gray-6);
+    }
+
+    .section-index-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1rem minmax(0, 1fr);
+      gap: 0.75rem;
+      border-radius: 0.7rem;
+      padding: 0.6rem 0.6rem 0.65rem 0;
+      transition: background 0.15s ease;
+    }
+
+    .section-index-item:hover {
+      background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    }
+
+    .section-index-item[data-level="1"] {
+      --section-index-blue: #8fb2da;
+    }
+
+    .section-index-item[data-level="2"] {
+      --section-index-blue: #5f8fc2;
+    }
+
+    .section-index-item[data-level="3"] {
+      --section-index-blue: #356b9d;
+    }
+
+    .section-index-item[data-level="4"] {
+      --section-index-blue: #16436e;
+    }
+
+    .section-index-marker {
+      position: relative;
+      z-index: 1;
+      width: 0.72rem;
+      height: 0.72rem;
+      margin-top: 0.42rem;
+      border: 2px solid var(--sl-color-bg);
+      border-radius: 999px;
+      background: var(--section-index-blue, #8fb2da);
+      box-shadow: 0 0 0 1px var(--sl-color-gray-6);
+    }
+
+    .section-index-content {
+      min-width: 0;
+    }
+
+    .section-index-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.28rem;
+    }
+
+    .section-index-meta-left {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .section-index-meta time {
+      flex: 0 0 auto;
+      color: var(--sl-color-gray-4);
+      font-size: 0.72rem;
+    }
+
+    .section-index-section {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.35rem;
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: 999px;
+      padding: 0 0.45rem;
+      background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+      color: var(--section-index-blue);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .section-index-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.42rem;
+    }
+
+    .section-index-tags a {
+      position: relative;
+      z-index: 2;
+      color: var(--sl-color-gray-4);
+      font-size: 0.68rem;
+      text-decoration: none;
+    }
+
+    .section-index-item h2 {
+      margin: 0;
+      color: var(--sl-color-white);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .section-index-item h2 a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .section-index-item h2 a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .section-index-item h2::before,
+    .section-index-item h2::after {
+      background-color: var(--section-index-blue) !important;
+    }
+
+    .section-index-item h2 a:hover,
+    .section-index-tags a:hover {
+      color: var(--sl-color-white);
+      text-decoration: underline;
+    }
+
+    .section-index-desc {
+      display: -webkit-box;
+      margin: 0.25rem 0 0;
+      overflow: hidden;
+      color: var(--sl-color-gray-4);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .section-index-empty {
+      margin: 0;
+      padding: 1rem;
+      color: var(--sl-color-gray-4);
+      font-size: 0.85rem;
+    }
+
+    .section-index-section[data-level="1"],
+    .section-index-marker[data-level="1"] {
+      --section-index-blue: #8fb2da;
+    }
+
+    .section-index-section[data-level="2"],
+    .section-index-marker[data-level="2"] {
+      --section-index-blue: #5f8fc2;
+    }
+
+    .section-index-section[data-level="3"],
+    .section-index-marker[data-level="3"] {
+      --section-index-blue: #356b9d;
+    }
+
+    .section-index-section[data-level="4"],
+    .section-index-marker[data-level="4"] {
+      --section-index-blue: #16436e;
+    }
+
+    @media (max-width: 49.999rem) {
+      .section-index {
+        padding-inline: 1.25rem;
+      }
+
+      .section-index-card-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .section-index-card-body {
+        padding-inline: 0.85rem;
+      }
+
+      .section-index-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .section-index-meta time {
+        order: -1;
+      }
+    }
+  </style>
+</StarlightPage>

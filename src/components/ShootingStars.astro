@@ -1,7 +1,7 @@
 ---
-// ShootingStars.astro
-// Pure CSS Shooting Star Animation for Revue Starlight Dark Theme
+// Pure CSS meteors for the dark theme.
 ---
+
 <div class="shooting-stars-container" transition:persist>
   <div class="star"></div>
   <div class="star"></div>
@@ -13,16 +13,12 @@
   .shooting-stars-container {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 0; /* Ensures it sits behind the main content if page has z-index */
+    inset: 0;
+    z-index: 0;
     overflow: hidden;
+    pointer-events: none;
   }
 
-  /* Only display the stars when the dark theme is active */
   :global(:root[data-theme="dark"]) .shooting-stars-container {
     display: block;
   }
@@ -31,73 +27,115 @@
     position: absolute;
     top: var(--star-top);
     left: var(--star-left);
-    width: 3px;
-    height: 3px;
-    background: #fff;
-    border-radius: 50%;
+    width: var(--star-tail);
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(255, 209, 102, 0.38) 22%,
+      rgba(255, 209, 102, 0.12) 58%,
+      rgba(255, 255, 255, 0)
+    );
     opacity: 0;
-    box-shadow:
-      0 0 0 4px rgba(255, 255, 255, 0.08),
-      0 0 16px rgba(255, 255, 255, 0.85);
-    animation: shooting-star-sweep var(--star-duration) linear infinite;
+    transform: translate3d(0, 0, 0) rotate(var(--star-angle));
+    transform-origin: left center;
+    animation: shooting-star-glide var(--star-duration) cubic-bezier(0.2, 0.72, 0.24, 1) infinite;
     animation-delay: var(--star-delay);
     animation-fill-mode: both;
+    filter: drop-shadow(0 0 0.45rem rgba(255, 209, 102, 0.34));
     will-change: transform, opacity;
   }
 
-  /* The glowing tail of the star */
-  .star::before {
-    content: '';
+  .star::after {
+    content: "";
     position: absolute;
     top: 50%;
-    left: 0;
-    transform: translateY(-50%) rotate(-45deg);
-    transform-origin: left center;
-    width: clamp(7rem, 18vw, 14rem);
-    height: 1px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), transparent);
+    left: -0.08rem;
+    width: var(--star-size);
+    height: var(--star-size);
+    border-radius: 999px;
+    background: #fff8d9;
+    transform: translateY(-50%);
+    box-shadow:
+      0 0 0 0.16rem rgba(255, 209, 102, 0.08),
+      0 0 0.55rem rgba(255, 209, 102, 0.55),
+      0 0 1rem rgba(255, 255, 255, 0.48);
   }
 
-  /* Assign random-looking positions and delays to each star */
   .star:nth-child(1) {
-    --star-top: -8vh;
-    --star-left: 92vw;
-    --star-delay: -1s;
-    --star-duration: 6s;
-  }
-  .star:nth-child(2) {
-    --star-top: -4vh;
-    --star-left: 72vw;
-    --star-delay: 2.5s;
-    --star-duration: 5s;
-  }
-  .star:nth-child(3) {
     --star-top: 10vh;
-    --star-left: 96vw;
-    --star-delay: 5s;
-    --star-duration: 7s;
-  }
-  .star:nth-child(4) {
-    --star-top: -10vh;
-    --star-left: 55vw;
-    --star-delay: 8.5s;
-    --star-duration: 6.5s;
+    --star-left: 88vw;
+    --star-tail: clamp(4.5rem, 14vw, 11rem);
+    --star-size: 0.16rem;
+    --star-angle: -39deg;
+    --star-travel-x: -34vw;
+    --star-travel-y: 27vh;
+    --star-delay: -1.3s;
+    --star-duration: 12.5s;
   }
 
-  @keyframes shooting-star-sweep {
-    0% {
-      transform: translate3d(0, 0, 0);
+  .star:nth-child(2) {
+    --star-top: 24vh;
+    --star-left: 98vw;
+    --star-tail: clamp(5rem, 18vw, 14rem);
+    --star-size: 0.14rem;
+    --star-angle: -42deg;
+    --star-travel-x: -44vw;
+    --star-travel-y: 34vh;
+    --star-delay: 2.6s;
+    --star-duration: 13.75s;
+  }
+
+  .star:nth-child(3) {
+    --star-top: 42vh;
+    --star-left: 78vw;
+    --star-tail: clamp(3.8rem, 12vw, 9.5rem);
+    --star-size: 0.15rem;
+    --star-angle: -36deg;
+    --star-travel-x: -28vw;
+    --star-travel-y: 22vh;
+    --star-delay: 7.4s;
+    --star-duration: 11.5s;
+  }
+
+  .star:nth-child(4) {
+    --star-top: -6vh;
+    --star-left: 64vw;
+    --star-tail: clamp(4rem, 13vw, 10rem);
+    --star-size: 0.15rem;
+    --star-angle: -40deg;
+    --star-travel-x: -31vw;
+    --star-travel-y: 26vh;
+    --star-delay: 11.2s;
+    --star-duration: 15s;
+  }
+
+  @keyframes shooting-star-glide {
+    0%,
+    58% {
       opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(var(--star-angle)) scaleX(0.62);
     }
-    8% {
-      opacity: 0.65;
+
+    63% {
+      opacity: 0.85;
     }
-    70% {
-      opacity: 0.55;
+
+    69% {
+      opacity: 0.56;
     }
+
+    78%,
     100% {
-      transform: translate3d(-120vw, 120vh, 0);
       opacity: 0;
+      transform: translate3d(var(--star-travel-x), var(--star-travel-y), 0) rotate(var(--star-angle)) scaleX(1);
+    }
+  }
+
+  @media (max-width: 49.999rem) {
+    .star:nth-child(3) {
+      display: none;
     }
   }
 
