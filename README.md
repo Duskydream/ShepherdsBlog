@@ -1,4 +1,4 @@
-﻿# Starlight
+# Shepherd's Blog (Starlight)
 
 お持ちなさい  
 
@@ -8,37 +8,47 @@ And it shall be bestowed upon you,
 
 the Star which you have longed for—  
 
-一个基于 Astro + Starlight 搭建、并按我自己的写作习惯深度客制化的个人博客。
+---
 
-这里不只是文章归档，也包含了日志、编程笔记、追番/游戏记录，以及一套更贴近个人表达的侧边栏、页面组织和数据同步流程。
+一个基于 Astro + Starlight 深度重构的个人博客空间。
 
-## 预览
+摒弃了传统文档站的扁平和圆润，本项目在视觉和交互上全面践行了**「古川知宏美学」与「极简构成主义」**。这里不仅是文章的归档所，更是以「舞台档案」与「剧本」为隐喻构建的极客自留地。
 
-- 站点地址：<https://www.lxzm.space>
-- 框架：Astro + Starlight
-- 语言：中文为主
+## ✧ 核心视觉与交互特色 (Aesthetics & UI)
 
-## 这个博客和默认模板不一样的地方
+- **极简构成主义 (Constructivist Design)**
+  - 全站抹除常规的圆角（Border Radius）与药丸按钮，使用极简的几何切线、硬朗的直角和细锐的边框构建 UI。
+  - 采用粗细错落的等宽字体（Monospace）与无衬线字体形成鲜明的排版秩序感。
+- **舞台与剧本隐喻 (Stage Metaphors)**
+  - 左侧边栏去除了繁杂的折叠逻辑，呈现为如同机密档案目录般的纯平列表（Flat List）。
+  - 右侧原生 TOC（Table of Contents）回归，构建出经典的双栏舞台。
+  - **聚光灯效应 (Spotlight Effect)：** 在 Anime 页面中，点击某部作品详情时，背景卡片会瞬间褪色并压暗，视线如被追光灯般强制锁定于当前内容，提供极致的沉浸阅读体验。
+- **动态寻址系统 (Dynamic Routing)**
+  - 顶栏的分类（BLOG, LOG, CODING）不再依赖生硬的静态目录，而是通过接口自动检索并空降至**该分类下的最新一篇文章**。
+- **无缝转场 (View Transitions)**
+  - 接入了 `astro:transitions`，全站页面跳转顺滑无缝，如同舞台幕布的自然切换。
 
-- 按内容类型拆分为 `Blog`、`Coding Notes`、`Log` 三个主要栏目。
-- 侧边栏不是手写固定顺序，而是根据文章 frontmatter 中的 `date` 自动排序生成。
-- 单独做了 `Anime` 页面，用来展示 Bangumi 上的动画 / 游戏收藏与简评。
-- `Anime` 页面支持媒体类型切换、状态筛选、关键词搜索、展开详情和本地缓存。
-- 使用云函数实时拉取 Bangumi 数据，同时保留 `public/data/bangumi.json` 作为静态降级兜底。
-- 友链作为独立分组挂在侧边栏里，而不是单独写死一个普通页面。
-- 博客正文页隐藏编辑链接，日志和笔记页保留更新时间等站点元信息。
-- 支持数学公式渲染，适合记录算法、笔记和技术类内容。
-- 在 Starlight 基础上接入了 `starlight-theme-rapide`，并配合自定义样式继续调整。
+## ✧ 栏目架构 (Architecture)
 
-## 技术栈
+本站抛弃了默认模板的陈规，按个人书写习惯划分出了分明的模块：
 
-- Astro 6
-- Starlight
-- TypeScript
-- remark-math + rehype-katex
-- Tencent EdgeOne Functions
+- **`BLOG` & `LOG` & `CODING`**
+  - 三个主要文章流分类。侧边栏通过读取 Frontmatter 的 `date` 自动降序排列，无需手动维护目录树。
+- **`ANIME` (Bangumi 档案室)**
+  - 一个独立构建的动画 / 游戏追踪页。
+  - 支持本地 fallback 数据与云函数接口动态拉取双端并行。
+  - 使用带有舞台术语隐喻的构成主义筛选器（如 `[ ANIMATION ]`、`▶ ON STAGE`）。
+- **`LINKS` (友链区)**
+  - 纯粹的 Markdown 页面记录友链，不再将其强行塞入导航栏死角。
 
-## 项目结构
+## ✧ 技术栈 (Tech Stack)
+
+- **Astro 6 + Starlight**：提供坚如磐石的 SSG 基础架构。
+- **TypeScript**：严谨的类型约束（包括客户端脚本的严格检查）。
+- **Tencent EdgeOne Functions**：用于部署 `/bangumi` 数据流转云函数。
+- **CSS :has() & View Transitions API**：使用现代 Web 标准实现纯 CSS 的交互奇观。
+
+## ✧ 项目结构
 
 ```text
 .
@@ -46,103 +56,39 @@ the Star which you have longed for—
 │  └─ data/bangumi.json        # Bangumi 静态兜底数据
 ├─ functions/
 │  └─ bangumi/index.ts         # Bangumi 云函数
-├─ scripts/
-│  ├─ fetch-bangumi.mjs        # 构建前抓取 Bangumi 数据
-│  ├─ clean-astro.mjs
-│  ├─ deploy.mjs
-│  ├─ migrate-logs.mjs
-│  └─ migrate-posts.mjs
 ├─ src/
-│  ├─ components/              # 自定义 Sidebar / Footer 等组件
+│  ├─ components/              # 深度重构的 Sidebar / SiteTitle / Head 等组件
 │  ├─ content/docs/
 │  │  ├─ blog/
 │  │  ├─ coding-notes/
-│  │  └─ log/
-│  ├─ data/friend-links.js     # 友链配置
-│  ├─ pages/anime.astro        # 追番 / 游戏页面
-│  └─ styles/custom.css
+│  │  ├─ log/
+│  │  └─ links.md              # 独立的友链页面
+│  ├─ pages/anime.astro        # 追番 / 游戏构成主义档案页
+│  └─ styles/custom.css        # 古川美学核心样式表
 ├─ astro.config.mjs
 └─ package.json
 ```
 
-## 本地开发
+## ✧ 开发与部署 (Dev & Deploy)
 
+### 本地开发
 ```bash
 pnpm install
 pnpm dev
 ```
+*(注：如果新建了 `.md` 文件遇到 404，请重启 dev server 清理 Astro 缓存。)*
 
-默认会在本地启动 Astro 开发服务器。
-
-## 常用命令
-
+### 常用命令
 | 命令 | 说明 |
 | --- | --- |
 | `pnpm dev` | 启动本地开发环境 |
-| `pnpm check` | 运行 Astro 类型检查 |
-| `pnpm build` | 构建站点，构建前会先抓取 Bangumi 数据 |
+| `pnpm check` | 运行严苛的 Astro TypeScript 检查 |
+| `pnpm build` | 构建站点，构建前会先拉取 Bangumi 最新数据 |
 | `pnpm build:functions` | 编译云函数 |
-| `pnpm preview` | 本地预览构建结果 |
-| `pnpm run deploy` | 执行完整部署流程 |
+| `pnpm run deploy` | 构建 -> 编译 -> 提交 -> 多端推送 的一键自动化部署流程 |
 
-## 内容维护方式
+## ✧ 协议与声明 (License)
 
-### 1. 写文章
+项目代码（样式与重构后的组件结构）供各位想爆改 Starlight 的开发者参考。
 
-把 Markdown 文件放到以下目录即可：
-
-- `src/content/docs/blog/`
-- `src/content/docs/coding-notes/`
-- `src/content/docs/log/`
-
-建议在 frontmatter 中至少填写：
-
-```md
----
-title: 标题
-date: 2026-04-13
-description: 一句话简介
----
-```
-
-其中 `date` 会直接影响侧边栏排序。
-
-### 2. 维护友链
-
-直接修改 [src/data/friend-links.js](/f:/Starlight/src/data/friend-links.js)。
-
-### 3. 更新 Bangumi 数据
-
-项目有两套数据来源：
-
-- 运行时通过 `/bangumi` 云函数实时拉取
-- 构建前通过脚本生成 `public/data/bangumi.json` 作为降级数据
-
-这样即使云函数暂时不可用，`Anime` 页面也不会完全空白。
-
-## 部署说明
-
-`pnpm run deploy` 会按下面流程执行：
-
-1. 清理 Astro 构建缓存
-2. 构建站点
-3. 编译云函数
-4. 自动提交当前变更
-5. 推送到当前分支对应的所有远程仓库
-
-这套流程更适合我现在的个人博客更新方式：写完即发，尽量减少重复操作。
-
-## 适合拿来做什么
-
-如果你也想做一个偏个人表达、而不只是文档站风格的 Starlight 博客，这个项目可以作为一个参考：
-
-- 如何把 Starlight 改造成个人博客
-- 如何按日期自动整理侧边栏
-- 如何把外部服务数据接到独立页面里
-- 如何给静态站补一层函数接口和降级缓存
-
-## License
-
-项目代码仅作为个人博客实现参考。
-
-文章、日志、笔记及其它原创内容默认保留所有权利；如需转载或引用，请先联系我。
+**文章、日志、笔记及其它原创图文内容默认保留所有权利**；未经许可，请勿随意搬运或在其他公开页面复用我的文字。
