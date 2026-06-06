@@ -4,7 +4,6 @@ import LastUpdated from 'virtual:starlight/components/LastUpdated';
 import Pagination from 'virtual:starlight/components/Pagination';
 import config from 'virtual:starlight/user-config';
 import { Icon } from '@astrojs/starlight/components';
-import ShootingStars from './ShootingStars.astro';
 
 const filePath = Astro.locals.starlightRoute.entry.filePath.replaceAll('\\', '/');
 const showComments = 
@@ -41,7 +40,8 @@ const showComments =
     </svg>
     <span>文章评论 / Comments</span>
   </div>
-  <div class="giscus-container" style="padding: 1rem; min-height: 150px;">
+  <div class="giscus-container" data-giscus-lazy style="padding: 1rem; min-height: 150px;">
+    <div class="giscus-placeholder" role="status">Loading comments...</div>
   </div>
 </div>
 )}
@@ -49,51 +49,82 @@ const showComments =
 <script is:inline data-astro-rerun>
   (function() {
     window.__starlightGiscusObserver?.disconnect?.();
+    window.__starlightGiscusThemeObserver?.disconnect?.();
 
-    const container = document.querySelector('.giscus-container');
+    const container = document.querySelector('.giscus-container[data-giscus-lazy]');
     if (!container) return;
-    container.innerHTML = '';
 
-    const getTheme = () => {
-      const isDark = document.documentElement.dataset.theme === 'dark';
-      return isDark ? 'transparent_dark' : 'light';
-    };
+    let loaded = false;
 
-    const script = document.createElement('script');
-    script.src = 'https://giscus.app/client.js';
-    script.setAttribute('data-repo', 'Duskydream/ShepherdsBlog');
-    script.setAttribute('data-repo-id', 'R_kgDOR_rpZg');
-    script.setAttribute('data-mapping', 'pathname');
-    script.setAttribute('data-strict', '0');
-    script.setAttribute('data-reactions-enabled', '1');
-    script.setAttribute('data-emit-metadata', '0');
-    script.setAttribute('data-input-position', 'bottom');
-    script.setAttribute('data-theme', getTheme());
-    script.setAttribute('data-lang', 'zh-CN');
-    script.setAttribute('crossorigin', 'anonymous');
-    script.async = true;
-    container.appendChild(script);
+    function giscusTheme() {
+      return document.documentElement.dataset.theme === 'dark' ? 'transparent_dark' : 'light';
+    }
 
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'data-theme') {
-          const iframe = document.querySelector('.giscus-frame');
-          if (iframe) {
-            iframe.contentWindow.postMessage(
-              { giscus: { setConfig: { theme: getTheme() } } },
-              'https://giscus.app'
-            );
-          }
-        }
-      });
+    function updateLoadedGiscusTheme() {
+      const frame = container.querySelector('iframe.giscus-frame');
+      frame?.contentWindow?.postMessage(
+        { giscus: { setConfig: { theme: giscusTheme() } } },
+        'https://giscus.app'
+      );
+    }
+
+    function disconnectObserver() {
+      window.__starlightGiscusObserver?.disconnect?.();
+      window.__starlightGiscusObserver = undefined;
+    }
+
+    function loadGiscus() {
+      if (loaded) return;
+      loaded = true;
+      disconnectObserver();
+      container.innerHTML = '';
+
+      const script = document.createElement('script');
+      script.src = 'https://giscus.app/client.js';
+      script.setAttribute('data-repo', 'Duskydream/ShepherdsBlog');
+      script.setAttribute('data-repo-id', 'R_kgDOR_rpZg');
+      script.setAttribute('data-mapping', 'pathname');
+      script.setAttribute('data-strict', '0');
+      script.setAttribute('data-reactions-enabled', '1');
+      script.setAttribute('data-emit-metadata', '0');
+      script.setAttribute('data-input-position', 'bottom');
+      script.setAttribute('data-theme', giscusTheme());
+      script.setAttribute('data-lang', 'zh-CN');
+      script.setAttribute('crossorigin', 'anonymous');
+      script.async = true;
+      container.appendChild(script);
+    }
+
+    const themeObserver = new MutationObserver(() => {
+      if (loaded) updateLoadedGiscusTheme();
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    window.__starlightGiscusObserver = observer;
-    document.addEventListener('astro:before-swap', () => observer.disconnect(), { once: true });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    window.__starlightGiscusThemeObserver = themeObserver;
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) loadGiscus();
+        },
+        { rootMargin: '700px 0px' }
+      );
+      observer.observe(container);
+      window.__starlightGiscusObserver = observer;
+    } else {
+      loadGiscus();
+    }
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        disconnectObserver();
+        themeObserver.disconnect();
+      },
+      { once: true }
+    );
+
   })();
 </script>
-
-<ShootingStars />
 
 <style>
 	.sl-flex {
@@ -139,6 +170,14 @@ const showComments =
 			font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
 			letter-spacing: 0.05em;
 			text-transform: uppercase;
+		}
+
+		.giscus-placeholder {
+			display: grid;
+			min-height: 7rem;
+			place-items: center;
+			color: var(--sl-color-gray-3);
+			font-size: var(--sl-text-sm);
 		}
 	}
 

@@ -17,6 +17,8 @@ export default defineConfig({
       title: "Shepherd's Blog",
       components: {
         Head: './src/components/Head.astro',
+        ThemeProvider: './src/components/ThemeProvider.astro',
+        Header: './src/components/Header.astro',
         PageFrame: './src/components/PageFrame.astro',
         TwoColumnContent: './src/components/TwoColumnContent.astro',
         PageSidebar: './src/components/PageSidebar.astro',
@@ -25,10 +27,14 @@ export default defineConfig({
         SiteTitle: './src/components/SiteTitle.astro',
         PageTitle: './src/components/PageTitle.astro',
         MobileTableOfContents: './src/components/MobileTableOfContents.astro',
+        MobileMenuFooter: './src/components/MobileMenuFooter.astro',
       },
       tableOfContents: {
         minHeadingLevel: 1,
         maxHeadingLevel: 6,
+      },
+      expressiveCode: {
+        themes: ['vitesse-light'],
       },
       customCss: ["./src/styles/custom.css"],
       description: "櫻の森の上を舞う",

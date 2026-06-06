@@ -1,6 +1,6 @@
 ---
-import MobileMenuToggle from "virtual:starlight/components/MobileMenuToggle";
 import MobileTableOfContents from "virtual:starlight/components/MobileTableOfContents";
+import MobileSiteMenu from "./MobileSiteMenu.astro";
 
 const { hasSidebar } = Astro.locals.starlightRoute;
 ---
@@ -10,6 +10,7 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     <slot name="header" />
   </header>
   <MobileTableOfContents />
+  <MobileSiteMenu />
   {
     hasSidebar && (
       <nav
@@ -18,7 +19,7 @@ const { hasSidebar } = Astro.locals.starlightRoute;
         transition:name="site-sidebar"
         transition:animate="none"
       >
-        <MobileMenuToggle />
+        <div class="mobile-sidebar-scrim" aria-hidden="true"></div>
         <div id="starlight__sidebar" class="sidebar-pane">
           <div class="sidebar-content sl-flex">
             <slot name="sidebar" />
@@ -54,6 +55,7 @@ const { hasSidebar } = Astro.locals.starlightRoute;
       .header {
         z-index: 1200;
       }
+
     }
 
     :global([data-has-sidebar]) .header {
@@ -73,7 +75,12 @@ const { hasSidebar } = Astro.locals.starlightRoute;
       overflow-y: auto;
     }
 
-    :global([aria-expanded="true"]) ~ .sidebar-pane {
+    .mobile-sidebar-scrim {
+      display: none;
+    }
+
+    :global([aria-expanded="true"]) ~ .sidebar-pane,
+    :global(body[data-mobile-menu-expanded]) .sidebar-pane {
       --sl-sidebar-visibility: visible;
     }
 
@@ -111,3 +118,136 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     }
   }
 </style>
+
+<style is:global>
+  :root {
+    --sl-mobile-sidebar-bg-solid: #fff;
+  }
+
+  :root[data-theme="dark"] {
+    --sl-mobile-sidebar-bg-solid: #0b0c10;
+  }
+
+  @media (max-width: 49.999rem) {
+    body[data-mobile-menu-expanded] {
+      overflow: hidden;
+    }
+
+    body[data-mobile-menu-expanded]::before {
+      content: "";
+      position: fixed;
+      z-index: 1170;
+      inset: var(--sl-nav-height) 0 auto;
+      height: calc(100dvh - var(--sl-nav-height));
+      background: var(--sl-mobile-sidebar-bg-solid);
+      pointer-events: none;
+    }
+
+    body[data-mobile-menu-expanded]::after {
+      opacity: 0 !important;
+    }
+
+    body[data-mobile-menu-expanded] mobile-starlight-toc {
+      display: none !important;
+    }
+
+    body[data-mobile-menu-expanded] .main-frame {
+      visibility: hidden !important;
+      pointer-events: none;
+    }
+
+    .sidebar .mobile-sidebar-scrim {
+      display: none;
+    }
+
+    body[data-mobile-menu-expanded] .sidebar .mobile-sidebar-scrim {
+      display: block;
+      position: fixed;
+      z-index: 1180;
+      inset: var(--sl-nav-height) 0 auto;
+      height: calc(100dvh - var(--sl-nav-height));
+      background: var(--sl-mobile-sidebar-bg-solid);
+    }
+
+    .sidebar .sidebar-pane {
+      display: none;
+    }
+
+    body[data-mobile-menu-expanded] .sidebar .sidebar-pane {
+      --sl-sidebar-visibility: visible;
+      display: block !important;
+      visibility: visible !important;
+      position: fixed !important;
+      z-index: 1190 !important;
+      inset: var(--sl-nav-height) 0 auto !important;
+      height: calc(100dvh - var(--sl-nav-height)) !important;
+      width: 100% !important;
+      max-width: none !important;
+      border-top: 1px solid var(--sl-color-hairline-shade);
+      background: var(--sl-mobile-sidebar-bg-solid) !important;
+      box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.08);
+      overflow-y: auto !important;
+      overscroll-behavior: contain;
+      contain: layout paint style;
+    }
+
+    body[data-mobile-menu-expanded] .sidebar .sidebar-content {
+      min-height: 100%;
+      background: inherit;
+      padding: 1.75rem var(--sl-sidebar-pad-x) max(2rem, env(safe-area-inset-bottom));
+    }
+
+    body[data-mobile-menu-expanded] .sidebar .sidebar-content > * {
+      position: relative;
+      z-index: 1;
+    }
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  (() => {
+    window.__mobileSidebarOverlayController?.abort?.();
+    const controller = new AbortController();
+    window.__mobileSidebarOverlayController = controller;
+
+    function closeMobileMenu() {
+      document.body.removeAttribute('data-mobile-menu-expanded');
+      document.querySelectorAll('starlight-menu-button').forEach((button) => {
+        button.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    const desktopQuery = window.matchMedia('(min-width: 50rem)');
+    function closeMobileMenuOnDesktop() {
+      if (desktopQuery.matches) closeMobileMenu();
+    }
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        if (
+          target.closest('.mobile-sidebar-scrim') ||
+          target.closest('.mobile-site-menu-panel a') ||
+          target.closest('#starlight__sidebar a')
+        ) {
+          closeMobileMenu();
+        }
+      },
+      { signal: controller.signal }
+    );
+
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Escape') closeMobileMenu();
+      },
+      { signal: controller.signal }
+    );
+
+    document.addEventListener('astro:before-swap', closeMobileMenu, { signal: controller.signal });
+    desktopQuery.addEventListener('change', closeMobileMenuOnDesktop, { signal: controller.signal });
+    closeMobileMenuOnDesktop();
+  })();
+</script>

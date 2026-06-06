@@ -1,0 +1,158 @@
+---
+import { Badge, Icon } from '@astrojs/starlight/components';
+
+interface Props {
+	entries: any[];
+	nested?: boolean;
+}
+
+const { entries, nested = false } = Astro.props;
+
+function hasCurrent(items: any[]): boolean {
+	return items.some((item) => item.type === 'link' ? item.isCurrent : hasCurrent(item.entries));
+}
+---
+
+<ul class:list={['mobile-site-menu-tree', { 'is-nested': nested }]}>
+	{
+		entries.map((entry) => {
+			if (entry.type === 'link') {
+				const href = entry.href.replace(/^\/([a-z][a-z0-9+.-]*:)/i, '$1');
+				const isLarge = !nested;
+				return (
+					<li>
+						<a href={href} aria-current={entry.isCurrent ? 'page' : undefined} class:list={{ large: isLarge }}>
+							<span>{entry.label}</span>
+							{entry.badge && (
+								<Badge
+									variant={entry.badge.variant}
+									class={entry.badge.class}
+									text={entry.badge.text}
+								/>
+							)}
+						</a>
+					</li>
+				);
+			}
+
+			return (
+				<li>
+					<details open={hasCurrent(entry.entries) || !entry.collapsed}>
+						<summary>
+							<span class="group-label">
+								<span>{entry.label}</span>
+								{entry.badge && (
+									<Badge
+										variant={entry.badge.variant}
+										class={entry.badge.class}
+										text={entry.badge.text}
+									/>
+								)}
+							</span>
+							<Icon name="right-caret" class="caret" size="1rem" />
+						</summary>
+						<Astro.self entries={entry.entries} nested />
+					</details>
+				</li>
+			);
+		})
+	}
+</ul>
+
+<style>
+	.mobile-site-menu-tree {
+		--mobile-tree-indent: 0.95rem;
+		--mobile-tree-pad-inline: 0.15rem;
+		--mobile-tree-marker-size: 0.6rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.18rem;
+	}
+
+	.mobile-site-menu-tree.is-nested {
+		margin-block: 0.2rem 0.45rem;
+		margin-inline-start: var(--mobile-tree-indent);
+		padding-inline-start: var(--mobile-tree-indent);
+		border-inline-start: 1px solid var(--sl-color-hairline-shade);
+	}
+
+	li {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	a,
+	summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.85rem;
+		min-height: 2.45rem;
+		padding: 0.44rem var(--mobile-tree-pad-inline);
+		color: var(--sl-color-text);
+		font-size: var(--sl-text-sm);
+		line-height: 1.35;
+		text-decoration: none;
+		outline-offset: var(--sl-outline-offset-inside);
+	}
+
+	a.large,
+	summary {
+		font-size: var(--sl-text-base);
+		font-weight: 700;
+	}
+
+	a:hover,
+	a:focus,
+	summary:hover,
+	summary:focus {
+		color: var(--sl-color-accent);
+	}
+
+	a[aria-current="page"] {
+		color: var(--sl-color-accent);
+		font-weight: 700;
+	}
+
+	a[aria-current="page"]::after {
+		content: "";
+		flex: 0 0 auto;
+		width: var(--mobile-tree-marker-size);
+		height: var(--mobile-tree-marker-size);
+		background: currentColor;
+	}
+
+	summary {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	summary::marker,
+	summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.group-label {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		min-width: 0;
+	}
+
+	.caret {
+		flex: 0 0 auto;
+		color: var(--sl-color-gray-3);
+		transition: transform 0.18s ease;
+	}
+
+	summary:hover .caret,
+	summary:focus .caret {
+		color: var(--sl-color-accent);
+	}
+
+	[open] > summary .caret {
+		transform: rotate(90deg);
+	}
+</style>

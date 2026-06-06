@@ -1,0 +1,86 @@
+---
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
+import { getCollection } from 'astro:content';
+import MobileSiteMenuTree from './MobileSiteMenuTree.astro';
+
+const { sidebar } = Astro.locals.starlightRoute;
+
+const docs = await getCollection('docs');
+const dateByPath = new Map(
+	docs
+		.filter((entry) => entry.data.date instanceof Date)
+		.map((entry) => [entry.id.toLowerCase(), entry.data.date!.getTime()])
+);
+
+function pathKey(href: string) {
+	try {
+		return decodeURIComponent(href).replace(/^\/+|\/+$/g, '').toLowerCase();
+	} catch {
+		return href.replace(/^\/+|\/+$/g, '').toLowerCase();
+	}
+}
+
+function getEntryDate(entry: any) {
+	return entry.type === 'link' ? dateByPath.get(pathKey(entry.href)) : undefined;
+}
+
+function sortEntries(entries: any[]): any[] {
+	return entries
+		.map((entry, index) => ({
+			index,
+			entry: entry.type === 'group' ? { ...entry, entries: sortEntries(entry.entries) } : entry,
+		}))
+		.sort((left, right) => {
+			const leftDate = getEntryDate(left.entry);
+			const rightDate = getEntryDate(right.entry);
+
+			if (leftDate !== undefined && rightDate !== undefined && leftDate !== rightDate) {
+				return rightDate - leftDate;
+			}
+			if (leftDate !== undefined && rightDate === undefined) return -1;
+			if (leftDate === undefined && rightDate !== undefined) return 1;
+			return left.index - right.index;
+		})
+		.map(({ entry }) => entry);
+}
+
+const menuEntries = sortEntries(sidebar);
+---
+
+{
+	menuEntries.length > 0 && (
+		<nav class="mobile-site-menu-panel" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
+			<div class="mobile-site-menu-content">
+				<MobileSiteMenuTree entries={menuEntries} />
+				<MobileMenuFooter />
+			</div>
+		</nav>
+	)
+}
+
+<style>
+	.mobile-site-menu-panel {
+		display: none;
+	}
+
+	@media (max-width: 49.999rem) {
+		:global(body[data-mobile-menu-expanded]) .mobile-site-menu-panel {
+			display: block;
+			position: fixed;
+			z-index: 1198;
+			inset: var(--sl-nav-height) 0 auto;
+			height: calc(100dvh - var(--sl-nav-height));
+			background: var(--sl-mobile-sidebar-bg-solid, var(--sl-color-bg));
+			border-top: 1px solid var(--sl-color-hairline-shade);
+			overflow-y: auto;
+			overscroll-behavior: contain;
+		}
+
+		.mobile-site-menu-content {
+			display: grid;
+			gap: 1.1rem;
+			min-height: 100%;
+			padding: 1.35rem var(--sl-sidebar-pad-x) max(2rem, env(safe-area-inset-bottom));
+		}
+	}
+</style>

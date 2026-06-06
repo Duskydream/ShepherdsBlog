@@ -1,0 +1,85 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+---
+
+{/* Keep theme state stable across ClientRouter swaps. */}
+<script is:inline>
+	(() => {
+		const storageKey = 'starlight-theme';
+		const systemLightQuery = window.matchMedia('(prefers-color-scheme: light)');
+
+		function parseTheme(theme) {
+			return theme === 'light' || theme === 'dark' ? theme : 'auto';
+		}
+
+		function readTheme() {
+			try {
+				return parseTheme(localStorage.getItem(storageKey));
+			} catch {
+				return 'auto';
+			}
+		}
+
+		function resolveTheme(theme = readTheme()) {
+			return parseTheme(theme) === 'auto' ? (systemLightQuery.matches ? 'light' : 'dark') : theme;
+		}
+
+		function applyTheme(theme = readTheme(), root = document.documentElement) {
+			root.dataset.theme = resolveTheme(theme);
+		}
+
+		function updateDefaultPickers(theme = readTheme()) {
+			document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+				const select = picker.querySelector('select');
+				if (select) select.value = theme;
+
+				const template = document.querySelector('#theme-icons');
+				const newIcon = template?.content?.querySelector('.' + theme);
+				const oldIcon = picker.querySelector('svg.label-icon');
+				if (newIcon && oldIcon) {
+					oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+				}
+			});
+		}
+
+		function updateRapideButtons(theme = readTheme()) {
+			const resolved = resolveTheme(theme);
+			document.querySelectorAll('starlight-rapide-theme-select button').forEach((button) => {
+				button.setAttribute('aria-label', `${resolved} theme`);
+			});
+		}
+
+		function syncTheme(theme = readTheme(), root = document.documentElement) {
+			applyTheme(theme, root);
+			updateDefaultPickers(theme);
+			updateRapideButtons(theme);
+		}
+
+		window.StarlightThemeProvider = {
+			updatePickers(theme = readTheme()) {
+				updateDefaultPickers(parseTheme(theme));
+				updateRapideButtons(parseTheme(theme));
+			},
+		};
+
+		syncTheme();
+
+		systemLightQuery.addEventListener('change', () => {
+			if (readTheme() === 'auto') syncTheme('auto');
+		});
+
+		document.addEventListener('astro:before-swap', (event) => {
+			applyTheme(readTheme(), event.newDocument.documentElement);
+		});
+
+		document.addEventListener('astro:after-swap', () => syncTheme());
+		document.addEventListener('astro:page-load', () => syncTheme());
+		window.addEventListener('pageshow', () => syncTheme());
+	})();
+</script>
+
+<template id="theme-icons">
+	<Icon name="sun" class="light" />
+	<Icon name="moon" class="dark" />
+	<Icon name="laptop" class="auto" />
+</template>

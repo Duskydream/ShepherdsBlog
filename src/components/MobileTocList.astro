@@ -1,4 +1,6 @@
 ---
+import { Icon } from '@astrojs/starlight/components';
+
 type TocItem = {
   text: string;
   slug: string;
@@ -11,58 +13,107 @@ interface Props {
 }
 
 const { items, depth = 0 } = Astro.props;
+const shouldNestUnderOverview = depth === 0 && items[0]?.slug === '_top' && items.length > 1;
+const renderedItems = shouldNestUnderOverview
+  ? [
+      {
+        ...items[0],
+        children: [...items[0].children, ...items.slice(1)],
+      },
+    ]
+  : items;
 ---
 
-<ul class="mobile-toc-list" style={`--depth: ${depth}`}>
+<ul class:list={['mobile-toc-list', { 'is-nested': depth > 0 }]} style={`--depth: ${depth}`}>
   {
-    items.map((heading) => (
-      <li>
-        <a href={`#${heading.slug}`}>
-          <span>{heading.text}</span>
-        </a>
-        {heading.children.length > 0 && <Astro.self items={heading.children} depth={depth + 1} />}
-      </li>
-    ))
+    renderedItems.map((heading) => {
+      const hasChildren = heading.children.length > 0;
+      return (
+        <li class:list={{ 'has-children': hasChildren }}>
+          <div class="mobile-toc-row">
+            <a href={`#${heading.slug}`}>
+              <span>{heading.text}</span>
+            </a>
+            {hasChildren && (
+              <button
+                type="button"
+                class="mobile-toc-branch-toggle"
+                aria-expanded="true"
+                aria-label={`切换 ${heading.text} 子目录`}
+              >
+                <Icon name="right-caret" class="mobile-toc-branch-caret" size="1rem" />
+              </button>
+            )}
+          </div>
+          {
+            hasChildren && (
+              <div class="mobile-toc-children">
+                <Astro.self items={heading.children} depth={depth + 1} />
+              </div>
+            )
+          }
+        </li>
+      );
+    })
   }
 </ul>
 
 <style>
   .mobile-toc-list {
+    --mobile-tree-indent: 0.95rem;
+    --mobile-tree-pad-inline: 0.15rem;
+    --mobile-tree-marker-size: 0.6rem;
     margin: 0;
     padding: 0;
     list-style: none;
+    display: grid;
+    gap: 0.18rem;
     contain: content;
   }
 
+  .mobile-toc-list.is-nested {
+    margin-block: 0.2rem 0.45rem;
+    margin-inline-start: var(--mobile-tree-indent);
+    padding-inline-start: var(--mobile-tree-indent);
+    border-inline-start: 1px solid var(--sl-color-hairline-shade);
+  }
+
   .mobile-toc-list li {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 2.75rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-toc-list .mobile-toc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
   }
 
   .mobile-toc-list a {
     display: flex;
+    flex: 1 1 auto;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    border-top: 1px solid var(--sl-color-hairline-shade);
-    padding: 0.8rem 1rem;
-    padding-inline-start: calc(1rem + 1rem * var(--depth));
+    gap: 0.85rem;
+    min-width: 0;
+    min-height: 2.45rem;
+    padding: 0.44rem var(--mobile-tree-pad-inline);
     color: var(--sl-color-text);
-    background: var(--sl-mobile-toc-bg, #fff);
     font-size: var(--sl-text-sm);
     line-height: 1.35;
     text-decoration: none;
     outline-offset: var(--sl-outline-offset-inside);
   }
 
-  .mobile-toc-list:first-child > li:first-child > a {
-    border-top: 0;
+  .mobile-toc-list:not(.is-nested) > li > .mobile-toc-row > a {
+    font-size: var(--sl-text-base);
+    font-weight: 700;
   }
 
   .mobile-toc-list a:hover,
   .mobile-toc-list a:focus {
-    color: var(--sl-color-white);
-    background: color-mix(in srgb, var(--sl-color-accent) 10%, var(--sl-mobile-toc-bg, #fff));
+    color: var(--sl-color-accent);
   }
 
   .mobile-toc-list a[aria-current="true"] {
@@ -73,9 +124,47 @@ const { items, depth = 0 } = Astro.props;
   .mobile-toc-list a[aria-current="true"]::after {
     content: "";
     flex: 0 0 auto;
-    width: 1rem;
-    height: 1rem;
+    width: var(--mobile-tree-marker-size);
+    height: var(--mobile-tree-marker-size);
     background-color: currentColor;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M10.914 4.206a.583.583 0 0 0-.828 0L5.74 8.557 3.914 6.726a.596.596 0 0 0-.828.857l2.24 2.24a.583.583 0 0 0 .828 0l4.76-4.76a.583.583 0 0 0 0-.857Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  .mobile-toc-list li.has-children > .mobile-toc-row > a[aria-current="true"]::after {
+    display: none;
+  }
+
+  .mobile-toc-branch-toggle {
+    flex: 0 0 auto;
+    width: 2.45rem;
+    min-height: 2.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    padding: 0;
+    color: var(--sl-color-gray-3);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .mobile-toc-branch-toggle:hover,
+  .mobile-toc-branch-toggle:focus-visible {
+    color: var(--sl-color-accent);
+  }
+
+  .mobile-toc-branch-caret {
+    transition: transform 0.18s ease;
+  }
+
+  .mobile-toc-branch-toggle[aria-expanded="true"] .mobile-toc-branch-caret {
+    transform: rotate(90deg);
+  }
+
+  .mobile-toc-children {
+    display: contents;
+  }
+
+  .mobile-toc-children[hidden] {
+    display: none;
   }
 </style>

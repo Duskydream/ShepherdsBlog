@@ -4,22 +4,69 @@ import { transitionNameForPath } from "../utils/view-transitions";
 const PAGE_TITLE_ID = "_top";
 const pathname = new URL(Astro.request.url).pathname;
 const transitionName = transitionNameForPath(pathname);
+
+const { entry } = Astro.locals.starlightRoute;
+const { date, tags } = entry.data;
+const bodyLength = entry.body ? entry.body.length : 0;
+const readingTime = bodyLength > 0 ? Math.max(1, Math.ceil(bodyLength / 400)) : null;
+
+// Parse date to YYYY-MM-DD
+const formattedDate = date ? new Date(date).toISOString().split('T')[0] : null;
 ---
 
-<h1 id={PAGE_TITLE_ID} transition:name={transitionName} data-page-title-transition>
-  {Astro.locals.starlightRoute.entry.data.title}
-</h1>
+<div class="page-title-wrapper" transition:name={transitionName} data-page-title-transition>
+  <h1 id={PAGE_TITLE_ID}>
+    {entry.data.title}
+  </h1>
+  {
+    (formattedDate || (tags && tags.length > 0) || readingTime) && (
+      <div class="page-meta">
+        {formattedDate && <span class="meta-item date">LOG.DATE: {formattedDate}</span>}
+        {formattedDate && readingTime && <span class="meta-separator">|</span>}
+        {readingTime && <span class="meta-item time">EST.TIME: {readingTime} MIN</span>}
+        {(formattedDate || readingTime) && tags && tags.length > 0 && <span class="meta-separator">|</span>}
+        {tags && tags.length > 0 && (
+          <span class="meta-item tags">TAGS: [{tags.join(', ')}]</span>
+        )}
+      </div>
+    )
+  }
+</div>
 
 <style>
   @layer starlight.core {
-    h1 {
+    .page-title-wrapper {
       margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+    h1 {
       font-size: var(--sl-text-h1);
       line-height: var(--sl-line-height-headings);
       font-weight: 600;
       color: var(--sl-color-white);
       width: fit-content;
       max-width: 100%;
+      margin: 0;
+    }
+    .page-meta {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 0.85rem;
+      color: var(--sl-color-gray-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-left: 2px solid var(--sl-color-accent);
+      padding-left: 0.75rem;
+    }
+    .meta-separator {
+      color: var(--sl-color-accent);
+      opacity: 0.5;
+    }
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
     }
   }
 </style>

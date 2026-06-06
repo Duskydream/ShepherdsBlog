@@ -1,59 +1,9 @@
 ---
 import Default from '@astrojs/starlight/components/SiteTitle.astro';
-
-const pathname = new URL(Astro.request.url).pathname;
-
-function isActive(path: string) {
-  if (path === '/' && pathname === '/') return true;
-  if (path !== '/' && pathname.startsWith(path)) return true;
-  return false;
-}
-
-const navLinks = [
-  { href: '/', label: 'HOME', active: isActive('/') },
-  { href: '/article/', label: 'ARTICLE', active: isActive('/article') || isActive('/blog') },
-  { href: '/log/', label: 'LOG', active: isActive('/log') },
-  { href: '/coding/', label: 'CODING', active: isActive('/coding') || isActive('/coding-notes') },
-  { href: '/anime/', label: 'ANIME', active: isActive('/anime') },
-  { href: '/links/', label: 'LINKS', active: isActive('/links') },
-];
 ---
 
 <div class="site-title-wrapper">
   <Default {...Astro.props} />
-  <details class="mobile-nav-bubble">
-    <summary aria-label="Open site navigation">
-      <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <path d="M14 2v6h6"></path>
-        <path d="M8 13h8"></path>
-        <path d="M8 17h8"></path>
-        <path d="M8 9h2"></path>
-      </svg>
-    </summary>
-    <div class="mobile-nav-popover">
-      {
-        navLinks.map(({ href, label, active }) =>
-          active ? (
-            <a href={href} class="active">{label}</a>
-          ) : (
-            <a href={href}>{label}</a>
-          )
-        )
-      }
-    </div>
-  </details>
-  <nav class="top-nav-links">
-    {
-      navLinks.map(({ href, label, active }) =>
-        active ? (
-          <a href={href} class="active">{label}</a>
-        ) : (
-          <a href={href}>{label}</a>
-        )
-      )
-    }
-  </nav>
 </div>
 
 <style>
@@ -63,124 +13,12 @@ const navLinks = [
     gap: 0.75rem;
     min-width: 0;
   }
-  :global(.header:has(.mobile-nav-bubble[open])) {
-    z-index: 3000 !important;
-  }
   .site-title-wrapper :global(a) {
     min-width: 0;
-  }
-  :global(:root[data-theme="dark"]) .site-title-wrapper > :global(a),
-  :global(:root[data-theme="dark"]) .site-title-wrapper > :global(a:hover) {
-    color: var(--sl-color-accent);
-    text-shadow: 0 0 8px rgba(255, 209, 102, 0.28);
-  }
-  .mobile-nav-bubble {
-    position: relative;
-    z-index: 3001;
-    flex: 0 0 auto;
-  }
-  .mobile-nav-bubble summary {
-    position: relative;
-    z-index: 3004;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 999px;
-    padding: 0;
-    color: var(--sl-color-accent);
-    background: var(--sl-color-bg-nav);
-    line-height: 1;
-    list-style: none;
-    cursor: pointer;
-  }
-  .mobile-nav-bubble summary::marker,
-  .mobile-nav-bubble summary::-webkit-details-marker {
-    display: none;
-  }
-  .mobile-nav-bubble[open] summary {
-    border-color: var(--sl-color-accent);
-    color: var(--sl-color-white);
-  }
-  .mobile-nav-bubble[open]::before {
-    content: "";
-    position: fixed;
-    z-index: 3002;
-    top: var(--sl-nav-height);
-    right: 0;
-    left: 0;
-    height: calc(var(--sl-mobile-toc-height) + 13rem);
-    background: var(--sl-color-bg-nav);
-    box-shadow: var(--sl-shadow-md);
-    pointer-events: none;
-  }
-  .mobile-nav-popover {
-    position: fixed;
-    z-index: 3003;
-    top: calc(var(--sl-nav-height) + 0.5rem);
-    left: var(--sl-nav-pad-x);
-    right: var(--sl-nav-pad-x);
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem;
-    border: 1px solid var(--sl-color-hairline-shade);
-    border-radius: 0.75rem;
-    padding: 0.65rem;
-    background: var(--sl-color-bg-nav);
-    box-shadow: var(--sl-shadow-md);
-  }
-  .mobile-nav-popover a {
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.35rem;
-    padding: 0.65rem 0.75rem;
-    color: var(--sl-color-gray-2);
-    text-decoration: none;
-    font-size: 0.78rem;
-    font-weight: 700;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-    letter-spacing: 0.08em;
-    text-align: center;
-  }
-  .mobile-nav-popover a.active {
-    border-color: var(--sl-color-accent);
-    color: var(--sl-color-accent);
-    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
-  }
-  .top-nav-links {
-    display: none;
-    align-items: center;
-    gap: 1.25rem;
-    padding-left: 1.5rem;
-    border-left: 1px solid var(--sl-color-gray-5);
   }
   @media (min-width: 50rem) {
     .site-title-wrapper {
       gap: 1.5rem;
     }
-    .mobile-nav-bubble {
-      display: none;
-    }
-    .top-nav-links { display: flex; }
-  }
-  .top-nav-links a {
-    color: var(--sl-color-gray-3);
-    text-decoration: none;
-    font-size: 0.82rem;
-    font-weight: 600;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-    letter-spacing: 0.1em;
-    transition: color 0.2s ease, text-shadow 0.2s ease;
-  }
-  .top-nav-links a:hover {
-    color: var(--sl-color-white);
-  }
-  .top-nav-links a.active {
-    color: var(--sl-color-accent);
-    text-shadow: 0 0 8px rgba(22, 67, 110, 0.5);
-  }
-  :global([data-theme="dark"]) .top-nav-links a.active {
-    text-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
   }
 </style>
