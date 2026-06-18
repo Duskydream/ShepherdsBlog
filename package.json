@@ -2,14 +2,15 @@
   "name": "starlight",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check",
     "refresh:bangumi": "node ./scripts/fetch-bangumi.mjs",
-    "build": "node ./scripts/fetch-bangumi.mjs && astro build",
+    "build": "pnpm run refresh:bangumi && astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
-    "deploy": "astro check && node ./scripts/deploy.mjs",
+    "deploy": "pnpm run check && node ./scripts/deploy.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -27,5 +28,11 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "typescript": "^5.9.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
