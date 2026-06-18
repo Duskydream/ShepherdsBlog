@@ -7,9 +7,9 @@
     "start": "astro dev",
     "check": "astro check",
     "refresh:bangumi": "node ./scripts/fetch-bangumi.mjs",
-    "build": "pnpm run refresh:bangumi && astro build",
+    "build": "node ./scripts/fetch-bangumi.mjs && astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
-    "deploy": "pnpm run check && node ./scripts/deploy.mjs",
+    "deploy": "astro check && node ./scripts/deploy.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
