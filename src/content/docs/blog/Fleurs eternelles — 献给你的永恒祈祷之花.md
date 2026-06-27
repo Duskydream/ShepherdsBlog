@@ -107,6 +107,7 @@ categories: ["Review"]
 
 读至此处，艾莉卡从文字中究竟领会到了书痴同伴压抑在深处痛楚的心意，然而真切的心意，却是渺茫如此，好似带着泪花的轻风抚过脸颊。艾莉卡的泪水夺目而出，在这个炎热难耐的夏天，她下定了决心。
 
+![img](https://pic1.imgdb.cn/item/6a3e8b4b99bccaf16ccea5ab.webp)
+
 # 秋 l'automne
 
-![img](https://pic1.imgdb.cn/item/6a3e8b4b99bccaf16ccea5ab.webp)
