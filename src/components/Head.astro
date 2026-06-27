@@ -1,7 +1,17 @@
 ---
 import DefaultHead from "@astrojs/starlight/components/Head.astro";
 import { ClientRouter } from "astro:transitions";
+
+const { entry } = Astro.locals.starlightRoute || Astro.props;
+const isArticle = entry && (entry.id.startsWith("blog/") || entry.id.startsWith("log/") || entry.id.startsWith("coding-notes/"));
+const watermarkText = isArticle && entry.data?.title ? entry.data.title : "DUSKYDREAM";
 ---
 
-<DefaultHead />
+<DefaultHead {...Astro.props} />
 <ClientRouter fallback="swap" />
+
+<style is:inline set:html={`
+  body::after {
+    content: ${JSON.stringify(watermarkText)} !important;
+  }
+`} />

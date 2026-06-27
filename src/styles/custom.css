@@ -405,12 +405,13 @@ starlight-toc nav a[aria-current="true"]::before {
 
 /* 3. 纵向水印编排 (Vertical Meta Watermark) */
 body::after {
-  content: "THESTARLIGHTGATHERERS";
+  content: "";
   position: fixed;
   right: 1.5rem;
   top: 50%;
-  transform: translateY(-50%) rotate(90deg);
-  transform-origin: right center;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: 0.75rem;
   letter-spacing: 0.8em;
@@ -419,6 +420,9 @@ body::after {
   pointer-events: none;
   z-index: 100;
   white-space: nowrap;
+  max-height: 80vh;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* =========================================
