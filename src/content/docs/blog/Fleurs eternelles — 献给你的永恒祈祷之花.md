@@ -181,6 +181,10 @@ categories: ["Review"]
 > (分かれ道でも もう迷うことはないよ)  
 >（分岔路口 已再没有逡巡）  
 
+> Two roads diverged in a wood, and I—  
+> I took the one less traveled by,  
+> And that has made all the difference.  
+
 舍弃一切的二人，又会在圣彗星兰外，踏上怎样的旅途呢？  
 
 ![img](https://pic1.imgdb.cn/item/6a4a204a56011c55398d1dcc.png)
