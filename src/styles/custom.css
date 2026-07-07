@@ -166,7 +166,6 @@ body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-t
   transition: all 0.2s ease-in-out;
 }
 body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link):hover {
-  text-shadow: 0 0 8px var(--sl-color-accent-high) !important;
   color: var(--sl-color-accent) !important;
 }
 
