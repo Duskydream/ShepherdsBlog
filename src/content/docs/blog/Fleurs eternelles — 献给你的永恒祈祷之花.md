@@ -88,7 +88,7 @@ categories: ["Review"]
 
 ![img](https://pic1.imgdb.cn/item/6a3e75b099bccaf16ccdf3c9.webp)
 
-## 高塔上的祈祷：Rapunzel朗读剧
+## 高塔上的祈祷
 
 夏篇中插入的朗读剧环节——关于Rapunzel的故事，不仅是猫鸟相识深入的契机，更寄托了剧本改编者白羽苏芳复杂的心意与祈祷。正如艾莉卡敏锐的洞察：**这个朗读剧本身，就是苏芳真切的告白。**
 

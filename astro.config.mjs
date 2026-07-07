@@ -33,9 +33,7 @@ export default defineConfig({
         minHeadingLevel: 1,
         maxHeadingLevel: 6,
       },
-      expressiveCode: {
-        themes: ['vitesse-light'],
-      },
+
       customCss: ["./src/styles/custom.css"],
       description: "櫻の森の上を舞う",
       defaultLocale: "zh",

@@ -1,6 +1,8 @@
 @import "katex/dist/katex.min.css";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
 
 :root {
+  --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
   --sl-color-accent-low: #0d2a42;
   --sl-color-accent: #16436e;
   --sl-color-accent-high: #1e5a94;
@@ -182,34 +184,36 @@ body .sl-markdown-content .friend-links a {
   font-weight: 600;
 }
 
-/* 2. Minimal quote mark for prose blockquotes. */
+/* 2. 优雅的引用块 (Elegant Blockquotes / Epigraph) */
 body .sl-markdown-content blockquote {
   border: none !important;
-  border-radius: 0.15rem !important;
   background: transparent !important;
   box-shadow: none !important;
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  column-gap: 0.95rem;
-  padding: 0.55rem 1rem !important;
+  padding: 2.5rem 2rem !important;
+  margin: 2.5rem auto !important;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
+  text-align: center;
+  color: var(--sl-color-gray-2);
+  display: block;
 }
 
 body .sl-markdown-content blockquote::before {
-  content: ">";
-  grid-column: 1;
-  grid-row: 1;
-  align-self: baseline;
+  content: "“";
+  position: absolute;
+  top: -0.8rem;
+  left: 0.5rem;
+  font-family: Georgia, serif;
+  font-size: 6rem;
+  line-height: 1;
   color: var(--sl-color-accent);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: inherit;
+  opacity: 0.08;
+  pointer-events: none;
 }
 
 body .sl-markdown-content blockquote > * {
-  grid-column: 2;
+  position: relative;
+  z-index: 1;
 }
 
 body .sl-markdown-content blockquote > :first-child {
@@ -245,41 +249,10 @@ body .sl-markdown-content hr::after {
 
 /* 4. 骨骼化标题 (Typography for Headers) */
 body .sl-markdown-content h2 {
-  --heading-corner-size: 0.85rem;
-  --heading-corner-thickness: 2px;
-  --heading-corner-top: 0.35rem;
-  position: relative;
-  padding-left: 1.15rem;
-  padding-bottom: 0.35rem;
   letter-spacing: 0.02em;
-}
-body .sl-markdown-content h2::before,
-body .sl-markdown-content h2::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  background-color: var(--sl-color-accent);
-  transition: opacity 0.2s ease;
-}
-body .sl-markdown-content h2::before {
-  top: var(--heading-corner-top);
-  width: var(--heading-corner-thickness);
-  height: var(--heading-corner-size);
-}
-body .sl-markdown-content h2::after {
-  top: calc(var(--heading-corner-top) + var(--heading-corner-size) - var(--heading-corner-thickness));
-  width: var(--heading-corner-size);
-  height: var(--heading-corner-thickness);
-}
-body .sl-markdown-content h2:hover::after {
-  width: 70px; /* 标题 Hover 时的轻微几何动态 */
 }
 
 /* 5. 目录 (TOC) 的追光灯高亮 (Spotlight on Active TOC) */
-body .sl-markdown-content h2:hover::after {
-  width: var(--heading-corner-size);
-  opacity: 0.8;
-}
 
 starlight-toc nav a[aria-current="true"] {
   position: relative;
@@ -389,11 +362,7 @@ starlight-toc nav a[aria-current="true"]::before {
 
 /* 2. 悬挂式标题 (Hanging Indent Headers) */
 @media (min-width: 50rem) {
-  body .sl-markdown-content h2 {
-    transform: translateX(-0.75rem);
-    border-left: none;
-    width: calc(100% + 0.75rem);
-  }
+
   
   body .sl-markdown-content h3 {
     transform: translateX(-0.75rem);
@@ -407,7 +376,7 @@ starlight-toc nav a[aria-current="true"]::before {
 body::after {
   content: "";
   position: fixed;
-  right: 1.5rem;
+  right: 0.25rem;
   top: 50%;
   transform: translateY(-50%);
   writing-mode: vertical-rl;
@@ -425,45 +394,31 @@ body::after {
   text-overflow: ellipsis;
 }
 
+@media (min-width: 50rem) {
+  body::after {
+    right: 0.25rem;
+  }
+}
+
 /* =========================================
-   方案 A：「追光舞台」沉浸式阅读模式
-   (Stage Focus Reading Mode)
+   优雅的列表样式 (Elegant List Styling)
 ========================================= */
-
-/* 给所有主要区块添加过渡效果 */
-@media (min-width: 50rem) and (hover: hover) {
-body .sl-markdown-content > * {
-  transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease !important;
-  transform-origin: left center;
+body .sl-markdown-content ul {
+  list-style-type: none;
+  padding-left: 1.5rem;
 }
 
-/* 仅当鼠标悬停在特定阅读区块时，降低非 Hover 区块的亮度和饱和度 */
-body .sl-markdown-content:has(> blockquote:hover, > .expressive-code:hover, > ul:hover, > ol:hover, > table:hover, > .starlight-aside:hover) > *:not(:hover) {
-  opacity: 0.35 !important;
-  filter: grayscale(60%) !important;
-}
-
-/* 保持被 Hover 的元素高亮，并给予轻微的“上台”推入感和侧边辉光 */
-body .sl-markdown-content > blockquote:hover,
-body .sl-markdown-content > .expressive-code:hover,
-body .sl-markdown-content > ul:hover,
-body .sl-markdown-content > ol:hover,
-body .sl-markdown-content > table:hover,
-body .sl-markdown-content > .starlight-aside:hover {
-  transform: translateX(4px) !important;
+body .sl-markdown-content ul > li {
   position: relative;
-  z-index: 2;
-  border-radius: 0.25rem;
-  /* 左侧溢出一点点光晕 */
-  box-shadow: -6px 0 16px -6px var(--sl-color-accent);
 }
 
-/* 对于本来就有明显边界的块，加强光晕 */
-body .sl-markdown-content > .expressive-code:hover,
-body .sl-markdown-content > blockquote:hover,
-body .sl-markdown-content > .starlight-aside:hover {
-  box-shadow: -8px 0 20px -8px var(--sl-color-accent-high);
-}
+body .sl-markdown-content ul > li::before {
+  content: "◆";
+  position: absolute;
+  left: -1.2rem;
+  color: var(--sl-color-accent);
+  font-size: 0.8em;
+  top: 0.3em;
 }
 
 /* =========================================
@@ -499,4 +454,87 @@ body .sl-markdown-content .starlight-aside[data-type="tip"] {
 
 body .sl-markdown-content .starlight-aside[data-type="note"] {
   border-left-color: var(--sl-color-gray-3) !important;
+}
+
+/* =========================================
+   方案 B：「书籍感」沉浸阅读 (Book-like Reading Mode)
+   ========================================= */
+
+/* 1. 中文方正兰亭黑 + 英文 SF Pro Text */
+body .sl-markdown-content {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, "FZLanTingHei", "FZLanTingHei-R-GBK", "方正兰亭黑", "Microsoft YaHei", sans-serif;
+}
+
+/* 标题保留无衬线体或更粗的黑体，以形成对比 */
+body .sl-markdown-content h1,
+body .sl-markdown-content h2,
+body .sl-markdown-content h3,
+body .sl-markdown-content h4,
+body .sl-markdown-content h5,
+body .sl-markdown-content h6 {
+  font-family: var(--sl-font-system), sans-serif;
+  font-weight: 600;
+}
+
+/* 2. 栏宽控制 (Measure) - 取消强制限制，跟随默认布局以适配卡片等宽元素 */
+/*
+body .sl-markdown-content {
+  max-width: 65ch;
+  margin-inline: auto;
+}
+*/
+
+/* 3. 书籍化段落排版 (Paragraph Formatting) */
+body .sl-markdown-content p {
+  text-align: justify;
+  text-justify: inter-ideograph;
+  line-height: 1.8;
+  hanging-punctuation: first last;
+  text-indent: 2em;
+}
+
+/* 标题后的首段不缩进（现代中文版式标准） */
+body .sl-markdown-content h1 + p,
+body .sl-markdown-content h2 + p,
+body .sl-markdown-content h3 + p,
+body .sl-markdown-content h4 + p,
+body .sl-markdown-content h5 + p,
+body .sl-markdown-content h6 + p,
+body .sl-markdown-content hr + p,
+body .sl-markdown-content blockquote > p:first-child {
+  text-indent: 0;
+}
+
+/* 避免图片产生缩进 */
+body .sl-markdown-content p:has(img),
+body .sl-markdown-content p:has(picture) {
+  text-indent: 0;
+  text-align: center;
+}
+
+/* =========================================
+   极简滚动条 (Minimal Scrollbar)
+   ========================================= */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--sl-color-gray-5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sl-color-gray-3);
+}
+
+/* Firefox 支持 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-color-gray-5) transparent;
 }
