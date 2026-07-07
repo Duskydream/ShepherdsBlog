@@ -375,13 +375,13 @@ starlight-toc nav a[aria-current="true"]::before {
 body::after {
   content: "";
   position: fixed;
-  right: 0.25rem;
+  right: 0.05rem;
   top: 50%;
   transform: translateY(-50%);
   writing-mode: vertical-rl;
   text-orientation: sideways;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   letter-spacing: 0.8em;
   color: var(--sl-color-gray-4);
   opacity: 0.4;
