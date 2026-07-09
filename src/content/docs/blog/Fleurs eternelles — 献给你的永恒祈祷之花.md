@@ -8,7 +8,7 @@ categories: ["Review"]
 ---
 
 
-*注意：本篇可能含有对Innocent Grey发行的FLOWERS系列游戏的剧透。*
+**注意：本篇可能含有对Innocent Grey发行的FLOWERS系列游戏的剧透。**
 
 ![img](https://pic1.imgdb.cn/item/6a329781a6693733f7df7cf5.jpg)
 
@@ -233,3 +233,9 @@ categories: ["Review"]
 ![img](https://pic1.imgdb.cn/item/6a4a200e56011c55398d1da5.png)
 
 # 冬 L'hiver
+
+> _心 編み繋いで /将心与心编织为一_  
+> _信じて 祈って /相信着 祈愿着_  
+> _雪解けを待つように /如同静待那冰雪消融_  
+
+簌簌地，雪纷落，在圣彗星兰的
