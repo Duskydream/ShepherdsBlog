@@ -9,7 +9,7 @@ sidebar:
   hidden: true
 ---
 
-![img](https://pic1.imzgdb.cn/i/033usIwRvluRUQYaxT7MnL.png "header")
+![img](https://pic1.imgdb.cn/i/033usIwRvluRUQYaxT7MnL.png "header")
 
 **姓名：孟想**
 
