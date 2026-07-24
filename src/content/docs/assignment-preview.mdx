@@ -1,0 +1,1522 @@
+---
+title: 2026年程序设计实践 · 期末题解集
+description: XMUOJ 50题
+template: doc
+tableOfContents:
+  minHeadingLevel: 1
+  maxHeadingLevel: 3
+sidebar:
+  hidden: true
+---
+
+import { Badge, Steps } from '@astrojs/starlight/components';
+
+![img](https://pic1.imgdb.cn/i/033usIwRvluRUQYaxT7MnL.png "header")
+
+**姓名：孟想**
+
+题目来源：XMUOJ（LinK 系列 34 题为主，JD 系列 16 题补充）  
+
+题目数量：50  
+
+> 说明：每题严格按“思路、关键代码、总结”组织。代码展示核心逻辑，统一采用 C++17；提交前以本人实际 AC 代码再次核对。
+
+---
+
+# 课程介绍
+
+> 本题解集整理自《程序设计实践》课程精选题目，共 50 题。按照算法类别重新组织，而非完成顺序排列，希望在记录解法的同时，建立算法知识体系。
+
+# 学习路线图 (Learning Path)
+
+<div style="background: var(--sl-color-gray-6); border: 1px solid var(--sl-color-gray-5); border-radius: 8px; padding: 1.25rem; margin: 1.5rem 0;">
+  <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between;">
+    <div style="background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-accent); border-radius: 6px; padding: 0.75rem 1rem; flex: 1; min-width: 180px;">
+      <div style="font-weight: 600; color: var(--sl-color-accent); font-size: 0.95rem;">① 基础算法</div>
+      <div style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--sl-color-gray-2);">排序 · 二分 · 分治 · 数据结构</div>
+    </div>
+    <div style="font-weight: bold; color: var(--sl-color-accent); font-size: 1.2rem;">➔</div>
+    <div style="background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-accent); border-radius: 6px; padding: 0.75rem 1rem; flex: 1; min-width: 180px;">
+      <div style="font-weight: 600; color: var(--sl-color-accent); font-size: 0.95rem;">② 搜索与图论</div>
+      <div style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--sl-color-gray-2);">DFS / BFS · 并查集 · 图论</div>
+    </div>
+    <div style="font-weight: bold; color: var(--sl-color-accent); font-size: 1.2rem;">➔</div>
+    <div style="background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-accent); border-radius: 6px; padding: 0.75rem 1rem; flex: 1; min-width: 180px;">
+      <div style="font-weight: 600; color: var(--sl-color-accent); font-size: 0.95rem;">③ 动态规划</div>
+      <div style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--sl-color-gray-2);">背包 DP · 线性 DP · 状压 DP</div>
+    </div>
+  </div>
+</div>
+
+<Steps>
+1. **基础算法夯实（18题）**  
+   涵盖双指针、二分查找、分治算法（如归并排序与逆序对）、前缀和/差分、单调栈/队列与 KMP 字符串匹配。
+
+2. **状态搜索与图论建图（24题）**  
+   涵盖 DFS/BFS 回溯搜索（汉诺塔、N皇后、迷宫）、带权并查集、树形 DFS 重心、拓扑排序、Kruskal 最小生成树、二分图染色及 Dijkstra 最短路。
+
+3. **动态规划升华（8题）**  
+   涵盖背包 DP（01/完全/多重）、线性 DP、区间 DP（加分二叉树）及状压 DP（万城巡游 TSP）。
+</Steps>
+
+---
+
+# 目录（按知识大类编排）
+
+> 每题括号内标注**精确知识点**；整体按“基础算法 → 搜索与图论 → 动态规划”递进。
+
+## 一、排序、二分与分治（10题）
+1. **<a href="http://xmuoj.com/contest/362/problem/LinK06" target="_blank">LinK06</a> 两数之和 <Badge text="双指针 / 有序数组夹逼" variant="note" size="medium" />**
+2. **<a href="http://xmuoj.com/contest/362/problem/LinK07" target="_blank">LinK07</a> 三数之和 <Badge text="排序 + 双指针 / 去重处理" variant="note" size="medium" />**
+3. **<a href="http://xmuoj.com/contest/362/problem/LinK27" target="_blank">LinK27</a> 大数排序 <Badge text="比较排序 / long long 数据范围" variant="note" size="medium" />**
+4. **<a href="http://xmuoj.com/contest/362/problem/LinK28" target="_blank">LinK28</a> 快速选择第 k 个数 <Badge text="快速选择 / 分区思想" variant="note" size="medium" />**
+5. **<a href="http://xmuoj.com/contest/362/problem/LinK30" target="_blank">LinK30</a> 归并排序 <Badge text="分治 / 有序区间合并" variant="note" size="medium" />**
+6. **<a href="http://xmuoj.com/contest/362/problem/LinK31" target="_blank">LinK31</a> 求排列的逆序数 <Badge text="归并排序 / 逆序对统计" variant="note" size="medium" />**
+7. **<a href="http://xmuoj.com/contest/362/problem/LinK32" target="_blank">LinK32</a> 查找指定数 <Badge text="二分查找 / 精确匹配" variant="note" size="medium" />**
+8. **<a href="http://xmuoj.com/contest/362/problem/LinK33" target="_blank">LinK33</a> 攻击范围 <Badge text="二分边界 / lower_bound、upper_bound" variant="note" size="medium" />**
+9. **<a href="http://xmuoj.com/contest/362/problem/LinK34" target="_blank">LinK34</a> 求方程的根 <Badge text="浮点二分 / 单调性与精度控制" variant="note" size="medium" />**
+10. **<a href="http://xmuoj.com/contest/362/problem/LinK35" target="_blank">LinK35</a> 数的三次方根 <Badge text="浮点二分 / 负数边界" variant="note" size="medium" />**
+
+## 二、递归、回溯与状态搜索（15题）
+11. **<a href="http://xmuoj.com/contest/362/problem/LinK09" target="_blank">LinK09</a> 汉诺塔 I <Badge text="递归 / 规模缩小" variant="note" size="medium" />**
+12. **<a href="http://xmuoj.com/contest/362/problem/LinK11" target="_blank">LinK11</a> DFS试炼之排列数字 <Badge text="回溯 / 全排列" variant="note" size="medium" />**
+13. **<a href="http://xmuoj.com/contest/362/problem/LinK13" target="_blank">LinK13</a> 输出 N 皇后的全部摆法 <Badge text="回溯 / 对角线剪枝" variant="note" size="medium" />**
+14. **<a href="http://xmuoj.com/contest/362/problem/LinK16" target="_blank">LinK16</a> 放苹果 <Badge text="递归划分 / 空盘分类" variant="note" size="medium" />**
+15. **<a href="http://xmuoj.com/contest/362/problem/LinK17" target="_blank">LinK17</a> 递归求波兰表达式 <Badge text="递归下降 / 表达式求值" variant="note" size="medium" />**
+16. **<a href="http://xmuoj.com/contest/362/problem/LinK19" target="_blank">LinK19</a> 递归实现指数型枚举 <Badge text="递归枚举 / 子集" variant="note" size="medium" />**
+17. **<a href="http://xmuoj.com/contest/362/problem/LinK20" target="_blank">LinK20</a> 递归实现组合型枚举 <Badge text="递归枚举 / 组合去重" variant="note" size="medium" />**
+18. **<a href="http://xmuoj.com/contest/362/problem/LinK23" target="_blank">LinK23</a> 二进制密码锁 <Badge text="状态搜索 / 首位枚举与递推确定" variant="note" size="medium" />**
+19. **<a href="http://xmuoj.com/contest/362/problem/LinK24" target="_blank">LinK24</a> 熄灯问题 <Badge text="位运算枚举 / 行间状态传递" variant="note" size="medium" />**
+20. **<a href="http://xmuoj.com/contest/362/problem/LinK26" target="_blank">LinK26</a> 算24 <Badge text="搜索 / 运算顺序枚举与浮点误差" variant="note" size="medium" />**
+21. **<a href="http://xmuoj.com/contest/362/problem/LinK39" target="_blank">LinK39</a> 净化迷雾森林 <Badge text="DFS / 网格连通块" variant="note" size="medium" />**
+22. **<a href="http://xmuoj.com/contest/362/problem/LinK46" target="_blank">LinK46</a> 寻找林克的回忆(1) <Badge text="回溯 / 数独合法性判定" variant="note" size="medium" />**
+23. **<a href="http://xmuoj.com/contest/362/problem/LinK51" target="_blank">LinK51</a> 净化迷雾森林(广搜) <Badge text="BFS / 网格层次扩展" variant="note" size="medium" />**
+24. **<a href="http://xmuoj.com/contest/362/problem/LinK52" target="_blank">LinK52</a> 波克布林的巡逻范围 <Badge text="BFS / 状态合法性约束" variant="note" size="medium" />**
+25. **<a href="http://xmuoj.com/contest/357/problem/JD162" target="_blank">JD162</a> 雪道寻长 <Badge text="记忆化搜索 / DAG 最长路" variant="note" size="medium" />**
+
+## 三、基础数据结构与字符串（8题）
+26. **<a href="http://xmuoj.com/contest/362/problem/LinK43" target="_blank">LinK43</a> 求二进制中1的个数 <Badge text="位运算 / lowbit" variant="note" size="medium" />**
+27. **<a href="http://xmuoj.com/contest/357/problem/JD121" target="_blank">JD121</a> 蓄势之术 <Badge text="前缀和 / 区间查询" variant="note" size="medium" />**
+28. **<a href="http://xmuoj.com/contest/357/problem/JD123" target="_blank">JD123</a> 差分之术 <Badge text="差分 / 区间修改" variant="note" size="medium" />**
+29. **<a href="http://xmuoj.com/contest/357/problem/JD125" target="_blank">JD125</a> 离散聚力 <Badge text="离散化 / 坐标映射" variant="note" size="medium" />**
+30. **<a href="http://xmuoj.com/contest/357/problem/JD134" target="_blank">JD134</a> 一山更比 <Badge text="单调栈 / 最近更小元素" variant="note" size="medium" />**
+31. **<a href="http://xmuoj.com/contest/357/problem/JD135" target="_blank">JD135</a> 窗移镜照 <Badge text="单调队列 / 滑动窗口最值" variant="note" size="medium" />**
+32. **<a href="http://xmuoj.com/contest/357/problem/JD136" target="_blank">JD136</a> 剑谱寻踪 <Badge text="KMP / 失配跳转" variant="note" size="medium" />**
+33. **<a href="http://xmuoj.com/contest/357/problem/JD137" target="_blank">JD137</a> 堆石成丘 <Badge text="堆 / 下沉调整" variant="note" size="medium" />**
+
+## 四、贪心、并查集与图论（9题）
+34. **<a href="http://xmuoj.com/contest/357/problem/JD127" target="_blank">JD127</a> 一箭穿心 <Badge text="区间贪心 / 按右端点选择" variant="note" size="medium" />**
+35. **<a href="http://xmuoj.com/contest/357/problem/JD138" target="_blank">JD138</a> 合帮并派 <Badge text="并查集 / 路径压缩" variant="note" size="medium" />**
+36. **<a href="http://xmuoj.com/contest/357/problem/JD140" target="_blank">JD140</a> 三界相克 <Badge text="带权并查集 / 模 3 关系维护" variant="note" size="medium" />**
+37. **<a href="http://xmuoj.com/contest/357/problem/JD145" target="_blank">JD145</a> 古树重心 <Badge text="树形 DFS / 重心判定" variant="note" size="medium" />**
+38. **<a href="http://xmuoj.com/contest/357/problem/JD147" target="_blank">JD147</a> 拓扑之序 <Badge text="拓扑排序 / 入度删除" variant="note" size="medium" />**
+39. **<a href="http://xmuoj.com/contest/357/problem/JD153" target="_blank">JD153</a> 逐边成林 <Badge text="最小生成树 / Kruskal" variant="note" size="medium" />**
+40. **<a href="http://xmuoj.com/contest/357/problem/JD154" target="_blank">JD154</a> 二色分界 <Badge text="二分图 / BFS 染色" variant="note" size="medium" />**
+41. **<a href="http://xmuoj.com/contest/362/problem/LinK57" target="_blank">LinK57</a> Dijkstra求最短路(1) <Badge text="最短路 / 朴素 Dijkstra" variant="note" size="medium" />**
+42. **<a href="http://xmuoj.com/contest/362/problem/LinK58" target="_blank">LinK58</a> Dijkstra求最短路(2) <Badge text="最短路 / 堆优化 Dijkstra" variant="note" size="medium" />**
+
+## 五、动态规划（8题）
+43. **<a href="http://xmuoj.com/contest/362/problem/LinK64" target="_blank">LinK64</a> 林克的完全背包 <Badge text="动态规划：完全背包 / 正序容量转移" variant="note" size="medium" />**
+44. **<a href="http://xmuoj.com/contest/362/problem/LinK78" target="_blank">LinK78</a> 加分二叉树 <Badge text="区间动态规划：枚举根节点 + 方案恢复" variant="note" size="medium" />**
+45. **<a href="http://xmuoj.com/contest/362/problem/LinK15" target="_blank">LinK15</a> 爬天梯 <Badge text="线性 DP / Fibonacci 型递推" variant="note" size="medium" />**
+46. **<a href="http://xmuoj.com/contest/362/problem/LinK62" target="_blank">LinK62</a> 数字三角形 <Badge text="线性 DP / 自底向上转移" variant="note" size="medium" />**
+47. **<a href="http://xmuoj.com/contest/362/problem/LinK63" target="_blank">LinK63</a> 林克的01背包 <Badge text="背包 DP / 倒序容量转移" variant="note" size="medium" />**
+48. **<a href="http://xmuoj.com/contest/362/problem/LinK71" target="_blank">LinK71</a> 最长上升子序列 <Badge text="序列 DP / LIS" variant="note" size="medium" />**
+49. **<a href="http://xmuoj.com/contest/362/problem/LinK75" target="_blank">LinK75</a> 最长公共子序列 <Badge text="双序列 DP / LCS" variant="note" size="medium" />**
+50. **<a href="http://xmuoj.com/contest/357/problem/JD170" target="_blank">JD170</a> 万城巡游 <Badge text="状态压缩 DP / 旅行商问题" variant="note" size="medium" />**
+
+# 题解正文
+
+# 一、排序、二分与分治（10题）
+
+**算法本质：** 通过**分而治之**与**单调性**，将大规模问题降维打击。排序建立次序，二分利用次序在对数时间内逼近答案，分治则是将大问题拆分为结构相同的独立小问题。
+
+**核心思想：**
+1. **二分查找**：通过不断缩小区间，在 $O(\log N)$ 时间内找到目标，关键在于单调性的判定。
+2. **分治法**：拆分（Divide） -> 解决子问题（Conquer） -> 合并结果（Combine），如归并排序的合并。
+
+**避坑指南：** 二分边界极易写错（死循环或漏解），需明确区间开闭；计算中间值 `mid = l + (r - l) / 2` 防溢出。
+
+## 1. <a href="http://xmuoj.com/contest/362/problem/LinK06" target="_blank">LinK06</a> 两数之和 <Badge text="双指针 / 有序数组夹逼" variant="note" size="medium" />
+
+> **算法动机：** 数组预排序后元素具备单调性，相加和随首尾指针收缩呈单调递增/递减变化，可将双重循环优化为单次遍历。
+
+**思路：** 在升序数组两端移动指针，依据当前和调整。
+
+**关键代码：**
+
+```cpp
+// 提前对数组排序；保证双指针的移动有单调性。
+int l=0,r=n-1; // n指代nums.size()，下同
+while(l<r){ 
+ int s=nums[l]+nums[r];
+ if(s==target) 
+     break;
+ if(s<target) 
+     ++l; 
+ else --r; // 通过两数之和调整左/右指针
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N \log N)$（含排序），空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握双指针的基本建模与边界处理（比如**当指针移动时，要确保不会越过对方**，即循环条件严格为 `l < r` 的开区间；另外，若题目要求返回下标（原数组下标），则排序后需额外记录原索引，或使用哈希表处理）
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK07" target="_blank">LinK07 三数之和</a>
+
+---
+## 2. <a href="http://xmuoj.com/contest/362/problem/LinK07" target="_blank">LinK07</a> 三数之和 <Badge text="排序 + 双指针 / 去重处理" variant="note" size="medium" />
+
+> **算法动机：** 固定第一个数后转换成“两数之和”子问题，利用排序去重与双指针夹逼，避免暴力 $O(N^3)$ 搜索。
+
+**思路：** 排序后固定一个数，再对剩余部分做双指针并去重。
+
+**关键代码：**
+
+```cpp
+vector<vector<int>> res;// 用三元组存储答案
+// ...    
+sort(nums.begin(),nums.end());
+for(int i=0;i<n;i++){ 
+    if (i&&nums[i]==nums[i-1]) // 固定起点跳过相同值，开始枚举
+        continue;
+ for(int l=i+1,r=n-1;l<r;){ /*移动并去重，其中左右指针分别跳过相同值*/ } }
+```
+
+**复杂度分析：** 时间复杂度 $O(N^2)$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握排序+双指针的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK06" target="_blank">LinK06 两数之和</a>
+
+---
+## 3. <a href="http://xmuoj.com/contest/362/problem/LinK27" target="_blank">LinK27</a> 大数排序 <Badge text="比较排序 / long long 数据范围" variant="note" size="medium" />
+
+> **算法动机：** 数据范围突破常规整数界限，利用字符串长度与字典序比较定义严格弱序进行排序。
+
+**思路：** 使用 O(nlogn) 的快速排序处理十万级数据。
+
+**关键代码：**
+
+```cpp
+int i = l - 1, j = r + 1, x = q[l + r >> 1];
+while (i < j) {
+    do i++; while (q[i] < x);
+    do j--; while (q[j] > x);
+    if (i < j) swap(q[i], q[j]);
+}
+quick_sort(q, l, j); quick_sort(q, i, r);
+```
+
+**复杂度分析：** 时间复杂度 $O(N \log N \cdot L)$，空间复杂度 $O(N \cdot L)$
+
+**总结：** 本题重点是掌握排序的双指针基本建模与边界处理，在日常做题时可以调用sort或range::sort方法。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK28" target="_blank">LinK28 快速选择第k个数</a>
+
+---
+## 4. <a href="http://xmuoj.com/contest/362/problem/LinK28" target="_blank">LinK28</a> 快速选择第 k 个数 <Badge text="快速选择 / 分区思想" variant="note" size="medium" />
+
+> **算法动机：** 仅需获得第 $k$ 小的元素而非全量有序，基于 QuickSort 分区思想每次仅递归处理半边区间，降低期望复杂度。
+
+**思路：** 快排划分后只递归包含第 k 小数的一侧。
+
+**关键代码：**
+```cpp
+int sl = j - l + 1;
+if (sl >= k) return quick_select(q, l, j, k);
+return quick_select(q, j + 1, r, k - sl);
+```
+
+**复杂度分析：** 时间复杂度 期望 $O(N)$，最坏 $O(N^2)$，空间复杂度 递归栈 $O(\log N)$
+
+**总结：** 本题重点是掌握快速选择的基本建模与边界处理：**分治 + 剪枝**—每次只递归可能包含答案的那一侧，另一侧直接舍弃。
+实际中也可以维护大小为 k 的最大堆，或者直接调用c++的nth_element方法。
+
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK30" target="_blank">LinK30 归并排序</a>
+
+---
+## 5. <a href="http://xmuoj.com/contest/362/problem/LinK30" target="_blank">LinK30</a> 归并排序 <Badge text="分治 / 有序区间合并" variant="note" size="medium" />
+
+> **算法动机：** 标准的分治范式，将大数组递归二分为子区间各自排序后进行双指针合并，保证稳定的最坏时间复杂度。
+
+**思路：** 递归分治并合并两个有序子区间。
+
+**关键代码：**
+```cpp
+// 先递归，再归并，使用临时数组来存放归并的子区间
+while(i<=mid&&j<=r) tmp[k++]=num[i]<=num[j]?num[i++]:num[j++]; //每次取较小的放入临时数组
+while(i<=mid) tmp[k++]=num[i++];// 扫描左侧放入临时数组
+while(j<=r) tmp[k++]=num[j++]; // 扫描右侧放入临时数组
+```
+
+**复杂度分析：** 时间复杂度 $O(N \log N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握归并排序的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK31" target="_blank">LinK31 求排列的逆序数</a>
+
+Tips:  **归并排序和快速排序比较：**
+
+**1、处理顺序相反** ; 快排先分区再递归（先整理位置），归并先递归再合并（先处理子问题再汇总结果）
+
+**2、时间复杂度稳定性不同** ; 快排平均O(n log n)但最坏O(n²)（有序数组退化），归并稳定O(n log n)无最坏情况
+
+**3、空间占用差异巨大** ; 快排O(log n)原地交换内存友好，归并O(n)需要额外临时数组空间开销大
+
+**4、稳定性不同** ; 快排不稳定（交换打乱相等元素原始顺序），归并稳定（合并时相等元素先取左半保持原序）
+
+---
+## 6. <a href="http://xmuoj.com/contest/362/problem/LinK31" target="_blank">LinK31</a> 求排列的逆序数 <Badge text="归并排序 / 逆序对统计" variant="note" size="medium" />
+
+> **算法动机：** 归并排序在合并两个有序子区间时，当右半部分元素小于左半部分时，左半部分剩余所有元素均与该右半元素构成逆序对。
+
+**思路：** 归并时右侧元素先出，则左侧剩余元素都构成逆序对。
+
+**关键代码：**
+```cpp
+if (num[i] <= num[j]) {
+    tmp[k++] = num[i++];
+} else {
+    tmp[k++] = num[j++]; // 右侧num[j]更小
+    ans += mid - i + 1;  // num[j]与左半部分[i, mid]中的每个元素都构成逆序对
+    // ans用long long 
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N \log N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握归并统计的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK30" target="_blank">LinK30 归并排序</a>
+
+---
+## 7. <a href="http://xmuoj.com/contest/362/problem/LinK32" target="_blank">LinK32</a> 查找指定数 <Badge text="二分查找 / 精确匹配" variant="note" size="medium" />
+
+> **算法动机：** 数组已保持升序/单调性，利用二分折半缩小区间，在对数时间内完成精确查找。
+
+**思路：** 在有序数组中二分目标值。
+
+**关键代码：**
+
+```cpp
+// 先对数组进行排序
+while (l < r) {
+    int mid = l + r >> 1;
+	if (p[mid] >= target) // check函数
+		r = mid; // 去掉右边区间，在左区间查找
+	else
+		l = mid + 1; // 去掉左边区间，到右区间查找
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(\log N)$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握二分查找的基本建模与边界处理：
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK33" target="_blank">LinK33 攻击范围</a>
+
+​     1.确定二分的区间 ; 2. 编写二分的代码框架(选择模板) ; 3. 设计Check函数 ; 4. 确定应该如何更新区间 ; 5. 确定如何更新mid。
+
+---
+## 8. <a href="http://xmuoj.com/contest/362/problem/LinK33" target="_blank">LinK33</a> 攻击范围 <Badge text="二分边界 / lower_bound、upper_bound" variant="note" size="medium" />
+
+> **算法动机：** 求解序列中某一特定值的最左/最右边界，需利用二分法的单调性与左右边界收敛技巧。
+
+**思路：** 用 lower_bound 与 upper_bound 找首次和末次出现位置。
+
+**关键代码：**
+
+```cpp
+// 数组有重复元素
+int L=lower_bound(num,num+n,x)-num;
+int R=upper_bound(num,num+n,x)-num-1;
+if(L==n||num[L]!=x) cout<<"-1 -1";
+```
+
+**复杂度分析：** 时间复杂度 $O(\log N)$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握二分边界的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK34" target="_blank">LinK34 求方程的根</a>
+
+**左边界**：`>=` 时去左边（`r=mid`），mid下取整，找第一个`>=x`；
+
+**右边界**：`<=` 时去右边（`l=mid`），mid上取整（`+1`），找最后一个`<=x`。
+
+等号朝向决定重复元素归属哪一侧。
+
+---
+## 9. <a href="http://xmuoj.com/contest/362/problem/LinK34" target="_blank">LinK34</a> 求方程的根 <Badge text="浮点二分 / 单调性与精度控制" variant="note" size="medium" />
+
+> **算法动机：** 连续函数在指定闭区间上具备单调性且端点函数值异号，利用浮点数二分不断逼近方程的精确实数根。
+
+**思路：** 利用函数单调性不断缩小根所在区间。
+
+**关键代码：**
+```cpp
+double bsearch_d1(double l, double r) {
+    double eps = 1e-11; // 小数点后面9位，精度为(9+2)
+    while (r - l > eps) {
+        double mid = (l + r) / 2;
+        if (f(mid) > 0)
+            r = mid; // 去掉右区间
+        else
+            l = mid; // 去掉左区间
+    }
+    return l;
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(\log \frac{R-L}{\epsilon})$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握浮点二分的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK35" target="_blank">LinK35 数的三次方根</a>
+
+**原则**：`eps` 比要求精度小 **2个数量级**（防止浮点误差累积）。（下同）
+
+---
+## 10. <a href="http://xmuoj.com/contest/362/problem/LinK35" target="_blank">LinK35</a> 数的三次方根 <Badge text="浮点二分 / 负数边界" variant="note" size="medium" />
+
+> **算法动机：** 映射函数 $f(x) = x^3$ 在全实数域上单调递增，采用实数域二分法逐次半减查找区间直至满足精度 $\epsilon$。
+
+**思路：** 比较 mid 的立方和目标数，二分答案。
+
+**关键代码：**
+
+```cpp
+double l = -100, r = 100;  // 根据实际范围估计
+    double eps = 1e-8;
+    while (r - l > eps) {
+        double mid = (l + r) / 2;
+        if (mid * mid * mid >= n) // check函数
+            r = mid;
+        else
+            l = mid;
+    }
+printf("%.6f\n", l); 
+```
+
+**复杂度分析：** 时间复杂度 $O(\log \frac{R-L}{\epsilon})$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握浮点二分的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK34" target="_blank">LinK34 求方程的根</a>
+
+---
+
+# 二、递归、回溯与状态搜索（15题）
+
+**算法本质：** 穷举与状态空间树的遍历。**递归**是程序的实现形式，**回溯**是带“撤销”动作的深度优先搜索（DFS），用于寻找所有可行解或最优解。
+
+**核心框架：**
+1. **边界条件**：什么时候终止搜索并记录答案。
+2. **选择列表**：当前状态下有哪些分支可以走。
+3. **状态回溯**：做选择 -> 递归 -> 撤销选择，恢复现场。
+
+**常见优化（剪枝）：**
+- **可行性剪枝**：如果当前状态已经不满足条件，直接 return。
+- **最优性剪枝**：如果当前代价已经大于已知的最优代价，停止搜索。
+
+## 11. <a href="http://xmuoj.com/contest/362/problem/LinK09" target="_blank">LinK09</a> 汉诺塔 I <Badge text="递归 / 规模缩小" variant="note" size="medium" />
+
+> **算法动机：** 规模为 $N$ 的汉诺塔问题可分解为“将顶部 $N-1$ 个盘子移到辅助柱 -> 移动底层大盘 -> 将 $N-1$ 个盘子移至目标柱”的递归子结构。
+
+**思路：** 先移动 n-1 个盘，再移动最大盘，最后移动剩余盘。
+
+**关键代码：**
+```cpp
+if(n==1){ 
+    cout<<a<<"->"<<c<<'\n'; 
+    return; 
+} // 递归边界
+hanoi(n-1,a,c,b); // 移动上方 n-1 个盘子
+cout<<a<<"->"<<c<<'\n'; // 	移动最大的盘子
+hanoi(n-1,b,a,c); // 移动剩下的 n-1 个盘子
+```
+
+**复杂度分析：** 时间复杂度 $O(2^N)$，空间复杂度 递归栈 $O(N)$
+
+**总结：** 本题重点是掌握递归的基本建模与分治思想。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK16" target="_blank">LinK16 放苹果</a>
+
+---
+## 12. <a href="http://xmuoj.com/contest/362/problem/LinK11" target="_blank">LinK11</a> DFS试炼之排列数字 <Badge text="回溯 / 全排列" variant="note" size="medium" />
+
+> **算法动机：** 遍历全排列问题即遍历深度为 $N$ 的决策树，利用 DFS 结合 boolean 数组记录状态并在回溯时恢复现场。
+
+**思路：** 当前位置选一个未使用数字，递归后撤销标记。
+
+**关键代码：**
+```cpp
+for(int x=1;x<=n;x++) 
+    if(!used[x]){
+ used[x]=true; // 尝试占位
+ path[u]=x; 
+ dfs(u+1);
+ used[x]=false;  // 回溯
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N \times N!)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握DFS与回溯的基本建模与边界处理。DFS:  沿着一个分支一直深入探索到底，直到无法继续，再回溯到上一个分叉点，换条路继续探索。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK13" target="_blank">LinK13 输出N皇后的全部摆法</a>
+
+# 经典回溯模板
+
+```cpp
+void dfs(参数) {
+    if(终止条件) {
+        记录结果;
+        return;
+    }
+    
+    for(选择 : 所有选择) {
+        if(选择合法) {
+            做出选择;
+            dfs(下一层);
+            撤销选择;  // 回溯
+        }
+    }
+}
+```
+
+---
+## 13. <a href="http://xmuoj.com/contest/362/problem/LinK13" target="_blank">LinK13</a> 输出 N 皇后的全部摆法 <Badge text="回溯 / 对角线剪枝" variant="note" size="medium" />
+
+> **算法动机：** 棋盘搜索问题，利用 DFS 按行放置皇后，并利用列、主副对角线的占位状态进行高效剪枝。
+
+**思路：** 逐行放置皇后，用列和两条对角线判断冲突。
+
+**关键代码：**
+```cpp
+if(!col[c]&&!dg[r+c]&&!udg[r-c+n]){ 
+ col[c]=dg[r+c]=udg[r-c+n]=true; 
+ dfs(r+1);
+ col[c]=dg[r+c]=udg[r-c+n]=false; 
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N!)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握N皇后回溯的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK11" target="_blank">LinK11 DFS试炼之排列数字</a>
+
+---
+## 14. <a href="http://xmuoj.com/contest/362/problem/LinK16" target="_blank">LinK16</a> 放苹果 <Badge text="递归划分 / 空盘分类" variant="note" size="medium" />
+
+> **算法动机：** 将 $M$ 个苹果放入 $N$ 个盘子的组合数拆解为“至少有一个空盘”与“所有盘子均至少有 1 个苹果”两种不重不漏的子问题递归递推。
+
+**思路：** 按是否存在空盘，将问题分成两个子问题。
+
+**关键代码：**
+```cpp
+int f(int m,int n){
+ if(m==0||n==1) return 1; // 边界：没有苹果了，或者只有一个盘子
+ if(m<n) return f(m,m); // 苹果数量少于盘子，多余盘子可以忽略
+ return f(m,n-1)+f(m-n,n); } // f(m, n-1) —— 至少有一个盘子为空；f(m-n, n) —— 所有盘子都有苹果
+```
+
+**复杂度分析：** 时间复杂度 $O(M \cdot N)$，空间复杂度 $O(M + N)$
+
+**总结：** 本题重点是掌握递归划分的基本建模与边界处理，考虑互斥子问题。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK15" target="_blank">LinK15 爬天梯</a>
+
+---
+## 15. <a href="http://xmuoj.com/contest/362/problem/LinK17" target="_blank">LinK17</a> 递归求波兰表达式 <Badge text="递归下降 / 表达式求值" variant="note" size="medium" />
+
+> **算法动机：** 前缀表达式（波兰式）具有自左向右递归定义的结构特点，遇到运算符直接递归求解左右两个子表达式的值。
+
+**思路：** 读到运算符就递归计算两个操作数，读到数字就返回。
+
+**关键代码：**
+
+```cpp
+double calc() {
+    string s;
+    cin >> s;  // 读取一个token
+    if(s == "+") return calc() + calc();  // 加法
+    if(s == "*") return calc() * calc(); // 乘法
+    return stod(s); // 数字（递归边界）
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(L)$（$L$ 为表达式长度），空间复杂度 递归栈 $O(L)$
+
+**总结：** 本题重点是掌握递归解析的基本建模与边界处理，将运算符视为递归节点，数字作为递归边界
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK26" target="_blank">LinK26 算24</a>
+
+**拓展**：复杂逆波兰表达式的标准做法是用**栈模拟**，因为其完美符合栈的先进后出性质。
+
+---
+## 16. <a href="http://xmuoj.com/contest/362/problem/LinK19" target="_blank">LinK19</a> 递归实现指数型枚举 <Badge text="递归枚举 / 子集" variant="note" size="medium" />
+
+> **算法动机：** 考虑 $N$ 个元素的子集问题，每个元素仅有“选”或“不选”两种独立状态，构建深度为 $N$ 的二叉递归树。
+
+**思路：** 每个元素只需决定选或不选，等价于集合的所有子集。
+
+**关键代码：**
+```cpp
+if(u>n){ output(); return; } // 递归边界
+// 选u
+path.push_back(u); 
+dfs(u+1); 
+path.pop_back();
+
+dfs(u+1);  // 不选 u
+```
+
+**复杂度分析：** 时间复杂度 $O(2^N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握子集枚举的"选/不选"建模范式与边界处理：处理完所有元素。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK20" target="_blank">LinK20 递归实现组合型枚举</a>
+
+---
+## 17. <a href="http://xmuoj.com/contest/362/problem/LinK20" target="_blank">LinK20</a> 递归实现组合型枚举 <Badge text="递归枚举 / 组合去重" variant="note" size="medium" />
+
+> **算法动机：** 从 $N$ 个数中选 $M$ 个数，在指数型枚举的基础上引入单调递增选择顺序（避免重复组合）与剩余可选元素数量剪枝。
+
+**思路：** 从上次选择之后开始枚举，保证组合不重复。
+
+**关键代码：**
+```cpp
+void dfs(int start, int cnt) {
+	if(cnt==m){ output(); return; } // 递归边界
+	// 剪枝与去重：确保还能选够剩余的数
+	for(int x=start;x<=n-(m-cnt)+1;x++){
+	path.push_back(x); // 选x
+    dfs(x+1,cnt+1); // 从下一个数开始，继续选
+ 	path.pop_back(); // 回溯
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(\binom{N}{M})$，空间复杂度 $O(M)$
+
+**总结：** 本题重点是掌握组合枚举的基本建模与边界处理：用 `start` 参数控制起始位置以避免重复组合，通过 `cnt` 记录已选数量，以 `cnt == m` 作为递归边界，并在循环中加入剪枝条件 `x <= n - (m - cnt) + 1` 提前排除无效分支，从而高效生成所有长度为 m 的组合。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK19" target="_blank">LinK19 递归实现指数型枚举</a>
+
+---
+## 18. <a href="http://xmuoj.com/contest/362/problem/LinK23" target="_blank">LinK23</a> 二进制密码锁 <Badge text="状态搜索 / 首位枚举与递推确定" variant="note" size="medium" />
+
+**思路**： 遍历每个位置，如果当前位置不匹配目标，就按下下一个按钮来翻转它。这样左边已处理的位置不会再被影响，保证递推的正确性。
+
+**关键代码：**
+
+```cpp
+for(int i=0; i<n-1; i++) { 
+    if(cur[i] != target[i]) { 
+        cur[i]^=1, cur[i+1]^=1, cur[i+2]^=1; // 翻转 i, i+1, i+2
+        times++; 
+    }
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握**熄灯问题**的状态搜索的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK24" target="_blank">LinK24 熄灯问题</a>
+
+---
+## 19. <a href="http://xmuoj.com/contest/362/problem/LinK24" target="_blank">LinK24</a> 熄灯问题 <Badge text="位运算枚举 / 行间状态传递" variant="note" size="medium" />
+
+> **算法动机：** 二维网格开关问题中，若第一行的按下方案固定，第二行的按法被唯一确定，实现由 $2^{R \times C}$ 到 $2^C$ 的爆搜维度压缩。
+
+**思路：** 枚举首行的 2^6 种按法，再逐行确定后续按法。
+
+**关键代码：**
+```cpp
+for(int mask=0;mask<(1<<6);mask++){ 
+ apply_first_row(mask); 
+ for(int r=1;r<5;r++) force_row(r);  
+ check_last_row();  
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(2^C \cdot R \cdot C)$，空间复杂度 $O(R \cdot C)$
+
+**总结：** 本题重点是掌握熄灯问题枚举+模拟的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK23" target="_blank">LinK23 二进制密码锁</a>
+
+---
+## 20. <a href="http://xmuoj.com/contest/362/problem/LinK26" target="_blank">LinK26</a> 算24 <Badge text="搜索 / 运算顺序枚举与浮点误差" variant="note" size="medium" />
+
+> **算法动机：** 数据规模极小（4个数），采用回溯算法枚举数字选取顺序与运算符组合，每次合并两个数生成子问题直到仅剩一个数。
+
+**思路：** 从集合任取两数进行运算，将结果放回后继续搜索。
+
+**关键代码：**
+
+```cpp
+for (int i = 0; i < num.size(); i++) {
+    for (int j = i + 1; j < num.size(); j++) {
+        vector<double> b; /* 将未被选中的数加入b */
+        b.push_back(num[i] + num[j]);
+        if (dfs(b)) return true;
+    }
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(4! \times 4^3)$（常数级），空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握DFS枚举的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK17" target="_blank">LinK17 递归求波兰表达式</a>
+
+---
+## 21. <a href="http://xmuoj.com/contest/362/problem/LinK39" target="_blank">LinK39</a> 净化迷雾森林 <Badge text="DFS / 网格连通块" variant="note" size="medium" />
+
+> **算法动机：** 网格地图求连通块/可达区域，利用 DFS 沿着上下左右四个方向递归探访未标记的通路单元。
+
+**思路：** 从起点向四个方向 DFS，访问所有可达格。
+
+**关键代码：**
+```cpp
+vis[x][y]=true;  // 标记访问过 
+++ans;
+for(int k=0;k<4;k++){ 
+    int nx=x+dx[k],ny=y+dy[k]; // 遍历所有方向的下个格子
+ if(valid(nx,ny)&&!vis[nx][ny]) // valid判断格子是否合法
+     dfs(nx,ny);
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(R \cdot C)$，空间复杂度 $O(R \cdot C)$
+
+**总结：** 本题重点是掌握DFS连通块的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK51" target="_blank">LinK51 净化迷雾森林(广搜)</a>
+
+---
+## 22. <a href="http://xmuoj.com/contest/362/problem/LinK46" target="_blank">LinK46</a> 寻找林克的回忆(1) <Badge text="回溯 / 数独合法性判定" variant="note" size="medium" />
+
+> **算法动机：** 在二维迷宫中求解任意可行路径或全图覆盖，通过深搜（DFS）维护沿途路径并在回溯时恢复现场。
+
+**思路：** 在空格尝试 1 到 9，合法则递归，失败恢复。
+
+**关键代码：**
+
+```cpp
+for(int x=1;x<=9;x++) 
+    if(ok(r,c,x)){ 
+ 		board[r][c]=x;
+ 	    if(dfs()) return true; 
+ 	    board[r][c]=0; 
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(4^{R \cdot C})$，空间复杂度 $O(R \cdot C)$
+
+**总结：** 本题重点是掌握数独回溯的基本建模与边界处理，重点是宫格检查：计算当前格子所在 3×3 宫格的起始位置，`startRow = (r / 3) * 3`，`startCol = (c / 3) * 3`，然后双重循环遍历该宫格内的 9 个格子，如果发现其中某个格子等于 `ch`，说明该宫格已有此数字。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK39" target="_blank">LinK39 净化迷雾森林</a>
+
+---
+## 23. <a href="http://xmuoj.com/contest/362/problem/LinK51" target="_blank">LinK51</a> 净化迷雾森林(广搜) <Badge text="BFS / 网格层次扩展" variant="note" size="medium" />
+
+> **算法动机：** 无权网格图求解点到点的最少步数，广度优先搜索（BFS）层级拓展具备天然的“第一次到达即最短”性质。
+
+**思路：** 队列按层扩展所有未访问邻格。
+
+**关键代码：**
+
+```cpp
+// BFS标准模板：起点入队并标记
+queue<pair<int, int>> q;
+q.push({sx,sy}); // 起点入队
+vis[sx][sy]=true; // 标记访问
+while(!q.empty()){ 
+    auto [x,y]=q.front(); // 取出当前节点
+    q.pop(); // 出队当前节点，表示已处理
+ // 各个方向扩展
+ for(int k=0;k<4;k++) 
+     if(valid(x+dx[k],y+dy[k])) 
+         q.push({x+dx[k],y+dy[k]}); // 如果邻居合法且未访问，则入队
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(R \cdot C)$，空间复杂度 $O(R \cdot C)$
+
+**总结：** 本题重点是掌握BFS连通块的基本建模与边界处理，队列保证"先进先出"，实现按层遍历（距离起点由近到远）。入队即标记是BFS防止死循环的关键。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK52" target="_blank">LinK52 波克布林的巡逻范围</a>
+
+---
+## 24. <a href="http://xmuoj.com/contest/362/problem/LinK52" target="_blank">LinK52</a> 波克布林的巡逻范围 <Badge text="BFS / 状态合法性约束" variant="note" size="medium" />
+
+> **算法动机：** 从起点出发在限制步数内可达的格子集合，使用 BFS 队列进行波浪式层次拓展，避免深搜重复路径。
+
+**思路：** 只有坐标数位和不超过 k 的格子可扩展。
+
+**关键代码：**
+```cpp
+if(sumDigit(nx)+sumDigit(ny)<=k&&!vis[nx][ny]){ // 用坐标数位和判断合法性
+ vis[nx][ny]=true;
+ q.push({nx,ny});
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(R \cdot C)$，空间复杂度 $O(R \cdot C)$
+
+**总结：** 本题重点是掌握BFS+条件的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK51" target="_blank">LinK51 净化迷雾森林(广搜)</a>
+
+---
+## 25. <a href="http://xmuoj.com/contest/357/problem/JD162" target="_blank">JD162</a> 雪道寻长 <Badge text="记忆化搜索 / DAG 最长路" variant="note" size="medium" />
+
+> **算法动机：** 求解网格高度严格递减的最长路径，具有无后效性，采用“记忆化搜索”（DFS + DP 状态缓存）避免重复遍历子树。
+
+**思路：** 缓存每格出发的最长下降路径，避免重复 DFS。
+
+**关键代码：**
+```cpp
+int &res=f[x][y]; // 引用缓存
+if(res) return res; // 若计算过，直接返回
+res=1; // 至少包含自己
+if(valid(nx,ny) && h[nx][ny]<h[x][y]) // 合法且更低
+    res=max(res,dfs(nx,ny)+1); // 当前格子 + 后续最长路径
+```
+
+**复杂度分析：** 时间复杂度 $O(R \cdot C)$，空间复杂度 $O(R \cdot C)$
+
+**总结：** 本题重点是掌握记忆化搜索的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK62" target="_blank">LinK62 数字三角形</a>
+
+---
+
+# 三、基础数据结构与字符串（8题）
+
+**知识本质：** 利用特定的组织形式（如单调性、区间等）来高效存储和查询数据，从而优化时间和空间复杂度。
+
+**核心工具：**
+- **前缀和与差分**：将 $O(N)$ 的区间查询或修改降维到 $O(1)$。
+- **单调栈/队列**：维护元素的单调性，在线性时间内解决“最近更大/更小元素”或“滑动窗口最值”问题。
+- **KMP 算法**：通过预处理模式串的 `Next` 数组，实现无回溯的线性时间字符串匹配。
+
+## 26. <a href="http://xmuoj.com/contest/362/problem/LinK43" target="_blank">LinK43</a> 求二进制中1的个数 <Badge text="位运算 / lowbit" variant="note" size="medium" />
+
+> **算法动机：** 利用位运算 `n & (n - 1)` 能快速消除二进制表示中最右侧的一个 1，无需逐位平移。
+
+**思路：** 每次删除最低位的一个 1，循环次数即答案。
+
+**关键代码：**
+```cpp
+int ans=0;
+while(x){
+ x-=x&-x;  // 删除最低位的 1
+ ++ans;
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(k)$（$k$ 为 1 的个数），空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握lowbit的基本建模与边界处理 ，`lowbit(x) = x & -x` 返回二进制中最低位1对应的数值。原理是利用补码 `-x = ~x + 1`，与运算后只保留最低位1。主要应用：统计1的个数（不断减lowbit计数）、树状数组更新/查询（±lowbit）、判断2的幂（`x == lowbit(x)`）。注意 `x=0` 时 lowbit=0，需特殊处理避免死循环。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD121" target="_blank">JD121 蓄势之术</a>
+
+---
+## 27. <a href="http://xmuoj.com/contest/357/problem/JD121" target="_blank">JD121</a> 蓄势之术 <Badge text="前缀和 / 区间查询" variant="note" size="medium" />
+
+> **算法动机：** 频繁查询静态数组区间和，利用前缀和数组 `s[i] = s[i-1] + a[i]` 将区间和计算从 $O(N)$ 降维至 $O(1)$。
+
+**思路：** 预处理前缀和，用两个前缀和之差回答区间查询。
+
+**关键代码：**
+```cpp
+for(int i=1;i<=n;i++) 
+    s[i]=s[i-1]+num[i]; // s[i]即为前缀和数组
+
+// 查询操作
+
+cin>>l>>r; 
+cout<<s[r]-s[l-1]<<'\n';  // [l,r] 的和
+```
+
+**复杂度分析：** 时间复杂度 预处理 $O(N)$，查询 $O(1)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握前缀和的基本建模与边界处理，**边界处理提示：** 下标从1开始，s[0]=0作为哨兵处理l=1的情况；查询前检查1≤l≤r≤n避免越界和逻辑错误；用long long存储防止溢出；多组数据时重置s[0]=0；大量查询用输入输出优化提速。核心是处理好l=1和r=n两个端点，以及s数组的索引范围（0到n）
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD123" target="_blank">JD123 差分之术</a>
+
+---
+## 28. <a href="http://xmuoj.com/contest/357/problem/JD123" target="_blank">JD123</a> 差分之术 <Badge text="差分 / 区间修改" variant="note" size="medium" />
+
+> **算法动机：** 频繁对静态数组的区间元素增减，利用差分数组 `d[L]+=v, d[R+1]-=v` 将区间修改转为 $O(1)$ 点修改，最后前缀和还原。
+
+**思路：** 区间加法仅修改左右边界，最后求前缀和还原。
+
+**关键代码：**
+
+```cpp
+b[l] += c;
+b[r+1] -= c;  // 区间 [l,r] 加 c
+for(int i = 1; i <= n; i++)
+    b[i] += b[i-1];  // 还原数组
+```
+
+**复杂度分析：** 时间复杂度 修改 $O(1)$，还原 $O(N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握差分的基本建模与边界处理。**边界处理提示：** 下标从1开始，b[0]=0作为哨兵；修改时若 `r+1 ≤ n` 才执行 `b[r+1]-=c`（否则越界但可忽略，因为前缀和不使用 n+1）；注意差分数组 `b[i]=a[i]-a[i-1]` 的构造方式；多组数据时重置 `b[1..n]` 为0；区间修改只改两个点，最终通过前缀和 O(n) 还原；核心是处理好 `r+1` 的边界（是否超出数组范围），以及前缀和还原时从1到n的顺序。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD121" target="_blank">JD121 蓄势之术</a>
+
+---
+## 29. <a href="http://xmuoj.com/contest/357/problem/JD125" target="_blank">JD125</a> 离散聚力 <Badge text="离散化 / 坐标映射" variant="note" size="medium" />
+
+> **算法动机：** 数据数值范围极广（如$10^9$）但实际元素坐标数量较小，通过排序去重建立映射（离散化），再结合前缀和求解。
+
+**思路：** 将所有用到的坐标（操作位置和查询端点）收集排序去重，映射到连续下标；操作时在映射位置加c，查询时用二分找到l和r对应的下标，前缀和O(1)回答区间和。
+
+**关键代码：**
+
+```cpp
+// 离散化
+sort(alls.begin(), alls.end());
+alls.erase(unique(alls.begin(), alls.end()), alls.end());
+
+// 坐标映射：1-based下标
+int idx = lower_bound(alls.begin(), alls.end(), x) - alls.begin() + 1;
+
+// 操作
+add[idx] += c;
+
+// 查询
+int L = lower_bound(alls.begin(), alls.end(), l) - alls.begin() + 1;
+int R = lower_bound(alls.begin(), alls.end(), r) - alls.begin() + 1;
+cout << pre[R] - pre[L-1] << '\n';
+```
+
+**复杂度分析：** 时间复杂度 $O(N \log N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握离散化的基本建模与边界处理。**边界处理提示：** 收集坐标时把查询的l和r也加入alls（即使没有操作过），保证二分查找有效；映射为1-based方便前缀和；unique去重后alls有序不重复；注意add数组大小与alls.size()匹配。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD121" target="_blank">JD121 蓄势之术</a>
+
+---
+## 30. <a href="http://xmuoj.com/contest/357/problem/JD134" target="_blank">JD134</a> 一山更比 <Badge text="单调栈 / 最近更小元素" variant="note" size="medium" />
+
+> **算法动机：** 求解每个元素左侧/右侧第一个比它大/小的元素，利用单调栈维护栈内元素的单调序列，实现线性查找。
+
+**思路：** 弹出不小于当前值的栈元素，栈顶即最近更小值。
+
+**关键代码：**
+
+```cpp
+stack<int> st;
+while(!st.empty()&&st.top()>=x) 
+    st.pop(); // 维护严格递增
+cout<<(st.empty()?-1:st.top())<<' ';
+st.push(x);  // 保持递增栈
+```
+
+**复杂度分析：** 时间复杂度 $O(N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握单调栈的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD135" target="_blank">JD135 窗移镜照</a>
+
+---
+## 31. <a href="http://xmuoj.com/contest/357/problem/JD135" target="_blank">JD135</a> 窗移镜照 <Badge text="单调队列 / 滑动窗口最值" variant="note" size="medium" />
+
+> **算法动机：** 维护固定大小滑动窗口中的最值，利用单调双端队列及时剔除“不可能成为最值”的过期或劣质元素。
+
+**思路：** 队列保存下标，删除过期项并保持值单调。
+
+**关键代码：**
+
+```cpp
+// 维护一个单调递增队列：队首始终是当前窗口的最小值
+while(!q.empty() && q.front()<=i-k) // 删除过期项：队首下标已移出窗口
+    q.pop_front();
+while(!q.empty() && num[q.back()]>=num[i]) // 维护单调性：新元素更小，队尾永远没用了
+    q.pop_back();
+q.push_back(i);
+cout<<num[q.front()]<<' ';
+```
+
+**复杂度分析：** 时间复杂度 $O(N)$，空间复杂度 $O(K)$（$K$ 为窗口大小）
+
+**总结：** 本题重点是掌握单调队列的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD134" target="_blank">JD134 一山更比</a>
+
+---
+## 32. <a href="http://xmuoj.com/contest/357/problem/JD136" target="_blank">JD136</a> 剑谱寻踪 <Badge text="KMP / 失配跳转" variant="note" size="medium" />
+
+> **算法动机：** 模式串匹配问题，利用预处理的 `next` 数组在主串匹配失败时实现无回溯的模式串跳转。
+
+**思路：** 预处理 next 数组，失配时按前后缀信息跳转。
+
+**关键代码：**
+```cpp
+while(j && p[i]!=p[j+1]) 
+    j=ne[j]; // 失配回退：当前前缀匹配失败，利用已有信息缩短匹配长度
+if (p[i]==p[j+1]) 
+    ++j; // 匹配成功：可匹配的前缀长度+1
+ne[i]=j; // 记录当前位置i的最长相等前后缀长度
+```
+
+**复杂度分析：** 时间复杂度 $O(N + M)$，空间复杂度 $O(M)$
+
+**总结：** 本题重点是掌握KMP的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD121" target="_blank">JD121 蓄势之术</a>
+
+ ## KMP 拓展：
+
+**核心思想：** 利用已匹配的前后缀信息，失配时不回溯主串只移动模式串，将匹配从O(n×m)优化到O(n+m)。
+
+**next数组含义（最关键）：** `ne[i]`表示模式串前i个字符中最长相等前后缀的长度（不含自身）。如`p="ababc"`中`ne[4]=2`（"ab"="ab"），`ne[5]=0`。求next本质是模式串自匹配：用前缀去匹配后缀，`j`记录已匹配长度，比较`p[i]`和`p[j+1]`，匹配则`j++`并记录`ne[i]=j`，失配则`j=ne[j]`回退。匹配过程同理：主串指针`i`遍历不回溯，模式串指针`j`表示已匹配长度，比较`s[i]`和`p[j+1]`，完全匹配（`j==n`）后输出起始位置`i-n+1`，然后`j=ne[j]`继续寻找重叠匹配。
+
+**边界处理：** 下标从1开始留s[0]和p[0]空位；ne[1]=0；while中加`j&&`防止访问ne[0]；数组开n+1和m+1；匹配成功后j回退到ne[j]允许重叠；若求所有匹配位置则不退出继续循环。
+
+**高效原因：** 主串指针永不回退，模式串智能跳跃，每个字符最多比较两次。常见应用包括求所有匹配位置、最小循环节（`n-ne[n]`，当`n%(n-ne[n])==0`时）等。
+
+---
+## 33. <a href="http://xmuoj.com/contest/357/problem/JD137" target="_blank">JD137</a> 堆石成丘 <Badge text="堆 / 下沉调整" variant="note" size="medium" />
+
+> **算法动机：** 动态维护集合中的极值，使用二叉堆（优先队列）在 $O(\log N)$ 时间内完成插入与堆顶提取。
+
+**思路：** 数组维护小根堆，删除或修改后向下调整。
+
+**关键代码：**
+
+```cpp
+int t = u;
+if(u*2<=sz && h[u*2]<h[t]) t=u*2;  
+if(u*2+1<=sz && h[u*2+1]<h[t]) t=u*2+1;
+if(t!=u){
+    heap_swap(t,u); 
+    down(t); 
+}
+```
+
+**复杂度分析：** 时间复杂度 插入/删除 $O(\log N)$，获取最值 $O(1)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握手写堆的基本建模与边界处理:  数组维护小根堆，删除或修改后向下调整。同时需要维护两个映射数组：`ph[]`记录每个插入元素在堆中的位置，`hp[]`记录堆中每个位置对应的是第几个插入的元素，两者互为反函数。这样就能实现通过插入序号k快速定位元素在堆中的位置，从而支持删除任意元素和修改任意元素的操作。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK58" target="_blank">LinK58 Dijkstra求最短路(2)</a>
+
+---
+
+# 四、贪心、并查集与图论（9题）
+
+**知识本质：** **贪心**旨在通过局部最优推导全局最优；**图论**通过点与边的连通性对复杂现实世界建模。
+
+**核心算法：**
+- **贪心策略**：常与排序结合，如按右端点排序解决区间覆盖问题。
+- **并查集（DSU）**：高效解决动态连通性问题，包含“路径压缩”和“按秩合并”两大优化。
+- **最短路算法**：Dijkstra 算法利用贪心和堆优化，在加权有向图中求解单源最短路径。
+
+**重要原则：** 贪心算法不总是正确的，必须经过严格证明（如交换论证法或反证法）才能保证全局最优解。
+
+## 34. <a href="http://xmuoj.com/contest/357/problem/JD127" target="_blank">JD127</a> 一箭穿心 <Badge text="区间贪心 / 按右端点选择" variant="note" size="medium" />
+
+> **算法动机：** 区间选点/覆盖问题，按照区间右端点从小到大排序，优先选择当前未覆盖区间的右端点，尽可能覆盖后续更多区间。
+
+**思路：** 按右端点排序，当前点无法覆盖时选该区间右端点。
+
+**关键代码：**
+```cpp
+sort(seg.begin(),seg.end(),[](auto a,auto b){
+    return a.second<b.second;
+});
+
+for(auto [l,r] : seg) 
+    	if(l>p){ // 如果当前区间的左端点大于上次暗器位置，说明未被覆盖
+ 		p=r; // 在当前区间右端点放置暗器
+ 		++ans; // 选最早结束的右端点
+    }	
+```
+
+**复杂度分析：** 时间复杂度 $O(N \log N)$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握区间贪心的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK06" target="_blank">LinK06 两数之和</a>
+
+---
+## 35. <a href="http://xmuoj.com/contest/357/problem/JD138" target="_blank">JD138</a> 合帮并派 <Badge text="并查集 / 路径压缩" variant="note" size="medium" />
+
+> **算法动机：** 动态维护若干不相交集合的合并与连通性查询，使用并查集（DSU）结合路径压缩使得操作均摊时间接近常数。
+
+**思路：** 路径压缩找根，合并根节点，查询两点根是否相同。
+
+**关键代码：**
+
+```cpp
+// 查找x所在集合的根节点，带路径压缩
+int find(int x){ 
+    return p[x]==x?x:p[x]=find(p[x]); 
+}
+
+// 合并a和b所在的集合
+p[find(a)]=find(b); // 将a的根节点指向b的根节点
+
+// 查询a和b是否属于同一集合
+cout<<(find(a)==find(b)?"Yes\n":"No\n");
+```
+
+**复杂度分析：** 时间复杂度 均摊 $O(\alpha(N))$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握并查集的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD140" target="_blank">JD140 三界相克</a>
+
+---
+## 36. <a href="http://xmuoj.com/contest/357/problem/JD140" target="_blank">JD140</a> 三界相克 <Badge text="带权并查集 / 模 3 关系维护" variant="note" size="medium" />
+
+> **算法动机：** 维护多种具有循环相对关系（如食物链 A吃B吃C吃A，模3同余）的集合推导，利用带权并查集维护相对偏移向量。
+
+**思路：** 记录节点到根的关系模3，路径压缩时同步更新关系。带权并查集在普通并查集的基础上，为每个节点增加一个权值`d[x]`，表示节点x到其父节点的关系。对于食物链问题，定义权值模3的意义：0表示与根同类，1表示吃根，2表示被根吃。路径压缩时，节点到根的关系等于节点到原父节点的关系加上原父节点到根的关系之和再模3。合并时根据给定的关系类型计算新的权值。
+
+**关键代码：**
+
+```cpp
+int find(int x) {
+    if (p[x] != x) { // 不是根节点
+        int root = find(p[x]); // 先递归找到根节点（此时p[x]的d已更新）
+        d[x] = (d[x] + d[p[x]]) % 3; // 更新x到根的距离：原距离 + 父到根的距离
+        p[x] = root; // 路径压缩：直接指向根
+    }
+    return p[x]; // 返回根节点
+}
+```
+
+**复杂度分析：** 时间复杂度 均摊 $O(\alpha(N))$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握带权并查集的基本建模与边界处理：
+
+```cpp
+// 带权并查集模板
+// 查找 + 路径压缩 + 权值更新
+int find(int x) {
+    if (p[x] != x) {
+        int root = find(p[x]);          // 先递归找根
+        d[x] += d[p[x]];                // 更新权值：x到根 = x到父 + 父到根
+        p[x] = root;                    // 路径压缩
+    }
+    return p[x];
+}
+
+// 合并：将 x 和 y 合并，已知 x 到 y 的权值为 w
+void unite(int x, int y, int w) {
+    int rx = find(x), ry = find(y);
+    if (rx != ry) {
+        p[rx] = ry;
+        d[rx] = w + d[y] - d[x];        // 计算 rx 到 ry 的权值
+        // 推导：d[x] + d[rx] = w + d[y]  →  d[rx] = w + d[y] - d[x]
+    }
+}
+
+// 查询 x 到 y 的权值关系（需在同一集合）
+int query(int x, int y) {
+    if (find(x) != find(y)) return -1;  // 不在同一集合，关系未知
+    return d[x] - d[y];                  // x 到 y 的权值
+}
+```
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD138" target="_blank">JD138 合帮并派</a>
+
+---
+## 37. <a href="http://xmuoj.com/contest/357/problem/JD145" target="_blank">JD145</a> 古树重心 <Badge text="树形 DFS / 重心判定" variant="note" size="medium" />
+
+> **算法动机：** 在树上求解删除后剩余最大连通块节点数最小的点，利用树形 DFS 递归计算子树 Size 并利用容斥求出上方连通块大小。
+
+**思路：** 计算子树大小，删除节点后的最大连通块最小者即重心。
+
+**关键代码：**
+```cpp
+for (int v : g[u]) {
+    if (v == fa) continue;  
+    int s = dfs(v, u);      
+    sum += s;               
+    mx = max(mx, s);        
+}
+mx = max(mx, n - sum);      
+ans = min(ans, mx);
+```
+
+**复杂度分析：** 时间复杂度 $O(N)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握树形DFS的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD147" target="_blank">JD147 拓扑之序</a>
+
+---
+## 38. <a href="http://xmuoj.com/contest/357/problem/JD147" target="_blank">JD147</a> 拓扑之序 <Badge text="拓扑排序 / 入度删除" variant="note" size="medium" />
+
+> **算法动机：** 有向无环图（DAG）的依赖顺序拓扑排序，利用队列结合入度统计，每次提取入度为 0 的节点。
+
+**思路：** 入度为零的点入队，删边后新入度为零的点继续入队。拓扑排序的本质是将有向无环图的所有顶点排成一个线性序列，使得对每条有向边u→v，u都在v之前。通过不断删除入度为0的节点及其出边，如果最终所有节点都能被删除，则存在拓扑序；否则图中存在环。
+
+**关键代码：**
+
+```cpp
+while(!q.empty()){ int u=q.front();q.pop(); order.push_back(u);
+ for(int v:g[u]) if(--indeg[v]==0) q.push(v);
+}
+if(order.size()!=n) cout<<-1;
+```
+
+**复杂度分析：** 时间复杂度 $O(V + E)$，空间复杂度 $O(V + E)$
+
+**总结：** 本题重点是掌握拓扑排序的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD154" target="_blank">JD154 二色分界</a>
+
+---
+## 39. <a href="http://xmuoj.com/contest/357/problem/JD153" target="_blank">JD153</a> 逐边成林 <Badge text="最小生成树 / Kruskal" variant="note" size="medium" />
+
+> **算法动机：** 求解无向带权图的最小生成树，使用 Kruskal 算法按边权升序排序，结合并查集判环逐一贪心选边。
+
+**思路：** 边按权排序，只选连接两个不同集合的边。
+
+**关键代码：**
+```cpp
+// 按边权从小到大排序（Kruskal算法前提）
+sort(edges.begin(), edges.end());
+
+// 遍历所有边，结构化绑定直接拆出 权值w、顶点a、顶点b
+for (auto [w, a, b] : edges) {
+    // 如果a和b不在同一连通块（不会形成环）
+    if (find(a) != find(b)) {
+        // 合并两个连通块：把a的根指向b的根
+        p[find(a)] = find(b);
+        // 累加最小生成树的边权和
+        ans += w;
+        // 已选边数+1
+        ++cnt;
+    }
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(E \log E)$，空间复杂度 $O(V + E)$
+
+**总结：** 本题重点是掌握Kruskal的基本建模与边界处理。Kruskal算法本质上是**贪心算法**，它通过每次选择当前权值最小的边来构造最小生成树，并利用**并查集**来检测是否形成环。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD138" target="_blank">JD138 合帮并派</a>
+
+---
+## 40. <a href="http://xmuoj.com/contest/357/problem/JD154" target="_blank">JD154</a> 二色分界 <Badge text="二分图 / BFS 染色" variant="note" size="medium" />
+
+> **算法动机：** 判定一个无向图是否为二分图，使用 BFS/DFS 交叉对顶点涂上两种不同颜色，若遇到同色相连则判定失败。
+
+**思路：** 相邻点染相反颜色，出现同色相邻即失败。
+
+**关键代码：**
+
+```cpp
+while (q.size()) {
+    int u = q.front(); q.pop();
+    for (int v : g[u]) 
+        if (!color[v]) color[v] = 3 - color[u], q.push(v);  
+        else if (color[v] == color[u]) return false; 
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(V + E)$，空间复杂度 $O(V + E)$
+
+**总结：** 本题重点是掌握二分图染色的基本建模与边界处理。二分图染色本质上是判断图中是否存在奇环，核心是BFS/DFS交替染色并检测冲突。除基本判定外，还可拓展到二分图最大匹配（匈牙利算法）、带权匹配（KM算法）、最小点覆盖与最大独立集（König定理）等经典问题；实际应用涵盖课程排课、工作分配、社交分组等场景。处理不连通图需遍历所有连通块，自环会导致直接冲突，重边不影响判断。递归DFS需注意栈溢出风险，可用BFS或迭代栈替代。掌握染色法的思想后，可进一步延伸至一般图的奇偶性分析和约束满足问题。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD147" target="_blank">JD147 拓扑之序</a>
+
+---
+## 41. <a href="http://xmuoj.com/contest/362/problem/LinK57" target="_blank">LinK57</a> Dijkstra求最短路(1) <Badge text="最短路 / 朴素 Dijkstra" variant="note" size="medium" />
+
+> **算法动机：** 求解稠密非负权图的单源最短路径，使用朴素 Dijkstra 算法，每轮贪心选择未确定最短路的最近节点。
+
+**思路：** 每轮选择未确定的最短距离点，并松弛所有点。
+
+**关键代码：**
+```cpp
+for (int i = 0; i < n; i++) {
+    int t = -1;
+    for (int j = 1; j <= n; j++) if (!st[j] && (t == -1 || dist[j] < dist[t])) t = j;
+    st[t] = 1; 
+    for (int j = 1; j <= n; j++) dist[j] = min(dist[j], dist[t] + g[t][j]);
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(V^2)$，空间复杂度 $O(V^2)$
+
+**总结：** 本题重点是掌握朴素Dijkstra的基本建模与边界处理——**贪心**：每次从所有尚未确定最短路的点中，选择距离起点最近的那个点，将其标记为已确定，然后尝试通过该点作为“中转站”去更新其所有邻接点的距离，因为所有边权非负，所以一旦被标记，它的最短路就已经确定，后续不会再有更短的路径。反复执行这个过程，直到所有点都被标记或剩余点不可达，最终得到起点到所有点的最短距离。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK58" target="_blank">LinK58 Dijkstra求最短路(2)</a>
+
+---
+## 42. <a href="http://xmuoj.com/contest/362/problem/LinK58" target="_blank">LinK58</a> Dijkstra求最短路(2) <Badge text="最短路 / 堆优化 Dijkstra" variant="note" size="medium" />
+
+> **算法动机：** 求解稀疏非负权图的单源最短路径，使用优先队列（小顶堆）优化节点挑选过程，降低极值挑选开销。
+
+**思路：** 小根堆每次取当前最短点，松弛邻边。
+
+**关键代码：**
+```cpp
+while (!pq.empty()) {
+    auto [d, u] = pq.top(); pq.pop();  
+    if (d > dist[u]) continue;         
+    for (auto &e : graph[u]) { int v = e.to, w = e.weight;
+        if (dist[v] > dist[u] + w) {   
+            dist[v] = dist[u] + w;
+            pq.push({dist[v], v});
+        }
+    }
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(E \log V)$，空间复杂度 $O(V + E)$
+
+**总结：** 本题重点是掌握堆优化Dijkstra的基本建模与边界处理：使用优先队列代替O(n)方法寻找最小点
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK57" target="_blank">LinK57 Dijkstra求最短路(1)</a>
+
+---
+
+# 五、动态规划（8题）
+
+**动态规划（DP）的本质：** 通过**状态**表示子问题，从子问题出发（**自底向上**，与递归不同），用**状态转移方程**描述子问题之间的关系，利用**最优子结构**和**重叠子问题**，将大问题拆解为小问题，用空间换时间避免重复计算。
+
+**核心公式：** 当前状态 = f(历史状态)，即 `dp[i] = f(dp[j])`，通过已解决的子问题推导出更大问题的解。
+
+**两个特征：**
+
+1. **最优子结构**：大问题的最优解包含子问题的最优解
+2. **重叠子问题**：子问题被重复计算（用记忆化/递推解决）
+## 43. <a href="http://xmuoj.com/contest/362/problem/LinK64" target="_blank">LinK64</a> 林克的完全背包 <Badge text="动态规划：完全背包 / 正序容量转移" variant="note" size="medium" />
+
+> **算法动机：** 每种物品数量无限，由于状态转移允许包含当前物品本身，将 01 背包的容量遍历方向改为正序以实现状态复用。
+
+**思路：** 每种物品均可取无限次。枚举物品后让容量从小到大转移，使同一种物品可以在当前轮被重复选择。
+
+**关键代码：**
+
+```cpp
+for(int i=1;i<=n;i++){
+    cin>>v>>w;
+    for(int j=v;j<=V;j++)  // 正序：允许重复选择第 i 种物品
+        dp[j]=max(dp[j],dp[j-v]+w); // 容量为 j 的背包能装下的最大价值
+}
+cout<<dp[V]<<'\n';
+```
+
+**复杂度分析：** 时间复杂度 $O(N \cdot V)$，空间复杂度 $O(V)$
+
+**总结：** 完全背包与 01 背包的关键区别是容量循环方向：完全背包正序，01 背包倒序。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD163" target="_blank">JD163 背包叠甲</a>
+
+---
+## 44. <a href="http://xmuoj.com/contest/362/problem/LinK78" target="_blank">LinK78</a> 加分二叉树 <Badge text="区间动态规划：枚举根节点 + 方案恢复" variant="note" size="medium" />
+
+> **算法动机：** 求解中序遍历固定的二叉树最大加分，具有最优子区间结构，利用区间 DP 枚举区间长度与根节点划分位置。
+
+**思路：** 设`dp[l][r]` 表示区间 `[l, r]` 能获得的最大价值，枚举区间内每个节点作为根；同时记录最优根，以递归输出前序遍历。
+
+**关键代码：**
+
+```cpp
+for(int k=l;k<=r;k++){
+    long long left=(k==l?1:dp[l][k-1]);
+    long long right=(k==r?1:dp[k+1][r]);
+    if(left*right+score[k]>dp[l][r])
+        dp[l][r]=left*right+score[k], root[l][r]=k;
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N^3)$，空间复杂度 $O(N^2)$
+
+**总结：** 区间 DP 常通过枚举“最后决策”（本题为根节点）转移，并记录决策以恢复构造方案。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK71" target="_blank">LinK71 最长上升子序列</a>
+
+---
+## 45. <a href="http://xmuoj.com/contest/362/problem/LinK15" target="_blank">LinK15</a> 爬天梯 <Badge text="线性 DP / Fibonacci 型递推" variant="note" size="medium" />
+
+> **算法动机：** 到达第 $N$ 阶方案数仅取决于到达第 $N-1$ 阶与 $N-2$ 阶的方案数（斐波那契递推），具有重叠子问题，自底向上递推求解。
+
+**思路：** 最后一步来自前一阶或前两阶。
+
+**关键代码：**
+```cpp
+f[1]=1; f[2]=2;
+for(int i=3;i<=n;i++)
+ f[i]=f[i-1]+f[i-2]; // f[i]表示到第i级台阶的方法数
+cout<<f[n];
+```
+
+**复杂度分析：** 时间复杂度 $O(N)$，空间复杂度 $O(1)$
+
+**总结：** 本题重点是掌握递推的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK62" target="_blank">LinK62 数字三角形</a>
+
+---
+## 46. <a href="http://xmuoj.com/contest/362/problem/LinK62" target="_blank">LinK62</a> 数字三角形 <Badge text="线性 DP / 自底向上转移" variant="note" size="medium" />
+
+> **算法动机：** 从顶部到底部的路径最大权值，当前格子的最大值仅依赖于上一层相邻格子的最大值，采用自底向上 DP 递推可避免边界处理。
+
+**思路：** 自底向上，当前位置加上下一层两个可达值中的较大者。
+
+**关键代码：**
+
+```cpp
+vector<int> dp = triangle[N - 1]; // 取最后一行
+	for (int i = N - 2; i >= 0; i--) { // 自底向上做N-1次迭代
+		for (int j = 0; j <= i; j++) {
+			dp[j] = triangle[i][j] + max(dp[j], dp[j + 1]); 
+		} // dp[j]表示从底部到当前位置(i,j)的最大路径和
+	}
+cout << dp[0] << endl;
+```
+
+**复杂度分析：** 时间复杂度 $O(N^2)$，空间复杂度 $O(N^2)$ 或 $O(N)$
+
+**总结：** 本题重点是掌握线性DP的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD162" target="_blank">JD162 雪道寻长</a>
+
+---
+## 47. <a href="http://xmuoj.com/contest/362/problem/LinK63" target="_blank">LinK63</a> 林克的01背包 <Badge text="背包 DP / 倒序容量转移" variant="note" size="medium" />
+
+> **算法动机：** 经典 01 背包问题，每种物品仅能选 0 或 1 次，采用倒序容量遍历确保状态计算时不重复使用当前物品。
+
+**思路：** 容量倒序转移，保证每件物品最多选择一次。
+
+**关键代码：**
+```cpp
+for(int i=1;i<=n;i++){ cin>>v>>w;
+	for(int j=V;j>=v;j--)
+  		dp[j]=max(dp[j],dp[j-v]+w);  // 倒序
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N \cdot V)$，空间复杂度 $O(V)$
+
+**总结：** 本题重点是掌握01背包的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD164" target="_blank">JD164 背包限重</a>
+
+**为什么倒序？**
+
+倒序保证了在考虑第 `i` 个物品时，`dp[j-v]` 还**没有**被第 `i` 个物品更新过，即来自**前 i-1 个物品**的状态。
+
+---
+## 48. <a href="http://xmuoj.com/contest/362/problem/LinK71" target="_blank">LinK71</a> 最长上升子序列 <Badge text="序列 DP / LIS" variant="note" size="medium" />
+
+> **算法动机：** 求解子序列单调递增的最大长度，定义 $dp[i]$ 为以 $i$ 结尾的 LIS 长度，枚举前驱 $j < i$ 满足 $a[j] < a[i]$ 进行状态转移。
+
+**思路：** 以每个位置结尾的最长上升子序列由此前更小元素转移。
+
+**关键代码：**
+```cpp
+for(int i=0;i<n;i++){ 
+    f[i]=1; // 包含自身
+	for(int j=0;j<i;j++) 
+        if(num[j]<num[i])
+  			f[i]=max(f[i],f[j]+1); // f[i] 表示以num[i]结尾的最长上升子序列的长度。
+	ans=max(ans,f[i]);
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(N^2)$，空间复杂度 $O(N)$
+
+**总结：** 本题重点是掌握LIS的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD166" target="_blank">JD166 递增剑意II</a>
+
+---
+## 49. <a href="http://xmuoj.com/contest/362/problem/LinK75" target="_blank">LinK75</a> 最长公共子序列 <Badge text="双序列 DP / LCS" variant="note" size="medium" />
+
+> **算法动机：** 两个序列的最长公共子序列问题，状态 $dp[i][j]$ 表示 $S_1[1..i]$ 与 $S_2[1..j]$ 的 LCS 长度，根据字符是否相等分类转移。
+
+**思路：** 按两个前缀定义状态，末字符相同则左上转移。
+
+**关键代码：**
+
+```cpp
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+        if (num[i] == b[j]) 
+            dp[i][j] = dp[i-1][j-1] + 1; // 匹配: 同时往前退
+        else 
+            dp[i][j] = max(dp[i-1][j], dp[i][j-1]);  // 不匹配： 取较大值
+    } // dp[i][j] 表示序列num[n]的前i个字符和序列 b[m]的前j个字符的最长公共子序列
+}
+cout << dp[n][m] << '\n';
+```
+
+**复杂度分析：** 时间复杂度 $O(N \cdot M)$，空间复杂度 $O(N \cdot M)$
+
+**总结：** 本题重点是掌握LCS的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/362/problem/LinK71" target="_blank">LinK71 最长上升子序列</a>
+
+---
+## 50. <a href="http://xmuoj.com/contest/357/problem/JD170" target="_blank">JD170</a> 万城巡游 <Badge text="状态压缩 DP / 旅行商问题" variant="note" size="medium" />
+
+> **算法动机：** 旅行商问题（TSP），顶点数较小（$N \le 20$），利用二进制位图 `mask` 压缩已访问城池集合状态，结合 DP 避免阶乘级暴搜。
+
+**思路：** mask 表示已访问集合，枚举下一个未访问城市转移。
+
+**关键代码：**
+```cpp
+for (int mask = 1; mask < (1 << n); mask++) {
+    for (int i = 0; i < n; i++) if (mask >> i & 1) {
+        for (int j = 0; j < n; j++) if (!(mask >> j & 1)) {
+            dp[mask | (1 << j)][j] = min(dp[mask | (1 << j)][j], dp[mask][i] + w[i][j]);
+        }
+    }
+}
+```
+
+**复杂度分析：** 时间复杂度 $O(2^N \cdot N^2)$，空间复杂度 $O(2^N \cdot N)$
+
+**总结：** 本题重点是掌握状态压缩DP的基本建模与边界处理。
+
+**🔗 相关题目推荐：** <a href="http://xmuoj.com/contest/357/problem/JD163" target="_blank">JD163 背包叠甲</a>
+
+**`dp[mask][i]`**：已经访问的城市集合为 `mask`，**当前所在城市为 i** 的最小路径代价。
+
+**状态转移：**
+当前状态：(mask, i)  代价 = dp[mask][i]
+选择下一个城市 j（未访问）
+转移至：(mask|`1<<j`, j)  新代价 = dp[mask][i] + w[i][j]
+
+
+---
+
+# 六、课程反思与通关证明 (Reflection)
+
+> 在本学期之前，我已经通过 Luogu、LeetCode 等平台积累了些许刷题经验，也从灵茶山艾府等人那里初步学习到了算法知识和做题技巧。然而，却始终缺乏对算法知识成体系的认识和归纳，也在 AI 时代下，对程序设计和算法的亲身实践愈加生疏。好在 Andy 老师的课程又将我拉回我们作为 CS 学生的算法基本功，在趣味横生的题目背景和深入浅出的算法课堂中，我又沉下心来在电脑屏幕面前敲击键盘， AC 掉陌生而又熟悉的题目。最终，我把积累的经验和分类归纳的、相互联系的知识积淀下来、串联起来，形成了博客网站上我的题解集。相信这不是终点，而是巩固自身能力的里程碑。在未来的时间里，我会不断回顾和丰富这上面的内容，形成属于我自己的宝库。
+
+By Shepherd Meng
+## 基础算法（LinK 系列）AC 记录
+
+![LinK AC Page 1](/ac-screenshots/link_page_1.png)
+![LinK AC Page 2](/ac-screenshots/link_page_2.png)
+![LinK AC Page 3](/ac-screenshots/link_page_3.png)
+
+## 搜索与图论、动态规划（JD 系列）AC 记录
+
+![JD AC Page 1](/ac-screenshots/jd_page_1.png)
+![JD AC Page 2](/ac-screenshots/jd_page_2.png)
+![JD AC Page 3](/ac-screenshots/jd_page_3.png)
+![JD AC Page 4](/ac-screenshots/jd_page_4.png)
+![JD AC Page 5](/ac-screenshots/jd_page_5.png)
+![JD AC Page 6](/ac-screenshots/jd_page_6.png)
+![JD AC Page 7](/ac-screenshots/jd_page_7.png)
+
