@@ -872,25 +872,43 @@ cout<<(find(a)==find(b)?"Yes\n":"No\n");
 
 ```cpp
 int find(int x) {
-    if (p[x] != x) { 
-        int root = find(p[x]);     
-        d[x] = (d[x] + d[p[x]]) % 3; 
-        p[x] = root;  
+    if (p[x] != x) { // 不是根节点
+        int root = find(p[x]); // 先递归找到根节点（此时p[x]的d已更新）
+        d[x] = (d[x] + d[p[x]]) % 3; // 更新x到根的距离：原距离 + 父到根的距离
+        p[x] = root; // 路径压缩：直接指向根
     }
-    return p[x];  
+    return p[x]; // 返回根节点
 }
 ```
 
 **总结：** 本题重点是掌握带权并查集的基本建模与边界处理：
 
 ```cpp
+// 带权并查集模板
+// 查找 + 路径压缩 + 权值更新
 int find(int x) {
-    if (p[x] != x) { 
-        int root = find(p[x]);     
-        d[x] = (d[x] + d[p[x]]) % 3; 
-        p[x] = root;  
+    if (p[x] != x) {
+        int root = find(p[x]);          // 先递归找根
+        d[x] += d[p[x]];                // 更新权值：x到根 = x到父 + 父到根
+        p[x] = root;                    // 路径压缩
     }
-    return p[x];  
+    return p[x];
+}
+
+// 合并：将 x 和 y 合并，已知 x 到 y 的权值为 w
+void unite(int x, int y, int w) {
+    int rx = find(x), ry = find(y);
+    if (rx != ry) {
+        p[rx] = ry;
+        d[rx] = w + d[y] - d[x];        // 计算 rx 到 ry 的权值
+        // 推导：d[x] + d[rx] = w + d[y]  →  d[rx] = w + d[y] - d[x]
+    }
+}
+
+// 查询 x 到 y 的权值关系（需在同一集合）
+int query(int x, int y) {
+    if (find(x) != find(y)) return -1;  // 不在同一集合，关系未知
+    return d[x] - d[y];                  // x 到 y 的权值
 }
 ```
 
