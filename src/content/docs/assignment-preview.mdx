@@ -29,19 +29,19 @@ import { Badge, Steps } from '@astrojs/starlight/components';
 
 # 学习路线图 (Learning Path)
 
-<div style="background: var(--sl-color-gray-6); border: 1px solid var(--sl-color-gray-5); border-radius: 8px; padding: 1.25rem; margin: 1.5rem 0;">
-  <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between;">
-    <div style="background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-accent); border-radius: 6px; padding: 0.75rem 1rem; flex: 1; min-width: 180px;">
+<div class="learning-path not-content">
+  <div class="learning-path__flow">
+    <div class="learning-path__card">
       <div style="font-weight: 600; color: var(--sl-color-accent); font-size: 0.95rem;">① 基础算法</div>
       <div style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--sl-color-gray-2);">排序 · 二分 · 分治 · 数据结构</div>
     </div>
-    <div style="font-weight: bold; color: var(--sl-color-accent); font-size: 1.2rem;">➔</div>
-    <div style="background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-accent); border-radius: 6px; padding: 0.75rem 1rem; flex: 1; min-width: 180px;">
+    <div class="learning-path__arrow" aria-hidden="true">➔</div>
+    <div class="learning-path__card">
       <div style="font-weight: 600; color: var(--sl-color-accent); font-size: 0.95rem;">② 搜索与图论</div>
       <div style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--sl-color-gray-2);">DFS / BFS · 并查集 · 图论</div>
     </div>
-    <div style="font-weight: bold; color: var(--sl-color-accent); font-size: 1.2rem;">➔</div>
-    <div style="background: var(--sl-color-bg-sidebar); border: 1px solid var(--sl-color-accent); border-radius: 6px; padding: 0.75rem 1rem; flex: 1; min-width: 180px;">
+    <div class="learning-path__arrow" aria-hidden="true">➔</div>
+    <div class="learning-path__card">
       <div style="font-weight: 600; color: var(--sl-color-accent); font-size: 0.95rem;">③ 动态规划</div>
       <div style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--sl-color-gray-2);">背包 DP · 线性 DP · 状压 DP</div>
     </div>

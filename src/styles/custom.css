@@ -9,6 +9,55 @@
   --route-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
+/* Keep the learning-path cards on one shared grid row, even with different text metrics. */
+.learning-path {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 8px;
+  background: var(--sl-color-gray-6);
+}
+
+.learning-path__flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.learning-path__flow > * {
+  margin-top: 0;
+}
+
+.learning-path__card {
+  align-self: start;
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--sl-color-accent);
+  border-radius: 6px;
+  background: var(--sl-color-bg-sidebar);
+}
+
+.learning-path__arrow {
+  align-self: center;
+  color: var(--sl-color-accent);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+@media (max-width: 49.999rem) {
+  .learning-path__flow {
+    grid-template-columns: 1fr;
+  }
+
+  .learning-path__arrow {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+}
+
 @keyframes starlight-route-out {
   from {
     opacity: 1;
