@@ -17,6 +17,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/internal-helpers": "0.8.0",
+    "@astrojs/markdown-remark": "^7.2.0",
     "@astrojs/mdx": "^5.0.6",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/starlight": "^0.38.3",
@@ -29,11 +30,5 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "typescript": "^5.9.2"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ]
   }
 }
