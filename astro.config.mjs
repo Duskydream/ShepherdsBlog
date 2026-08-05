@@ -1,15 +1,37 @@
 import starlight from "@astrojs/starlight";
+import { unified } from "@astrojs/markdown-remark";
+import mdx from "@astrojs/mdx";
 // @ts-check
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import starlightThemeRapide from "starlight-theme-rapide";
 
+function rehypeImageHints() {
+  return (tree) => {
+    const visit = (node) => {
+      if (!node || typeof node !== "object") return;
+
+      if (node.type === "element" && node.tagName === "img") {
+        node.properties ??= {};
+        node.properties.loading ??= "lazy";
+        node.properties.decoding ??= "async";
+      }
+
+      node.children?.forEach(visit);
+    };
+
+    visit(tree);
+  };
+}
+
 export default defineConfig({
   site: "https://duskydream.icu",
   markdown: {
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex, rehypeImageHints],
+    }),
   },
   integrations: [
     starlight({
@@ -81,6 +103,11 @@ export default defineConfig({
         baseUrl: "https://github.com/Duskydream/ShepherdsBlog/tree/main/",
       },
       lastUpdated: true,
+    }),
+    mdx({
+      optimize: true,
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex, rehypeImageHints],
     }),
   ],
 });

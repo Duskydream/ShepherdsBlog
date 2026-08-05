@@ -1,5 +1,5 @@
 @import "katex/dist/katex.min.css";
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+
 
 :root {
   --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
@@ -212,7 +212,7 @@
 
 /* 1. 舞台眩光 Hover (Spotlight Glow on Links) */
 body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link) {
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out;
 }
 body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link):hover {
   color: var(--sl-color-accent) !important;
@@ -374,7 +374,7 @@ starlight-toc nav a[aria-current="true"]::before {
 /* 侧边栏条目基础极简锐化 */
 .sidebar-pane a {
   position: relative;
-  transition: all 0.2s ease !important;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
   border-left: 2px solid transparent !important;
   border-radius: 0 !important;
 }

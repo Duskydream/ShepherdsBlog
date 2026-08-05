@@ -14,6 +14,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: 0.8.0
         version: 0.8.0
+      '@astrojs/mdx':
+        specifier: ^5.0.6
+        version: 5.0.6(astro@6.4.8(@types/node@24.13.2)(rollup@4.62.0)(yaml@2.9.0))
       '@astrojs/rss':
         specifier: ^4.0.18
         version: 4.0.18

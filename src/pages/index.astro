@@ -107,6 +107,8 @@ try {
     cwd: process.cwd(),
     encoding: "utf-8",
     stdio: ["ignore", "pipe", "ignore"],
+    timeout: 2000,
+    maxBuffer: 2 * 1024 * 1024,
   });
   const dates = output.split(/\r?\n/).filter(Boolean);
   const commitCounts = new Map<string, number>();
@@ -145,7 +147,7 @@ try {
     <section class="home-hero">
       <div class="home-hero-content">
         <div class="home-hero-avatar">
-          <img src={USER_AVATAR} alt="Shepherd" width="80" height="80" loading="lazy" />
+          <img src={USER_AVATAR} alt="Shepherd" width="80" height="80" loading="eager" fetchpriority="high" decoding="async" />
         </div>
         <div class="home-hero-info">
           <h1 class="home-hero-name">Shepherd</h1>
@@ -525,7 +527,7 @@ try {
       background: var(--sl-color-gray-7, var(--sl-color-gray-6));
       color: var(--sl-color-gray-3);
       border: 1px solid var(--sl-color-gray-6);
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     }
 
     .home-social-btn:hover {

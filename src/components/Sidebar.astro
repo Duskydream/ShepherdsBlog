@@ -1,4 +1,8 @@
 ---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+type SidebarEntry = StarlightRouteData["sidebar"][number];
+type SidebarLinkEntry = Extract<SidebarEntry, { type: 'link' }>;
+type SidebarGroupEntry = Extract<SidebarEntry, { type: 'group' }>;
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import { getCollection } from 'astro:content';
@@ -21,11 +25,11 @@ function pathKey(href: string) {
 	}
 }
 
-function getEntryDate(entry: any) {
+function getEntryDate(entry: SidebarEntry) {
 	return entry.type === 'link' ? dateByPath.get(pathKey(entry.href)) : undefined;
 }
 
-function sortEntries(entries: any[]): any[] {
+function sortEntries(entries: SidebarEntry[]): SidebarEntry[] {
 	return entries
 		.map((entry, index) => ({
 			index,
@@ -45,11 +49,11 @@ function sortEntries(entries: any[]): any[] {
 		.map(({ entry }) => entry);
 }
 
-function hasCurrent(items: any[]): boolean {
+function hasCurrent(items: SidebarEntry[]): boolean {
 	return items.some(item => item.type === 'link' ? item.isCurrent : hasCurrent(item.entries));
 }
 
-function getActiveContext(items: any[]): any[] {
+function getActiveContext(items: SidebarEntry[]): SidebarEntry[] {
 	for (const item of items) {
 		if (item.type === 'group' && hasCurrent(item.entries)) {
             if (item.label === 'Links') return []; // 强制隐藏 Links
@@ -62,10 +66,10 @@ function getActiveContext(items: any[]): any[] {
 const contextSidebar = getActiveContext(sidebar);
 
 // 提取所有链接为扁平结构，移除 details 折叠逻辑
-const flattenedLinks: any[] = [];
+const flattenedLinks: SidebarLinkEntry[] = [];
 let currentCategory = "";
 
-function flatten(items: any[], isTop = true) {
+function flatten(items: SidebarEntry[], isTop = true) {
     for (const item of items) {
         if (item.type === 'group') {
             if (isTop) currentCategory = item.label;
@@ -77,7 +81,7 @@ function flatten(items: any[], isTop = true) {
 }
 flatten(contextSidebar);
 
-function collectLinks(items: any[]): any[] {
+function collectLinks(items: SidebarEntry[]): SidebarLinkEntry[] {
 	return sortEntries(items).flatMap((item) => {
 		if (item.type === 'link') return [item];
 		if (item.type === 'group') return collectLinks(item.entries);
@@ -85,14 +89,14 @@ function collectLinks(items: any[]): any[] {
 	});
 }
 
-const mobileTopLinks = sidebar.filter((item: any) => item.type === 'link');
+const mobileTopLinks = sidebar.filter((item): item is SidebarLinkEntry => item.type === 'link');
 const mobileSections = [
 	mobileTopLinks.length ? { label: 'Navigation', links: mobileTopLinks } : undefined,
 	...sidebar
-		.filter((item: any) => item.type === 'group')
-		.map((item: any) => ({ label: item.label, links: collectLinks(item.entries) }))
-		.filter((section: any) => section.links.length > 0),
-].filter(Boolean) as { label: string; links: any[] }[];
+		.filter((item): item is SidebarGroupEntry => item.type === 'group')
+		.map((item) => ({ label: item.label, links: collectLinks(item.entries) }))
+		.filter((section) => section.links.length > 0),
+].filter(Boolean) as { label: string; links: SidebarLinkEntry[] }[];
 
 const hasDesktopContext = flattenedLinks.length > 0;
 ---

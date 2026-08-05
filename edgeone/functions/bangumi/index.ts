@@ -10,10 +10,11 @@ const LIMIT = 30;
 const CACHE_TTL = 15 * 60 * 1000;
 const DEBUG_MAX_BODY = 400;
 
+type BangumiCollectionItem = Record<string, unknown>;
 let memoryCache: {
-  watching: any[];
-  wish: any[];
-  watched: any[];
+  watching: BangumiCollectionItem[];
+  wish: BangumiCollectionItem[];
+  watched: BangumiCollectionItem[];
   cachedAt: number;
 } | null = null;
 
@@ -23,7 +24,7 @@ function truncateForDebug(value: string) {
 
 async function fetchCollection(type: number) {
   let page = 1;
-  const all: any[] = [];
+  const all: BangumiCollectionItem[] = [];
 
   while (true) {
     const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}&timestamp=${Date.now()}`;
@@ -41,7 +42,7 @@ async function fetchCollection(type: number) {
       throw new Error(`Bangumi upstream ${res.status} for type=${type} page=${page}: ${detail}`);
     }
 
-    const json: any = await res.json();
+    const json = (await res.json()) as { data?: BangumiCollectionItem[] };
     if (!json.data || json.data.length === 0) break;
     all.push(...json.data);
     if (json.data.length < LIMIT) break;
@@ -82,11 +83,10 @@ export async function handleRequest(request: Request): Promise<Response> {
       status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        Pragma: "no-cache",
-        Expires: "0",
-        "Surrogate-Control": "no-store",
-        Vary: "*",
+        // Keep the client and edge cache warm while the in-memory TTL limits
+        // how often this function talks to Bangumi.
+        "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=86400",
+        Vary: "Accept-Encoding",
       },
     });
   } catch (error: unknown) {

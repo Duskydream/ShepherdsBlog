@@ -106,7 +106,7 @@ const showComments =
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting)) loadGiscus();
         },
-        { rootMargin: '700px 0px' }
+        { rootMargin: '300px 0px' }
       );
       observer.observe(container);
       window.__starlightGiscusObserver = observer;

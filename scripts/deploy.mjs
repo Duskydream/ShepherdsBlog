@@ -19,8 +19,15 @@ function run(command, { silent = false, capture = false } = {}) {
 
 console.log("Starting Starlight deploy...");
 
+const untrackedFiles = run("git ls-files --others --exclude-standard", { capture: true }).trim();
+if (untrackedFiles) {
+  console.error("Untracked files detected. Stage them explicitly before deploying:");
+  console.error(untrackedFiles);
+  process.exit(1);
+}
+
 try {
-  run("git add .");
+  run("git add -u");
   try {
     run("git diff-index --quiet HEAD --", { silent: true });
   } catch {

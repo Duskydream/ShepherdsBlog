@@ -1,14 +1,16 @@
 ---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+type SidebarEntry = StarlightRouteData["sidebar"][number];
 import { Badge, Icon } from '@astrojs/starlight/components';
 
 interface Props {
-	entries: any[];
+	entries: SidebarEntry[];
 	nested?: boolean;
 }
 
 const { entries, nested = false } = Astro.props;
 
-function hasCurrent(items: any[]): boolean {
+function hasCurrent(items: SidebarEntry[]): boolean {
 	return items.some((item) => item.type === 'link' ? item.isCurrent : hasCurrent(item.entries));
 }
 ---

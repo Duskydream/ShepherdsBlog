@@ -76,11 +76,10 @@ export async function handleRequest(request) {
       status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        Pragma: "no-cache",
-        Expires: "0",
-        "Surrogate-Control": "no-store",
-        Vary: "*",
+        // Keep the client and edge cache warm while the in-memory TTL limits
+        // how often this function talks to Bangumi.
+        "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=86400",
+        Vary: "Accept-Encoding",
       },
     });
   } catch (error) {

@@ -1,4 +1,6 @@
 ---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+type SidebarEntry = StarlightRouteData["sidebar"][number];
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import { getCollection } from 'astro:content';
 import MobileSiteMenuTree from './MobileSiteMenuTree.astro';
@@ -20,11 +22,11 @@ function pathKey(href: string) {
 	}
 }
 
-function getEntryDate(entry: any) {
+function getEntryDate(entry: SidebarEntry) {
 	return entry.type === 'link' ? dateByPath.get(pathKey(entry.href)) : undefined;
 }
 
-function sortEntries(entries: any[]): any[] {
+function sortEntries(entries: SidebarEntry[]): SidebarEntry[] {
 	return entries
 		.map((entry, index) => ({
 			index,

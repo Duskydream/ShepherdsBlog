@@ -8,6 +8,10 @@ const watermarkText = isArticle && entry.data?.title ? entry.data.title : "DUSKY
 ---
 
 <DefaultHead {...Astro.props} />
+<link rel="preconnect" href="https://pic1.imgdb.cn" crossorigin />
+<meta property="og:image" content="https://duskydream.icu/og-image.webp" />
+<meta property="og:image:alt" content="Shepherd's Blog" />
+<meta name="twitter:image" content="https://duskydream.icu/og-image.webp" />
 <ClientRouter fallback="swap" />
 
 <style is:inline set:html={`

@@ -14,6 +14,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
           <input
             type="text"
             id="bangumi-search"
+            aria-label="搜索动画或游戏"
             placeholder="搜索动画 / 游戏..."
             autocomplete="off"
           />
@@ -43,7 +44,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
       <div id="bangumi-meta" class="bangumi-meta" aria-live="polite"></div>
 
-      <div id="bangumi-grid" class="bangumi-grid" aria-live="polite" aria-busy="false">
+      <div id="bangumi-grid" class="bangumi-grid" aria-busy="false">
         <div class="bangumi-message is-pulse">加载中...</div>
       </div>
     </div>
@@ -84,6 +85,15 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+    }
+
+    function safeImageURL(value) {
+      try {
+        const url = new URL(String(value), window.location.origin);
+        return url.protocol === 'https:' ? escapeHTML(url.href) : '';
+      } catch {
+        return '';
+      }
     }
 
     function readCache() {
@@ -129,8 +139,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       area.dataset.fetching = String(isFetching);
     }
 
-    async function requestJSON(url, signal) {
-      const response = await fetch(url, { cache: 'no-store', signal });
+    async function requestJSON(url, signal, force = false) {
+      const response = await fetch(url, { cache: force ? 'no-store' : 'default', signal });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       return response.json();
     }
@@ -152,8 +162,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       setFetching(true);
 
       try {
-        const query = API + '?t=' + Date.now() + (force ? '&force=true' : '');
-        const payload = normalizePayload(await requestJSON(query, state.fetchAbortController.signal));
+        const query = API + (force ? '?force=true' : '');
+        const payload = normalizePayload(await requestJSON(query, state.fetchAbortController.signal, force));
         if (!hasBangumiItems(payload)) throw new Error('Empty Bangumi payload');
         state.data = payload;
         saveCache(state.data);
@@ -162,7 +172,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       } catch (primaryError) {
         if (primaryError.name === 'AbortError') return null;
         try {
-          const payload = normalizePayload(await requestJSON(STATIC_FALLBACK + '?t=' + Date.now(), state.fetchAbortController.signal));
+          const payload = normalizePayload(await requestJSON(STATIC_FALLBACK, state.fetchAbortController.signal, force));
           if (!hasBangumiItems(payload)) throw new Error('Empty Bangumi fallback payload');
           state.data = payload;
           saveCache(state.data);
@@ -210,8 +220,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     function renderCard(item, index) {
       const titleText = item.subject?.name_cn || item.subject?.name || '?';
       const title = escapeHTML(titleText);
-      const image = item.subject?.images?.large || item.subject?.images?.common || '';
-      const id = item.subject?.id || 0;
+      const image = safeImageURL(item.subject?.images?.large || item.subject?.images?.common || '');
+      const id = Number(item.subject?.id) || 0;
       const commentText = item.comment?.trim() || '';
       const comment = escapeHTML(commentText);
       const preview = escapeHTML(commentText.slice(0, 120) + (commentText.length > 120 ? '...' : ''));
@@ -324,9 +334,18 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     });
 
     (async () => {
-      renderMessage('加载中...', 'muted', true);
       syncControls();
-      await fetchData(true);
+      const cached = readCache();
+      if (cached) {
+        state.data = cached;
+        render();
+        // Do not make navigation wait on a network request when the last
+        // successful response is still usable.
+        void fetchData(true);
+      } else {
+        renderMessage('加载中...', 'muted', true);
+        await fetchData(false);
+      }
     })();
     
     document.addEventListener('astro:before-swap', () => {
@@ -495,15 +514,17 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     background: transparent;
     display: flex;
     flex-direction: column;
-    animation: bangumiCardIn 0.5s ease both;
-    animation-delay: calc(var(--enter-index, 0) * 45ms);
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease, filter 0.4s ease;
+    animation: bangumiCardIn 0.28s ease both;
+    animation-delay: calc(var(--enter-index, 0) * 24ms);
+    content-visibility: auto;
+    contain-intrinsic-size: 9rem;
+    transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.22s ease, opacity 0.22s ease;
   }
 
   /* 聚光灯效应 (Spotlight Effect) */
   .bangumi-grid:has(.bangumi-card.is-open) .bangumi-card:not(.is-open) {
     opacity: 0.35;
-    filter: grayscale(80%) blur(1px);
+
     transform: scale(0.98);
   }
 
@@ -654,7 +675,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     color: var(--sl-color-text);
     font-size: 0.8rem;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
 
   .bangumi-link:hover {
@@ -674,6 +695,15 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   @keyframes bangumiCardIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bangumi-card,
+    .bangumi-detail,
+    .bangumi-toggle-icon {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 
   @media (max-width: 768px) {
