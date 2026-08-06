@@ -27,6 +27,7 @@ function rehypeImageHints() {
 
 export default defineConfig({
   site: "https://duskydream.icu",
+  prefetch: true,
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],
