@@ -2,7 +2,6 @@
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getCollection } from "astro:content";
 import { execSync } from "node:child_process";
-import { transitionNameForPath, transitionNameForTag } from "../utils/view-transitions";
 
 const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
 
@@ -151,7 +150,7 @@ try {
         </div>
         <div class="home-hero-info">
           <h1 class="home-hero-name">Shepherd</h1>
-          <p class="home-hero-bio">XMU AI本</p>
+          <p class="home-hero-bio">AI Undergraduate</p>
           <p class="home-hero-bio">学习笔记 && 个人日志, 喜欢您来(ﾟ∀ﾟ)</p>
         </div>
         <div class="home-hero-socials">
@@ -313,7 +312,6 @@ try {
                 href={tagHref(tag)}
                 class="home-tag"
                 data-level={level}
-                transition:name={transitionNameForTag(tag)}
                 style={`--tag-size: ${size.toFixed(2)}rem; --tag-font-weight: ${fontWeight}`}
                 title={`${count} article${count === 1 ? "" : "s"}`}
                 aria-label={`#${tag}, ${count} article${count === 1 ? "" : "s"}`}
@@ -363,7 +361,7 @@ try {
                     </div>
                     <time>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ""}</time>
                   </div>
-                  <div class="home-timeline-title" transition:name={transitionNameForPath(post.id)}>
+                  <div class="home-timeline-title">
                     <a
                       href={`/${post.id}`}
                       class="home-timeline-title-link"

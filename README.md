@@ -12,17 +12,15 @@ the Star which you have longed for—
 
 一个基于 Astro + Starlight 深度重构的个人博客空间。
 
-摒弃了传统文档站的扁平和圆润，本项目在视觉和交互上全面践行了**「古川知宏美学」与「极简构成主义」**。这里不仅是文章的归档所，更是以「舞台档案」与「剧本」为隐喻构建的极客自留地。
-
 ## ✧ 核心视觉与交互特色 (Aesthetics & UI)
 
-- **极简构成主义 (Constructivist Design)**
-  - 全站抹除常规的圆角（Border Radius）与药丸按钮，使用极简的几何切线、硬朗的直角和细锐的边框构建 UI。
-  - 采用粗细错落的等宽字体（Monospace）与无衬线字体形成鲜明的排版秩序感。
+- **极简与内容优先 (Minimalist & Editorial Design)**
+  - 遵循极简克制的视觉法则，使用纯净的排版秩序、精致的微边框与深海蓝调构建高级质感。
+  - 专为深度长文优化的现代排版体系，带来清晰、舒适且专注的阅读体验。
 - **舞台与剧本隐喻 (Stage Metaphors)**
   - 左侧边栏去除了繁杂的折叠逻辑，呈现为如同机密档案目录般的纯平列表（Flat List）。
   - 右侧原生 TOC（Table of Contents）回归，构建出经典的双栏舞台。
-  - **聚光灯效应 (Spotlight Effect)：** 在 Anime 页面中，点击某部作品详情时，背景卡片会瞬间褪色并压暗，视线如被追光灯般强制锁定于当前内容，提供极致的沉浸阅读体验。
+  - **聚光灯效应 (Spotlight Effect)：** 在 Anime 页面中，点击某部作品详情时，背景卡片会瞬间褪色并压暗，视线如被追光灯般强制锁定于当前内容，提供极致的沉浸体验。
 - **动态寻址系统 (Dynamic Routing)**
   - 顶栏的分类（BLOG, LOG, CODING）不再依赖生硬的静态目录，而是通过接口自动检索并空降至**该分类下的最新一篇文章**。
 - **无缝转场 (View Transitions)**
@@ -37,7 +35,7 @@ the Star which you have longed for—
 - **`ANIME` (Bangumi 档案室)**
   - 一个独立构建的动画 / 游戏追踪页。
   - 支持本地 fallback 数据与云函数接口动态拉取双端并行。
-  - 使用带有舞台术语隐喻的构成主义筛选器（如 `[ ANIMATION ]`、`▶ ON STAGE`）。
+  - 使用带有舞台术语隐喻的分类筛选器（如 `[ ANIMATION ]`、`▶ ON STAGE`）。
 - **`LINKS` (友链区)**
   - 纯粹的 Markdown 页面记录友链，不再将其强行塞入导航栏死角。
 
@@ -63,8 +61,8 @@ the Star which you have longed for—
 │  │  ├─ coding-notes/
 │  │  ├─ log/
 │  │  └─ links.md              # 独立的友链页面
-│  ├─ pages/anime.astro        # 追番 / 游戏构成主义档案页
-│  └─ styles/custom.css        # 古川美学核心样式表
+│  ├─ pages/anime.astro        # 追番 / 游戏档案室
+│  └─ styles/custom.css        # 舞台美学与极简核心样式表
 ├─ astro.config.mjs
 └─ package.json
 ```

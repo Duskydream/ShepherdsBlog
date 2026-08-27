@@ -1,9 +1,5 @@
 ---
-import { transitionNameForPath } from "../utils/view-transitions";
-
 const PAGE_TITLE_ID = "_top";
-const pathname = new URL(Astro.request.url).pathname;
-const transitionName = transitionNameForPath(pathname);
 
 const { entry } = Astro.locals.starlightRoute;
 const { date, tags } = entry.data;
@@ -14,7 +10,7 @@ const readingTime = bodyLength > 0 ? Math.max(1, Math.ceil(bodyLength / 400)) : 
 const formattedDate = date ? new Date(date).toISOString().split('T')[0] : null;
 ---
 
-<div class="page-title-wrapper" transition:name={transitionName} data-page-title-transition>
+<div class="page-title-wrapper">
   <h1 id={PAGE_TITLE_ID}>
     {entry.data.title}
   </h1>

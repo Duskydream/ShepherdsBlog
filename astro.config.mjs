@@ -58,7 +58,7 @@ export default defineConfig({
       },
 
       customCss: ["./src/styles/custom.css"],
-      description: "櫻の森の上を舞う",
+      description: "The tale of flowers growing with a",
       defaultLocale: "zh",
       locales: {
         root: { label: "简体中文", lang: "zh-CN" },

@@ -1,7 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getCollection } from "astro:content";
-import { transitionNameForPath, transitionNameForTag } from "../../utils/view-transitions";
 
 export async function getStaticPaths() {
   const allDocs = await getCollection("docs");
@@ -68,7 +67,7 @@ const contentTimeline = posts
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
           </svg>
-          <span transition:name={transitionNameForTag(tag)}>Posts tagged with #{tag}</span>
+          <span>Posts tagged with #{tag}</span>
         </div>
       </div>
       <div class="home-card-body" style="max-height: 800px; overflow-y: auto;">
@@ -90,7 +89,7 @@ const contentTimeline = posts
                     </div>
                     <time>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ""}</time>
                   </div>
-                  <div class="home-timeline-title" transition:name={transitionNameForPath(post.id)}>
+                  <div class="home-timeline-title">
                     <a
                       href={`/${post.id}`}
                       class="home-timeline-title-link"

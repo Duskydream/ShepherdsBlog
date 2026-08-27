@@ -2,9 +2,7 @@
 import MobileTableOfContents from "virtual:starlight/components/MobileTableOfContents";
 import MobileSiteMenu from "./MobileSiteMenu.astro";
 
-const { hasSidebar: defaultHasSidebar } = Astro.locals.starlightRoute;
-const isPreview = Astro.url.pathname.includes('/assignment-preview');
-const hasSidebar = defaultHasSidebar && !isPreview;
+const { hasSidebar } = Astro.locals.starlightRoute;
 ---
 
 <div class="page sl-flex">
@@ -30,7 +28,7 @@ const hasSidebar = defaultHasSidebar && !isPreview;
       </nav>
     )
   }
-  <div class:list={["main-frame", { "is-preview": isPreview }]}><slot /></div>
+  <div class="main-frame"><slot /></div>
 </div>
 
 <style>
@@ -104,10 +102,6 @@ const hasSidebar = defaultHasSidebar && !isPreview;
     .main-frame {
       padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
       padding-inline-start: var(--sl-content-inline-start);
-    }
-    .main-frame.is-preview {
-      padding-inline-start: max(1.5rem, 5vw) !important;
-      --sl-content-width: 60rem !important;
     }
 
     @media (min-width: 50rem) {

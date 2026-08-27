@@ -9,85 +9,41 @@
   --route-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-/* Keep the learning-path cards on one shared grid row, even with different text metrics. */
-.learning-path {
-  margin: 1.5rem 0;
-  padding: 1.25rem;
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 8px;
-  background: var(--sl-color-gray-6);
-}
-
-.learning-path__flow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 0.75rem;
-  align-items: stretch;
-}
-
-.learning-path__flow > * {
-  margin-top: 0;
-}
-
-.learning-path__card {
-  align-self: start;
-  box-sizing: border-box;
-  height: 100%;
-  min-width: 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--sl-color-accent);
-  border-radius: 6px;
-  background: var(--sl-color-bg-sidebar);
-}
-
-.learning-path__arrow {
-  align-self: center;
-  color: var(--sl-color-accent);
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-@media (max-width: 49.999rem) {
-  .learning-path__flow {
-    grid-template-columns: 1fr;
-  }
-
-  .learning-path__arrow {
-    justify-self: center;
-    transform: rotate(90deg);
-  }
-}
 
 @keyframes starlight-route-out {
   from {
     opacity: 1;
+    transform: translateY(0);
   }
   to {
     opacity: 0;
+    transform: translateY(-4px);
   }
 }
 
 @keyframes starlight-route-in {
   from {
     opacity: 0;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (min-width: 50rem) and (prefers-reduced-motion: no-preference) {
   ::view-transition-group(*) {
-    animation-timing-function: var(--route-transition-ease);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   ::view-transition-old(root) {
-    animation: starlight-route-out 160ms var(--route-transition-ease) both;
+    animation: starlight-route-out 120ms cubic-bezier(0.4, 0, 1, 1) both;
     mix-blend-mode: normal;
   }
 
   ::view-transition-new(root) {
-    animation: starlight-route-in 180ms var(--route-transition-ease) both;
+    animation: starlight-route-in 140ms cubic-bezier(0, 0, 0.2, 1) both;
     mix-blend-mode: normal;
   }
 }
@@ -385,7 +341,7 @@ starlight-toc nav a[aria-current="true"]::before {
 
 /* 侧边栏 Hover 动画：极简的左侧推入 */
 .sidebar-pane a:not([aria-current='page']):hover {
-  transform: translateX(4px);
+  transform: translate3d(4px, 0, 0);
   border-left: 2px solid var(--sl-color-accent-high) !important;
   color: var(--sl-color-text-accent) !important;
   background: transparent !important;
@@ -410,14 +366,11 @@ starlight-toc nav a[aria-current="true"]::before {
 
 /* 2. 悬挂式标题 (Hanging Indent Headers) */
 @media (min-width: 50rem) {
-
-  
   body .sl-markdown-content h3 {
     transform: translateX(-0.75rem);
     padding-left: 0.75rem;
     border-left: 2px solid var(--sl-color-accent-high);
   }
-
 }
 
 /* 3. 纵向水印编排 (Vertical Meta Watermark) */
@@ -426,7 +379,9 @@ body::after {
   position: fixed;
   right: 0.05rem;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) translateZ(0);
+  contain: strict;
+  will-change: transform, opacity;
   writing-mode: vertical-rl;
   text-orientation: sideways;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
