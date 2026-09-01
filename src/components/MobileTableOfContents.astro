@@ -20,7 +20,15 @@ const { toc } = Astro.locals.starlightRoute;
           </summary>
           <div class="mobile-toc-scrim" aria-hidden="true"></div>
           <div class="mobile-toc-panel">
-            <MobileTocList items={toc.items} />
+            <div
+              class="mobile-toc-garden"
+              data-floral-vine={JSON.stringify({
+                items: ".mobile-toc-list li",
+                vineX: 10,
+              })}
+            >
+              <MobileTocList items={toc.items} />
+            </div>
           </div>
         </details>
       </nav>
@@ -157,9 +165,9 @@ const { toc } = Astro.locals.starlightRoute;
       z-index: 1000;
       top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px);
       right: 0;
+      bottom: 0;
       left: 0;
-      height: calc(100dvh - var(--sl-nav-height) - var(--sl-mobile-toc-height) + 1px);
-      background: var(--sl-mobile-toc-bg-solid);
+      background: transparent;
     }
 
     details[open] .mobile-toc-panel {
@@ -169,14 +177,23 @@ const { toc } = Astro.locals.starlightRoute;
       top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px);
       right: 0;
       left: 0;
-      height: calc(100dvh - var(--sl-nav-height) - var(--sl-mobile-toc-height) + 1px);
+      max-height: min(70dvh, calc(100dvh - var(--sl-nav-height) - var(--sl-mobile-toc-height) + 1px));
       border-top: 1px solid var(--sl-color-hairline-shade);
-      background: var(--sl-mobile-toc-bg-solid);
+      border-radius: 0 0 1rem 1rem;
+      background: var(--sl-color-bg);
       overflow-y: auto;
       overscroll-behavior: contain;
       contain: layout paint style;
-      padding: 1.35rem var(--sl-sidebar-pad-x) max(2rem, env(safe-area-inset-bottom));
-      box-shadow: inset 0 1px 0 var(--sl-color-hairline-shade), var(--sl-shadow-md);
+      padding: 1.2rem 1.25rem max(1.75rem, env(safe-area-inset-bottom));
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.05);
+      transform-origin: top center;
+      animation: floral-grow-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mobile-toc-garden {
+      position: relative;
     }
 
     :global(:root[data-theme="dark"]) .mobile-toc-shell {
@@ -194,25 +211,11 @@ const { toc } = Astro.locals.starlightRoute;
   }
 </style>
 
-<style is:global>
-  body[data-mobile-toc-expanded] {
-    overflow: hidden;
-  }
-
-  body[data-mobile-toc-expanded]::before {
-    content: "";
-    position: fixed;
-    z-index: 999;
-    top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) - 1px);
-    right: 0;
-    left: 0;
-    height: calc(100dvh - var(--sl-nav-height) - var(--sl-mobile-toc-height) + 1px);
-    background: var(--sl-mobile-toc-bg-solid, var(--sl-color-bg));
-    pointer-events: none;
-  }
-</style>
-
 <script>
+  import { bindFloralVines } from "../utils/floral-vine";
+  bindFloralVines();
+  document.addEventListener("astro:page-load", () => bindFloralVines());
+
   class MobileStarlightTOC extends HTMLElement {
     details: HTMLDetailsElement | null = null;
     panel: HTMLElement | null = null;
@@ -250,12 +253,10 @@ const { toc } = Astro.locals.starlightRoute;
       window.removeEventListener("keydown", this.onKeydown);
       window.removeEventListener("scroll", this.scheduleCurrentUpdate);
       window.removeEventListener("resize", this.scheduleCurrentUpdate);
-      document.body.removeAttribute("data-mobile-toc-expanded");
       if (this.frame) cancelAnimationFrame(this.frame);
     }
 
     onToggle = () => {
-      document.body.toggleAttribute("data-mobile-toc-expanded", Boolean(this.details?.open));
       this.scheduleCurrentUpdate();
     };
 

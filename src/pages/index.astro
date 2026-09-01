@@ -1,5 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import LilyOrnament from "../components/LilyOrnament.astro";
 import { getCollection } from "astro:content";
 import { execSync } from "node:child_process";
 
@@ -144,15 +145,30 @@ try {
   <div class="home-dashboard">
     <!-- Hero / Profile -->
     <section class="home-hero">
+      <div class="home-hero-decor" aria-hidden="true">
+        <LilyOrnament id="lily-br" />
+        <LilyOrnament id="lily-tl" />
+      </div>
       <div class="home-hero-content">
+        <div class="home-hero-badge">
+          <span class="home-hero-badge-text">Duskydream</span>
+        </div>
         <div class="home-hero-avatar">
-          <img src={USER_AVATAR} alt="Shepherd" width="80" height="80" loading="eager" fetchpriority="high" decoding="async" />
+          <img src={USER_AVATAR} alt="Shepherd" width="84" height="84" loading="eager" fetchpriority="high" decoding="async" />
         </div>
         <div class="home-hero-info">
-          <h1 class="home-hero-name">Shepherd</h1>
-          <p class="home-hero-bio">AI Undergraduate</p>
-          <p class="home-hero-bio">学习笔记 && 个人日志, 喜欢您来(ﾟ∀ﾟ)</p>
+          <h1 class="home-hero-name">祈りの花庭</h1>
+          <p class="home-hero-motto">“如花四散，余香绕指，心中的裂痕亦能被填补”</p>
+          <p class="home-hero-bio">Shepherd · AI Undergraduate</p>
         </div>
+
+        <div class="home-hero-quicknav">
+          <a href="/article" class="home-quick-pill">✦ 散文随笔 (Article)</a>
+          <a href="/coding" class="home-quick-pill">✦ 算法笔记 (Coding)</a>
+          <a href="/anime" class="home-quick-pill">✦ 鉴赏记录 (Anime)</a>
+          <a href="/log" class="home-quick-pill">✦ 岁月手记 (Log)</a>
+        </div>
+
         <div class="home-hero-socials">
           <a
             href="https://github.com/Duskydream"
@@ -164,6 +180,19 @@ try {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
               ><path
                 d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              ></path></svg
+            >
+          </a>
+          <a
+            href="https://t.me/inorinohananiwa"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="home-social-btn"
+            aria-label="Telegram"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+              ><path
+                d="m20.665 3.717-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l-.313 4.67c.458 0 .66-.21.916-.457l2.199-2.138 4.574 3.379c.844.464 1.45.225 1.66-.785l3.003-14.146c.308-1.233-.472-1.792-1.515-1.32z"
               ></path></svg
             >
           </a>
@@ -457,29 +486,75 @@ try {
     }
 
     .home-hero {
+      position: relative;
       border-radius: 1.25rem;
       overflow: hidden;
       background: var(--sl-color-bg);
       border: 1px solid var(--sl-color-gray-6);
     }
 
+    .home-hero-decor {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .home-hero-decor > :first-child {
+      position: absolute;
+      right: -12px;
+      bottom: -14px;
+      width: min(56%, 460px);
+      opacity: 0.95;
+    }
+
+    .home-hero-decor > :last-child {
+      position: absolute;
+      left: -12px;
+      top: -14px;
+      width: min(44%, 360px);
+      transform: rotate(180deg);
+      opacity: 0.5;
+    }
+
     .home-hero-content {
       position: relative;
       z-index: 2;
-      padding: 1.5rem 1.75rem;
+      padding: 2rem 2rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
+      text-align: center;
       gap: 1.25rem;
-      flex-wrap: wrap;
+    }
+
+    .home-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 999px;
+      background: var(--sl-color-gray-6);
+      color: var(--sl-color-accent);
+      font-size: 0.68rem;
+      font-family: "Instrument Serif", "Georgia", serif;
+      letter-spacing: 0.15em;
     }
 
     .home-hero-avatar {
       flex-shrink: 0;
-      width: 3.5rem;
-      height: 3.5rem;
-      border-radius: 1rem;
+      width: 4.8rem;
+      height: 4.8rem;
+      border-radius: 50%;
       overflow: hidden;
-      border: 1px solid var(--sl-color-gray-6);
+      border: 2px solid var(--sl-color-accent);
+      box-shadow: 0 0 24px rgba(112, 147, 200, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .home-hero-avatar:hover {
+      transform: scale(1.05);
     }
 
     .home-hero-avatar img {
@@ -490,48 +565,88 @@ try {
     }
 
     .home-hero-info {
-      flex: 1;
-      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
     }
 
     .home-hero-name {
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+      font-size: 1.85rem;
+      font-weight: 600;
       color: var(--sl-color-white);
-      letter-spacing: -0.02em;
-      line-height: 1.3;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
       margin: 0;
     }
 
+    .home-hero-motto {
+      font-family: "Songti SC", "Source Han Serif SC", "FZLanTingHei", serif;
+      font-size: 0.95rem;
+      color: var(--sl-color-accent);
+      margin: 0;
+      letter-spacing: 0.05em;
+      font-style: italic;
+    }
+
     .home-hero-bio {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--sl-color-gray-3);
-      margin: 0.15rem 0 0;
+      margin: 0;
+    }
+
+    .home-hero-quicknav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.25rem;
+    }
+
+    .home-quick-pill {
+      font-size: 0.76rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-5);
+      background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+      color: var(--sl-color-text);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .home-quick-pill:hover {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-white);
+      background: var(--sl-color-accent-low);
+      transform: translateY(-1px);
     }
 
     .home-hero-socials {
       display: flex;
-      gap: 0.4rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 0.25rem;
     }
 
     .home-social-btn {
-      width: 2rem;
-      height: 2rem;
+      width: 2.2rem;
+      height: 2.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 0.6rem;
+      border-radius: 50%;
       background: var(--sl-color-gray-7, var(--sl-color-gray-6));
       color: var(--sl-color-gray-3);
-      border: 1px solid var(--sl-color-gray-6);
-      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+      border: 1px solid var(--sl-color-gray-5);
+      transition: all 0.2s ease;
     }
 
     .home-social-btn:hover {
-      background: var(--sl-color-gray-6);
+      border-color: var(--sl-color-accent);
       color: var(--sl-color-white);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
     }
 
     .home-card {
@@ -1000,6 +1115,15 @@ try {
       }
       .home-hero {
         border-radius: 1rem;
+      }
+      .home-hero-decor > :last-child {
+        display: none;
+      }
+      .home-hero-decor > :first-child {
+        right: -24px;
+        bottom: -18px;
+        width: 62%;
+        opacity: 0.4;
       }
       .home-hero-avatar {
         grid-area: avatar;

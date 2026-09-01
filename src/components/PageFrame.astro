@@ -16,11 +16,32 @@ const { hasSidebar } = Astro.locals.starlightRoute;
       <nav
         class="sidebar print:hidden"
         aria-label={Astro.locals.t("sidebarNav.accessibleLabel")}
-        transition:name="site-sidebar"
-        transition:animate="none"
       >
-        <div class="mobile-sidebar-scrim" aria-hidden="true"></div>
-        <div id="starlight__sidebar" class="sidebar-pane">
+        <div class="drawer-scrim" aria-hidden="true"></div>
+        <div id="starlight__sidebar" class="sidebar-pane drawer-pane">
+          <svg class="drawer-ornament" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="drawer-orn-grad" x1="40" y1="200" x2="170" y2="30" gradientUnits="userSpaceOnUse">
+                <stop offset="0" style="stop-color: var(--sl-color-accent)" stop-opacity="0.15" />
+                <stop offset="0.55" style="stop-color: var(--sl-color-accent)" stop-opacity="0.8" />
+                <stop offset="1" style="stop-color: var(--sl-color-accent-high)" />
+              </linearGradient>
+            </defs>
+            <path class="draw" d="M 196 214 C 152 172 120 140 100 102 C 90 82 84 64 82 48"
+              stroke="url(#drawer-orn-grad)" stroke-width="1.3" stroke-linecap="round" pathLength="1" />
+            <path class="draw" style="animation-delay: .5s" d="M 148 162 C 168 149 188 145 202 147 C 186 160 166 166 148 162 Z"
+              stroke="url(#drawer-orn-grad)" stroke-width="1.1" stroke-linecap="round" pathLength="1" />
+            <path class="draw" style="animation-delay: .7s" d="M 116 128 C 98 118 80 117 64 124 C 82 133 102 134 116 128 Z"
+              stroke="url(#drawer-orn-grad)" stroke-width="1.1" stroke-linecap="round" pathLength="1" />
+            <path class="draw" style="animation-delay: .9s" d="M 82 48 C 76 36 79 24 88 16 C 92 28 90 40 82 48 Z"
+              stroke="url(#drawer-orn-grad)" stroke-width="1.1" stroke-linecap="round" pathLength="1" fill="url(#drawer-orn-grad)" fill-opacity="0.06" />
+            <path class="sparkle" transform="translate(58 42) scale(0.5)" d="M 0 -12 C 1.6 -4 4 -1.6 12 0 C 4 1.6 1.6 4 0 12 C -1.6 4 -4 1.6 -12 0 C -4 -1.6 -1.6 -4 0 -12 Z" fill="url(#drawer-orn-grad)" />
+            <path class="sparkle" style="animation-delay: 1.4s" transform="translate(142 66) scale(0.38)" d="M 0 -12 C 1.6 -4 4 -1.6 12 0 C 4 1.6 1.6 4 0 12 C -1.6 4 -4 1.6 -12 0 C -4 -1.6 -1.6 -4 0 -12 Z" fill="url(#drawer-orn-grad)" />
+          </svg>
+          <div class="drawer-header">
+            <span class="drawer-title">✿ 祈りの花庭 · 目録</span>
+            <button type="button" class="drawer-close-btn" aria-label="关闭目录">✕</button>
+          </div>
           <div class="sidebar-content sl-flex">
             <slot name="sidebar" />
           </div>
@@ -47,207 +68,207 @@ const { hasSidebar } = Astro.locals.starlightRoute;
       height: var(--sl-nav-height);
       border-bottom: 1px solid var(--sl-color-hairline-shade);
       padding: var(--sl-nav-pad-y) var(--sl-nav-pad-x);
-      padding-inline-end: var(--sl-nav-pad-x);
       background-color: var(--sl-color-bg-nav);
-    }
-
-    @media (max-width: 49.999rem) {
-      .header {
-        z-index: 1200;
-      }
-
-    }
-
-    :global([data-has-sidebar]) .header {
-      padding-inline-end: calc(
-        var(--sl-nav-gap) + var(--sl-nav-pad-x) + var(--sl-menu-button-size)
-      );
-    }
-
-    .sidebar-pane {
-      visibility: var(--sl-sidebar-visibility, hidden);
-      position: fixed;
-      z-index: var(--sl-z-index-menu);
-      inset-block: var(--sl-nav-height) 0;
-      inset-inline-start: 0;
-      width: 100%;
-      background-color: var(--sl-color-black);
-      overflow-y: auto;
-    }
-
-    .mobile-sidebar-scrim {
-      display: none;
-    }
-
-    :global([aria-expanded="true"]) ~ .sidebar-pane,
-    :global(body[data-mobile-menu-expanded]) .sidebar-pane {
-      --sl-sidebar-visibility: visible;
-    }
-
-    .sidebar-content {
-      height: 100%;
-      min-height: max-content;
-      padding: 1rem var(--sl-sidebar-pad-x) 0;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    @media (min-width: 50rem) {
-      .sidebar-content::after {
-        content: "";
-        padding-bottom: 1px;
-      }
+      backdrop-filter: blur(16px);
     }
 
     .main-frame {
       padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
-      padding-inline-start: var(--sl-content-inline-start);
+      padding-inline-start: 0 !important;
+      max-width: 100%;
+      display: flex;
+      justify-content: center;
     }
 
     @media (min-width: 50rem) {
-      :global([data-has-sidebar]) .header {
-        padding-inline-end: var(--sl-nav-pad-x);
-      }
-
-      .sidebar-pane {
-        --sl-sidebar-visibility: visible;
-        width: var(--sl-sidebar-width);
-        background-color: var(--sl-color-bg-sidebar);
-        border-inline-end: 1px solid var(--sl-color-hairline-shade);
+      .main-frame {
+        padding-top: var(--sl-nav-height);
       }
     }
-  }
-</style>
 
-<style is:global>
-  :root {
-    --sl-mobile-sidebar-bg-solid: #fff;
-  }
-
-  :root[data-theme="dark"] {
-    --sl-mobile-sidebar-bg-solid: #0b0c10;
-  }
-
-  @media (max-width: 49.999rem) {
-    body[data-mobile-menu-expanded] {
-      overflow: hidden;
-    }
-
-    body[data-mobile-menu-expanded]::before {
-      content: "";
+    /* Floating Floral Drawer：透明点击层 + 不透明主题色面板，不变暗不聚焦 */
+    .drawer-scrim {
       position: fixed;
-      z-index: 1170;
-      inset: var(--sl-nav-height) 0 auto;
-      height: calc(100dvh - var(--sl-nav-height));
-      background: var(--sl-mobile-sidebar-bg-solid);
+      inset: 0;
+      z-index: 1200;
+      background: transparent;
+      opacity: 0;
+      visibility: hidden;
       pointer-events: none;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
     }
 
-    body[data-mobile-menu-expanded]::after {
-      opacity: 0 !important;
-    }
-
-    body[data-mobile-menu-expanded] mobile-starlight-toc {
-      display: none !important;
-    }
-
-    body[data-mobile-menu-expanded] .main-frame {
-      visibility: hidden !important;
-      pointer-events: none;
-    }
-
-    .sidebar .mobile-sidebar-scrim {
-      display: none;
-    }
-
-    body[data-mobile-menu-expanded] .sidebar .mobile-sidebar-scrim {
-      display: block;
+    .drawer-pane {
       position: fixed;
-      z-index: 1180;
-      inset: var(--sl-nav-height) 0 auto;
-      height: calc(100dvh - var(--sl-nav-height));
-      background: var(--sl-mobile-sidebar-bg-solid);
+      inset-block: 0.75rem;
+      inset-inline-start: 0.75rem;
+      z-index: 1210;
+      width: min(22rem, calc(100vw - 2.5rem));
+      background: var(--sl-color-bg);
+      border: 1px solid color-mix(in srgb, var(--sl-color-accent) 25%, transparent);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px color-mix(in srgb, var(--sl-color-accent) 14%, transparent);
+      transform: translateX(calc(-100% - 1rem));
+      visibility: hidden;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s ease;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
-    .sidebar .sidebar-pane {
-      display: none;
+    /* 首页卡片同款百合线稿装饰：展开时画线生长 */
+    .drawer-ornament {
+      position: absolute;
+      right: 0.25rem;
+      bottom: 0.25rem;
+      width: 11rem;
+      height: 11rem;
+      pointer-events: none;
+      opacity: 0.55;
+      z-index: 0;
     }
 
-    body[data-mobile-menu-expanded] .sidebar .sidebar-pane {
-      --sl-sidebar-visibility: visible;
-      display: block !important;
-      visibility: visible !important;
-      position: fixed !important;
-      z-index: 1190 !important;
-      inset: var(--sl-nav-height) 0 auto !important;
-      height: calc(100dvh - var(--sl-nav-height)) !important;
-      width: 100% !important;
-      max-width: none !important;
-      border-top: 1px solid var(--sl-color-hairline-shade);
-      background: var(--sl-mobile-sidebar-bg-solid) !important;
-      box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.08);
-      overflow-y: auto !important;
-      overscroll-behavior: contain;
-      contain: layout paint style;
+    .drawer-ornament .draw {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
     }
 
-    body[data-mobile-menu-expanded] .sidebar .sidebar-content {
-      min-height: 100%;
-      background: inherit;
-      padding: 1.75rem var(--sl-sidebar-pad-x) max(2rem, env(safe-area-inset-bottom));
+    :global(body[data-drawer-open]) .drawer-ornament .draw {
+      animation: floral-draw 1.3s cubic-bezier(0.45, 0, 0.2, 1) forwards;
     }
 
-    body[data-mobile-menu-expanded] .sidebar .sidebar-content > * {
+    :global(body[data-drawer-open]) .drawer-ornament .sparkle {
+      animation: floral-twinkle 3s ease-in-out infinite;
+    }
+
+    .drawer-header {
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.25rem 0.75rem;
+      border-bottom: 0;
+      background: linear-gradient(to right, color-mix(in srgb, var(--sl-color-accent) 45%, transparent), transparent 85%) left bottom / 100% 1px no-repeat;
+    }
+
+    .drawer-title {
+      font-family: "Songti SC", "Source Han Serif SC", serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--sl-color-accent);
+      letter-spacing: 0.05em;
+    }
+
+    .drawer-close-btn {
+      background: transparent;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 50%;
+      width: 1.75rem;
+      height: 1.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sl-color-gray-3);
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s ease;
+    }
+
+    .drawer-close-btn:hover {
+      color: var(--sl-color-white);
+      border-color: var(--sl-color-accent);
+    }
+
+    .sidebar-content {
+      position: relative;
+      z-index: 1;
+      flex: 1 1 auto;
+      padding: 1rem 1.25rem 2rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Open state */
+    :global(body[data-drawer-open]) .drawer-scrim {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    :global(body[data-drawer-open]) .drawer-pane {
+      transform: translateX(0);
+      visibility: visible;
     }
   }
 </style>
 
 <script is:inline data-astro-rerun>
   (() => {
-    window.__mobileSidebarOverlayController?.abort?.();
-    const controller = new AbortController();
-    window.__mobileSidebarOverlayController = controller;
+    // data-astro-rerun 会在每次视图过渡后重跑本脚本，而监听器挂在 document 上
+    // 不随 body 替换消失：用 AbortController 中止上一轮，保证永远只有一份监听
+    window.__drawerAbort?.abort?.();
+    const ac = new AbortController();
+    window.__drawerAbort = ac;
+    const { signal } = ac;
 
-    function closeMobileMenu() {
-      document.body.removeAttribute('data-mobile-menu-expanded');
-      document.querySelectorAll('starlight-menu-button').forEach((button) => {
-        button.setAttribute('aria-expanded', 'false');
-      });
+    function openDrawer() {
+      document.body.setAttribute('data-drawer-open', 'true');
     }
 
-    const desktopQuery = window.matchMedia('(min-width: 50rem)');
-    function closeMobileMenuOnDesktop() {
-      if (desktopQuery.matches) closeMobileMenu();
+    function closeDrawer() {
+      document.body.removeAttribute('data-drawer-open');
     }
 
-    document.addEventListener(
-      'click',
-      (event) => {
-        const target = event.target;
-        if (!(target instanceof Element)) return;
-        if (
-          target.closest('.mobile-sidebar-scrim') ||
-          target.closest('.mobile-site-menu-panel a') ||
-          target.closest('#starlight__sidebar a')
-        ) {
-          closeMobileMenu();
+    function toggleDrawer() {
+      if (document.body.hasAttribute('data-drawer-open')) {
+        closeDrawer();
+      } else {
+        openDrawer();
+      }
+    }
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      if (target.closest('#starlight__drawer-toggle')) {
+        event.preventDefault();
+        toggleDrawer();
+        // 导航进行中的点击会随 body 交换丢失，记录意图在交换后恢复
+        if (window.__navPending) {
+          window.__drawerKeepOpen = document.body.hasAttribute('data-drawer-open');
         }
-      },
-      { signal: controller.signal }
-    );
+        return;
+      }
 
-    document.addEventListener(
-      'keydown',
-      (event) => {
-        if (event.key === 'Escape') closeMobileMenu();
-      },
-      { signal: controller.signal }
-    );
+      if (
+        target.closest('.drawer-scrim') ||
+        target.closest('.drawer-close-btn') ||
+        target.closest('#starlight__sidebar a')
+      ) {
+        window.__drawerKeepOpen = false;
+        closeDrawer();
+      }
+    }, { signal });
 
-    document.addEventListener('astro:before-swap', closeMobileMenu, { signal: controller.signal });
-    desktopQuery.addEventListener('change', closeMobileMenuOnDesktop, { signal: controller.signal });
-    closeMobileMenuOnDesktop();
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        window.__drawerKeepOpen = false;
+        closeDrawer();
+      }
+    }, { signal });
+
+    document.addEventListener('astro:after-swap', () => {
+      window.__navPending = false;
+      if (window.__drawerKeepOpen) {
+        window.__drawerKeepOpen = false;
+        openDrawer();
+      }
+    }, { signal });
+
+    document.addEventListener('astro:before-preparation', () => {
+      window.__navPending = true;
+    }, { signal });
   })();
 </script>

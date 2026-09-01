@@ -22,7 +22,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
         <div class="bangumi-filterbar">
           <div class="bangumi-filterbar-group">
-            <span class="bangumi-filterbar-label">Media</span>
+            <span class="bangumi-filterbar-label">类型</span>
             <div class="bangumi-filterbar-options">
               <button type="button" data-media="anime" class="bangumi-chip is-active">动画</button>
               <button type="button" data-media="game" class="bangumi-chip">游戏</button>
@@ -32,7 +32,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
           <span class="bangumi-filterbar-divider" aria-hidden="true"></span>
 
           <div class="bangumi-filterbar-group bangumi-filterbar-group-status">
-            <span class="bangumi-filterbar-label">Status</span>
+            <span class="bangumi-filterbar-label">状态</span>
             <div class="bangumi-filterbar-options bangumi-filterbar-options-status">
               <button type="button" data-status="watching" class="bangumi-pill is-active">进行中</button>
               <button type="button" data-status="wish" class="bangumi-pill">待补完</button>
@@ -217,6 +217,28 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       return '当前分类下还没有' + MEDIA_LABEL[state.mediaType] + '条目';
     }
 
+    function renderStars(score) {
+      const value = Number(score);
+      if (!Number.isFinite(value) || value <= 0) return '';
+      const filled = Math.max(0, Math.min(5, Math.round(value / 2)));
+      let stars = '';
+      for (let i = 0; i < 5; i++) {
+        stars += '<span class="bangumi-star' + (i < filled ? ' is-filled' : '') + '" aria-hidden="true">✦</span>';
+      }
+      return '<span class="bangumi-score" aria-label="评分 ' + escapeHTML(value.toFixed(1)) + '">' +
+        stars +
+        '<span class="bangumi-score-value">' + escapeHTML(value.toFixed(1)) + '</span>' +
+        '</span>';
+    }
+
+    function renderTags(tags) {
+      const list = Array.isArray(tags) ? tags.filter(tag => tag && tag.name).slice(0, 5) : [];
+      if (!list.length) return '';
+      const pills = list.map(tag => '<span class="tag-pill">' + escapeHTML(tag.name) + '</span>').join('');
+      const extra = tags.length > 5 ? '<span class="tag-pill tag-pill-more">+' + (tags.length - 5) + '</span>' : '';
+      return '<div class="bangumi-tags">' + pills + extra + '</div>';
+    }
+
     function renderCard(item, index) {
       const titleText = item.subject?.name_cn || item.subject?.name || '?';
       const title = escapeHTML(titleText);
@@ -224,23 +246,42 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       const id = Number(item.subject?.id) || 0;
       const commentText = item.comment?.trim() || '';
       const comment = escapeHTML(commentText);
-      const preview = escapeHTML(commentText.slice(0, 120) + (commentText.length > 120 ? '...' : ''));
+      const summaryText = String(item.subject?.short_summary || '').replace(/\s+/g, ' ').trim();
       const airDate = escapeHTML(item.subject?.date || '');
+      const scoreHTML = renderStars(item.subject?.score);
+      const rank = Number(item.subject?.rank);
+      const rankHTML = Number.isFinite(rank) && rank > 0 ? '<span class="bangumi-rank">Rank ' + rank + '</span>' : '';
+      const tagsHTML = renderTags(item.subject?.tags);
       const open = state.expanded === id;
+
+      const metaHTML = (scoreHTML || rankHTML || airDate)
+        ? '<div class="bangumi-card-meta">' + scoreHTML + rankHTML + (airDate ? '<span class="bangumi-date">' + airDate + '</span>' : '') + '</div>'
+        : '';
+
+      const previewHTML = commentText
+        ? '<p class="bangumi-preview">' + escapeHTML(commentText.slice(0, 120) + (commentText.length > 120 ? '...' : '')) + '</p>'
+        : summaryText
+          ? '<p class="bangumi-preview">' + escapeHTML(summaryText.slice(0, 80) + (summaryText.length > 80 ? '…' : '')) + '</p>'
+          : '<p class="bangumi-preview bangumi-no-review">暂无简介</p>';
+
+      const detailBody = commentText
+        ? '<div class="bangumi-review-box"><p>' + comment + '</p></div>'
+        : summaryText
+          ? '<div class="bangumi-review-box bangumi-summary-box"><p>' + escapeHTML(summaryText) + '</p></div>'
+          : '';
 
       return '<article class="bangumi-card' + (open ? ' is-open' : '') + '" data-card-id="' + id + '" style="--enter-index:' + index + ';">' +
         '<button type="button" class="bangumi-card-trigger" data-toggle-id="' + id + '" aria-expanded="' + open + '">' +
         '<div class="bangumi-cover">' +
         (image
           ? '<img src="' + image + '" alt="' + title + '" loading="lazy" decoding="async" />'
-          : '<div class="bangumi-cover-placeholder">?</div>') +
+          : '<div class="bangumi-cover-placeholder" aria-hidden="true">❀</div>') +
         '</div>' +
         '<div class="bangumi-card-info">' +
         '<h3>' + title + '</h3>' +
-        (airDate ? '<p class="bangumi-date">发行日期: ' + airDate + '</p>' : '') +
-        (commentText
-          ? '<p class="bangumi-preview">' + preview + '</p>'
-          : '<p class="bangumi-preview bangumi-no-review">No review yet</p>') +
+        metaHTML +
+        previewHTML +
+        tagsHTML +
         '<span class="bangumi-toggle-hint">' +
         '<svg class="bangumi-toggle-icon' + (open ? ' rotate-180' : '') + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>' +
         '<span class="bangumi-toggle-text">' + (open ? '收起' : '展开详情') + '</span>' +
@@ -250,10 +291,10 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
         '<div class="bangumi-detail' + (open ? ' is-open' : '') + '" data-detail-id="' + id + '">' +
         '<div class="bangumi-detail-inner">' +
         '<div class="bangumi-detail-panel">' +
-        (commentText ? '<div class="bangumi-review-box"><p>' + comment + '</p></div>' : '') +
+        detailBody +
         '<a href="https://bgm.tv/subject/' + id + '" target="_blank" rel="noopener noreferrer" class="bangumi-link">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>' +
-        '<span>View on Bangumi</span>' +
+        '<span>前往 Bangumi</span>' +
         '</a>' +
         '</div>' +
         '</div>' +
@@ -370,10 +411,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   .bangumi-toolbar {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--sl-color-gray-6);
-    padding-bottom: 1.5rem;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
   }
 
   .bangumi-search {
@@ -384,7 +423,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-search-icon {
     position: absolute;
-    left: 0;
+    left: 0.95rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--sl-color-gray-4);
@@ -393,25 +432,25 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-search input {
     width: 100%;
-    padding: 0.75rem 0 0.75rem 2rem;
-    border: none;
-    border-bottom: 2px solid var(--sl-color-gray-5);
-    border-radius: 0;
+    padding: 0.6rem 1rem 0.6rem 2.45rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
     background: transparent;
     color: var(--sl-color-white);
-    font-size: 1rem;
-    transition: border-color 0.2s ease;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .bangumi-search input:focus {
     outline: none;
-    border-bottom-color: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-color-accent) 18%, transparent);
   }
 
   .bangumi-filterbar {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
     flex-wrap: wrap;
   }
 
@@ -428,78 +467,63 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   .bangumi-filterbar-group {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .bangumi-filterbar-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-size: 0.8rem;
     color: var(--sl-color-gray-4);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   .bangumi-filterbar-options {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .bangumi-filterbar-divider {
-    display: none; /* Hide divider for a cleaner look */
+    display: none;
   }
 
   .bangumi-chip,
   .bangumi-pill {
     appearance: none;
     background: transparent;
-    border: none;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
     color: var(--sl-color-gray-3);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    padding: 0.25rem 0;
-    position: relative;
-    transition: color 0.2s ease;
+    padding: 0.3rem 0.9rem;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   }
 
   .bangumi-chip:hover,
   .bangumi-pill:hover {
-    color: var(--sl-color-white);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
   }
 
   .bangumi-chip.is-active,
   .bangumi-pill.is-active {
-    color: var(--sl-color-accent);
-  }
-
-  .bangumi-chip::after,
-  .bangumi-pill::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
     background: var(--sl-color-accent);
-    transition: width 0.2s ease;
-  }
-
-  .bangumi-chip.is-active::after,
-  .bangumi-pill.is-active::after {
-    width: 100%;
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-bg);
   }
 
   .bangumi-meta {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: var(--sl-color-gray-4);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     margin-bottom: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-left: 3px solid var(--sl-color-accent);
-    padding-left: 0.75rem;
-    text-align: left;
+  }
+
+  .bangumi-meta::before {
+    content: "✦";
+    color: var(--sl-color-accent-high);
+    font-size: 0.7rem;
+    margin-right: 0.5rem;
   }
 
   .bangumi-grid {
@@ -509,32 +533,29 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-card {
-    border-radius: 0;
+    border-radius: 0.75rem;
     border: 1px solid var(--sl-color-gray-6);
     background: transparent;
     display: flex;
     flex-direction: column;
-    animation: bangumiCardIn 0.28s ease both;
-    animation-delay: calc(var(--enter-index, 0) * 24ms);
+    overflow: hidden;
+    animation: floral-grow-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--enter-index, 0) * 30ms);
     content-visibility: auto;
     contain-intrinsic-size: 9rem;
-    transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.22s ease, opacity 0.22s ease;
-  }
-
-  /* 聚光灯效应 (Spotlight Effect) */
-  .bangumi-grid:has(.bangumi-card.is-open) .bangumi-card:not(.is-open) {
-    opacity: 0.35;
-
-    transform: scale(0.98);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease;
   }
 
   .bangumi-card:hover {
-    border-color: var(--sl-color-gray-5);
-    transform: translateY(-4px);
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
   }
 
   .bangumi-card.is-open {
     border-color: var(--sl-color-accent);
+    box-shadow:
+      0 0 0 1px var(--sl-color-accent),
+      0 8px 24px color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
   }
 
   .bangumi-card-trigger {
@@ -554,7 +575,8 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     min-width: 5rem;
     height: 7rem;
     background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    border-radius: 0; /* 直角边框 */
+    border-radius: 0.5rem;
+    overflow: hidden;
   }
 
   .bangumi-cover img {
@@ -569,9 +591,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     align-items: center;
     justify-content: center;
     height: 100%;
-    font-family: monospace;
-    font-size: 2rem;
-    color: var(--sl-color-gray-5);
+    font-size: 1.75rem;
+    color: var(--sl-color-accent);
+    opacity: 0.5;
   }
 
   .bangumi-card-info {
@@ -585,21 +607,49 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--sl-color-white);
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.4rem;
     line-height: 1.3;
   }
 
+  .bangumi-card-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.7rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-4);
+  }
+
+  .bangumi-score {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .bangumi-star {
+    color: var(--sl-color-gray-5);
+    font-size: 0.7rem;
+  }
+
+  .bangumi-star.is-filled {
+    color: var(--sl-color-accent);
+  }
+
+  .bangumi-score-value {
+    color: var(--sl-color-gray-3);
+    font-weight: 600;
+  }
+
   .bangumi-date {
-    font-family: ui-monospace, SFMono-Regular, monospace;
     font-size: 0.75rem;
     color: var(--sl-color-gray-4);
-    margin: 0 0 0.5rem;
   }
 
   .bangumi-preview {
     font-size: 0.85rem;
     color: var(--sl-color-gray-3);
-    line-height: 1.5;
+    line-height: 1.55;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -609,18 +659,35 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-no-review {
     color: var(--sl-color-gray-5);
-    font-style: italic;
+  }
+
+  .bangumi-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
+
+  .tag-pill {
+    border-radius: 1rem;
+    padding: 0.12rem 0.6rem;
+    font-size: 0.72rem;
+    color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+  }
+
+  .tag-pill-more {
+    opacity: 0.7;
   }
 
   .bangumi-toggle-hint {
     margin-top: auto;
+    padding-top: 0.65rem;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-family: ui-monospace, SFMono-Regular, monospace;
-    font-size: 0.75rem;
+    gap: 0.3rem;
+    font-size: 0.78rem;
     color: var(--sl-color-accent);
-    text-transform: uppercase;
   }
 
   .bangumi-toggle-icon {
@@ -635,7 +702,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     grid-template-rows: 0fr;
     opacity: 0;
     transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    background: color-mix(in srgb, var(--sl-color-accent) 5%, transparent);
   }
 
   .bangumi-detail.is-open {
@@ -653,15 +720,28 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-review-box {
-    border-left: 3px solid var(--sl-color-accent);
-    padding-left: 1rem;
+    position: relative;
     margin-bottom: 1.25rem;
+    padding: 0.5rem 0.5rem 0.25rem 1.5rem;
+  }
+
+  .bangumi-review-box::before {
+    content: "❝";
+    position: absolute;
+    left: -0.1rem;
+    top: -0.7rem;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--sl-color-accent);
+    opacity: 0.2;
+    pointer-events: none;
   }
 
   .bangumi-review-box p {
     font-size: 0.9rem;
     color: var(--sl-color-gray-2);
-    line-height: 1.6;
+    line-height: 1.7;
+    font-style: italic;
     margin: 0;
     white-space: pre-wrap;
   }
@@ -670,31 +750,28 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.1rem;
     border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
     color: var(--sl-color-text);
     font-size: 0.8rem;
     text-decoration: none;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
   .bangumi-link:hover {
-    background: var(--sl-color-text);
-    color: var(--sl-color-bg);
+    border-color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    color: var(--sl-color-accent);
   }
 
   .bangumi-message {
     padding: 3rem 1rem;
     text-align: center;
-    font-family: ui-monospace, SFMono-Regular, monospace;
     color: var(--sl-color-gray-4);
-    border: 1px dashed var(--sl-color-gray-6);
+    border: 1px dashed var(--sl-color-gray-5);
+    border-radius: 0.75rem;
     grid-column: 1 / -1;
-  }
-
-  @keyframes bangumiCardIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   @media (prefers-reduced-motion: reduce) {

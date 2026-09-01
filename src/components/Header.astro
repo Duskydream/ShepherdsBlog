@@ -13,15 +13,26 @@ const shouldRenderSearch =
 ---
 
 <div class="header">
-  <div class="title-wrapper sl-flex">
-    <SiteTitle />
+  <div class="header-left sl-flex">
+    <button
+      type="button"
+      id="starlight__drawer-toggle"
+      class="catalog-toggle-btn"
+      aria-label="打开目录"
+      title="打开目录 (Catalog)"
+    >
+      <span class="catalog-icon">✿</span>
+      <span class="catalog-label">目録</span>
+    </button>
+    <div class="title-wrapper sl-flex">
+      <SiteTitle />
+    </div>
   </div>
   <div class="sl-flex print:hidden">
     {shouldRenderSearch && <Search />}
   </div>
   <div class="sl-hidden md:sl-flex print:hidden right-group">
     <ThemeSelect />
-    <MobileMenuToggle />
     <div class="sl-flex social-icons">
       <SocialIcons />
     </div>
@@ -37,6 +48,43 @@ const shouldRenderSearch =
       justify-content: space-between;
       align-items: center;
       height: 100%;
+    }
+
+    .header-left {
+      align-items: center;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .catalog-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.32rem 0.65rem;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 999px;
+      background: var(--sl-color-gray-6);
+      color: var(--sl-color-white);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+
+    .catalog-toggle-btn:hover {
+      border-color: var(--sl-color-accent);
+      background: var(--sl-color-accent-low);
+      color: var(--sl-color-accent-high);
+      transform: translateY(-1px);
+    }
+
+    .catalog-icon {
+      font-size: 0.85rem;
+      color: var(--sl-color-accent);
+    }
+
+    .catalog-label {
+      letter-spacing: 0.08em;
     }
 
     .title-wrapper {

@@ -37,7 +37,7 @@ export default defineConfig({
   integrations: [
     starlight({
       plugins: [starlightThemeRapide()],
-      title: "Shepherd's Blog",
+      title: "祈りの花庭",
       components: {
         Head: './src/components/Head.astro',
         ThemeProvider: './src/components/ThemeProvider.astro',
@@ -50,6 +50,7 @@ export default defineConfig({
         SiteTitle: './src/components/SiteTitle.astro',
         PageTitle: './src/components/PageTitle.astro',
         MobileTableOfContents: './src/components/MobileTableOfContents.astro',
+        TableOfContents: './src/components/TableOfContents.astro',
         MobileMenuFooter: './src/components/MobileMenuFooter.astro',
       },
       tableOfContents: {
@@ -58,7 +59,7 @@ export default defineConfig({
       },
 
       customCss: ["./src/styles/custom.css"],
-      description: "The tale of flowers growing with a",
+      description: "Inori no Hananiwa · The Garden of Prayer",
       defaultLocale: "zh",
       locales: {
         root: { label: "简体中文", lang: "zh-CN" },
@@ -68,6 +69,11 @@ export default defineConfig({
           icon: "github",
           href: "https://github.com/Duskydream",
           label: "GitHub",
+        },
+        {
+          icon: "telegram",
+          href: "https://t.me/inorinohananiwa",
+          label: "Telegram",
         },
         { icon: "rss", href: "/rss.xml", label: "RSS Feed" },
       ],

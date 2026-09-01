@@ -1,24 +1,49 @@
 ---
-import Default from '@astrojs/starlight/components/SiteTitle.astro';
 ---
 
 <div class="site-title-wrapper">
-  <Default {...Astro.props} />
+  <a href="/" class="site-title-link">
+    <div class="site-title-text">
+      <span class="site-title-main">祈りの花庭</span>
+      <span class="site-title-sub">Inori no hananiwa</span>
+    </div>
+  </a>
 </div>
 
 <style>
   .site-title-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
     min-width: 0;
   }
-  .site-title-wrapper :global(a) {
-    min-width: 0;
+  .site-title-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--sl-color-white);
+    transition: opacity 0.2s ease;
   }
-  @media (min-width: 50rem) {
-    .site-title-wrapper {
-      gap: 1.5rem;
-    }
+  .site-title-link:hover {
+    opacity: 0.85;
+  }
+  .site-title-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+  .site-title-main {
+    font-family: "Songti SC", "Source Han Serif SC", "FZLanTingHei", "Noto Serif CJK SC", "STSong", "SimSun", serif;
+    font-size: 1.12rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--sl-color-white);
+  }
+  .site-title-sub {
+    font-family: "Instrument Serif", "Georgia", "Times New Roman", serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--sl-color-gray-3);
+    margin-top: 0.15rem;
+    font-style: italic;
   }
 </style>
