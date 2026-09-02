@@ -22,19 +22,34 @@
   .two-column-layout {
     display: flex;
     width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
     min-height: calc(100vh - var(--sl-nav-height, 3.5rem));
     justify-content: center;
     position: relative;
     box-sizing: border-box;
+    padding-inline: 1rem;
+    gap: 2rem;
   }
 
   .main-pane {
     flex: 1 1 0%;
     min-width: 0;
+    max-width: 52rem;
     width: 100%;
     display: flex;
     justify-content: center;
     isolation: isolate;
+  }
+
+  /* 针对 dashboard、gallery 等宽屏页面的扩展 */
+  :global(.main-frame:has(.not-content)) .two-column-layout {
+    max-width: 90rem;
+    padding-inline: 0.5rem;
+  }
+
+  :global(.main-frame:has(.not-content)) .main-pane {
+    max-width: 100%;
   }
 
   .right-sidebar-container {
@@ -42,10 +57,16 @@
   }
 
   @media (min-width: 72rem) {
+    .two-column-layout {
+      padding-inline: 1.5rem;
+      gap: 2.5rem;
+      justify-content: center;
+    }
+
     .right-sidebar-container {
       display: block;
       flex-shrink: 0;
-      width: 15rem;
+      width: 14.5rem;
       position: relative;
     }
 

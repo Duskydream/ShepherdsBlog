@@ -1,9 +1,7 @@
 ---
 import MobileTableOfContents from "virtual:starlight/components/MobileTableOfContents";
-import MobileSiteMenu from "./MobileSiteMenu.astro";
+import Sidebar from "./Sidebar.astro";
 import LilyOrnament from "./LilyOrnament.astro";
-
-const { hasSidebar } = Astro.locals.starlightRoute;
 ---
 
 <div class="page sl-flex">
@@ -11,29 +9,24 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     <slot name="header" />
   </header>
   <MobileTableOfContents />
-  <MobileSiteMenu />
-  {
-    hasSidebar && (
-      <nav
-        class="sidebar print:hidden"
-        aria-label={Astro.locals.t("sidebarNav.accessibleLabel")}
-      >
-        <div class="drawer-scrim" aria-hidden="true"></div>
-        <div id="starlight__sidebar" class="sidebar-pane drawer-pane">
-          <div class="drawer-decor" aria-hidden="true">
-            <LilyOrnament id="drawer-lily" />
-          </div>
-          <div class="drawer-header">
-            <span class="drawer-title">✿ 祈りの花庭 · 目録</span>
-            <button type="button" class="drawer-close-btn" aria-label="关闭目录">✕</button>
-          </div>
-          <div class="sidebar-content sl-flex">
-            <slot name="sidebar" />
-          </div>
-        </div>
-      </nav>
-    )
-  }
+  <nav
+    class="sidebar print:hidden"
+    aria-label={Astro.locals.t("sidebarNav.accessibleLabel")}
+  >
+    <div class="drawer-scrim" aria-hidden="true"></div>
+    <div id="starlight__sidebar" class="sidebar-pane drawer-pane">
+      <div class="drawer-decor" aria-hidden="true">
+        <LilyOrnament id="drawer-lily" />
+      </div>
+      <div class="drawer-header">
+        <span class="drawer-title">✿ 祈りの花庭 · 目録</span>
+        <button type="button" class="drawer-close-btn" aria-label="关闭目录">✕</button>
+      </div>
+      <div class="sidebar-content sl-flex">
+        <Sidebar />
+      </div>
+    </div>
+  </nav>
   <div class="main-frame"><slot /></div>
 </div>
 
@@ -58,7 +51,7 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     }
 
     .main-frame {
-      padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+      padding-top: var(--sl-nav-height);
       padding-inline-start: 0 !important;
       width: 100%;
       max-width: 100%;
@@ -66,8 +59,13 @@ const { hasSidebar } = Astro.locals.starlightRoute;
       justify-content: center;
     }
 
+    :global(:root[data-has-toc]) .main-frame {
+      padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+    }
+
     @media (min-width: 50rem) {
-      .main-frame {
+      .main-frame,
+      :global(:root[data-has-toc]) .main-frame {
         padding-top: var(--sl-nav-height);
       }
     }
@@ -87,7 +85,7 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     }
 
     :global(.content-panel:has(.not-content)) {
-      max-width: min(74rem, 100%);
+      max-width: min(88rem, 100%);
       padding-inline: 0.5rem;
     }
 

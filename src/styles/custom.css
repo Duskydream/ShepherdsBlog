@@ -194,51 +194,23 @@
 
 @media (max-width: 49.999rem) {
   .header {
-    gap: 0.55rem !important;
-  }
-
-  :root[data-has-sidebar] .header {
-    padding-inline-end: var(--sl-nav-pad-x) !important;
+    gap: 0.5rem !important;
   }
 
   .header .title-wrapper {
     flex: 1 1 auto;
+    min-width: 0;
   }
 
-  .header .right-group {
+  .header .mobile-right-group {
     display: flex !important;
     flex: 0 0 auto;
-    gap: 0;
     align-items: center;
   }
 
   .header .social-icons,
   .header starlight-lang-select {
     display: none !important;
-  }
-
-  starlight-menu-button button {
-    position: static !important;
-    inset: auto !important;
-    width: 2.25rem !important;
-    height: 2.25rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    padding: 0.45rem !important;
-    background: transparent !important;
-    color: var(--sl-color-gray-2) !important;
-    box-shadow: none !important;
-  }
-
-  starlight-menu-button button:hover,
-  starlight-menu-button button:focus-visible,
-  starlight-menu-button[aria-expanded="true"] button {
-    background: transparent !important;
-    color: var(--sl-color-accent) !important;
-    box-shadow: none !important;
   }
 
   main[data-pagefind-body] {
@@ -607,9 +579,9 @@ body .sl-markdown-content {
   color: var(--sl-color-gray-1);
 }
 
-/* 仅在纯文章正文阅读时限制居中最佳阅读视距 (50rem)，仪表盘与聚合列表向两侧充分扩展 */
+/* 仅在纯文章正文阅读时限制居中最佳阅读视距 (52rem)，仪表盘与聚合列表向两侧充分扩展 */
 body .sl-markdown-content:not(:has(.not-content)) {
-  max-width: 50rem;
+  max-width: 52rem;
 }
 
 /* 标题采用典雅宋体/明朝体 */

@@ -277,8 +277,19 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
       try {
         const query = API + (force ? '?force=true' : '');
-        const payload = normalizePayload(await requestJSON(query, state.fetchAbortController.signal, force));
+        let payload = normalizePayload(await requestJSON(query, state.fetchAbortController.signal, force));
         if (!hasBangumiItems(payload)) throw new Error('Empty Bangumi payload');
+
+        // 如果 API 返回的 timeline 为空，尝试从静态 fallback 中补充 timeline
+        if (!payload.timeline.length) {
+          try {
+            const fallbackPayload = normalizePayload(await requestJSON(STATIC_FALLBACK, state.fetchAbortController.signal));
+            if (fallbackPayload.timeline.length) {
+              payload.timeline = fallbackPayload.timeline;
+            }
+          } catch { /* ignore fallback error */ }
+        }
+
         state.data = payload;
         saveCache(state.data);
         render();
@@ -573,14 +584,15 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
 <style is:global>
   .bangumi-page {
-    max-width: min(78rem, 100%);
+    max-width: min(86rem, 100%);
     margin: 0 auto;
     padding: 0.25rem 0.5rem 2.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.4rem;
     width: 100%;
     box-sizing: border-box;
+    font-size: 1.08rem;
   }
 
   .bangumi-shell {

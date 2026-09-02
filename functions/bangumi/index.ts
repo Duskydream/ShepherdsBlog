@@ -6,15 +6,28 @@
 
 const USER_ID = "duskydream";
 const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
+const TIMELINE_URL = `https://bgm.tv/feed/user/${USER_ID}/timeline`;
 const LIMIT = 30;
 const CACHE_TTL = 15 * 60 * 1000;
 const DEBUG_MAX_BODY = 400;
 
 type BangumiCollectionItem = Record<string, unknown>;
+type BangumiTimelineItem = {
+  guid: string;
+  title: string;
+  action: string;
+  cleanTitle: string;
+  subjectId: number;
+  subjectNameCn: string;
+  pubDate: string;
+  dateFormatted: string;
+};
+
 let memoryCache: {
   watching: BangumiCollectionItem[];
   wish: BangumiCollectionItem[];
   watched: BangumiCollectionItem[];
+  timeline: BangumiTimelineItem[];
   cachedAt: number;
 } | null = null;
 
@@ -52,19 +65,81 @@ async function fetchCollection(type: number) {
   return all;
 }
 
+async function fetchTimeline(): Promise<BangumiTimelineItem[]> {
+  try {
+    const res = await fetch(TIMELINE_URL, {
+      headers: {
+        "User-Agent": "ShepherdBlog/1.0 (+github.com/Duskydream)",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) return [];
+    const text = await res.text();
+    const items: BangumiTimelineItem[] = [];
+    const itemMatches = text.matchAll(/<item>([\s\S]*?)<\/item>/g);
+
+    for (const m of itemMatches) {
+      const raw = m[1];
+      const titleMatch = raw.match(/<title>([\s\S]*?)<\/title>/);
+      const descMatch = raw.match(/<description>([\s\S]*?)<\/description>/);
+      const pubDateMatch = raw.match(/<pubDate>([\s\S]*?)<\/pubDate>/);
+      const guidMatch = raw.match(/<guid[^>]*>([\s\S]*?)<\/guid>/);
+
+      const title = titleMatch ? titleMatch[1].replace(/<!\[CDATA\[|\]\]>/g, "").trim() : "";
+      const desc = descMatch ? descMatch[1].replace(/<!\[CDATA\[|\]\]>/g, "").trim() : "";
+      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : "";
+      const guid = guidMatch ? guidMatch[1].trim() : "";
+
+      const subjectMatch = desc.match(/href="https?:\/\/bgm\.tv\/subject\/(\d+)"/);
+      const subjectId = subjectMatch ? Number(subjectMatch[1]) : 0;
+      const cnNameMatch = desc.match(/data-subject-name-cn="([^"]*)"/);
+      const subjectNameCn = cnNameMatch ? cnNameMatch[1] : "";
+
+      const actionMatch = title.match(/^(在玩|读过|在读|想读|看过|在看|想看|想玩|搁置|抛弃)/);
+      const action = actionMatch ? actionMatch[1] : "更新了";
+      const cleanTitle = title.replace(/^(在玩|读过|在读|想读|看过|在看|想看|想玩|搁置|抛弃)\s*/, "");
+
+      items.push({
+        guid,
+        title,
+        action,
+        cleanTitle,
+        subjectId,
+        subjectNameCn,
+        pubDate,
+        dateFormatted: pubDate ? new Date(pubDate).toISOString().slice(0, 10) : "",
+      });
+    }
+
+    return items;
+  } catch {
+    return [];
+  }
+}
+
 async function getData(force: boolean) {
   const now = Date.now();
   if (!force && memoryCache && now - memoryCache.cachedAt < CACHE_TTL) {
     return memoryCache;
   }
 
-  const [watching, wish, watched] = await Promise.all([
+  const [watching, wish, watched, timeline] = await Promise.all([
     fetchCollection(3),
     fetchCollection(1),
     fetchCollection(2),
+    fetchTimeline(),
   ]);
 
-  memoryCache = { watching, wish, watched, cachedAt: now };
+  memoryCache = {
+    watching,
+    wish,
+    watched,
+    timeline: timeline.length > 0 ? timeline : (memoryCache?.timeline || []),
+    cachedAt: now,
+  };
   return memoryCache;
 }
 
