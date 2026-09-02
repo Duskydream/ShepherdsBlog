@@ -83,12 +83,12 @@ export default defineConfig({
           link: "/",
         },
         {
-          label: "Article",
+          label: "Essay",
           collapsed: false,
           autogenerate: { directory: "blog" },
         },
         {
-          label: "Coding Notes",
+          label: "Notes",
           collapsed: false,
           autogenerate: { directory: "coding-notes" },
         },

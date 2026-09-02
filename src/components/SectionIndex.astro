@@ -36,8 +36,8 @@ const sectionLevel = (knownSections.includes(section) ? knownSections.indexOf(se
 const sectionLabel = title || labelFromSlug(section);
 ---
 
-<StarlightPage frontmatter={{ title }} hasSidebar={true}>
-  <section class="section-index">
+<StarlightPage frontmatter={{ title, template: 'splash', tableOfContents: false }} hasSidebar={false}>
+  <section class="section-index not-content">
     <header class="section-index-head">
       <p>{eyebrow}</p>
       <h1>{title}</h1>

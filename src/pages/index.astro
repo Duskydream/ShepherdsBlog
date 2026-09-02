@@ -4,6 +4,8 @@ import LilyOrnament from "../components/LilyOrnament.astro";
 import { getCollection } from "astro:content";
 import { execSync } from "node:child_process";
 
+import historicalCommits from "../data/git-commits.json";
+
 const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
 
 const blogPosts = await getCollection("docs", (entry) => entry.id.startsWith("blog/") && entry.id !== "blog/index.md");
@@ -15,58 +17,37 @@ const codingNotePosts = await getCollection(
 
 const timelineSectionOrder = ["blog", "log", "coding-notes"];
 const timelineSectionLabels = new Map([
-  ["blog", "Article"],
+  ["blog", "Essay"],
   ["log", "Log"],
-  ["coding-notes", "Coding Notes"],
+  ["coding-notes", "Notes"],
 ]);
-
-function labelFromSlug(slug: string) {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
 
 function timelineEntry(post: (typeof blogPosts)[number]) {
   const sectionSlug = post.id.split("/")[0];
-  const sectionIndex = timelineSectionOrder.includes(sectionSlug)
-    ? timelineSectionOrder.indexOf(sectionSlug)
-    : timelineSectionOrder.length;
-  return {
-    post,
-    section: timelineSectionLabels.get(sectionSlug) || labelFromSlug(sectionSlug),
-    sectionSlug,
-    sectionLevel: (sectionIndex % 4) + 1,
-  };
+  const section = timelineSectionLabels.get(sectionSlug) || sectionSlug;
+  const sectionLevel = timelineSectionOrder.indexOf(sectionSlug) + 1;
+  return { post, section, sectionSlug, sectionLevel };
 }
 
 const allPosts = [...blogPosts, ...logPosts, ...codingNotePosts];
 const tagCounts = new Map<string, number>();
-allPosts.forEach((post) => {
-  if (post.data.tags) {
-    new Set(post.data.tags).forEach((tag: string) => {
-      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-    });
+
+for (const post of allPosts) {
+  const tags = post.data.tags || [];
+  for (const tag of tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
   }
-});
-const tagCountValues = Array.from(tagCounts.values());
-const minTagCount = tagCountValues.length ? Math.min(...tagCountValues) : 0;
-const maxTagCount = tagCountValues.length ? Math.max(...tagCountValues) : 0;
-const tagSpread = Math.max(1, maxTagCount - minTagCount);
-const allTags = Array.from(tagCounts.entries())
-  .map(([tag, count]) => ({
-    tag,
-    count,
-    weight: (count - minTagCount) / tagSpread,
-  }))
-  .map(({ tag, count, weight }) => ({
-    tag,
-    count,
-    level: Math.round(weight * 4) + 1,
-    size: 0.82 + weight * 0.55,
-    fontWeight: Math.round(520 + weight * 180),
-  }))
+}
+
+const tagMaxCount = Math.max(...tagCounts.values(), 1);
+const allTags = [...tagCounts.entries()]
+  .map(([tag, count]) => {
+    const ratio = count / tagMaxCount;
+    const level = count === 1 ? 1 : Math.min(5, Math.ceil(ratio * 5));
+    const size = 0.72 + ratio * 0.38;
+    const fontWeight = 400 + Math.round(ratio * 3) * 100;
+    return { tag, count, level, size, fontWeight };
+  })
   .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 
 function tagHref(value: string) {
@@ -102,57 +83,87 @@ function formatDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+const commitCounts = new Map<string, number>();
+
+// 1. 载入完整的历史 commit 数据集（包含 2024 年至今重构前的所有历史）
+for (const [date, count] of Object.entries(historicalCommits as Record<string, number>)) {
+  commitCounts.set(date, count);
+}
+
+// 2. 尝试从本地 git log --all 合并最新增量提交，确保本地与部署永远展示最完整历史
 try {
-  const output = execSync("git log --format=%ad --date=short", {
+  const output = execSync("git log --all --format=%ad --date=short", {
     cwd: process.cwd(),
     encoding: "utf-8",
     stdio: ["ignore", "pipe", "ignore"],
-    timeout: 2000,
-    maxBuffer: 2 * 1024 * 1024,
+    timeout: 3000,
+    maxBuffer: 4 * 1024 * 1024,
   });
-  const dates = output.split(/\r?\n/).filter(Boolean);
-  const commitCounts = new Map<string, number>();
-  for (const date of dates) {
-    commitCounts.set(date, (commitCounts.get(date) || 0) + 1);
+  const runtimeCounts = new Map<string, number>();
+  for (const date of output.split(/\r?\n/).filter(Boolean)) {
+    runtimeCounts.set(date, (runtimeCounts.get(date) || 0) + 1);
   }
-
-  const sortedDates = [...commitCounts.keys()].sort();
-  if (sortedDates.length > 0) {
-    const firstDate = parseLocalDate(sortedDates[0]);
-    const lastDate = parseLocalDate(sortedDates[sortedDates.length - 1]);
-    const startDate = new Date(firstDate);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
-    const endDate = new Date(lastDate);
-    endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
-
-    const maxCount = Math.max(...commitCounts.values());
-    for (const day = new Date(startDate); day <= endDate; day.setDate(day.getDate() + 1)) {
-      const date = formatDate(day);
-      const count = commitCounts.get(date) || 0;
-      const level = count === 0 ? 0 : Math.max(1, Math.ceil((count / maxCount) * 4));
-      commitDays.push({ date, count, level });
-      commitTotal += count;
-    }
-
-    commitRangeLabel = `${sortedDates[0]} - ${sortedDates[sortedDates.length - 1]}`;
+  for (const [date, count] of runtimeCounts.entries()) {
+    commitCounts.set(date, Math.max(commitCounts.get(date) || 0, count));
   }
 } catch {
-  commitDays = [];
+  // 部署环境即使是浅克隆（shallow clone），也会直接使用完整的历史数据集
+}
+
+const START_FILTER_DATE = "2025-09-01";
+const sortedDates = [...commitCounts.keys()].filter((d) => d >= START_FILTER_DATE).sort();
+
+if (sortedDates.length > 0) {
+  const firstDate = parseLocalDate(START_FILTER_DATE);
+  const lastDate = parseLocalDate(sortedDates[sortedDates.length - 1]);
+  const startDate = new Date(firstDate);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+  const endDate = new Date(lastDate);
+  endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+
+  const rangeCounts: number[] = [];
+  for (const day = new Date(startDate); day <= endDate; day.setDate(day.getDate() + 1)) {
+    const date = formatDate(day);
+    if (date >= START_FILTER_DATE) {
+      rangeCounts.push(commitCounts.get(date) || 0);
+    }
+  }
+  const maxCount = Math.max(...rangeCounts, 1);
+
+  for (const day = new Date(startDate); day <= endDate; day.setDate(day.getDate() + 1)) {
+    const date = formatDate(day);
+    const count = date >= START_FILTER_DATE ? (commitCounts.get(date) || 0) : 0;
+    const level = count === 0 ? 0 : Math.max(1, Math.ceil((count / maxCount) * 4));
+    commitDays.push({ date, count, level });
+    if (date >= START_FILTER_DATE) {
+      commitTotal += count;
+    }
+  }
+
+  commitRangeLabel = `${START_FILTER_DATE} - ${sortedDates[sortedDates.length - 1]}`;
 }
 ---
 
-<StarlightPage frontmatter={{ title: "Home" }} hasSidebar={true}>
-  <div class="home-dashboard">
+<StarlightPage frontmatter={{ title: "祈りの花庭", template: "splash", tableOfContents: false }} hasSidebar={false}>
+  <div class="home-dashboard not-content">
     <!-- Hero / Profile -->
     <section class="home-hero">
+      <div class="home-hero-banner">
+        <img
+          src="https://pic1.imgdb.cn/i/034HC8xfJdk5i0JelBlVVz.jpg"
+          alt="祈りの花庭"
+          class="home-hero-banner-img"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <div class="home-hero-banner-overlay"></div>
+      </div>
       <div class="home-hero-decor" aria-hidden="true">
         <LilyOrnament id="lily-br" />
         <LilyOrnament id="lily-tl" />
       </div>
       <div class="home-hero-content">
-        <div class="home-hero-badge">
-          <span class="home-hero-badge-text">Duskydream</span>
-        </div>
         <div class="home-hero-avatar">
           <img src={USER_AVATAR} alt="Shepherd" width="84" height="84" loading="eager" fetchpriority="high" decoding="async" />
         </div>
@@ -163,9 +174,9 @@ try {
         </div>
 
         <div class="home-hero-quicknav">
-          <a href="/article" class="home-quick-pill">✦ 散文随笔 (Article)</a>
-          <a href="/coding" class="home-quick-pill">✦ 算法笔记 (Coding)</a>
-          <a href="/anime" class="home-quick-pill">✦ 鉴赏记录 (Anime)</a>
+          <a href="/article" class="home-quick-pill">✦ 散文随笔 (Essay)</a>
+          <a href="/coding" class="home-quick-pill">✦ 月累笔记 (Notes)</a>
+          <a href="/anime" class="home-quick-pill">✦ 鉴赏记录 (Review)</a>
           <a href="/log" class="home-quick-pill">✦ 岁月手记 (Log)</a>
         </div>
 
@@ -363,17 +374,16 @@ try {
           <span>Content Timeline</span>
         </div>
         <div class="home-timeline-links" aria-label="Timeline sections">
-          <span data-section="blog">Article</span>
+          <span data-section="blog">Essay</span>
           <span data-section="log">Log</span>
-          <span data-section="coding-notes">Coding Notes</span>
+          <span data-section="coding-notes">Notes</span>
         </div>
       </div>
       <div class="home-card-body">
-        <div class="home-timeline">
+        <div class="home-timeline" data-floral-vine='{"items": ".home-timeline-item", "current": "", "vineX": 12, "meander": 3}'>
           {
-            contentTimeline.map(({ post, section, sectionSlug, sectionLevel }) => (
-              <div class="home-timeline-item">
-                <div class="home-timeline-marker" data-level={sectionLevel}></div>
+            contentTimeline.map(({ post, section, sectionSlug, sectionLevel }, index) => (
+              <div class="home-timeline-item" style={`--i: ${index}`}>
                 <div class="home-timeline-content">
                   <div class="home-timeline-meta">
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
@@ -409,6 +419,17 @@ try {
   </div>
 
   <style is:global>
+    .home-card--commits .home-card-body {
+      overflow-x: auto;
+      padding-bottom: 0.75rem;
+    }
+    .home-card--commits .home-card-body::-webkit-scrollbar {
+      height: 5px;
+    }
+    .home-card--commits .home-card-body::-webkit-scrollbar-thumb {
+      background: var(--sl-color-gray-5);
+      border-radius: 3px;
+    }
     .home-card--timeline .home-card-body {
       max-height: 600px;
       overflow-y: auto;
@@ -470,15 +491,14 @@ try {
     }
 
     .home-dashboard {
-      max-width: 1120px;
+      max-width: min(72rem, 100%);
       margin: 0 auto;
-      padding: 1.5rem 1rem;
+      padding: 0.25rem 0.5rem 2.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.5rem;
       width: 100%;
       box-sizing: border-box;
-      zoom: 1.1;
     }
 
     .home-dashboard > * {
@@ -510,36 +530,69 @@ try {
 
     .home-hero-decor > :last-child {
       position: absolute;
-      left: -12px;
-      top: -14px;
-      width: min(44%, 360px);
-      transform: rotate(180deg);
-      opacity: 0.5;
+      left: -16px;
+      top: 195px;
+      width: min(40%, 320px);
+      transform: scaleX(-1);
+      opacity: 0.42;
+    }
+
+    .home-hero-banner {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      mask-image: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(0, 0, 0, 1) 40%,
+        rgba(0, 0, 0, 0.85) 60%,
+        rgba(0, 0, 0, 0.5) 78%,
+        rgba(0, 0, 0, 0.15) 92%,
+        transparent 100%
+      );
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(0, 0, 0, 1) 40%,
+        rgba(0, 0, 0, 0.85) 60%,
+        rgba(0, 0, 0, 0.5) 78%,
+        rgba(0, 0, 0, 0.15) 92%,
+        transparent 100%
+      );
+    }
+
+    .home-hero-banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 36%;
+      display: block;
+    }
+
+    .home-hero-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 45%,
+        color-mix(in srgb, var(--sl-color-bg) 40%, transparent) 75%,
+        var(--sl-color-bg) 100%
+      );
+      pointer-events: none;
     }
 
     .home-hero-content {
       position: relative;
       z-index: 2;
-      padding: 2rem 2rem;
+      padding: 0 2rem 2.25rem;
+      margin-top: -2.75rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 1.25rem;
-    }
-
-    .home-hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.25rem 0.75rem;
-      border: 1px solid var(--sl-color-gray-5);
-      border-radius: 999px;
-      background: var(--sl-color-gray-6);
-      color: var(--sl-color-accent);
-      font-size: 0.68rem;
-      font-family: "Instrument Serif", "Georgia", serif;
-      letter-spacing: 0.15em;
+      gap: 1.1rem;
     }
 
     .home-hero-avatar {
@@ -616,9 +669,10 @@ try {
     }
 
     .home-quick-pill:hover {
-      border-color: var(--sl-color-accent);
-      color: var(--sl-color-white);
-      background: var(--sl-color-accent-low);
+      border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
+      color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
       transform: translateY(-1px);
     }
 
@@ -644,8 +698,10 @@ try {
     }
 
     .home-social-btn:hover {
-      border-color: var(--sl-color-accent);
-      color: var(--sl-color-white);
+      border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
+      color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
       transform: translateY(-2px);
     }
 
@@ -767,21 +823,28 @@ try {
     .home-commit-wall {
       display: grid;
       grid-auto-flow: column;
-      grid-template-rows: repeat(7, 0.72rem);
-      grid-auto-columns: 0.72rem;
-      gap: 0.22rem;
+      grid-template-rows: repeat(7, 0.58rem);
+      grid-auto-columns: 0.58rem;
+      gap: 0.15rem;
       width: max-content;
       min-width: 100%;
       align-items: center;
     }
 
     .home-commit-cell {
-      width: 0.72rem;
-      height: 0.72rem;
-      border-radius: 0.18rem;
+      width: 0.58rem;
+      height: 0.58rem;
+      border-radius: 0.12rem;
       border: 1px solid var(--sl-color-gray-6);
       background: var(--sl-color-gray-7, var(--sl-color-gray-6));
       box-sizing: border-box;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .home-commit-cell:hover {
+      transform: scale(1.25);
+      border-color: var(--sl-color-accent);
+      z-index: 2;
     }
 
     .home-commit-cell[data-level="1"] {
@@ -866,44 +929,24 @@ try {
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 0;
-    }
-
-    .home-timeline::before {
-      content: "";
-      position: absolute;
-      top: 0.4rem;
-      bottom: 0.4rem;
-      left: 0.36rem;
-      width: 1px;
-      background: var(--sl-color-gray-6);
+      gap: 0.15rem;
+      padding-inline-start: 1.85rem;
     }
 
     .home-timeline-item {
       position: relative;
-      display: grid;
-      grid-template-columns: 1rem minmax(0, 1fr);
-      gap: 0.75rem;
-      padding: 0.55rem 0.6rem 0.55rem 0;
+      display: block;
+      padding: 0.55rem 0.75rem 0.55rem 0.6rem;
       border-radius: 0.7rem;
       text-decoration: none;
       transition: background 0.15s ease;
+      transform-origin: left center;
+      animation: floral-bloom 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(var(--i, 0) * 40ms + 0.1s);
     }
 
     .home-timeline-item:hover {
       background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    }
-
-    .home-timeline-marker {
-      position: relative;
-      z-index: 1;
-      width: 0.72rem;
-      height: 0.72rem;
-      margin-top: 0.42rem;
-      border-radius: 999px;
-      border: 2px solid var(--sl-color-bg);
-      background: var(--home-timeline-blue, #8fb2da);
-      box-shadow: 0 0 0 1px var(--sl-color-gray-6);
     }
 
     .home-timeline-content {
@@ -1202,4 +1245,9 @@ try {
       }
     }
   </style>
+  <script>
+    import { bindFloralVines } from "../utils/floral-vine";
+    bindFloralVines();
+    document.addEventListener("astro:page-load", () => bindFloralVines());
+  </script>
 </StarlightPage>

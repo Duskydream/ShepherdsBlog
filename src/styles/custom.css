@@ -267,8 +267,30 @@
 body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link) {
   transition: color 0.2s ease-in-out;
 }
-body .sl-markdown-content a:not([href^="#"]):not(.home-timeline-tag):not(.home-timeline-title-link):hover {
+/* =========================================
+   祈りの花庭：通用交互胶囊 (Universal Quick Nav Pills)
+   ========================================= */
+.home-quick-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  color: var(--sl-color-text) !important;
+  text-decoration: none !important;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.home-quick-pill:hover {
+  border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
   color: var(--sl-color-accent) !important;
+  background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+  transform: translateY(-1px);
 }
 
 body .sl-markdown-content .friend-links {
@@ -285,30 +307,50 @@ body .sl-markdown-content .friend-links a {
   font-weight: 600;
 }
 
-/* 2. 优雅的引用块 (Elegant Blockquotes / Epigraph) */
+/* 2. 花枝主题诗意引用块 (Floral Botanical Blockquotes / Epigraph) */
 body .sl-markdown-content blockquote {
   border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 2.5rem 2rem !important;
-  margin: 2.5rem auto !important;
+  border-left: 2px solid color-mix(in srgb, var(--sl-color-accent) 45%, transparent) !important;
+  background: color-mix(in srgb, var(--sl-color-accent) 3.5%, transparent) !important;
+  border-radius: 0 0.85rem 0.85rem 0 !important;
+  padding: 1.6rem 1.8rem 1.6rem 2.2rem !important;
+  margin: 2.5rem 0 !important;
   position: relative;
   overflow: hidden;
-  text-align: center;
+  text-align: left;
   color: var(--sl-color-gray-2);
+  font-style: normal;
   display: block;
 }
 
 body .sl-markdown-content blockquote::before {
-  content: "“";
+  content: "";
   position: absolute;
-  top: -0.8rem;
-  left: 0.5rem;
-  font-family: Georgia, serif;
-  font-size: 6rem;
-  line-height: 1;
-  color: var(--sl-color-accent);
-  opacity: 0.08;
+  top: 0.4rem;
+  left: 0.6rem;
+  width: 5.5rem;
+  height: 2.6rem;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left top;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 50' fill='none' stroke='%237093c8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 38 C 22 14, 48 12, 76 22 C 92 27, 102 18, 106 10' opacity='0.75'/%3E%3Cpath d='M26 24 C 24 16, 31 10, 36 13 C 37 19, 31 24, 26 24 Z' fill='%237093c8' fill-opacity='0.3'/%3E%3Cpath d='M54 16 C 58 8, 66 10, 67 17 C 61 20, 55 20, 54 16 Z' fill='%237093c8' fill-opacity='0.3'/%3E%3Cpath d='M82 22 C 88 16, 96 20, 94 26 C 88 28, 83 26, 82 22 Z' fill='%237093c8' fill-opacity='0.3'/%3E%3Cg transform='translate(16, 20) scale(0.85)'%3E%3Ccircle cx='0' cy='-5.5' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='5.2' cy='-1.7' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='3.2' cy='4.5' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='-3.2' cy='4.5' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='-5.2' cy='-1.7' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='0' cy='0' r='1.6' fill='%237093c8'/%3E%3C/g%3E%3Cpath d='M98 6 L100 9 L103 10 L100 11 L98 14 L96 11 L93 10 L96 9 Z' fill='%237093c8' fill-opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+body .sl-markdown-content blockquote::after {
+  content: "";
+  position: absolute;
+  bottom: 0.35rem;
+  right: 0.75rem;
+  width: 4rem;
+  height: 2rem;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: right bottom;
+  transform: rotate(180deg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 50' fill='none' stroke='%237093c8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 38 C 22 14, 48 12, 76 22 C 92 27, 102 18, 106 10' opacity='0.75'/%3E%3Cpath d='M26 24 C 24 16, 31 10, 36 13 C 37 19, 31 24, 26 24 Z' fill='%237093c8' fill-opacity='0.3'/%3E%3Cpath d='M54 16 C 58 8, 66 10, 67 17 C 61 20, 55 20, 54 16 Z' fill='%237093c8' fill-opacity='0.3'/%3E%3Cg transform='translate(16, 20) scale(0.85)'%3E%3Ccircle cx='0' cy='-5.5' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='5.2' cy='-1.7' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='3.2' cy='4.5' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='-3.2' cy='4.5' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='-5.2' cy='-1.7' r='3' fill='%237093c8' fill-opacity='0.45'/%3E%3Ccircle cx='0' cy='0' r='1.6' fill='%237093c8'/%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -467,8 +509,8 @@ starlight-toc nav ul ul li {
   }
 }
 
-/* 2. 标题花饰 (Blossom Heading Marker) */
-body .sl-markdown-content h3::before {
+/* 2. 标题花饰 (Blossom Heading Marker，仅作用于正文内容) */
+body .sl-markdown-content h3:not(.not-content *)::before {
   content: "❀";
   color: var(--sl-color-accent);
   font-size: 0.8em;
@@ -553,15 +595,21 @@ body .sl-markdown-content .starlight-aside .starlight-aside__title {
 }
 
 /* =========================================
-   祈りの花庭：沉浸单栏排版 (Editorial Garden Reading)
+   祈りの花庭：沉浸排版与自适应宽屏 (Editorial Garden Reading & Wide Layout)
    ========================================= */
 
 body .sl-markdown-content {
-  max-width: 48rem;
+  width: 100%;
+  max-width: 100%;
   margin-inline: auto;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, "FZLanTingHei", "FZLanTingHei-R-GBK", "方正兰亭黑", sans-serif;
   font-size: 1.05rem;
   color: var(--sl-color-gray-1);
+}
+
+/* 仅在纯文章正文阅读时限制居中最佳阅读视距 (50rem)，仪表盘与聚合列表向两侧充分扩展 */
+body .sl-markdown-content:not(:has(.not-content)) {
+  max-width: 50rem;
 }
 
 /* 标题采用典雅宋体/明朝体 */

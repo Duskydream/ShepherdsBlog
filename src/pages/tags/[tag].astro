@@ -34,9 +34,9 @@ function tagHref(value: string) {
 }
 
 const timelineSectionLabels = new Map([
-  ["blog", "Article"],
+  ["blog", "Essay"],
   ["log", "Log"],
-  ["coding-notes", "Coding Notes"],
+  ["coding-notes", "Notes"],
 ]);
 
 const contentTimeline = posts
@@ -59,8 +59,8 @@ const contentTimeline = posts
   });
 ---
 
-<StarlightPage frontmatter={{ title: `Tag: #${tag}` }} hasSidebar={true}>
-  <div class="home-dashboard">
+<StarlightPage frontmatter={{ title: `Tag: #${tag}`, template: "splash", tableOfContents: false }} hasSidebar={false}>
+  <div class="home-dashboard not-content">
     <section class="home-card home-card--timeline">
       <div class="home-card-head">
         <div class="home-card-head-left">

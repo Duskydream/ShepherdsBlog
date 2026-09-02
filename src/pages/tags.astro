@@ -14,8 +14,8 @@ posts.forEach((post) => {
 const tags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 ---
 
-<StarlightPage frontmatter={{ title: "Tags" }} hasSidebar={true}>
-  <section class="tags-index">
+<StarlightPage frontmatter={{ title: "Tags", template: "splash", tableOfContents: false }} hasSidebar={false}>
+  <section class="tags-index not-content">
     <header class="tags-index-head">
       <p>Index</p>
       <h1>Tags</h1>

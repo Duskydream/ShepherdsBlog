@@ -3,49 +3,160 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 ---
 
 <StarlightPage
-  frontmatter={{ title: 'Anime Reviews' }}
-  hasSidebar={true}
+  frontmatter={{ title: 'Anime Reviews', template: 'splash', tableOfContents: false }}
+  hasSidebar={false}
 >
   <div class="bangumi-page not-content">
     <div class="bangumi-shell">
-      <div class="bangumi-toolbar">
-        <div class="bangumi-search">
-          <svg class="bangumi-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input
-            type="text"
-            id="bangumi-search"
-            aria-label="搜索动画或游戏"
-            placeholder="搜索动画 / 游戏..."
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="bangumi-filterbar">
-          <div class="bangumi-filterbar-group">
-            <span class="bangumi-filterbar-label">类型</span>
-            <div class="bangumi-filterbar-options">
-              <button type="button" data-media="anime" class="bangumi-chip is-active">动画</button>
-              <button type="button" data-media="game" class="bangumi-chip">游戏</button>
+      <!-- 头部 Bangumi 专属概览与个人资料卡片 -->
+      <header class="home-card bangumi-hero-card">
+        <div class="bangumi-hero-inner">
+          <div class="bangumi-user-profile">
+            <a
+              href="https://bgm.tv/user/duskydream"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bangumi-user-avatar"
+              title="前往 Lxzm 的 Bangumi 主页"
+            >
+              <img
+                src="https://lain.bgm.tv/pic/user/l/000/85/16/851657_upVeN.jpg?r=1781703517&hd=1"
+                alt="Lxzm (duskydream)"
+                width="64"
+                height="64"
+                loading="eager"
+              />
+            </a>
+            <div class="bangumi-user-info">
+              <div class="bangumi-user-names">
+                <h1 class="bangumi-user-name">Lxzm</h1>
+                <span class="bangumi-user-handle">@duskydream</span>
+                <span class="bangumi-user-badge">Bangumi 番组计划</span>
+              </div>
+              <p class="bangumi-user-sign">“Everything that rises must converge”</p>
             </div>
           </div>
 
-          <span class="bangumi-filterbar-divider" aria-hidden="true"></span>
-
-          <div class="bangumi-filterbar-group bangumi-filterbar-group-status">
-            <span class="bangumi-filterbar-label">状态</span>
-            <div class="bangumi-filterbar-options bangumi-filterbar-options-status">
-              <button type="button" data-status="watching" class="bangumi-pill is-active">进行中</button>
-              <button type="button" data-status="wish" class="bangumi-pill">待补完</button>
-              <button type="button" data-status="watched" class="bangumi-pill">已完成</button>
-            </div>
+          <div class="bangumi-hero-actions">
+            <a
+              href="https://bgm.tv/user/duskydream"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="home-quick-pill"
+            >
+              <span>✦ Bangumi 主页</span>
+            </a>
+            <a
+              href="https://bgm.tv/feed/user/duskydream/timeline"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="home-quick-pill"
+              title="订阅 Bangumi 时间胶囊 RSS"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+              <span>RSS 订阅</span>
+            </a>
           </div>
         </div>
-      </div>
 
-      <div id="bangumi-meta" class="bangumi-meta" aria-live="polite"></div>
+        <!-- 自我介绍 (Bio Panel) -->
+        <div class="bangumi-user-intro-panel">
+          <div class="bangumi-user-intro-header">
+            <span class="bangumi-user-intro-icon">❀</span>
+            <span class="bangumi-user-intro-title">自我介绍</span>
+          </div>
+          <div class="bangumi-user-intro-content">
+            <p>杉菜水姫、松本文纪、深泽秀行、MANYO</p>
+            <p>永久眷恋着天国的音乐妖精</p>
+            <p>Innocent Grey、貴方へ捧ぐ戀紅色の花</p>
+            <p>直观&gt;印象&gt;分析、随缘百合</p>
+            <p>关于如何对抗遗忘</p>
+          </div>
+        </div>
+      </header>
 
-      <div id="bangumi-grid" class="bangumi-grid" aria-busy="false">
-        <div class="bangumi-message is-pulse">加载中...</div>
+      <!-- 双栏卡片布局：左侧鉴赏收藏，右侧时间胶囊 -->
+      <div class="bangumi-layout">
+        <!-- 主栏：鉴赏收藏 -->
+        <main class="bangumi-main-section">
+          <section class="home-card bangumi-collections-card">
+            <div class="home-card-head">
+              <div class="home-card-head-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg>
+                <span class="home-card-title">鉴赏收藏</span>
+              </div>
+              <div id="bangumi-meta" class="bangumi-meta-badge" aria-live="polite"></div>
+            </div>
+
+            <div class="bangumi-toolbar-inner">
+              <div class="bangumi-search">
+                <svg class="bangumi-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input
+                  type="text"
+                  id="bangumi-search"
+                  aria-label="搜索动画或游戏"
+                  placeholder="搜索动画 / 游戏..."
+                  autocomplete="off"
+                />
+              </div>
+
+              <div class="bangumi-filterbar">
+                <div class="bangumi-filterbar-group">
+                  <span class="bangumi-filterbar-label">类型</span>
+                  <div class="bangumi-filterbar-options">
+                    <button type="button" data-media="anime" class="bangumi-chip is-active">动画</button>
+                    <button type="button" data-media="game" class="bangumi-chip">游戏</button>
+                  </div>
+                </div>
+
+                <span class="bangumi-filterbar-divider" aria-hidden="true"></span>
+
+                <div class="bangumi-filterbar-group bangumi-filterbar-group-status">
+                  <span class="bangumi-filterbar-label">状态</span>
+                  <div class="bangumi-filterbar-options bangumi-filterbar-options-status">
+                    <button type="button" data-status="watching" class="bangumi-pill is-active">进行中</button>
+                    <button type="button" data-status="wish" class="bangumi-pill">待补完</button>
+                    <button type="button" data-status="watched" class="bangumi-pill">已完成</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="home-card-body">
+              <div id="bangumi-grid" class="bangumi-grid" aria-busy="false">
+                <div class="bangumi-message is-pulse">加载中...</div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <!-- 侧栏：Bangumi 时间胶囊 -->
+        <aside class="bangumi-aside-section">
+          <section class="home-card home-card--timeline bangumi-timeline-card">
+            <div class="home-card-head">
+              <div class="home-card-head-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"></path><path d="M5 7h14"></path><path d="M5 17h14"></path><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                <span class="home-card-title">时间胶囊</span>
+              </div>
+              <a
+                href="https://bgm.tv/feed/user/duskydream/timeline"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bangumi-timeline-rss-btn"
+                title="订阅时间胶囊 RSS"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+                <span>Feed</span>
+              </a>
+            </div>
+
+            <div class="home-card-body bangumi-timeline-scroll">
+              <div id="bangumi-timeline" class="bangumi-timeline" data-floral-vine='{"items": ".bangumi-timeline-item", "current": "", "vineX": 12, "meander": 3}'>
+                <div class="bangumi-message is-pulse" style="padding: 1.5rem 0.5rem;">加载动态...</div>
+              </div>
+            </div>
+          </section>
+        </aside>
       </div>
     </div>
   </div>
@@ -63,20 +174,21 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     const state = {
       mediaType: 'anime',
       status: 'watching',
-      data: { watching: [], wish: [], watched: [] },
+      data: { watching: [], wish: [], watched: [], timeline: [] },
       expanded: null,
       isFetching: false,
       fetchAbortController: null,
     };
 
     const search = document.getElementById('bangumi-search');
-    const area = document.getElementById('bangumi-grid');
+    const gridArea = document.getElementById('bangumi-grid');
+    const timelineArea = document.getElementById('bangumi-timeline');
     const resultsMeta = document.getElementById('bangumi-meta');
     const mediaButtons = [...document.querySelectorAll('.bangumi-chip')];
     const statusButtons = [...document.querySelectorAll('.bangumi-pill')];
     let searchTimer;
 
-    if (!search || !area || !resultsMeta) return;
+    if (!search || !gridArea || !resultsMeta) return;
 
     function escapeHTML(value) {
       return String(value)
@@ -106,6 +218,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
             watching: parsed.watching || [],
             wish: parsed.wish || [],
             watched: parsed.watched || [],
+            timeline: parsed.timeline || [],
           };
         }
       } catch { /* ignore */ }
@@ -123,20 +236,21 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
         watching: Array.isArray(payload?.watching) ? payload.watching : [],
         wish: Array.isArray(payload?.wish) ? payload.wish : [],
         watched: Array.isArray(payload?.watched) ? payload.watched : [],
+        timeline: Array.isArray(payload?.timeline) ? payload.timeline : [],
       };
     }
 
     function hasBangumiItems(payload) {
-      return payload.watching.length > 0 || payload.wish.length > 0 || payload.watched.length > 0;
+      return payload.watching.length > 0 || payload.wish.length > 0 || payload.watched.length > 0 || payload.timeline.length > 0;
     }
 
     function renderMessage(message, tone, pulse) {
-      area.innerHTML = '<div class="bangumi-message' + (tone === 'error' ? ' is-error' : '') + (pulse ? ' is-pulse' : '') + '">' + escapeHTML(message) + '</div>';
+      gridArea.innerHTML = '<div class="bangumi-message' + (tone === 'error' ? ' is-error' : '') + (pulse ? ' is-pulse' : '') + '">' + escapeHTML(message) + '</div>';
     }
 
     function setFetching(isFetching) {
-      area.setAttribute('aria-busy', String(isFetching));
-      area.dataset.fetching = String(isFetching);
+      gridArea.setAttribute('aria-busy', String(isFetching));
+      gridArea.dataset.fetching = String(isFetching);
     }
 
     async function requestJSON(url, signal, force = false) {
@@ -240,61 +354,60 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     }
 
     function renderCard(item, index) {
-      const titleText = item.subject?.name_cn || item.subject?.name || '?';
-      const title = escapeHTML(titleText);
-      const image = safeImageURL(item.subject?.images?.large || item.subject?.images?.common || '');
-      const id = Number(item.subject?.id) || 0;
-      const commentText = item.comment?.trim() || '';
-      const comment = escapeHTML(commentText);
-      const summaryText = String(item.subject?.short_summary || '').replace(/\s+/g, ' ').trim();
-      const airDate = escapeHTML(item.subject?.date || '');
-      const scoreHTML = renderStars(item.subject?.score);
-      const rank = Number(item.subject?.rank);
-      const rankHTML = Number.isFinite(rank) && rank > 0 ? '<span class="bangumi-rank">Rank ' + rank + '</span>' : '';
-      const tagsHTML = renderTags(item.subject?.tags);
+      const subject = item.subject || {};
+      const id = Number(item.subject_id || subject.id || 0);
+      const title = escapeHTML(subject.name_cn || subject.name || '未命名条目');
+      const originalTitle = subject.name && subject.name !== subject.name_cn ? escapeHTML(subject.name) : '';
+      const image = safeImageURL(subject.images?.medium || subject.images?.common || subject.images?.large || '');
+      const rate = renderStars(item.rate || subject.score);
+      const tags = renderTags(subject.tags);
+      const comment = (item.comment || '').trim();
+      const summary = (subject.summary || subject.short_summary || '').trim();
+      const updated = item.updated_at ? escapeHTML(String(item.updated_at).slice(0, 10)) : '';
       const open = state.expanded === id;
+      const hasReview = Boolean(comment);
 
-      const metaHTML = (scoreHTML || rankHTML || airDate)
-        ? '<div class="bangumi-card-meta">' + scoreHTML + rankHTML + (airDate ? '<span class="bangumi-date">' + airDate + '</span>' : '') + '</div>'
-        : '';
+      const flowerIcon = hasReview
+        ? '<span class="bangumi-title-flower is-reviewed" title="已撰写心得评价">✿</span>'
+        : '<span class="bangumi-title-flower" title="暂无评价">❀</span>';
 
-      const previewHTML = commentText
-        ? '<p class="bangumi-preview">' + escapeHTML(commentText.slice(0, 120) + (commentText.length > 120 ? '...' : '')) + '</p>'
-        : summaryText
-          ? '<p class="bangumi-preview">' + escapeHTML(summaryText.slice(0, 80) + (summaryText.length > 80 ? '…' : '')) + '</p>'
-          : '<p class="bangumi-preview bangumi-no-review">暂无简介</p>';
+      const coverHtml = image
+        ? '<img src="' + image + '" alt="' + title + '" loading="lazy" decoding="async" />'
+        : '<div class="bangumi-cover-placeholder">❀</div>';
 
-      const detailBody = commentText
-        ? '<div class="bangumi-review-box"><p>' + comment + '</p></div>'
-        : summaryText
-          ? '<div class="bangumi-review-box bangumi-summary-box"><p>' + escapeHTML(summaryText) + '</p></div>'
-          : '';
+      const previewText = hasReview
+        ? '<p class="bangumi-preview">“' + escapeHTML(comment) + '”</p>'
+        : (summary ? '<p class="bangumi-preview bangumi-no-review">' + escapeHTML(summary) + '</p>' : '<p class="bangumi-preview bangumi-no-review">暂无简介与评价</p>');
+
+      const detailBody = hasReview
+        ? '<div class="bangumi-review-box"><p>' + escapeHTML(comment) + '</p></div>' + (summary ? '<div class="bangumi-summary-box"><p>' + escapeHTML(summary) + '</p></div>' : '')
+        : (summary ? '<div class="bangumi-summary-box"><p>' + escapeHTML(summary) + '</p></div>' : '<div class="bangumi-summary-box"><p>暂无完整简介</p></div>');
 
       return '<article class="bangumi-card' + (open ? ' is-open' : '') + '" data-card-id="' + id + '" style="--enter-index:' + index + ';">' +
-        '<button type="button" class="bangumi-card-trigger" data-toggle-id="' + id + '" aria-expanded="' + open + '">' +
-        '<div class="bangumi-cover">' +
-        (image
-          ? '<img src="' + image + '" alt="' + title + '" loading="lazy" decoding="async" />'
-          : '<div class="bangumi-cover-placeholder" aria-hidden="true">❀</div>') +
-        '</div>' +
+        '<button type="button" class="bangumi-card-trigger" data-toggle-id="' + id + '" aria-expanded="' + String(open) + '">' +
+        '<div class="bangumi-cover">' + coverHtml + '</div>' +
         '<div class="bangumi-card-info">' +
-        '<h3>' + title + '</h3>' +
-        metaHTML +
-        previewHTML +
-        tagsHTML +
-        '<span class="bangumi-toggle-hint">' +
-        '<svg class="bangumi-toggle-icon' + (open ? ' rotate-180' : '') + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>' +
+        '<h3>' + flowerIcon + '<span class="bangumi-title-text">' + title + '</span></h3>' +
+        '<div class="bangumi-card-meta">' +
+        rate +
+        (updated ? '<span class="bangumi-date">' + updated + '</span>' : '') +
+        '</div>' +
+        previewText +
+        tags +
+        '<div class="bangumi-toggle-hint">' +
         '<span class="bangumi-toggle-text">' + (open ? '收起' : '展开详情') + '</span>' +
-        '</span>' +
+        '<svg class="bangumi-toggle-icon' + (open ? ' rotate-180' : '') + '" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>' +
+        '</div>' +
         '</div>' +
         '</button>' +
-        '<div class="bangumi-detail' + (open ? ' is-open' : '') + '" data-detail-id="' + id + '">' +
+        '<div class="bangumi-detail' + (open ? ' is-open' : '') + '">' +
         '<div class="bangumi-detail-inner">' +
         '<div class="bangumi-detail-panel">' +
+        (originalTitle ? '<div class="bangumi-orig-title">原名：' + originalTitle + '</div>' : '') +
         detailBody +
         '<a href="https://bgm.tv/subject/' + id + '" target="_blank" rel="noopener noreferrer" class="bangumi-link">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>' +
-        '<span>前往 Bangumi</span>' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>' +
+        '<span>前往 Bangumi 条目</span>' +
         '</a>' +
         '</div>' +
         '</div>' +
@@ -311,20 +424,76 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       });
     }
 
-    function render() {
+    function renderCollection() {
       const list = getFilteredList();
       updateResultsMeta(list.length);
 
       if (!list.length) {
-        renderMessage(getEmptyMessage());
+        gridArea.innerHTML = '<div class="bangumi-message">' + escapeHTML(getEmptyMessage()) + '</div>';
         return;
       }
 
-      area.innerHTML = list.map((item, index) => renderCard(item, index)).join('');
+      gridArea.innerHTML = list.map((item, index) => renderCard(item, index)).join('');
+    }
+
+    function renderTimeline() {
+      if (!timelineArea) return;
+      const list = Array.isArray(state.data.timeline) ? state.data.timeline : [];
+
+      if (!list.length) {
+        timelineArea.innerHTML = '<div class="bangumi-message" style="padding: 1.5rem 0.5rem; font-size: 0.85rem;">暂无时间胶囊记录</div>';
+        return;
+      }
+
+      const actionColorMap = {
+        '在玩': 'var(--sl-color-accent)',
+        '在看': 'var(--sl-color-accent)',
+        '在读': 'var(--sl-color-accent)',
+        '看过': '#5f8fc2',
+        '读过': '#5f8fc2',
+        '玩过': '#5f8fc2',
+        '想看': '#8fb2da',
+        '想读': '#8fb2da',
+        '想玩': '#8fb2da',
+      };
+
+      const itemsHtml = list.map((item, index) => {
+        const action = item.action || '动态';
+        const actionColor = actionColorMap[action] || 'var(--sl-color-accent)';
+        const subjectUrl = item.subjectId ? 'https://bgm.tv/subject/' + item.subjectId : 'https://bgm.tv/user/duskydream/timeline';
+        const displayName = escapeHTML(item.subjectNameCn || item.cleanTitle || item.title);
+        const subName = (item.cleanTitle && item.cleanTitle !== item.subjectNameCn)
+          ? '<span class="bangumi-timeline-sub">' + escapeHTML(item.cleanTitle) + '</span>'
+          : '';
+
+        return '<div class="bangumi-timeline-item" style="--i: ' + index + ';">' +
+          '<div class="bangumi-timeline-meta">' +
+          '<span class="bangumi-timeline-action" style="--action-color: ' + actionColor + ';">' + escapeHTML(action) + '</span>' +
+          '<time class="bangumi-timeline-date">' + escapeHTML(item.dateFormatted || item.pubDate || '') + '</time>' +
+          '</div>' +
+          '<div class="bangumi-timeline-body">' +
+          '<a href="' + subjectUrl + '" target="_blank" rel="noopener noreferrer" class="bangumi-timeline-link">' +
+          displayName +
+          '</a>' +
+          subName +
+          '</div>' +
+          '</div>';
+      }).join('');
+
+      timelineArea.innerHTML = itemsHtml;
+
+      if (typeof window.bindFloralVines === 'function') {
+        window.bindFloralVines();
+      }
+    }
+
+    function render() {
+      renderCollection();
+      renderTimeline();
     }
 
     function updateExpandedState(nextId) {
-      const cards = area.querySelectorAll('[data-card-id]');
+      const cards = gridArea.querySelectorAll('[data-card-id]');
       cards.forEach((card) => {
         const cardId = Number(card.getAttribute('data-card-id'));
         const open = cardId === nextId;
@@ -344,20 +513,20 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       state.mediaType = type;
       state.expanded = null;
       syncControls();
-      render();
+      renderCollection();
     }
 
     function setStatus(status) {
       state.status = status;
       state.expanded = null;
       syncControls();
-      render();
+      renderCollection();
     }
 
     mediaButtons.forEach(button => button.addEventListener('click', () => setMediaType(button.dataset.media)));
     statusButtons.forEach(button => button.addEventListener('click', () => setStatus(button.dataset.status)));
 
-    area.addEventListener('click', (event) => {
+    gridArea.addEventListener('click', (event) => {
       if (!(event.target instanceof Element)) return;
       const trigger = event.target.closest('[data-toggle-id]');
       if (!trigger) return;
@@ -370,7 +539,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         state.expanded = null;
-        render();
+        renderCollection();
       }, 180);
     });
 
@@ -380,8 +549,6 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       if (cached) {
         state.data = cached;
         render();
-        // Do not make navigation wait on a network request when the last
-        // successful response is still usable.
         void fetchData(true);
       } else {
         renderMessage('加载中...', 'muted', true);
@@ -395,35 +562,216 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     }, { once: true });
     })();
   </script>
+
+  <script>
+    import { bindFloralVines } from "../utils/floral-vine";
+    (window as any).bindFloralVines = bindFloralVines;
+    bindFloralVines();
+    document.addEventListener("astro:page-load", () => bindFloralVines());
+  </script>
 </StarlightPage>
 
 <style is:global>
   .bangumi-page {
-    max-width: 72rem;
+    max-width: min(78rem, 100%);
     margin: 0 auto;
-  }
-
-  .bangumi-shell {
-    position: relative;
-    padding: 1rem 0;
-  }
-
-  .bangumi-toolbar {
+    padding: 0.25rem 0.5rem 2.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    margin-bottom: 1.75rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bangumi-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* 头部 Profile 资料卡片 */
+  .bangumi-hero-card {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .bangumi-hero-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .bangumi-user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .bangumi-user-avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid color-mix(in srgb, var(--sl-color-accent) 35%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--sl-color-accent) 15%, transparent);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+    display: block;
+  }
+
+  .bangumi-user-avatar:hover {
+    transform: scale(1.06);
+    border-color: var(--sl-color-accent);
+  }
+
+  .bangumi-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bangumi-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .bangumi-user-names {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .bangumi-user-name {
+    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .bangumi-user-handle {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-4);
+  }
+
+  .bangumi-user-badge {
+    font-size: 0.68rem;
+    padding: 0.08rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    color: var(--sl-color-accent);
+    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 25%, transparent);
+  }
+
+  .bangumi-user-sign {
+    font-size: 0.84rem;
+    color: var(--sl-color-accent);
+    margin: 0;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+
+  .bangumi-hero-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* 自我介绍 Bio 面板 */
+  .bangumi-user-intro-panel {
+    margin-top: 0.85rem;
+    padding: 0.65rem 0.95rem;
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
+    border-radius: 0.55rem;
+    border: 1px solid var(--sl-color-gray-6);
+    border-inline-start: 3px solid var(--sl-color-accent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .bangumi-user-intro-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--sl-color-accent);
+    letter-spacing: 0.04em;
+    margin: 0 !important;
+  }
+
+  .bangumi-user-intro-icon {
+    font-size: 0.85em;
+  }
+
+  .bangumi-user-intro-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .bangumi-page :where(.bangumi-user-intro-content p),
+  .bangumi-user-intro-content p {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+    font-size: 0.84rem;
+    line-height: 1.35;
+    color: var(--sl-color-gray-2);
+    letter-spacing: 0.02em;
+  }
+
+  /* 双栏布局 */
+  .bangumi-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 21.5rem;
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  @media (max-width: 980px) {
+    .bangumi-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .bangumi-collections-card,
+  .bangumi-timeline-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bangumi-meta-badge {
+    font-size: 0.76rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .bangumi-toolbar-inner {
+    padding: 1rem 1.25rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
   }
 
   .bangumi-search {
     position: relative;
     width: 100%;
-    max-width: 30rem;
+    max-width: 28rem;
   }
 
   .bangumi-search-icon {
     position: absolute;
-    left: 0.95rem;
+    left: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--sl-color-gray-4);
@@ -432,12 +780,12 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-search input {
     width: 100%;
-    padding: 0.6rem 1rem 0.6rem 2.45rem;
+    padding: 0.5rem 1rem 0.5rem 2.3rem;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999px;
     background: transparent;
     color: var(--sl-color-white);
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
@@ -450,40 +798,32 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   .bangumi-filterbar {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.25rem;
     flex-wrap: wrap;
-  }
-
-  .bangumi-page :where(
-    .bangumi-filterbar-group,
-    .bangumi-filterbar-options,
-    .bangumi-filterbar-options > *,
-    .bangumi-card-trigger > *,
-    .bangumi-card-info > *
-  ) {
-    margin-top: 0;
   }
 
   .bangumi-filterbar-group {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .bangumi-filterbar-label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--sl-color-gray-4);
   }
 
   .bangumi-filterbar-options {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
   }
 
   .bangumi-filterbar-divider {
-    display: none;
+    width: 1px;
+    height: 1rem;
+    background: var(--sl-color-gray-6);
   }
 
   .bangumi-chip,
@@ -493,76 +833,70 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999px;
     color: var(--sl-color-gray-3);
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.78rem;
+    font-weight: 500;
     cursor: pointer;
-    padding: 0.3rem 0.9rem;
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    padding: 0.24rem 0.75rem;
+    transition: all 0.2s ease;
   }
 
   .bangumi-chip:hover,
   .bangumi-pill:hover {
-    border-color: var(--sl-color-accent);
+    border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
     color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
   }
 
   .bangumi-chip.is-active,
   .bangumi-pill.is-active {
-    background: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 20%, transparent);
     border-color: var(--sl-color-accent);
-    color: var(--sl-color-bg);
-  }
-
-  .bangumi-meta {
-    color: var(--sl-color-gray-4);
-    font-size: 0.85rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .bangumi-meta::before {
-    content: "✦";
-    color: var(--sl-color-accent-high);
-    font-size: 0.7rem;
-    margin-right: 0.5rem;
+    color: var(--sl-color-accent);
+    font-weight: 600;
   }
 
   .bangumi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  @media (max-width: 600px) {
+    .bangumi-grid {
+      grid-template-columns: 1fr;
+      padding: 0.75rem;
+    }
   }
 
   .bangumi-card {
-    border-radius: 0.75rem;
+    border-radius: 0.85rem;
     border: 1px solid var(--sl-color-gray-6);
-    background: transparent;
+    background: var(--sl-color-bg);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: floral-grow-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(var(--enter-index, 0) * 30ms);
-    content-visibility: auto;
-    contain-intrinsic-size: 9rem;
-    transition: border-color 0.22s ease, box-shadow 0.22s ease;
+    animation: floral-bloom 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--enter-index, 0) * 25ms);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .bangumi-card:hover {
-    border-color: var(--sl-color-accent);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+    border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   }
 
   .bangumi-card.is-open {
     border-color: var(--sl-color-accent);
-    box-shadow:
-      0 0 0 1px var(--sl-color-accent),
-      0 8px 24px color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
+    box-shadow: 0 0 0 1px var(--sl-color-accent);
   }
 
   .bangumi-card-trigger {
     width: 100%;
     display: flex;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.85rem;
+    padding: 0.85rem;
     align-items: stretch;
     cursor: pointer;
     background: none;
@@ -571,11 +905,11 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-cover {
-    width: 5rem;
-    min-width: 5rem;
-    height: 7rem;
+    width: 4.5rem;
+    min-width: 4.5rem;
+    height: 6.3rem;
     background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    border-radius: 0.5rem;
+    border-radius: 0.45rem;
     overflow: hidden;
   }
 
@@ -591,9 +925,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     align-items: center;
     justify-content: center;
     height: 100%;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: var(--sl-color-accent);
-    opacity: 0.5;
+    opacity: 0.4;
   }
 
   .bangumi-card-info {
@@ -604,32 +938,55 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-card-info h3 {
-    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.98rem;
     font-weight: 600;
     color: var(--sl-color-white);
-    margin: 0 0 0.4rem;
-    line-height: 1.3;
+    margin: 0 0 0.35rem;
+    line-height: 1.35;
+  }
+
+  .bangumi-card-info h3::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .bangumi-title-flower {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.35rem;
+    font-size: 0.85em;
+    color: var(--sl-color-gray-4);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .bangumi-title-flower.is-reviewed {
+    color: var(--sl-color-accent);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--sl-color-accent) 60%, transparent);
   }
 
   .bangumi-card-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.4rem 0.7rem;
-    margin: 0 0 0.5rem;
-    font-size: 0.78rem;
+    gap: 0.35rem 0.6rem;
+    margin: 0 0 0.4rem;
+    font-size: 0.74rem;
     color: var(--sl-color-gray-4);
   }
 
   .bangumi-score {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.25rem;
   }
 
   .bangumi-star {
     color: var(--sl-color-gray-5);
-    font-size: 0.7rem;
+    font-size: 0.68rem;
   }
 
   .bangumi-star.is-filled {
@@ -642,14 +999,14 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-date {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--sl-color-gray-4);
   }
 
   .bangumi-preview {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--sl-color-gray-3);
-    line-height: 1.55;
+    line-height: 1.5;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -664,14 +1021,14 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   .bangumi-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.6rem;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
   }
 
   .tag-pill {
-    border-radius: 1rem;
-    padding: 0.12rem 0.6rem;
-    font-size: 0.72rem;
+    border-radius: 999px;
+    padding: 0.08rem 0.5rem;
+    font-size: 0.68rem;
     color: var(--sl-color-accent);
     background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
   }
@@ -682,19 +1039,16 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
   .bangumi-toggle-hint {
     margin-top: auto;
-    padding-top: 0.65rem;
+    padding-top: 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.78rem;
+    gap: 0.25rem;
+    font-size: 0.74rem;
     color: var(--sl-color-accent);
   }
 
   .bangumi-toggle-icon {
     transition: transform 0.2s ease;
-  }
-  .bangumi-toggle-icon.rotate-180 {
-    transform: rotate(180deg);
   }
 
   .bangumi-detail {
@@ -702,7 +1056,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     grid-template-rows: 0fr;
     opacity: 0;
     transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
-    background: color-mix(in srgb, var(--sl-color-accent) 5%, transparent);
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
   }
 
   .bangumi-detail.is-open {
@@ -716,32 +1070,47 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-detail-panel {
-    padding: 1.25rem;
+    padding: 1rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bangumi-orig-title {
+    font-size: 0.76rem;
+    color: var(--sl-color-gray-4);
   }
 
   .bangumi-review-box {
     position: relative;
-    margin-bottom: 1.25rem;
-    padding: 0.5rem 0.5rem 0.25rem 1.5rem;
+    padding: 0.4rem 0.5rem 0.2rem 1.25rem;
   }
 
   .bangumi-review-box::before {
     content: "❝";
     position: absolute;
     left: -0.1rem;
-    top: -0.7rem;
-    font-size: 2.6rem;
+    top: -0.6rem;
+    font-size: 2.2rem;
     line-height: 1;
     color: var(--sl-color-accent);
-    opacity: 0.2;
+    opacity: 0.25;
     pointer-events: none;
   }
 
   .bangumi-review-box p {
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     color: var(--sl-color-gray-2);
-    line-height: 1.7;
+    line-height: 1.65;
     font-style: italic;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .bangumi-summary-box p {
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-3);
+    line-height: 1.6;
     margin: 0;
     white-space: pre-wrap;
   }
@@ -749,14 +1118,15 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   .bangumi-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1.1rem;
+    gap: 0.4rem;
+    padding: 0.35rem 0.9rem;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999px;
     color: var(--sl-color-text);
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     text-decoration: none;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    align-self: flex-start;
+    transition: all 0.2s ease;
   }
 
   .bangumi-link:hover {
@@ -765,8 +1135,120 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     color: var(--sl-color-accent);
   }
 
+  /* 时间胶囊侧栏卡片 */
+  .bangumi-timeline-rss-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-6);
+    color: var(--sl-color-gray-3);
+    font-size: 0.72rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .bangumi-timeline-rss-btn:hover {
+    color: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+  }
+
+  .bangumi-timeline-scroll {
+    max-height: 720px;
+    overflow-y: auto;
+    padding: 1rem 0.85rem;
+  }
+
+  .bangumi-timeline-scroll::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .bangumi-timeline-scroll::-webkit-scrollbar-thumb {
+    background: var(--sl-color-gray-5);
+    border-radius: 3px;
+  }
+
+  .bangumi-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding-inline-start: 1.8rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bangumi-timeline-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-bg);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+    animation: floral-bloom 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 30ms);
+  }
+
+  .bangumi-timeline-item:hover {
+    border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
+    transform: translateX(3px);
+  }
+
+  .bangumi-timeline-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .bangumi-timeline-action {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.08rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--action-color, var(--sl-color-accent));
+    background: color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 25%, transparent);
+  }
+
+  .bangumi-timeline-date {
+    font-size: 0.7rem;
+    color: var(--sl-color-gray-4);
+  }
+
+  .bangumi-timeline-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .bangumi-timeline-link {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    text-decoration: none;
+    line-height: 1.35;
+    transition: color 0.15s ease;
+  }
+
+  .bangumi-timeline-link:hover {
+    color: var(--sl-color-accent);
+  }
+
+  .bangumi-timeline-sub {
+    font-size: 0.74rem;
+    color: var(--sl-color-gray-4);
+  }
+
   .bangumi-message {
-    padding: 3rem 1rem;
+    padding: 2.5rem 1rem;
     text-align: center;
     color: var(--sl-color-gray-4);
     border: 1px dashed var(--sl-color-gray-5);

@@ -4,7 +4,7 @@ description: Brief Introduction to BFS
 author: Shepherd
 date: 2026-02-26
 tags: ["Coding", "Notes", "Cpp"]
-categories: ["Coding Notes"]
+categories: ["Notes"]
 ---
 
 # BFS初探
