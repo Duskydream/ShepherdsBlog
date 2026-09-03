@@ -2,6 +2,7 @@
 const PAGE_TITLE_ID = "_top";
 
 const { entry } = Astro.locals.starlightRoute;
+const isSplash = entry.data.template === "splash";
 const { date, tags } = entry.data;
 const bodyLength = entry.body ? entry.body.length : 0;
 const readingTime = bodyLength > 0 ? Math.max(1, Math.ceil(bodyLength / 400)) : null;
@@ -14,21 +15,25 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
 ---
 
-<div class="page-title-wrapper">
-  <h1 id={PAGE_TITLE_ID}>
-    {entry.data.title}
-  </h1>
-  {
-    (formattedDate || readingTime || (tags && tags.length > 0)) && (
-      <p class="page-meta">
-        <span class="page-meta-ornament" aria-hidden="true">❀</span>
-        {formattedDate && <span>记录于：{formattedDate}</span>}
-        {readingTime && <span>预计阅读：约 {readingTime} 分钟</span>}
-        {tags && tags.length > 0 && <span>标签：{tags.join("、")}</span>}
-      </p>
-    )
-  }
-</div>
+{
+  !isSplash && (
+    <div class="page-title-wrapper">
+      <h1 id={PAGE_TITLE_ID}>
+        {entry.data.title}
+      </h1>
+      {
+        (formattedDate || readingTime || (tags && tags.length > 0)) && (
+          <p class="page-meta">
+            <span class="page-meta-ornament" aria-hidden="true">❀</span>
+            {formattedDate && <span>记录于：{formattedDate}</span>}
+            {readingTime && <span>预计阅读：约 {readingTime} 分钟</span>}
+            {tags && tags.length > 0 && <span>标签：{tags.join("、")}</span>}
+          </p>
+        )
+      }
+    </div>
+  )
+}
 
 <style>
   @layer starlight.core {

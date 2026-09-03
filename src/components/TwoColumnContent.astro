@@ -48,6 +48,16 @@
     padding-inline: 0.5rem;
   }
 
+  @media (max-width: 50rem) {
+    .two-column-layout {
+      padding-inline: 0;
+      gap: 0;
+    }
+    :global(.main-frame:has(.not-content)) .two-column-layout {
+      padding-inline: 0;
+    }
+  }
+
   :global(.main-frame:has(.not-content)) .main-pane {
     max-width: 100%;
   }

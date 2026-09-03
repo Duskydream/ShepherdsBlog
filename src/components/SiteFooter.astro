@@ -1,0 +1,403 @@
+---
+import { getCollection } from "astro:content";
+import historicalCommits from "../data/git-commits.json";
+
+const LAUNCH_DATE = "2024-03-17";
+const runningDays = Math.max(1, Math.floor((Date.now() - new Date(LAUNCH_DATE).getTime()) / (1000 * 60 * 60 * 24)));
+
+let allPostsCount = 0;
+try {
+  const blogPosts = await getCollection("docs", (entry) => entry.id.startsWith("blog/") && entry.id !== "blog/index.md");
+  const logPosts = await getCollection("docs", (entry) => entry.id.startsWith("log/") && entry.id !== "log/index.md");
+  const codingNotePosts = await getCollection(
+    "docs",
+    (entry) => entry.id.startsWith("coding-notes/") && entry.id !== "coding-notes/index.md",
+  );
+  allPostsCount = blogPosts.length + logPosts.length + codingNotePosts.length;
+} catch {
+  allPostsCount = 8;
+}
+
+let commitTotal = 0;
+for (const count of Object.values(historicalCommits as Record<string, number>)) {
+  commitTotal += count;
+}
+if (commitTotal === 0) commitTotal = 625;
+---
+
+<div class="site-global-footer not-content">
+  <div class="site-footer-card">
+    <div class="site-footer-grid">
+      <!-- 1. 品牌介绍与订阅 -->
+      <div class="site-footer-col site-footer-brand">
+        <h2 class="site-footer-brand-title">祈りの花庭</h2>
+        <p class="site-footer-brand-motto">如花四散，余香绕指，心中的裂痕亦能被填补。</p>
+        <form class="site-footer-subscribe-form" action="/rss.xml" method="get">
+          <input
+            type="text"
+            name="feed"
+            placeholder="邮箱地址 / RSS 订阅"
+            class="site-footer-subscribe-input"
+            aria-label="订阅邮箱或RSS"
+          />
+          <button type="submit" class="site-footer-subscribe-btn">订阅</button>
+        </form>
+      </div>
+
+      <!-- 2. NAVIGATE -->
+      <div class="site-footer-col">
+        <h3 class="site-footer-heading">NAVIGATE</h3>
+        <ul class="site-footer-links">
+          <li>
+            <a href="/">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">首页</span>
+              <span class="en-code">HOME</span>
+            </a>
+          </li>
+          <li>
+            <a href="/article">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">散文</span>
+              <span class="en-code">ESSAY</span>
+            </a>
+          </li>
+          <li>
+            <a href="/coding">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">笔记</span>
+              <span class="en-code">NOTES</span>
+            </a>
+          </li>
+          <li>
+            <a href="/anime">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">鉴赏</span>
+              <span class="en-code">ANIME</span>
+            </a>
+          </li>
+          <li>
+            <a href="/log">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">日常</span>
+              <span class="en-code">LOG</span>
+            </a>
+          </li>
+          <li>
+            <a href="/about">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">关于</span>
+              <span class="en-code">ABOUT</span>
+            </a>
+          </li>
+          <li>
+            <a href="/links">
+              <span class="link-bullet">✦</span>
+              <span class="link-label">友链</span>
+              <span class="en-code">LINKS</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 3. CONNECT -->
+      <div class="site-footer-col">
+        <h3 class="site-footer-heading">CONNECT</h3>
+        <ul class="site-footer-links site-footer-connect">
+          <li>
+            <a href="https://github.com/Duskydream" target="_blank" rel="noopener noreferrer">
+              <span class="link-bullet">✦</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              <span class="link-label">GitHub</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://t.me/inorinohananiwa" target="_blank" rel="noopener noreferrer">
+              <span class="link-bullet">✦</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="m20.665 3.717-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l-.313 4.67c.458 0 .66-.21.916-.457l2.199-2.138 4.574 3.379c.844.464 1.45.225 1.66-.785l3.003-14.146c.308-1.233-.472-1.792-1.515-1.32z"/></svg>
+              <span class="link-label">Telegram</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://x.com/Lxzm1211" target="_blank" rel="noopener noreferrer">
+              <span class="link-bullet">✦</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              <span class="link-label">X</span>
+            </a>
+          </li>
+          <li>
+            <a href="mailto:lxzm1211@outlook.com">
+              <span class="link-bullet">✦</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+              <span class="link-label">Email</span>
+            </a>
+          </li>
+          <li>
+            <a href="/rss.xml">
+              <span class="link-bullet">✦</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+              <span class="link-label">RSS</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 4. STATS -->
+      <div class="site-footer-col">
+        <h3 class="site-footer-heading">STATS</h3>
+        <ul class="site-footer-stats">
+          <li>
+            <span class="stat-left">
+              <span class="link-bullet">✦</span>
+              <span class="stat-label">文章</span>
+            </span>
+            <span class="stat-value">{allPostsCount}</span>
+          </li>
+          <li>
+            <span class="stat-left">
+              <span class="link-bullet">✦</span>
+              <span class="stat-label">运行</span>
+            </span>
+            <span class="stat-value">{runningDays} 天</span>
+          </li>
+          <li>
+            <span class="stat-left">
+              <span class="link-bullet">✦</span>
+              <span class="stat-label">在线</span>
+            </span>
+            <span class="stat-value stat-online"><span class="online-indicator"></span> 正常</span>
+          </li>
+          <li>
+            <span class="stat-left">
+              <span class="link-bullet">✦</span>
+              <span class="stat-label">提交</span>
+            </span>
+            <span class="stat-value">{commitTotal} 次</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .site-global-footer {
+    width: 100%;
+    margin-top: 3.5rem;
+    box-sizing: border-box;
+  }
+
+  .site-footer-card {
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-6);
+    border-radius: 1.25rem;
+    padding: 2.25rem 2.5rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .site-footer-card:hover {
+    border-color: var(--sl-color-gray-5);
+  }
+
+  .site-footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1.15fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .site-footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    min-width: 0;
+  }
+
+  .site-footer-brand-title {
+    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--sl-color-text);
+    margin: 0;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+
+  .site-footer-brand-motto {
+    font-family: "Songti SC", "Source Han Serif SC", serif;
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-3);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .site-footer-subscribe-form {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    max-width: 22rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .site-footer-subscribe-form:focus-within {
+    border-color: var(--sl-color-accent);
+  }
+
+  .site-footer-subscribe-input {
+    flex: 1 1 auto;
+    border: none;
+    background: transparent;
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    color: var(--sl-color-text);
+    outline: none;
+    min-width: 0;
+  }
+
+  .site-footer-subscribe-btn {
+    padding: 0.55rem 1.1rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-text);
+    border: none;
+    border-inline-start: 1px solid var(--sl-color-gray-5);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .site-footer-subscribe-btn:hover {
+    background: color-mix(in srgb, var(--sl-color-accent) 20%, transparent);
+    color: var(--sl-color-accent);
+  }
+
+  .site-footer-heading {
+    font-family: var(--sl-font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--sl-color-gray-4);
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .site-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .site-footer-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .site-footer-links a:hover {
+    color: var(--sl-color-accent);
+    transform: translateX(2px);
+  }
+
+  .link-bullet {
+    font-size: 0.65rem;
+    color: var(--sl-color-accent);
+    opacity: 0.85;
+  }
+
+  .en-code {
+    font-family: var(--sl-font-mono);
+    font-size: 0.7rem;
+    color: var(--sl-color-gray-4);
+    letter-spacing: 0.05em;
+  }
+
+  .site-footer-connect svg {
+    color: var(--sl-color-gray-3);
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .site-footer-connect a:hover svg {
+    color: var(--sl-color-accent);
+  }
+
+  .site-footer-stats {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .site-footer-stats li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px dashed var(--sl-color-gray-6);
+    font-size: 0.86rem;
+  }
+
+  .stat-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .stat-label {
+    color: var(--sl-color-gray-3);
+  }
+
+  .stat-value {
+    font-family: var(--sl-font-mono);
+    font-weight: 600;
+    color: var(--sl-color-text);
+    font-size: 0.88rem;
+  }
+
+  .stat-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #52c41a;
+  }
+
+  .online-indicator {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: #52c41a;
+    box-shadow: 0 0 6px #52c41a;
+  }
+
+  @media (max-width: 980px) {
+    .site-footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .site-footer-card {
+      padding: 1.5rem 1.25rem;
+      border-radius: 1rem;
+    }
+    .site-footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+  }
+</style>

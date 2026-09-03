@@ -282,10 +282,8 @@ body .sl-markdown-content .friend-links a {
 /* 2. 花枝主题诗意引用块 (Floral Botanical Blockquotes / Epigraph) */
 body .sl-markdown-content blockquote {
   border: none !important;
-  border-left: 2px solid color-mix(in srgb, var(--sl-color-accent) 45%, transparent) !important;
-  background: color-mix(in srgb, var(--sl-color-accent) 3.5%, transparent) !important;
-  border-radius: 0 0.85rem 0.85rem 0 !important;
-  padding: 1.6rem 1.8rem 1.6rem 2.2rem !important;
+  background: transparent !important;
+  padding: 1.8rem 2.2rem 1.8rem 2.4rem !important;
   margin: 2.5rem 0 !important;
   position: relative;
   overflow: hidden;
@@ -646,4 +644,89 @@ body .sl-markdown-content p:has(picture) {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--sl-color-gray-5) transparent;
+}
+
+/* =========================================
+   移动端响应式与防横向溢出 (Mobile Safety)
+   ========================================= */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  .sl-markdown-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .sl-markdown-content img,
+  .sl-markdown-content video,
+  .sl-markdown-content pre,
+  .sl-markdown-content table,
+  .sl-markdown-content blockquote,
+  .sl-markdown-content iframe {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .sl-markdown-content pre {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sl-markdown-content table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sl-markdown-content blockquote {
+    padding: 1.25rem 1rem !important;
+    margin: 1.5rem 0 !important;
+    word-break: break-word;
+  }
+
+  .sl-markdown-content h1 {
+    font-size: 1.65rem !important;
+    line-height: 1.3 !important;
+    word-break: break-word;
+  }
+
+  .sl-markdown-content h2 {
+    font-size: 1.35rem !important;
+    line-height: 1.35 !important;
+    word-break: break-word;
+  }
+
+  .sl-markdown-content h3 {
+    font-size: 1.15rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .page-title-wrapper {
+    margin-bottom: 1.25rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .page-title-wrapper h1 {
+    font-size: 1.7rem !important;
+    line-height: 1.3 !important;
+    word-break: break-word;
+  }
+
+  .page-meta {
+    font-size: 0.78rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+  }
 }

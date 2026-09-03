@@ -102,6 +102,10 @@ export default defineConfig({
           link: "/anime",
         },
         {
+          label: "About",
+          link: "/about",
+        },
+        {
           label: "Links",
           link: "/links",
         },

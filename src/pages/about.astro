@@ -1,0 +1,898 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import LilyOrnament from "../components/LilyOrnament.astro";
+
+const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
+
+const socialLinks = [
+  {
+    name: "GitHub",
+    url: "https://github.com/Duskydream",
+    icon: "github",
+    desc: "@Duskydream",
+  },
+  {
+    name: "Email",
+    url: "mailto:lxzm1211@outlook.com",
+    icon: "email",
+    desc: "lxzm1211@outlook.com",
+  },
+  {
+    name: "Telegram",
+    url: "https://t.me/inorinohananiwa",
+    icon: "telegram",
+    desc: "@inorinohananiwa",
+  },
+  {
+    name: "X (Twitter)",
+    url: "https://x.com/Lxzm1211",
+    icon: "x",
+    desc: "@Lxzm1211",
+  },
+  {
+    name: "Bilibili",
+    url: "https://space.bilibili.com/198625051",
+    icon: "bilibili",
+    desc: "198625051",
+  },
+  {
+    name: "Bangumi",
+    url: "https://bgm.tv/user/duskydream",
+    icon: "bangumi",
+    desc: "@duskydream",
+  },
+  {
+    name: "微信公众号",
+    url: "#wechat-card",
+    icon: "wechat",
+    desc: "扫码关注微信公众号",
+  },
+  {
+    name: "RSS Feed",
+    url: "/rss.xml",
+    icon: "rss",
+    desc: "rss.xml",
+  },
+  {
+    name: "散文随笔",
+    url: "/article",
+    icon: "feather",
+    desc: "Essay",
+  },
+];
+
+const colophonData = [
+  { label: "FRAMEWORK", value: "Astro 6 · Starlight" },
+  { label: "LANGUAGE", value: "TypeScript" },
+  { label: "HOSTING", value: "Tencent Cloud EdgeOne / Cloudflare" },
+  { label: "BACKEND / API", value: "EdgeOne Functions · Git Commits · Bangumi API" },
+  { label: "STYLING", value: "Starlight Rapide · Custom CSS · KaTeX" },
+  { label: "TYPOGRAPHY", value: "Songti SC · Instrument Serif · JetBrains Mono" },
+  { label: "LICENSE", value: "CC BY-NC-SA 4.0" },
+  { label: "DOMAINS", value: "lxzm.space" },
+];
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "关于 · About",
+    description: "关于 Shepherd，也关于「祈りの花庭」",
+    template: "splash",
+    tableOfContents: false,
+  }}
+  hasSidebar={false}
+>
+  <div class="about-page not-content">
+    <!-- 背景星尘与花庭光影 -->
+    <div class="about-bg-canvas" aria-hidden="true">
+      <div class="about-stardust"></div>
+      <div class="about-glow-orb about-glow-orb-1"></div>
+      <div class="about-glow-orb about-glow-orb-2"></div>
+      <div class="about-lily-backdrop">
+        <LilyOrnament id="about-lily" />
+      </div>
+    </div>
+
+    <main class="about-container">
+      <!-- 顶部标头区域 -->
+      <header class="about-header">
+        <div class="about-eyebrow">
+          <span class="about-eyebrow-dot"></span>
+          <span class="about-eyebrow-text">ABOUT</span>
+        </div>
+        <h1 class="about-title">关于</h1>
+        <p class="about-subtitle">关于我，也关于这个站点</p>
+      </header>
+
+      <!-- 双栏核心内容 -->
+      <div class="about-grid">
+        <!-- 左栏：个人自述与思考 -->
+        <section class="about-col-main">
+          <!-- 作者简介横幅 -->
+          <div class="about-author-card">
+            <div class="about-avatar-ring">
+              <img
+                src={USER_AVATAR}
+                alt="Shepherd"
+                width="68"
+                height="68"
+                class="about-avatar-img"
+                loading="eager"
+              />
+            </div>
+            <div class="about-author-titles">
+              <span class="about-author-name">Shepherd <span class="about-author-alias">(Lxzm)</span></span>
+              <span class="about-author-role">AI Undergraduate · 思考者 · 写作者</span>
+            </div>
+          </div>
+
+          <!-- 核心叙事正文 -->
+          <article class="about-prose">
+            <p class="about-lead">
+              我是 <strong>Shepherd</strong>, 一个喜欢思考、喜欢写文字的<strong>「人」</strong>，现就读于人工智能专业。
+            </p>
+
+            <p>
+              “逝去的时光，如同沉入无尽深海的碎片。
+              偶尔浮现的过往景色与气息，亦如泡沫般摇曳消散。”关于记忆的发生与泯灭，人类仍然掌握着朦胧的能动性，在神经医学、心理学和通用人工智能等领域，研究如何对抗遗忘，潜入深邃的海底。
+            </p>
+              我对人类的记忆机制，以及如何让 AI 维持记忆感兴趣，坚信着这是通向 AGI 的关键环节。这里记录着我在相关领域的学习笔记，也有作品鉴赏、生活感悟。
+            <p>
+              
+            </p>
+            <blockquote>
+              <p>“如花四散，余香绕指，心中的裂痕亦能被填补。”</p>
+            </blockquote>
+
+            <div class="about-section-divider">
+              <span class="divider-line"></span>
+              <span class="divider-star">✦</span>
+              <span class="divider-line"></span>
+            </div>
+
+            <h2 class="about-section-title">
+              <span class="section-title-mark">❀</span>
+              <span>关于「祈りの花庭」</span>
+            </h2>
+
+            <p>
+              「祈りの花庭」（Inori no Hananiwa）始建于 2024 年春，命名灵感源于 Innocent Grey 发行的 <a href="http://www.gungnir.co.jp/lily/" target="_blank" rel="noopener noreferrer">FLOWERS</a> 系列，讲述了少女们在名为圣彗星兰的教会女子学院中相识、相知、相恋与成长的故事。 
+            </p>
+            <p>
+              当彼此天各一方，人生轨迹不再交汇，吟唱着忘れない，即使无法再相见，也要献上真挚的祈祷与祝福。
+            </p>
+
+            <blockquote>
+              <p>信じて 祈って 雪解けを待つように</p>
+            </blockquote>
+
+            <p>
+              在这个寄托着思考、回忆与念想的花圃里，让簌而落下的花瓣、月下吹雪，埋藏记忆的碎片，直至悄然绽放。
+            </p>
+            <p>
+              <a href="mailto:lxzm1211@outlook.com" target="_blank" rel="noopener noreferrer">欢迎来信</a> 
+            </p>
+          </article>
+
+          <!-- 社交外链胶囊群 -->
+          <div class="about-social-group">
+            <div class="about-social-title">
+              <span>✦ CONNECT & LINKS</span>
+            </div>
+            <div class="about-pills">
+              {socialLinks.map((item) => (
+                <a
+                  href={item.url}
+                  target={item.url.startsWith("http") ? "_blank" : undefined}
+                  rel={item.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                  class="about-pill"
+                  title={item.desc}
+                >
+                  {item.icon === "github" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                  )}
+                  {item.icon === "email" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                  )}
+                  {item.icon === "telegram" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="m20.665 3.717-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l-.313 4.67c.458 0 .66-.21.916-.457l2.199-2.138 4.574 3.379c.844.464 1.45.225 1.66-.785l3.003-14.146c.308-1.233-.472-1.792-1.515-1.32z"/></svg>
+                  )}
+                  {item.icon === "x" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  )}
+                  {item.icon === "bilibili" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386z"/></svg>
+                  )}
+                  {item.icon === "bangumi" && (
+                    <span class="about-icon-text">Bgm</span>
+                  )}
+                  {item.icon === "wechat" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color: #07c160;"><path d="M8.691 2.188C3.891 2.188 0 5.478 0 9.53c0 2.212 1.17 4.203 3.002 5.552L2.08 18.07c-.114.338.163.666.502.589l3.524-.803c.828.232 1.697.358 2.585.358.261 0 .52-.012.777-.034-.23-.654-.36-1.353-.36-2.079 0-3.799 3.824-6.88 8.541-6.88.423 0 .838.026 1.246.074C18.067 5.093 13.805 2.188 8.691 2.188zm-2.39 4.39a1.094 1.094 0 1 1 0 2.188 1.094 1.094 0 0 1 0-2.188zm4.782 0a1.094 1.094 0 1 1 0 2.188 1.094 1.094 0 0 1 0-2.188zm6.544 3.723c-4.04 0-7.315 2.766-7.315 6.178 0 1.865.986 3.542 2.529 4.679l-.776 2.521c-.097.285.138.562.423.497l2.97-.677c.697.195 1.43.302 2.179.302 4.04 0 7.315-2.766 7.315-6.178 0-3.412-3.275-6.178-7.325-6.178zm-2.133 3.693a.922.922 0 1 1 0 1.844.922.922 0 0 1 0-1.844zm4.265 0a.922.922 0 1 1 0 1.844.922.922 0 0 1 0-1.844z"/></svg>
+                  )}
+                  {item.icon === "rss" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                  )}
+                  {item.icon === "feather" && (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+                  )}
+                  <span>{item.name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <!-- 右栏：微信公众号二维码 与 COLOPHON 幕后出版规格 -->
+        <aside class="about-col-side">
+          <!-- 微信公众号专属卡片 -->
+          <div class="wechat-card" id="wechat-card">
+            <div class="wechat-header">
+              <div class="wechat-header-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="wechat-icon"><path d="M8.691 2.188C3.891 2.188 0 5.478 0 9.53c0 2.212 1.17 4.203 3.002 5.552L2.08 18.07c-.114.338.163.666.502.589l3.524-.803c.828.232 1.697.358 2.585.358.261 0 .52-.012.777-.034-.23-.654-.36-1.353-.36-2.079 0-3.799 3.824-6.88 8.541-6.88.423 0 .838.026 1.246.074C18.067 5.093 13.805 2.188 8.691 2.188zm-2.39 4.39a1.094 1.094 0 1 1 0 2.188 1.094 1.094 0 0 1 0-2.188zm4.782 0a1.094 1.094 0 1 1 0 2.188 1.094 1.094 0 0 1 0-2.188zm6.544 3.723c-4.04 0-7.315 2.766-7.315 6.178 0 1.865.986 3.542 2.529 4.679l-.776 2.521c-.097.285.138.562.423.497l2.97-.677c.697.195 1.43.302 2.179.302 4.04 0 7.315-2.766 7.315-6.178 0-3.412-3.275-6.178-7.325-6.178zm-2.133 3.693a.922.922 0 1 1 0 1.844.922.922 0 0 1 0-1.844zm4.265 0a.922.922 0 1 1 0 1.844.922.922 0 0 1 0-1.844z"/></svg>
+                <span>微信公众号</span>
+              </div>
+              <span class="wechat-badge">OFFICIAL</span>
+            </div>
+            <div class="wechat-qr-body">
+              <div class="wechat-qr-box">
+                <img
+                  src="https://pic1.imgdb.cn/i/034IJ9x5hhAP5kGdKSrV7l.jpg"
+                  alt="微信公众号二维码"
+                  width="170"
+                  height="170"
+                  class="wechat-qr-img"
+                  loading="lazy"
+                />
+              </div>
+              <p class="wechat-qr-desc">微信扫码关注 · 同步长文与随想</p>
+            </div>
+          </div>
+
+          <div class="colophon-card">
+            <div class="colophon-header">
+              <span class="colophon-badge">COLOPHON</span>
+              <span class="colophon-badge-sub">幕后印记</span>
+            </div>
+
+            <div class="colophon-list">
+              {colophonData.map((item) => (
+                <div class="colophon-item">
+                  <dt class="colophon-dt">{item.label}</dt>
+                  <dd class="colophon-dd">{item.value}</dd>
+                </div>
+              ))}
+            </div>
+
+            <div class="colophon-footer">
+              <div class="colophon-status-indicator">
+                <span class="status-ping"></span>
+                <span class="status-text">Operational · Edge Deployed</span>
+              </div>
+              <p class="colophon-stamp">
+                STATIONED IN CHENGDU / XIAMEN / CYBERSPACE
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</StarlightPage>
+
+<style>
+  .about-page {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - var(--sl-nav-height));
+    padding: 3rem 1.5rem 5rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* 背景环境氛围 */
+  .about-bg-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .about-stardust {
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+    background-image: 
+      radial-gradient(1px 1px at 20px 30px, var(--sl-color-accent), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 80px 140px, var(--sl-color-white), rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 150px 70px, var(--sl-color-accent-high), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 240px 210px, var(--sl-color-accent), rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 340px 120px, var(--sl-color-white), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 480px 320px, var(--sl-color-accent-high), rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 620px 180px, var(--sl-color-accent), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 780px 290px, var(--sl-color-white), rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 920px 110px, var(--sl-color-accent-high), rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 1000px 600px;
+  }
+
+  :global([data-theme="dark"]) .about-stardust {
+    opacity: 0.55;
+  }
+
+  .about-glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+
+  .about-glow-orb-1 {
+    top: 5%;
+    right: 15%;
+    width: 32rem;
+    height: 32rem;
+    background: radial-gradient(circle, color-mix(in srgb, var(--sl-color-accent) 12%, transparent) 0%, transparent 70%);
+  }
+
+  .about-glow-orb-2 {
+    top: 40%;
+    left: 10%;
+    width: 28rem;
+    height: 28rem;
+    background: radial-gradient(circle, color-mix(in srgb, var(--sl-color-accent-high) 8%, transparent) 0%, transparent 70%);
+  }
+
+  .about-lily-backdrop {
+    position: absolute;
+    right: -2rem;
+    top: 15rem;
+    width: 22rem;
+    height: 22rem;
+    opacity: 0.18;
+    transform: rotate(15deg);
+  }
+
+  :global([data-theme="dark"]) .about-lily-backdrop {
+    opacity: 0.12;
+  }
+
+  /* 容器主布局 */
+  .about-container {
+    position: relative;
+    z-index: 1;
+    max-width: 68rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  /* 头部区域 */
+  .about-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+
+  .about-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .about-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--sl-color-accent);
+    box-shadow: 0 0 8px var(--sl-color-accent);
+  }
+
+  .about-eyebrow-text {
+    font-family: var(--sl-font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--sl-color-accent);
+    font-weight: 600;
+  }
+
+  .about-title {
+    font-family: "Songti SC", "Source Han Serif SC", "FZLanTingHei", "Noto Serif CJK SC", "STSong", "SimSun", serif;
+    font-size: 3.4rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.15;
+    margin: 0;
+    color: var(--sl-color-white);
+  }
+
+  .about-subtitle {
+    font-size: 0.95rem;
+    color: var(--sl-color-gray-3);
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+
+  /* 核心双栏排版 */
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: start;
+  }
+
+  /* 左栏：作者资料与文字 */
+  .about-col-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .about-author-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.15rem 1.4rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
+    border: 1px solid var(--sl-color-gray-6);
+    backdrop-filter: blur(8px);
+  }
+
+  .about-avatar-ring {
+    width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--sl-color-accent);
+    box-shadow: 0 0 16px rgba(112, 147, 200, 0.28);
+    flex-shrink: 0;
+  }
+
+  .about-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .about-author-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .about-author-name {
+    font-family: "Songti SC", "Source Han Serif SC", serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    letter-spacing: 0.04em;
+  }
+
+  .about-author-alias {
+    font-size: 0.95rem;
+    color: var(--sl-color-accent);
+    font-family: var(--sl-font-mono);
+    font-weight: 400;
+  }
+
+  .about-author-role {
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-3);
+    letter-spacing: 0.02em;
+  }
+
+  /* 散文阅读排版 */
+  .about-prose {
+    font-size: 1.02rem;
+    line-height: 1.85;
+    color: var(--sl-color-gray-2);
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+  }
+
+  .about-lead {
+    font-size: 1.16rem;
+    color: var(--sl-color-white);
+    line-height: 1.75;
+  }
+
+  .about-lead strong {
+    color: var(--sl-color-accent);
+    font-weight: 600;
+  }
+
+  .about-prose blockquote {
+    margin: 1rem 0;
+    padding: 0.85rem 1.4rem;
+    border-left: 3px solid var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 5%, transparent);
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--sl-color-white);
+    letter-spacing: 0.04em;
+  }
+
+  .about-prose blockquote p {
+    margin: 0;
+  }
+
+  .about-prose a {
+    color: var(--sl-color-accent-high);
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 0.05em 0.08em;
+    border-radius: 0.25em;
+    position: relative;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .about-prose a::after {
+    content: "";
+    position: absolute;
+    left: 0.1em;
+    right: 0.1em;
+    bottom: 0.02em;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--sl-color-accent) 15%, var(--sl-color-accent) 85%, transparent);
+    opacity: 0.6;
+    transition: opacity 0.2s ease, height 0.2s ease;
+  }
+
+  .about-prose a:hover {
+    color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 8%, transparent);
+  }
+
+  .about-prose a:hover::after {
+    opacity: 1;
+    height: 2px;
+  }
+
+  .about-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--sl-color-gray-6), transparent);
+  }
+
+  .divider-star {
+    font-size: 0.75rem;
+    color: var(--sl-color-accent);
+  }
+
+  .about-section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: "Songti SC", "Source Han Serif SC", serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    letter-spacing: 0.05em;
+    margin: 0.5rem 0 0;
+  }
+
+  .section-title-mark {
+    color: var(--sl-color-accent);
+    font-size: 1.1rem;
+  }
+
+  /* 社交外链药丸群 */
+  .about-social-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 1rem;
+  }
+
+  .about-social-title {
+    font-family: var(--sl-font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    color: var(--sl-color-gray-4);
+    font-weight: 600;
+  }
+
+  .about-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .about-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2) !important;
+    text-decoration: none !important;
+    font-size: 0.84rem;
+    transition: all 0.2s ease;
+  }
+
+  .about-pill:hover {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent) !important;
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--sl-color-accent) 14%, transparent);
+  }
+
+  .about-icon-text {
+    font-size: 0.72rem;
+    font-family: var(--sl-font-mono);
+    font-weight: 700;
+    padding: 0.1rem 0.25rem;
+    border-radius: 4px;
+    background: var(--sl-color-gray-5);
+    color: var(--sl-color-white);
+    line-height: 1;
+  }
+
+  /* 右栏：微信公众号与 COLOPHON 面板 */
+  .about-col-side {
+    position: sticky;
+    top: calc(var(--sl-nav-height) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .wechat-card {
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-bg);
+    border-radius: 1.25rem;
+    padding: 1.35rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(12px);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .wechat-card:hover {
+    border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
+    box-shadow: 0 6px 28px color-mix(in srgb, var(--sl-color-accent) 8%, transparent);
+  }
+
+  .wechat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+
+  .wechat-header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "Songti SC", "Source Han Serif SC", "FZLanTingHei", serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    letter-spacing: 0.04em;
+  }
+
+  .wechat-icon {
+    color: #07c160;
+  }
+
+  .wechat-badge {
+    font-family: var(--sl-font-mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  .wechat-qr-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .wechat-qr-box {
+    position: relative;
+    padding: 0.5rem;
+    border-radius: 0.85rem;
+    background: #ffffff;
+    border: 1px solid var(--sl-color-gray-5);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+  }
+
+  .wechat-qr-box:hover {
+    transform: scale(1.02);
+  }
+
+  .wechat-qr-img {
+    width: 156px;
+    height: 156px;
+    object-fit: cover;
+    display: block;
+    border-radius: 0.5rem;
+  }
+
+  .wechat-qr-desc {
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
+    margin: 0;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  .colophon-card {
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-bg);
+    border-radius: 1.25rem;
+    padding: 1.5rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(12px);
+    transition: border-color 0.2s ease;
+  }
+
+  .colophon-card:hover {
+    border-color: var(--sl-color-gray-5);
+  }
+
+  .colophon-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+
+  .colophon-badge {
+    font-family: var(--sl-font-mono);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--sl-color-white);
+  }
+
+  .colophon-badge-sub {
+    font-size: 0.76rem;
+    font-family: "Songti SC", "Source Han Serif SC", serif;
+    color: var(--sl-color-gray-4);
+    letter-spacing: 0.08em;
+  }
+
+  .colophon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .colophon-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+  }
+
+  .colophon-dt {
+    font-family: var(--sl-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    color: var(--sl-color-gray-4);
+    text-transform: uppercase;
+  }
+
+  .colophon-dd {
+    font-size: 0.86rem;
+    color: var(--sl-color-gray-2);
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .colophon-footer {
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--sl-color-gray-6);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .colophon-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .status-ping {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+    animation: status-pulse 2.2s infinite ease-in-out;
+  }
+
+  @keyframes status-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .status-text {
+    font-family: var(--sl-font-mono);
+    font-size: 0.72rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .colophon-stamp {
+    font-family: var(--sl-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--sl-color-gray-4);
+    margin: 0;
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 64rem) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .about-col-side {
+      position: static;
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .about-page {
+      padding: 1.5rem 1rem 3.5rem;
+    }
+
+    .about-title {
+      font-size: 2.6rem;
+    }
+
+    .about-author-card {
+      padding: 0.95rem 1.1rem;
+      gap: 1rem;
+    }
+
+    .about-avatar-ring {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+
+    .about-prose {
+      font-size: 0.95rem;
+      line-height: 1.75;
+    }
+  }
+</style>

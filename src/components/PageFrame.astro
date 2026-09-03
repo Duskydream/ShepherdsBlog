@@ -89,6 +89,15 @@ import LilyOrnament from "./LilyOrnament.astro";
       padding-inline: 0.5rem;
     }
 
+    @media (max-width: 50rem) {
+      :global(.content-panel) {
+        padding: 0.85rem 0.85rem 3rem !important;
+      }
+      :global(.content-panel:has(.not-content)) {
+        padding: 0.85rem 0.85rem 3rem !important;
+      }
+    }
+
     /* Floating Floral Drawer：透明点击层 + 不透明主题色面板，不变暗不聚焦 */
     .drawer-scrim {
       position: fixed;
