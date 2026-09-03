@@ -10,6 +10,7 @@
     "refresh:bangumi": "node ./scripts/fetch-bangumi.mjs",
     "sync:commits": "node ./scripts/sync-commits.mjs",
     "build": "pnpm run sync:commits && pnpm run refresh:bangumi && astro build",
+    "build:fast": "astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
     "deploy": "pnpm run check && node ./scripts/deploy.mjs",
     "preview": "astro preview",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "katex": "^0.16.22",
+    "potrace": "^2.1.8",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "typescript": "^5.9.2"

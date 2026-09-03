@@ -13,7 +13,7 @@ const shouldRenderSearch =
 const rawPathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const navLinks = [
   { href: '/article', zh: '散文', en: 'ESSAY', match: (p: string) => p === '/article' || p.startsWith('/blog') },
-  { href: '/coding', zh: '笔记', en: 'NOTES', match: (p: string) => p === '/coding' || p.startsWith('/coding-notes') },
+  { href: '/notes', zh: '笔记', en: 'NOTES', match: (p: string) => p === '/notes' || p.startsWith('/coding-notes') },
   { href: '/anime', zh: '鉴赏', en: 'REVIEW', match: (p: string) => p.startsWith('/anime') },
   { href: '/log', zh: '日常', en: 'LOG', match: (p: string) => p === '/log' || p.startsWith('/log') },
   { href: '/about', zh: '关于', en: 'ABOUT', match: (p: string) => p.startsWith('/about') },

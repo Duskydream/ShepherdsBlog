@@ -19,10 +19,9 @@ async function fetchCollection(type) {
   const all = [];
 
   while (true) {
-    const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}&t=${Date.now()}`;
+    const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}`;
     const res = await fetch(url, {
       headers: { "User-Agent": "ShepherdBlog/1.0 (+github.com/Duskydream)" },
-      cache: "no-store",
     });
 
     if (!res.ok) {

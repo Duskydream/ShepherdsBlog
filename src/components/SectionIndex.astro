@@ -59,7 +59,10 @@ const sectionLabel = title || labelFromSlug(section);
       </div>
 
       <div class="section-index-card-body">
-        <div class="section-index-timeline">
+        <div
+          class="section-index-timeline"
+          data-floral-vine='{"items": ":scope > .section-index-item", "vineX": 5.8, "meander": 2}'
+        >
           {
             posts.map((post) => (
               <article class="section-index-item" data-level={sectionLevel}>
@@ -384,4 +387,10 @@ const sectionLabel = title || labelFromSlug(section);
       }
     }
   </style>
+
+  <script>
+    import { bindFloralVines } from "../utils/floral-vine";
+    bindFloralVines();
+    document.addEventListener("astro:page-load", () => bindFloralVines());
+  </script>
 </StarlightPage>

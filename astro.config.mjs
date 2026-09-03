@@ -27,7 +27,9 @@ function rehypeImageHints() {
 
 export default defineConfig({
   site: "https://duskydream.icu",
-  prefetch: true,
+  // Avoid fetching every visible navigation target up front. Hover prefetch keeps
+  // navigation feeling instant without competing with the current page's assets.
+  prefetch: { defaultStrategy: "hover" },
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],

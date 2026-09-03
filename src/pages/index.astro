@@ -1,6 +1,7 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import LilyOrnament from "../components/LilyOrnament.astro";
+import HeroTitleBanner from "../components/HeroTitleBanner.astro";
 import { getCollection } from "astro:content";
 import { execSync } from "node:child_process";
 
@@ -168,23 +169,8 @@ if (sortedDates.length > 0) {
 
       <div class="home-hero-content">
         <div class="home-hero-centerpiece">
-          <!-- 顶部日文假名 -->
-          <div class="home-hero-furigana">
-            <span class="furigana-star">✦</span>
-            <span class="furigana-text">いのりのはなにわ</span>
-            <span class="furigana-star">✦</span>
-          </div>
-
-          <!-- 核心主标题：祈りの花庭（纯正衬线宋体） -->
-          <h1 class="home-hero-main-title">祈りの花庭</h1>
-
-          <!-- 优雅下划线与 Romaji 分割 -->
-          <div class="home-hero-romaji-bar">
-            <span class="romaji-line"></span>
-            <span class="romaji-star">✦</span>
-            <span class="romaji-text">inori-no-hananiwa</span>
-            <span class="romaji-line"></span>
-          </div>
+          <!-- 核心艺术标题（代码级矢量重构与动效编排） -->
+          <HeroTitleBanner />
 
           <!-- 副标题标语 -->
           <p class="home-hero-motto-text">
@@ -209,7 +195,7 @@ if (sortedDates.length > 0) {
           <div class="home-hero-nav-wrapper">
             <div class="home-hero-quicknav">
               <a href="/article" class="home-quick-pill">✦ 散文随笔<span class="pill-en"> (Essay)</span></a>
-              <a href="/coding" class="home-quick-pill">✦ 月累笔记<span class="pill-en"> (Notes)</span></a>
+              <a href="/notes" class="home-quick-pill">✦ 月累笔记<span class="pill-en"> (Notes)</span></a>
               <a href="/anime" class="home-quick-pill">✦ 鉴赏记录<span class="pill-en"> (Review)</span></a>
               <a href="/log" class="home-quick-pill">✦ 岁月手记<span class="pill-en"> (Log)</span></a>
             </div>
@@ -469,7 +455,7 @@ if (sortedDates.length > 0) {
       position: relative;
       z-index: 2;
       padding: 1.25rem 2.5rem 2.5rem;
-      margin-top: 0;
+      margin-top: -5.25rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -487,98 +473,6 @@ if (sortedDates.length > 0) {
       width: 100%;
       max-width: 58rem;
       padding: 0.5rem 1rem 0.25rem;
-    }
-
-    /* 顶部流动日文假名 */
-    .home-hero-furigana {
-      position: relative;
-      z-index: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.65rem;
-      font-family: "Songti SC", "Source Han Serif SC", "FZLanTingHei", "Yu Mincho", serif;
-      font-size: 1.35rem;
-      color: #416699;
-      letter-spacing: 0.22em;
-      margin-bottom: -0.15rem;
-      opacity: 0.95;
-      animation: hero-fade-down 0.8s ease-out both;
-    }
-
-    :global([data-theme="dark"]) .home-hero-furigana {
-      color: #7fa8e8;
-    }
-
-    .furigana-star {
-      font-size: 0.85rem;
-      color: currentColor;
-      opacity: 0.85;
-      filter: drop-shadow(0 0 3px currentColor);
-    }
-
-    .furigana-text {
-      font-style: italic;
-    }
-
-    /* 核心大标题：祈りの花庭（深蓝宋体，字号加大） */
-    .home-hero-main-title {
-      position: relative;
-      z-index: 1;
-      font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", "SimSun", "NSimSun", "宋体", "Hiragino Mincho ProN", serif;
-      font-size: 4.35rem;
-      font-weight: 600;
-      letter-spacing: 0.28em;
-      margin: 0.35rem 0 0.5rem;
-      text-indent: 0.28em; /* 补偿末字 letter-spacing */
-      line-height: 1.25;
-      background: linear-gradient(180deg, #496699 0%, #3d5a8c 55%, #2e4670 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 12px rgba(73, 102, 153, 0.3));
-      animation: hero-fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-    }
-
-    :global([data-theme="dark"]) .home-hero-main-title {
-      color: #7fa8e8;
-      -webkit-text-fill-color: #7fa8e8;
-      filter: drop-shadow(0 2px 14px rgba(127, 168, 232, 0.35));
-    }
-
-    /* 优雅 Romaji 分割横条 */
-    .home-hero-romaji-bar {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.85rem;
-      width: 100%;
-      max-width: 32rem;
-      margin: 0.15rem 0 0.85rem;
-      animation: hero-fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-    }
-
-    .romaji-line {
-      flex: 1 1 auto;
-      height: 1px;
-      background: linear-gradient(to right, transparent, color-mix(in srgb, var(--sl-color-accent) 45%, transparent), transparent);
-    }
-
-    .romaji-star {
-      font-size: 0.75rem;
-      color: var(--sl-color-accent);
-      flex-shrink: 0;
-    }
-
-    .romaji-text {
-      font-family: var(--sl-font-mono);
-      font-size: 0.76rem;
-      color: var(--sl-color-gray-3);
-      letter-spacing: 0.18em;
-      text-transform: lowercase;
-      flex-shrink: 0;
     }
 
     /* 副标题标语 */
@@ -1132,6 +1026,7 @@ if (sortedDates.length > 0) {
 
       .home-hero-content {
         padding: 1.1rem 1rem 1.85rem;
+        margin-top: -4.5rem;
         gap: 1.35rem;
         width: 100%;
         max-width: 100%;

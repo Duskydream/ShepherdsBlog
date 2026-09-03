@@ -142,12 +142,16 @@ export function bindFloralVines() {
   const w = window as unknown as {
     __fvBound?: boolean;
     __fvObserver?: MutationObserver;
+    __fvRedrawAll?: () => void;
   };
 
-  const redrawAll = () =>
-    document
-      .querySelectorAll<HTMLElement>("[data-floral-vine]")
-      .forEach(renderFloralVine);
+  const redrawAll =
+    w.__fvRedrawAll ??
+    (() =>
+      document
+        .querySelectorAll<HTMLElement>("[data-floral-vine]")
+        .forEach(renderFloralVine));
+  w.__fvRedrawAll = redrawAll;
 
   // 忽略生成器自身重插 SVG 引起的变更，避免重画死循环
   const isSvgChurn = (m: MutationRecord) =>
