@@ -1016,8 +1016,15 @@ if (sortedDates.length > 0) {
         overflow: hidden;
       }
 
-      .home-hero-decor {
+      .home-hero-decor > :last-child {
         display: none;
+      }
+
+      .home-hero-decor > :first-child {
+        right: -8px;
+        bottom: -10px;
+        width: min(46%, 230px);
+        opacity: 0.55;
       }
 
       .home-hero-banner {

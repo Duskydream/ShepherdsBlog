@@ -647,6 +647,18 @@ body .sl-markdown-content p:has(picture) {
 }
 
 /* =========================================
+   弹性布局安全：允许正文列沿 flex 链收缩，
+   超长代码行/宽表由 pre/table 内部横向滚动承载
+   ========================================= */
+.main-frame,
+.two-column-layout,
+.main-pane,
+main,
+.content-panel {
+  min-width: 0;
+}
+
+/* =========================================
    移动端响应式与防横向溢出 (Mobile Safety)
    ========================================= */
 html, body {
@@ -688,6 +700,26 @@ html, body {
     width: 100% !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* 移动端长内容强制可折行：行内代码/表格单元格/长链，避免把正文顶出视口 */
+  .sl-markdown-content :not(pre) > code {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .sl-markdown-content th,
+  .sl-markdown-content td,
+  .sl-markdown-content li {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .sl-markdown-content a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .sl-markdown-content blockquote {
