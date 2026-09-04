@@ -367,6 +367,18 @@ body .sl-markdown-content h2 {
 
 /* 5. 桌面右栏目录：藤蔓与节点花由 floral-vine 元算法生成 (Aligned Floral TOC) */
 
+/* Starlight core pins the right TOC with `position: fixed`. Keep it in the
+   page flow so it scrolls away together with the article on desktop. */
+@media (min-width: 72rem) {
+  .right-sidebar-container .right-sidebar {
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
 starlight-toc nav h2 {
   padding-inline-start: 2rem;
 }
