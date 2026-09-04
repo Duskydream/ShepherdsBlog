@@ -90,7 +90,11 @@ export function renderFloralVine(container: HTMLElement) {
     ...anchors,
     {
       x: opts.vineX,
-      y: Math.min(anchors[anchors.length - 1].y + 16, height - 2),
+      // Keep the stem alive through the whole TOC container.  Using only
+      // `last anchor + 16px` makes the vine stop near the top when the last
+      // item wraps onto several lines (the item still occupies the remaining
+      // height, but its anchor is intentionally capped near the first line).
+      y: Math.max(anchors[anchors.length - 1].y + 16, height - 2),
     },
   ];
 
@@ -165,6 +169,17 @@ export function bindFloralVines() {
   const observeContainer = (container: HTMLElement) => {
     if (container.dataset.fvObserved) return;
     container.dataset.fvObserved = "1";
+
+    // TOC height can change after fonts finish loading or when a responsive
+    // layout changes width. Those changes do not emit mutations or a window
+    // resize event, so keep the SVG geometry in sync with the actual box.
+    if (typeof ResizeObserver !== "undefined") {
+      const resizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(() => renderFloralVine(container));
+      });
+      resizeObserver.observe(container);
+    }
+
     new MutationObserver((mutations) => {
       if (mutations.every(isSvgChurn)) return;
       if (

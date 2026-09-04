@@ -1,0 +1,160 @@
+---
+import { friendLinks } from "../data/friend-links.js";
+
+const links = friendLinks;
+---
+
+<div class="friend-links-grid" aria-label="友情链接">
+  {links.map((item, index) => {
+    const isInvite = !item.github;
+    const githubUrl = item.github;
+    const username = githubUrl?.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "");
+    const avatar = username ? `https://github.com/${username}.png?size=160` : "";
+
+    return (
+      <a
+        class:list={["friend-link-card", { "friend-link-card--invite": isInvite }]}
+        href={item.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={`--friend-index:${index}`}
+      >
+        <span class="friend-link-card-glow" aria-hidden="true"></span>
+        <span class="friend-link-avatar-wrap">
+          {isInvite ? (
+            <span class="friend-link-invite-mark" aria-hidden="true">✦</span>
+          ) : (
+            <img class="friend-link-avatar" src={avatar} alt={`${item.label} GitHub 头像`} width="72" height="72" loading="lazy" />
+          )}
+        </span>
+        <span class="friend-link-content">
+          <span class="friend-link-name">{item.label}</span>
+          <span class="friend-link-description">{item.description}</span>
+        </span>
+        <span class="friend-link-arrow" aria-hidden="true">↗</span>
+      </a>
+    );
+  })}
+</div>
+
+<style>
+  .friend-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .friend-link-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 7.25rem;
+    padding: 1.1rem 1.15rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 18%, var(--sl-color-gray-5));
+    border-radius: 1rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--sl-color-bg) 88%, var(--sl-color-accent) 12%), var(--sl-color-gray-7));
+    color: var(--sl-color-text) !important;
+    text-decoration: none !important;
+    box-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--sl-color-accent) 7%, transparent);
+    animation: friend-link-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--friend-index) * 80ms);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .friend-link-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--sl-color-accent) 55%, var(--sl-color-gray-5));
+    box-shadow: 0 0.8rem 2rem color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
+  }
+
+  .friend-link-card-glow {
+    position: absolute;
+    width: 8rem;
+    height: 8rem;
+    right: -3rem;
+    top: -4rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--sl-color-accent) 15%, transparent);
+    filter: blur(1.5rem);
+    pointer-events: none;
+  }
+
+  .friend-link-avatar-wrap {
+    position: relative;
+    flex: 0 0 auto;
+    padding: 3px;
+    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 55%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--sl-color-bg) 75%, var(--sl-color-accent) 25%);
+  }
+
+  .friend-link-avatar {
+    display: block;
+    width: 4.1rem;
+    height: 4.1rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .friend-link-content {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .friend-link-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .friend-link-description {
+    color: var(--sl-color-gray-2);
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  .friend-link-arrow {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.8rem;
+    color: var(--sl-color-accent-high);
+    font-size: 1.15rem;
+    transition: transform 0.25s ease;
+  }
+
+  .friend-link-card:hover .friend-link-arrow { transform: translate(2px, -2px); }
+
+  .friend-link-card--invite {
+    border-style: dashed;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--sl-color-accent) 10%, var(--sl-color-bg)), var(--sl-color-gray-7));
+  }
+
+  .friend-link-card--invite .friend-link-avatar-wrap {
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--sl-color-accent) 14%, var(--sl-color-bg));
+  }
+
+  .friend-link-invite-mark {
+    display: grid;
+    width: 4.1rem;
+    height: 4.1rem;
+    place-items: center;
+    color: var(--sl-color-accent-high);
+    font-size: 1.8rem;
+  }
+
+  @keyframes friend-link-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 34rem) {
+    .friend-link-card { min-height: 6.5rem; }
+    .friend-link-avatar { width: 3.5rem; height: 3.5rem; }
+  }
+</style>
