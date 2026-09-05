@@ -5,6 +5,7 @@
  */
 const USER_ID = "duskydream";
 const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
+const TIMELINE_URL = `https://bgm.tv/feed/user/${USER_ID}/timeline`;
 const LIMIT = 30;
 const CACHE_TTL = 15 * 60 * 1000;
 const DEBUG_MAX_BODY = 400;
@@ -45,19 +46,66 @@ async function fetchCollection(type) {
   return all;
 }
 
+async function fetchTimeline() {
+  try {
+    const res = await fetch(TIMELINE_URL, {
+      headers: {
+        "User-Agent": "ShepherdBlog/1.0 (+github.com/Duskydream)",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const text = await res.text();
+    const items = [];
+    for (const match of text.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+      const raw = match[1];
+      const value = (pattern) => {
+        const found = raw.match(pattern);
+        return found ? found[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '';
+      };
+      const title = value(/<title>([\s\S]*?)<\/title>/);
+      const desc = value(/<description>([\s\S]*?)<\/description>/);
+      const pubDate = value(/<pubDate>([\s\S]*?)<\/pubDate>/);
+      const guid = value(/<guid[^>]*>([\s\S]*?)<\/guid>/);
+      const subjectMatch = desc.match(/href="https?:\/\/bgm\.tv\/subject\/(\d+)"/);
+      const cnNameMatch = desc.match(/data-subject-name-cn="([^"]*)"/);
+      const actionMatch = title.match(/^(在玩|读过|在读|想读|看过|在看|想看|想玩|搁置|抛弃)/);
+      const action = actionMatch ? actionMatch[1] : '更新了';
+      items.push({
+        guid, title, action,
+        cleanTitle: title.replace(/^(在玩|读过|在读|想读|看过|在看|想看|想玩|搁置|抛弃)\s*/, ''),
+        subjectId: subjectMatch ? Number(subjectMatch[1]) : 0,
+        subjectNameCn: cnNameMatch ? cnNameMatch[1] : '',
+        pubDate,
+        dateFormatted: pubDate ? new Date(pubDate).toISOString().slice(0, 10) : '',
+      });
+    }
+    return items;
+  } catch {
+    return [];
+  }
+}
+
 async function getData(force) {
   const now = Date.now();
   if (!force && memoryCache && now - memoryCache.cachedAt < CACHE_TTL) {
     return memoryCache;
   }
 
-  const [watching, wish, watched] = await Promise.all([
+  const [watching, wish, watched, timeline] = await Promise.all([
     fetchCollection(3),
     fetchCollection(1),
     fetchCollection(2),
+    fetchTimeline(),
   ]);
 
-  memoryCache = { watching, wish, watched, cachedAt: now };
+  memoryCache = {
+    watching, wish, watched,
+    timeline: timeline.length > 0 ? timeline : (memoryCache?.timeline || []),
+    cachedAt: now,
+  };
   return memoryCache;
 }
 
