@@ -1,0 +1,19 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import Floral from "../components/Floral.astro";
+---
+
+<StarlightPage
+  frontmatter={{ title: "花径迷途", template: "splash", tableOfContents: false }}
+  hasSidebar={false}
+>
+  <section class="not-found not-content">
+    <div class="not-found-art" aria-hidden="true">
+      <Floral variant="bud" class="not-found-bud" />
+    </div>
+    <p class="not-found-code">404</p>
+    <h1>花径迷途</h1>
+    <p class="not-found-desc">这一枝没有通向任何庭院，也许它还在生长。</p>
+    <a class="not-found-home" href="/"><Floral variant="bloom" class="not-found-home-floral" />返回祈りの花庭</a>
+  </section>
+</StarlightPage>

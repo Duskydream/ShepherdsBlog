@@ -151,17 +151,6 @@ if (sortedDates.length > 0) {
   <div class="home-dashboard not-content">
     <!-- Hero / Profile -->
     <section class="home-hero">
-      <div class="home-hero-banner">
-        <img
-          src="https://pic1.imgdb.cn/i/034HC8xfJdk5i0JelBlVVz.jpg"
-          alt="祈りの花庭"
-          class="home-hero-banner-img"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <div class="home-hero-banner-overlay"></div>
-      </div>
       <div class="home-hero-decor" aria-hidden="true">
         <LilyOrnament id="lily-br" />
         <LilyOrnament id="lily-tl" />
@@ -193,67 +182,15 @@ if (sortedDates.length > 0) {
           </div>
 
           <div class="home-hero-nav-wrapper">
-            <div class="home-hero-quicknav">
-              <a href="/article" class="home-quick-pill">✦ 散文随笔<span class="pill-en"> (Essay)</span></a>
-              <a href="/notes" class="home-quick-pill">✦ 月累笔记<span class="pill-en"> (Notes)</span></a>
-              <a href="/anime" class="home-quick-pill">✦ 鉴赏记录<span class="pill-en"> (Review)</span></a>
-              <a href="/log" class="home-quick-pill">✦ 岁月手记<span class="pill-en"> (Log)</span></a>
-            </div>
             <div class="home-hero-about-subrow">
               <a href="/about" class="home-hero-about-link" title="关于Shepherd和祈りの花庭">
-                <span class="about-sub-dot">●</span>
                 <span class="about-sub-text">关于Shepherd和祈りの花庭</span>
                 <span class="about-sub-en">ABOUT</span>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <svg class="about-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
             </div>
           </div>
 
-          <div class="home-hero-socials">
-            <a
-              href="https://github.com/Duskydream"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="home-social-btn"
-              aria-label="GitHub"
-              title="GitHub"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            </a>
-            <a
-              href="https://t.me/inorinohananiwa"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="home-social-btn"
-              aria-label="Telegram"
-              title="Telegram"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="m20.665 3.717-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l-.313 4.67c.458 0 .66-.21.916-.457l2.199-2.138 4.574 3.379c.844.464 1.45.225 1.66-.785l3.003-14.146c.308-1.233-.472-1.792-1.515-1.32z"/></svg>
-            </a>
-            <a
-              href="https://x.com/Lxzm1211"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="home-social-btn"
-              aria-label="X"
-              title="X (Twitter)"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </a>
-            <a
-              href="https://space.bilibili.com/198625051"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="home-social-btn"
-              aria-label="Bilibili"
-              title="Bilibili"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386z"/></svg>
-            </a>
-            <a href="mailto:lxzm1211@outlook.com" class="home-social-btn" aria-label="Email" title="Email">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
-            </a>
-          </div>
         </div>
       </div>
     </section>
@@ -407,55 +344,23 @@ if (sortedDates.length > 0) {
       position: absolute;
       right: -12px;
       bottom: -14px;
-      width: min(56%, 460px);
+      width: min(46%, 380px);
       opacity: 0.95;
     }
 
     .home-hero-decor > :last-child {
       position: absolute;
       left: -16px;
-      top: 195px;
+      top: 345px;
       width: min(40%, 320px);
       transform: scaleX(-1);
       opacity: 0.42;
     }
 
-    .home-hero-banner {
-      position: relative;
-      width: 100%;
-      height: 280px;
-      overflow: hidden;
-      mask-image: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 1) 0%,
-        rgba(0, 0, 0, 1) 50%,
-        rgba(0, 0, 0, 0.85) 72%,
-        rgba(0, 0, 0, 0.35) 88%,
-        transparent 100%
-      );
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 1) 0%,
-        rgba(0, 0, 0, 1) 50%,
-        rgba(0, 0, 0, 0.85) 72%,
-        rgba(0, 0, 0, 0.35) 88%,
-        transparent 100%
-      );
-    }
-
-    .home-hero-banner-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 25%;
-      display: block;
-    }
-
     .home-hero-content {
       position: relative;
       z-index: 2;
-      padding: 1.25rem 2.5rem 2.5rem;
-      margin-top: -5.25rem;
+      padding: 2.5rem 2.5rem 2.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -533,16 +438,34 @@ if (sortedDates.length > 0) {
     }
 
     .home-hero-avatar {
+      position: relative;
       width: 3.2rem;
       height: 3.2rem;
       border-radius: 50%;
-      overflow: hidden;
+      overflow: visible;
       border: 2px solid var(--sl-color-accent);
       box-shadow: 0 0 16px rgba(112, 147, 200, 0.25);
       transition: all 0.3s ease;
       flex-shrink: 0;
       display: block;
       cursor: pointer;
+    }
+
+    .home-hero-avatar::after {
+      content: "";
+      position: absolute;
+      inset: -0.32rem;
+      opacity: 0.55;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-wreath) center / contain no-repeat;
+      mask: var(--floral-mask-wreath) center / contain no-repeat;
+      pointer-events: none;
+      transition: transform 0.4s ease, opacity 0.3s ease;
+    }
+
+    .home-hero-avatar:hover::after {
+      opacity: 0.9;
+      transform: rotate(18deg);
     }
 
     .home-hero-avatar:hover {
@@ -556,6 +479,7 @@ if (sortedDates.length > 0) {
       height: 100%;
       object-fit: cover;
       display: block;
+      border-radius: 50%;
     }
 
     .home-hero-info {
@@ -605,36 +529,30 @@ if (sortedDates.length > 0) {
     .home-hero-about-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.22rem 0.85rem;
-      border-radius: 999px;
+      gap: 0.5rem;
+      padding: 0.15rem 0.1rem;
       font-size: 0.75rem;
       color: var(--sl-color-gray-3);
       text-decoration: none !important;
-      border: 1px dashed color-mix(in srgb, var(--sl-color-accent) 40%, transparent);
-      background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
-      transition: all 0.25s ease;
+      transition: color 0.25s ease;
       letter-spacing: 0.03em;
     }
 
     .home-hero-about-link:hover {
-      color: var(--sl-color-white);
-      border-color: var(--sl-color-accent);
-      border-style: solid;
-      background: color-mix(in srgb, var(--sl-color-accent) 14%, transparent);
-      box-shadow: 0 2px 10px color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
-      transform: translateY(-1px);
-    }
-
-    .about-sub-dot {
       color: var(--sl-color-accent);
-      font-size: 0.5rem;
     }
 
+    /* 伸展的花枝：由左向右长出，末端引出 about 链接 */
     .about-sub-text {
       font-family: "Songti SC", "Source Han Serif SC", serif;
       font-size: 0.78rem;
       letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 768px) {
+      .about-branch {
+        width: 4rem;
+      }
     }
 
     .about-sub-en {
@@ -1023,17 +941,12 @@ if (sortedDates.length > 0) {
       .home-hero-decor > :first-child {
         right: -8px;
         bottom: -10px;
-        width: min(46%, 230px);
+        width: min(38%, 190px);
         opacity: 0.55;
       }
 
-      .home-hero-banner {
-        height: 190px;
-      }
-
       .home-hero-content {
-        padding: 1.1rem 1rem 1.85rem;
-        margin-top: -4.5rem;
+        padding: 2rem 1rem 1.85rem;
         gap: 1.35rem;
         width: 100%;
         max-width: 100%;

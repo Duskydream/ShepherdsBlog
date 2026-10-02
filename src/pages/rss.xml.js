@@ -17,7 +17,7 @@ export async function GET(context) {
   return rss({
     title: 'Shepherd\'s Blog',
     description: 'Learning notes and personal logs',
-    site: context.site || 'https://duskydream.icu',
+    site: context.site ?? new URL(context.url.origin),
     items: sortedPosts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date ? new Date(post.data.date) : new Date(),

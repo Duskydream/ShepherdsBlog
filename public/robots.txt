@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://duskydream.icu/sitemap-index.xml
+Sitemap: https://www.lxzm.space/sitemap-index.xml

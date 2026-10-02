@@ -1,4 +1,6 @@
 ---
+import Floral from "./Floral.astro";
+
 const PAGE_TITLE_ID = "_top";
 
 const { entry } = Astro.locals.starlightRoute;
@@ -24,7 +26,7 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
       {
         (formattedDate || readingTime || (tags && tags.length > 0)) && (
           <p class="page-meta">
-            <span class="page-meta-ornament" aria-hidden="true">❀</span>
+            <span class="page-meta-ornament" aria-hidden="true"><Floral variant="bloom" /></span>
             {formattedDate && <span>记录于：{formattedDate}</span>}
             {readingTime && <span>预计阅读：约 {readingTime} 分钟</span>}
             {tags && tags.length > 0 && <span>标签：{tags.join("、")}</span>}

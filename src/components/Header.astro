@@ -6,6 +6,7 @@ import Search from 'virtual:starlight/components/Search';
 import SiteTitle from 'virtual:starlight/components/SiteTitle';
 import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import Floral from './Floral.astro';
 
 const shouldRenderSearch =
   config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
@@ -29,7 +30,7 @@ const navLinks = [
       aria-label="打开目录"
       title="打开目录 (Catalog)"
     >
-      <span class="catalog-icon">✿</span>
+      <span class="catalog-icon"><Floral variant="bloom" /></span>
       <span class="catalog-label">目録</span>
     </button>
     <div class="title-wrapper sl-flex">
@@ -207,6 +208,20 @@ const navLinks = [
       border-radius: 999px;
       background-color: var(--sl-color-accent);
       box-shadow: 0 0 8px var(--sl-color-accent);
+    }
+
+    .nav-active-bar::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 100%;
+      transform: translateX(-50%);
+      width: 0.5rem;
+      height: 0.5rem;
+      margin-bottom: -1px;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+      mask: var(--floral-mask-bloom) center / contain no-repeat;
     }
 
     @media (min-width: 50rem) {

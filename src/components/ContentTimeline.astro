@@ -83,13 +83,17 @@ const timeline = posts
   .timeline-marker {
     position: relative;
     z-index: 1;
-    width: 0.72rem;
-    height: 0.72rem;
-    margin-top: 0.42rem;
-    border: 2px solid var(--sl-color-bg);
-    border-radius: 999px;
-    background: var(--timeline-blue, #8fb2da);
-    box-shadow: 0 0 0 1px var(--sl-color-gray-6);
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-top: 0.3rem;
+    background-color: var(--timeline-blue, #8fb2da);
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
+    transition: transform 0.2s ease;
+  }
+
+  .timeline-item:hover .timeline-marker {
+    transform: scale(1.15) rotate(12deg);
   }
 
   .timeline-content { min-width: 0; }

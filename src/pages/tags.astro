@@ -80,6 +80,24 @@ const tags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1] || a[0].
       text-decoration: none;
     }
 
+    .tags-index-list a::before {
+      content: "";
+      width: 0.7rem;
+      height: 0.7rem;
+      flex-shrink: 0;
+      opacity: 0.75;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-bud) center / contain no-repeat;
+      mask: var(--floral-mask-bud) center / contain no-repeat;
+      transition: opacity 0.2s ease;
+    }
+
+    .tags-index-list a:hover::before {
+      opacity: 1;
+      -webkit-mask-image: var(--floral-mask-bloom);
+      mask-image: var(--floral-mask-bloom);
+    }
+
     .tags-index-list a:hover {
       border-color: var(--sl-color-accent);
       color: var(--sl-color-accent);

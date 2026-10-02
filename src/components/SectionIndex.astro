@@ -1,6 +1,7 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getCollection } from "astro:content";
+import Floral from "./Floral.astro";
 
 type Props = {
   title: string;
@@ -46,13 +47,7 @@ const sectionLabel = title || labelFromSlug(section);
     <div class="section-index-card">
       <div class="section-index-card-head">
         <div class="section-index-card-title">
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 4v16"></path>
-            <circle cx="6" cy="7" r="2"></circle>
-            <circle cx="6" cy="17" r="2"></circle>
-            <path d="M10 7h9"></path>
-            <path d="M10 17h9"></path>
-          </svg>
+          <Floral variant="sprig" class="section-index-head-floral" />
           <span>{sectionLabel} Timeline</span>
         </div>
         <span class="section-index-count">{posts.length} posts</span>
@@ -168,6 +163,11 @@ const sectionLabel = title || labelFromSlug(section);
       flex: 0 0 auto;
       color: var(--sl-color-gray-3);
     }
+    .section-index-head-floral {
+      --floral-size: 1rem;
+      flex: 0 0 auto;
+      color: var(--sl-color-accent);
+    }
 
     .section-index-count {
       color: var(--sl-color-gray-4);
@@ -228,13 +228,16 @@ const sectionLabel = title || labelFromSlug(section);
     .section-index-marker {
       position: relative;
       z-index: 1;
-      width: 0.72rem;
-      height: 0.72rem;
-      margin-top: 0.42rem;
-      border: 2px solid var(--sl-color-bg);
-      border-radius: 999px;
-      background: var(--section-index-blue, #8fb2da);
-      box-shadow: 0 0 0 1px var(--sl-color-gray-6);
+      width: 0.9rem;
+      height: 0.9rem;
+      margin-top: 0.3rem;
+      background-color: var(--section-index-blue, #8fb2da);
+      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+      mask: var(--floral-mask-bloom) center / contain no-repeat;
+      transition: transform 0.2s ease;
+    }
+    .section-index-item:hover .section-index-marker {
+      transform: scale(1.15) rotate(12deg);
     }
 
     .section-index-content {

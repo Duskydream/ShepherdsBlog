@@ -38,7 +38,7 @@ function rehypeImageHints() {
 }
 
 export default defineConfig({
-  site: "https://duskydream.icu",
+  site: "https://www.lxzm.space",
   // Avoid fetching every visible navigation target up front. Hover prefetch keeps
   // navigation feeling instant without competing with the current page's assets.
   prefetch: { defaultStrategy: "hover" },
@@ -52,6 +52,7 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeRapide()],
       title: "祈りの花庭",
+      disable404Route: true,
       components: {
         Head: './src/components/Head.astro',
         ThemeProvider: './src/components/ThemeProvider.astro',

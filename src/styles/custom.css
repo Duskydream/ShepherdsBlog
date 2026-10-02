@@ -10,6 +10,11 @@
   --route-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
+/* 全局整体缩放：改这个百分比即可整体变大/变小 */
+html {
+  font-size: 90%;
+}
+
 @keyframes floral-grow-in {
   from {
     opacity: 0;
@@ -95,6 +100,71 @@
     fv-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards,
     floral-twinkle 2.6s ease-in-out 1.2s infinite;
 }
+
+/* 左侧目录里的节点花放大一些 */
+.desktop-sidebar-context .floral-vine-svg .fv-star,
+.mobile-sidebar-nav .floral-vine-svg .fv-star {
+  --s: 0.45 !important;
+}
+
+.desktop-sidebar-context .floral-vine-svg .fv-star.fv-current,
+.mobile-sidebar-nav .floral-vine-svg .fv-star.fv-current {
+  --s: 0.72 !important;
+}
+
+/* =========================================
+   统一花元素图形库（Floral.astro + 伪元素 / markdown 样式共用）
+   图形集中在这里，颜色用 currentColor（mask 方式），改一处全局生效。
+   ========================================= */
+:root {
+  --floral-mask-bloom: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0 C 13.6 8 16 10.4 24 12 C 16 13.6 13.6 16 12 24 C 10.4 16 8 13.6 0 12 C 8 10.4 10.4 8 12 0 Z' fill='%23000'/%3E%3C/svg%3E");
+  --floral-mask-bud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 C 17 8 17.5 15.5 12 22 C 6.5 15.5 7 8 12 2 Z' fill='%23000'/%3E%3C/svg%3E");
+  --floral-mask-leaf: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.5 21.5 C 2.5 11 10.5 2.5 21.5 2.5 C 21.5 13 13.5 21.5 2.5 21.5 Z' fill='%23000'/%3E%3C/svg%3E");
+  --floral-mask-sprig: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M12 22 C 12 16 12 10 12 4.6'/%3E%3Cpath d='M12 11 C 14 9.6 16 8.8 18.6 8.2'/%3E%3Cpath d='M12 15 C 10 13.6 8 12.8 5.6 12.2'/%3E%3C/g%3E%3Cg fill='%23000'%3E%3Cpath d='M12 14.5 C 8.5 13 5.5 9.5 5.5 5.5 C 10 6.5 12 10 12 14.5 Z'/%3E%3Cpath d='M12 18.5 C 15 16.5 17.5 13 17.5 9 C 13.5 10 12 13.5 12 18.5 Z'/%3E%3Cpath d='M12 9.5 C 9.8 8 8.4 5.6 8.4 3 C 11 4 12 6.4 12 9.5 Z'/%3E%3Ccircle cx='12' cy='3.4' r='2.4'/%3E%3Ccircle cx='19' cy='7.9' r='1.9'/%3E%3Ccircle cx='5.2' cy='11.9' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  --floral-mask-branch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 40'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M2 34 C 30 32 55 27 80 21 C 100 16 122 12 144 12'/%3E%3Cpath d='M40 29 C 44 22 51 16 60 11'/%3E%3Cpath d='M92 18 C 98 12 107 9 117 8'/%3E%3Cpath d='M114 9 C 118 7 122 6 126 6'/%3E%3C/g%3E%3Cg fill='%23000'%3E%3Cpath d='M28 31 C 33 25 41 22 47 23 C 42 28 34 31 28 31 Z'/%3E%3Cpath d='M70 22 C 75 16 83 14 89 15 C 84 20 76 22 70 22 Z'/%3E%3Cpath d='M102 17 C 107 12 114 11 119 12 C 115 16 108 18 102 17 Z'/%3E%3Cpath d='M44 24 C 47 20 52 19 55 20 C 52 23 47 25 44 24 Z'/%3E%3Cpath d='M96 14 C 99 11 104 10 107 11 C 104 14 99 15 96 14 Z'/%3E%3Cpath d='M60 4 C 61 8 62.5 9 66 10 C 62.5 11 61 12 60 16 C 59 12 57.5 11 54 10 C 57.5 9 59 8 60 4 Z'/%3E%3Cpath d='M118 2 C 119 6 120.5 7 124 8 C 120.5 9 119 10 118 14 C 117 10 115.5 9 112 8 C 115.5 7 117 6 118 2 Z'/%3E%3Cpath d='M144 5 C 145 9 146.5 10 150 11 C 146.5 12 145 13 144 17 C 143 13 141.5 12 138 11 C 141.5 10 143 9 144 5 Z'/%3E%3Ccircle cx='70' cy='6' r='1.7'/%3E%3Ccircle cx='104' cy='9' r='1.5'/%3E%3Ccircle cx='126' cy='6' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  --floral-mask-divider: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 24'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M0 12 H 118'/%3E%3Cpath d='M182 12 H 300'/%3E%3Cpath d='M118 12 C 126 8 136 6.5 146 6.5'/%3E%3Cpath d='M182 12 C 174 8 164 6.5 154 6.5'/%3E%3C/g%3E%3Cg fill='%23000'%3E%3Cpath d='M150 1.5 C 151 5.5 152.5 6.5 156 7.5 C 152.5 8.5 151 9.5 150 13.5 C 149 9.5 147.5 8.5 144 7.5 C 147.5 6.5 149 5.5 150 1.5 Z'/%3E%3Cpath d='M106 12 C 100 7.5 92 6.5 86 7.5 C 92 11 100 13 106 12 Z'/%3E%3Cpath d='M194 12 C 200 7.5 208 6.5 214 7.5 C 208 11 200 13 194 12 Z'/%3E%3Ccircle cx='134' cy='7.5' r='1.8'/%3E%3Ccircle cx='166' cy='7.5' r='1.8'/%3E%3C/svg%3E");
+  --floral-mask-wreath: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='54' stroke='%23000' stroke-width='2.5' fill='none'/%3E%3Cg fill='%23000'%3E%3Ccircle cx='60' cy='4' r='5'/%3E%3Ccircle cx='99.6' cy='25.9' r='5'/%3E%3Ccircle cx='99.6' cy='94.1' r='5'/%3E%3Ccircle cx='60' cy='116' r='5'/%3E%3Ccircle cx='20.4' cy='94.1' r='5'/%3E%3Ccircle cx='20.4' cy='25.9' r='5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.floral {
+  display: inline-block;
+  width: var(--floral-size, 1em);
+  height: var(--floral-size, 1em);
+  flex-shrink: 0;
+  background-color: currentColor;
+  vertical-align: middle;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.floral--bloom { -webkit-mask-image: var(--floral-mask-bloom); mask-image: var(--floral-mask-bloom); }
+.floral--bud { -webkit-mask-image: var(--floral-mask-bud); mask-image: var(--floral-mask-bud); }
+.floral--leaf { -webkit-mask-image: var(--floral-mask-leaf); mask-image: var(--floral-mask-leaf); }
+.floral--sprig { -webkit-mask-image: var(--floral-mask-sprig); mask-image: var(--floral-mask-sprig); }
+.floral--branch {
+  width: var(--floral-size, 4em);
+  height: auto;
+  aspect-ratio: 150 / 40;
+  -webkit-mask-image: var(--floral-mask-branch);
+  mask-image: var(--floral-mask-branch);
+}
+.floral--divider {
+  width: 100%;
+  height: 1.1em;
+  -webkit-mask-image: var(--floral-mask-divider);
+  mask-image: var(--floral-mask-divider);
+}
+.floral--wreath {
+  width: 1em;
+  height: 1em;
+  -webkit-mask-image: var(--floral-mask-wreath);
+  mask-image: var(--floral-mask-wreath);
+}
+
 
 @keyframes fv-pop {
   from {
@@ -294,6 +364,8 @@ body .sl-markdown-content blockquote {
   display: block;
 }
 
+
+
 body .sl-markdown-content blockquote::before {
   content: "";
   position: absolute;
@@ -353,7 +425,7 @@ body .sl-markdown-content hr::before {
   background: linear-gradient(90deg, transparent, var(--sl-color-gray-4), transparent);
 }
 body .sl-markdown-content hr::after {
-  content: "⚜"; /* Botanical Lineart Mark: Lily / Fleur-de-lis */
+  content: "✦"; /* 星形节点，与全站统一 */
   position: absolute;
   color: var(--sl-color-accent);
   font-size: 1.15rem;
@@ -430,7 +502,7 @@ starlight-toc nav ul ul li {
     display: none !important;
   }
   .sidebar-pane details summary::before {
-    content: "✿";
+    content: "✦";
     display: inline-block;
     color: var(--sl-color-accent);
     margin-right: 0.45rem;
@@ -494,10 +566,15 @@ starlight-toc nav ul ul li {
 
 /* 2. 标题花饰 (Blossom Heading Marker，仅作用于正文内容) */
 body .sl-markdown-content h3:not(.not-content *)::before {
-  content: "❀";
-  color: var(--sl-color-accent);
-  font-size: 0.8em;
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
   margin-right: 0.4em;
+  vertical-align: 0.02em;
+  background-color: var(--sl-color-accent);
+  -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+  mask: var(--floral-mask-bloom) center / contain no-repeat;
 }
 
 /* 3. 纵向水印编排 (Vertical Meta Watermark) */
@@ -781,4 +858,226 @@ html, body {
 body .sl-markdown-content img {
   max-width: 100%;
   height: auto;
+}
+
+/* =========================================
+   统一花元素接入 · 正文（h2 / 提示卡 / 表格 / 代码块 / 折叠 / 分页）
+   ========================================= */
+
+/* h2 花饰：与 h3 星形呼应 */
+body .sl-markdown-content h2:not(.not-content *)::before {
+  content: "";
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.45em;
+  vertical-align: 0.02em;
+  background-color: var(--sl-color-accent);
+  -webkit-mask: var(--floral-mask-sprig) center / contain no-repeat;
+  mask: var(--floral-mask-sprig) center / contain no-repeat;
+}
+
+/* 提示卡右上角花枝 */
+body .sl-markdown-content .starlight-aside {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 表格：首列表头小花 */
+body .sl-markdown-content table thead th:first-child::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.4em;
+  vertical-align: -0.05em;
+  background-color: var(--sl-color-accent);
+  -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+  mask: var(--floral-mask-bloom) center / contain no-repeat;
+}
+
+/* 代码块右下角花枝 */
+body .expressive-code {
+  position: relative;
+}
+
+/* 折叠块：花芭 → 展开成花 */
+body .sl-markdown-content details > summary {
+  position: relative;
+  padding-inline-start: 1.5rem;
+}
+body .sl-markdown-content details > summary::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.35em;
+  width: 0.9em;
+  height: 0.9em;
+  background-color: var(--sl-color-accent);
+  -webkit-mask: var(--floral-mask-bud) center / contain no-repeat;
+  mask: var(--floral-mask-bud) center / contain no-repeat;
+  transition: transform 0.3s ease;
+}
+body .sl-markdown-content details[open] > summary::before {
+  transform: scale(1.15);
+  -webkit-mask-image: var(--floral-mask-bloom);
+  mask-image: var(--floral-mask-bloom);
+}
+
+/* 分页 prev/next 花枝引导 */
+.pagination-links a {
+  position: relative;
+}
+
+/* 卡片类右上角统一花枝（首页卡片 / 聚合卡 / 标签时间线） */
+.home-card,
+.home-fragments-section,
+.section-index-card,
+.tag-timeline {
+  position: relative;
+}
+
+/* 选中文字：花色淡底 */
+::selection {
+  background: color-mix(in srgb, var(--sl-color-accent) 28%, transparent);
+}
+
+/* 键盘焦点：强调色描边 */
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline-color: var(--sl-color-accent);
+}
+
+/* =========================================
+   统一花元素接入 · 搜索（Pagefind UI）与 Loading
+   ========================================= */
+@keyframes floral-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* 搜索结果：标题前花芭，悬停开花 */
+.pagefind-ui__result-link::before {
+  content: "";
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-inline-end: 0.5rem;
+  vertical-align: -0.05em;
+  background-color: var(--sl-color-accent);
+  -webkit-mask: var(--floral-mask-bud) center / contain no-repeat;
+  mask: var(--floral-mask-bud) center / contain no-repeat;
+  transition: transform 0.2s ease;
+}
+.pagefind-ui__result:hover .pagefind-ui__result-link::before,
+.pagefind-ui__result-link:hover::before {
+  -webkit-mask-image: var(--floral-mask-bloom);
+  mask-image: var(--floral-mask-bloom);
+  transform: scale(1.1);
+}
+
+/* 搜索加载中：旋转花 */
+.pagefind-ui__loading {
+  display: inline-flex;
+  align-items: center;
+}
+.pagefind-ui__loading::before {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-inline-end: 0.5rem;
+  flex-shrink: 0;
+  background-color: var(--sl-color-accent);
+  -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+  mask: var(--floral-mask-bloom) center / contain no-repeat;
+  animation: floral-spin 1.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagefind-ui__loading::before,
+  .giscus-placeholder::before {
+    animation: none;
+  }
+}
+
+
+/* =========================================
+   404 花径迷途
+   ========================================= */
+.not-found {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 8vh, 5rem) 1.25rem 4rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.not-found-art {
+  position: relative;
+  width: min(16rem, 80%);
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.not-found-bud {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.2rem;
+  --floral-size: 0.9rem;
+  color: var(--sl-color-accent);
+  opacity: 0.85;
+}
+
+.not-found-code {
+  margin: 0.5rem 0 0;
+  font-family: "Instrument Serif", "Songti SC", serif;
+  font-size: clamp(3rem, 12vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--sl-color-accent) 70%, var(--sl-color-white));
+}
+
+.not-found h1 {
+  margin: 0.5rem 0 0;
+  font-family: "Songti SC", "Source Han Serif SC", serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.14em;
+  color: var(--sl-color-white);
+}
+
+.not-found-desc {
+  margin: 0.85rem 0 0;
+  color: var(--sl-color-gray-3);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.not-found-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--sl-color-accent) 8%, transparent);
+  color: var(--sl-color-accent);
+  text-decoration: none !important;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  transition: all 0.25s ease;
+}
+
+.not-found-home:hover {
+  background: color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
+  border-color: var(--sl-color-accent);
+  transform: translateY(-1px);
+}
+
+.not-found-home-floral {
+  --floral-size: 0.9rem;
 }

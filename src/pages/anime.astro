@@ -62,7 +62,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
         <!-- 自我介绍 (Bio Panel) -->
         <div class="bangumi-user-intro-panel">
           <div class="bangumi-user-intro-header">
-            <span class="bangumi-user-intro-icon">❀</span>
+            <span class="bangumi-user-intro-icon">✦</span>
             <span class="bangumi-user-intro-title">自我介绍</span>
           </div>
           <div class="bangumi-user-intro-content">
@@ -379,12 +379,12 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       const hasReview = Boolean(comment);
 
       const flowerIcon = hasReview
-        ? '<span class="bangumi-title-flower is-reviewed" title="已撰写心得评价">✿</span>'
-        : '<span class="bangumi-title-flower" title="暂无评价">❀</span>';
+        ? '<span class="bangumi-title-flower is-reviewed" title="已撰写心得评价">✦</span>'
+        : '<span class="bangumi-title-flower" title="暂无评价">✦</span>';
 
       const coverHtml = image
         ? '<img src="' + image + '" alt="' + title + '" loading="lazy" decoding="async" />'
-        : '<div class="bangumi-cover-placeholder">❀</div>';
+        : '<div class="bangumi-cover-placeholder">✦</div>';
 
       const previewText = hasReview
         ? '<p class="bangumi-preview">“' + escapeHTML(comment) + '”</p>'
@@ -937,9 +937,18 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     align-items: center;
     justify-content: center;
     height: 100%;
-    font-size: 1.5rem;
+    font-size: 0;
     color: var(--sl-color-accent);
     opacity: 0.4;
+  }
+
+  .bangumi-cover-placeholder::before {
+    content: "";
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: var(--sl-color-accent);
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
   }
 
   .bangumi-card-info {
@@ -997,12 +1006,18 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
   }
 
   .bangumi-star {
-    color: var(--sl-color-gray-5);
-    font-size: 0.68rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    flex-shrink: 0;
+    font-size: 0;
+    background-color: var(--sl-color-gray-5);
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
+    transition: transform 0.2s ease;
   }
 
   .bangumi-star.is-filled {
-    color: var(--sl-color-accent);
+    background-color: var(--sl-color-accent);
   }
 
   .bangumi-score-value {
@@ -1266,6 +1281,18 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     border: 1px dashed var(--sl-color-gray-5);
     border-radius: 0.75rem;
     grid-column: 1 / -1;
+  }
+
+  .bangumi-message.is-pulse::before {
+    content: "";
+    display: block;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0 auto 0.6rem;
+    background-color: var(--sl-color-accent);
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
+    animation: floral-spin 1.8s linear infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
