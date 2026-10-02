@@ -8,8 +8,9 @@
     "start": "astro dev",
     "check": "astro check",
     "refresh:bangumi": "node ./scripts/fetch-bangumi.mjs",
+    "refresh:image-sizes": "node ./scripts/fetch-image-sizes.mjs",
     "sync:commits": "node ./scripts/sync-commits.mjs",
-    "build": "pnpm run sync:commits && pnpm run refresh:bangumi && astro build",
+    "build": "pnpm run sync:commits && pnpm run refresh:bangumi && pnpm run refresh:image-sizes && astro build",
     "build:fast": "astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
     "deploy": "pnpm run check && node ./scripts/deploy.mjs",
@@ -23,6 +24,7 @@
     "@astrojs/mdx": "^5.0.6",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/starlight": "^0.38.3",
+    "@fontsource/instrument-serif": "^5.3.0",
     "astro": "^6.1.5",
     "sharp": "^0.34.2",
     "starlight-theme-rapide": "^0.5.2"

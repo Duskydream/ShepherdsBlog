@@ -1,5 +1,6 @@
 @import "katex/dist/katex.min.css";
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
 
 :root {
   --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -773,4 +774,11 @@ html, body {
     flex-wrap: wrap !important;
     gap: 0.4rem !important;
   }
+}
+
+/* 文章图片：保留由 width/height 属性推导的固有宽高比，使远端懒加载图片
+   在加载前即占位，避免正文位移（CLS）。 */
+body .sl-markdown-content img {
+  max-width: 100%;
+  height: auto;
 }

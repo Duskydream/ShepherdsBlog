@@ -1,10 +1,21 @@
 ---
 import DefaultHead from "@astrojs/starlight/components/Head.astro";
 import { ClientRouter } from "astro:transitions";
+import config from "virtual:starlight/user-config";
 
 const { entry } = Astro.locals.starlightRoute || Astro.props;
 const isArticle = entry && (entry.id.startsWith("blog/") || entry.id.startsWith("log/") || entry.id.startsWith("coding-notes/"));
 const watermarkText = isArticle && entry.data?.title ? entry.data.title : "DUSKYDREAM";
+
+// config.title 是按语言分组的记录（如 { "zh-CN": "祈りの花庭" }），需先取回字符串
+const siteTitle = Object.values(config.title)[0] ?? "";
+// 首页 frontmatter title 与站点名相同，Starlight 仍会拼成「站名 | 站名」，渲染前去重
+const duplicateTitle = `${siteTitle} ${config.titleDelimiter ?? "|"} ${siteTitle}`;
+for (const head of Astro.locals.starlightRoute?.head ?? []) {
+  if (head.tag === "title" && head.content === duplicateTitle) {
+    head.content = siteTitle;
+  }
+}
 ---
 
 <DefaultHead {...Astro.props} />

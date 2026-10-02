@@ -3,9 +3,16 @@ import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 // @ts-check
 import { defineConfig } from "astro/config";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import starlightThemeRapide from "starlight-theme-rapide";
+
+const imageSizesPath = path.resolve(process.cwd(), "src/data/image-sizes.json");
+const imageSizes = existsSync(imageSizesPath)
+  ? JSON.parse(readFileSync(imageSizesPath, "utf8"))
+  : {};
 
 function rehypeImageHints() {
   return (tree) => {
@@ -16,6 +23,11 @@ function rehypeImageHints() {
         node.properties ??= {};
         node.properties.loading ??= "lazy";
         node.properties.decoding ??= "async";
+        const size = imageSizes[node.properties.src];
+        if (size) {
+          node.properties.width ??= size.width;
+          node.properties.height ??= size.height;
+        }
       }
 
       node.children?.forEach(visit);
