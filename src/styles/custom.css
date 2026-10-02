@@ -10,11 +10,6 @@
   --route-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-/* 全局整体缩放：改这个百分比即可整体变大/变小 */
-html {
-  font-size: 90%;
-}
-
 @keyframes floral-grow-in {
   from {
     opacity: 0;
