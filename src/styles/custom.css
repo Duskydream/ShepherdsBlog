@@ -559,19 +559,6 @@ starlight-toc nav ul ul li {
   }
 }
 
-/* 2. 标题花饰 (Blossom Heading Marker，仅作用于正文内容) */
-body .sl-markdown-content h3:not(.not-content *)::before {
-  content: "";
-  display: inline-block;
-  width: 0.7em;
-  height: 0.7em;
-  margin-right: 0.4em;
-  vertical-align: 0.02em;
-  background-color: var(--sl-color-accent);
-  -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
-  mask: var(--floral-mask-bloom) center / contain no-repeat;
-}
-
 /* 3. 纵向水印编排 (Vertical Meta Watermark) */
 body::after {
   content: "";
@@ -858,25 +845,6 @@ body .sl-markdown-content img {
 /* =========================================
    统一花元素接入 · 正文（h2 / 提示卡 / 表格 / 代码块 / 折叠 / 分页）
    ========================================= */
-
-/* h2 花饰：与 h3 星形呼应 */
-body .sl-markdown-content h2:not(.not-content *)::before {
-  content: "";
-  display: inline-block;
-  width: 0.8em;
-  height: 0.8em;
-  margin-right: 0.45em;
-  vertical-align: 0.02em;
-  background-color: var(--sl-color-accent);
-  -webkit-mask: var(--floral-mask-sprig) center / contain no-repeat;
-  mask: var(--floral-mask-sprig) center / contain no-repeat;
-}
-
-/* 提示卡右上角花枝 */
-body .sl-markdown-content .starlight-aside {
-  position: relative;
-  overflow: hidden;
-}
 
 /* 表格：首列表头小花 */
 body .sl-markdown-content table thead th:first-child::before {
