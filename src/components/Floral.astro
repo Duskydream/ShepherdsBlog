@@ -3,7 +3,7 @@
 // 图形本体集中定义在 src/styles/custom.css 的 --floral-mask-* 变量里（用 mask 实现，颜色跟随 currentColor）。
 // 用法：<Floral variant="sprig" size="1.2em" /> 或 <Floral variant="bloom" class="xxx" rotate={-12} />
 interface Props {
-  variant?: "bloom" | "bud" | "leaf" | "sprig" | "branch" | "divider" | "wreath";
+  variant?: "bloom" | "bud" | "sprig";
   size?: string;
   rotate?: number;
   flip?: boolean;
@@ -18,14 +18,12 @@ const {
   class: className = "",
 } = Astro.props;
 
-const wide = variant === "branch" || variant === "divider";
-
 const transforms: string[] = [];
 if (flip) transforms.push("scaleX(-1)");
 if (typeof rotate === "number") transforms.push(`rotate(${rotate}deg)`);
 
 const style = [
-  size ? (wide ? `width:${size}` : `width:${size};height:${size}`) : "",
+  size ? `width:${size};height:${size}` : "",
   transforms.length ? `transform:${transforms.join(" ")}` : "",
 ]
   .filter(Boolean)

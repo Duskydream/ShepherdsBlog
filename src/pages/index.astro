@@ -438,34 +438,16 @@ if (sortedDates.length > 0) {
     }
 
     .home-hero-avatar {
-      position: relative;
       width: 3.2rem;
       height: 3.2rem;
       border-radius: 50%;
-      overflow: visible;
+      overflow: hidden;
       border: 2px solid var(--sl-color-accent);
       box-shadow: 0 0 16px rgba(112, 147, 200, 0.25);
       transition: all 0.3s ease;
       flex-shrink: 0;
       display: block;
       cursor: pointer;
-    }
-
-    .home-hero-avatar::after {
-      content: "";
-      position: absolute;
-      inset: -0.32rem;
-      opacity: 0.55;
-      background-color: var(--sl-color-accent);
-      -webkit-mask: var(--floral-mask-wreath) center / contain no-repeat;
-      mask: var(--floral-mask-wreath) center / contain no-repeat;
-      pointer-events: none;
-      transition: transform 0.4s ease, opacity 0.3s ease;
-    }
-
-    .home-hero-avatar:hover::after {
-      opacity: 0.9;
-      transform: rotate(18deg);
     }
 
     .home-hero-avatar:hover {
@@ -479,7 +461,6 @@ if (sortedDates.length > 0) {
       height: 100%;
       object-fit: cover;
       display: block;
-      border-radius: 50%;
     }
 
     .home-hero-info {
