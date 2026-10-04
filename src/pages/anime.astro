@@ -925,10 +925,13 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     overflow: hidden;
   }
 
-  .bangumi-cover img {
+  /* 提高选择器权重，覆盖 custom.css 中 body .sl-markdown-content img 的 height:auto，
+     让横版海报也能填满封面框并居中裁剪，而不是按原始比例只占上半部分。 */
+  .bangumi-page .bangumi-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
   }
 
