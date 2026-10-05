@@ -13,11 +13,11 @@ const shouldRenderSearch =
 
 const rawPathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const navLinks = [
-  { href: '/article', zh: '散文', en: 'ESSAY', match: (p: string) => p === '/article' || p.startsWith('/blog') },
-  { href: '/notes', zh: '笔记', en: 'NOTES', match: (p: string) => p === '/notes' || p.startsWith('/coding-notes') },
-  { href: '/anime', zh: '鉴赏', en: 'REVIEW', match: (p: string) => p.startsWith('/anime') },
-  { href: '/log', zh: '日常', en: 'LOG', match: (p: string) => p === '/log' || p.startsWith('/log') },
-  { href: '/about', zh: '关于', en: 'ABOUT', match: (p: string) => p.startsWith('/about') },
+  { href: '/article', en: 'ESSAY', match: (p: string) => p === '/article' || p.startsWith('/blog') },
+  { href: '/notes', en: 'NOTES', match: (p: string) => p === '/notes' || p.startsWith('/coding-notes') },
+  { href: '/anime', en: 'REVIEW', match: (p: string) => p.startsWith('/anime') },
+  { href: '/log', en: 'LOG', match: (p: string) => p === '/log' || p.startsWith('/log') },
+  { href: '/about', en: 'ABOUT', match: (p: string) => p.startsWith('/about') },
 ];
 ---
 
@@ -46,9 +46,7 @@ const navLinks = [
         const isActive = item.match(rawPathname);
         return (
           <a href={item.href} class:list={["header-nav-item", { active: isActive }]}>
-            <span class="nav-item-zh">{item.zh}</span>
             <span class="nav-item-en">{item.en}</span>
-            {isActive && <span class="nav-active-bar" aria-hidden="true"></span>}
           </a>
         );
       })}
@@ -151,77 +149,29 @@ const navLinks = [
     .header-nav-item {
       position: relative;
       display: inline-flex;
-      flex-direction: column;
       align-items: center;
       text-decoration: none !important;
-      line-height: 1.15;
-      padding: 0.35rem 0.45rem 0.5rem;
+      line-height: 1;
+      padding: 0.4rem 0.2rem;
       transition: all 0.2s ease;
       color: var(--sl-color-gray-3) !important;
     }
 
-    .nav-item-zh {
-      font-family: "Songti SC", "Source Han Serif SC", "FZLanTingHei", "Noto Serif CJK SC", "STSong", "SimSun", serif;
-      font-size: 0.88rem;
-      letter-spacing: 0.05em;
-      color: var(--sl-color-gray-2);
-      transition: color 0.2s ease;
-    }
-
     .nav-item-en {
       font-family: var(--sl-font-mono);
-      font-size: 0.56rem;
-      letter-spacing: 0.12em;
-      opacity: 0.65;
-      color: var(--sl-color-gray-4);
-      margin-top: 0.15rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-gray-3);
       transition: color 0.2s ease;
-    }
-
-    .header-nav-item:hover .nav-item-zh {
-      color: var(--sl-color-white);
     }
 
     .header-nav-item:hover .nav-item-en {
       color: var(--sl-color-accent);
-      opacity: 1;
-    }
-
-    .header-nav-item.active .nav-item-zh {
-      color: var(--sl-color-white);
-      font-weight: 600;
     }
 
     .header-nav-item.active .nav-item-en {
       color: var(--sl-color-accent);
-      opacity: 1;
       font-weight: 600;
-    }
-
-    .nav-active-bar {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 14px;
-      height: 2px;
-      border-radius: 999px;
-      background-color: var(--sl-color-accent);
-      box-shadow: 0 0 8px var(--sl-color-accent);
-    }
-
-    .nav-active-bar::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: 100%;
-      transform: translateX(-50%);
-      width: 0.5rem;
-      height: 0.5rem;
-      margin-bottom: -1px;
-      background-color: var(--sl-color-accent);
-      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
-      mask: var(--floral-mask-bloom) center / contain no-repeat;
     }
 
     @media (min-width: 50rem) {
