@@ -2,7 +2,6 @@
 import MobileTableOfContents from "virtual:starlight/components/MobileTableOfContents";
 import Sidebar from "./Sidebar.astro";
 import LilyOrnament from "./LilyOrnament.astro";
-import Floral from "./Floral.astro";
 ---
 
 <div class="page sl-flex">
@@ -30,9 +29,6 @@ import Floral from "./Floral.astro";
     </div>
   </nav>
   <div class="main-frame"><slot /></div>
-  <button type="button" id="back-to-top" class="back-to-top print:hidden" aria-label="返回顶部" title="返回顶部">
-    <Floral variant="sprig" class="back-to-top-floral" />
-  </button>
 </div>
 
 <style>
@@ -213,58 +209,6 @@ import Floral from "./Floral.astro";
       visibility: visible;
     }
 
-    /* 返回顶部：滚动一段距离后渐现；层级低于抽屉，避免遮挡目录 */
-    .back-to-top {
-      position: fixed;
-      inset-block-end: 1.25rem;
-      inset-inline-end: 1.25rem;
-      z-index: 1150;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.75rem;
-      height: 2.75rem;
-      padding: 0;
-      color: var(--sl-color-gray-2);
-      background: color-mix(in srgb, var(--sl-color-bg) 88%, transparent);
-      border: 1px solid color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
-      border-radius: 999px;
-      box-shadow: 0 6px 20px color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(0.65rem);
-      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease,
-        color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .back-to-top.is-visible {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .back-to-top:hover {
-      color: var(--sl-color-white);
-      border-color: var(--sl-color-accent);
-    }
-
-    .back-to-top:focus-visible {
-      outline: 2px solid var(--sl-color-accent);
-      outline-offset: 2px;
-    }
-
-    .back-to-top-floral {
-      --floral-size: 1.4rem;
-      color: var(--sl-color-accent);
-      transition: transform 0.25s ease;
-    }
-
-    .back-to-top:hover .back-to-top-floral {
-      transform: translateY(-2px) rotate(-6deg);
-    }
-
     /* 阅读进度：顶部随滚动生长的藤蔓 */
     .reading-progress {
       position: fixed;
@@ -280,9 +224,8 @@ import Floral from "./Floral.astro";
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .back-to-top {
-        transition: opacity 0.2s ease, visibility 0.2s ease;
-        transform: none;
+      .reading-progress {
+        transition: none;
       }
     }
   }
@@ -360,43 +303,35 @@ import Floral from "./Floral.astro";
 
 <script is:inline data-astro-rerun>
   (() => {
-    window.__backToTopAbort?.abort?.();
+    // 阅读进度条：顶部随滚动生长的藤蔓
+    window.__readingProgressAbort?.abort?.();
     const ac = new AbortController();
-    window.__backToTopAbort = ac;
+    window.__readingProgressAbort = ac;
     const { signal } = ac;
 
-    const button = document.getElementById('back-to-top');
-    if (!button) return;
-
-    const supportsSmooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const progress = document.querySelector('.reading-progress');
+    if (!progress) return;
+
     let ticking = false;
 
-    const toggleVisibility = () => {
-      button.classList.toggle('is-visible', window.scrollY > 400);
-      if (progress) {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-        progress.style.transform = `scaleX(${ratio})`;
-      }
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      progress.style.transform = `scaleX(${ratio})`;
     };
 
     window.addEventListener('scroll', () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          toggleVisibility();
+          update();
           ticking = false;
         });
         ticking = true;
       }
     }, { passive: true, signal });
 
-    button.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: supportsSmooth ? 'smooth' : 'auto' });
-    }, { signal });
-
-    document.addEventListener('astro:after-swap', () => requestAnimationFrame(toggleVisibility), { signal });
-    toggleVisibility();
+    document.addEventListener('astro:after-swap', () => requestAnimationFrame(update), { signal });
+    update();
   })();
 </script>
 

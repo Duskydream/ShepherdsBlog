@@ -1,9 +1,9 @@
 ---
 // 统一花枝/花元素组件。
 // 图形本体集中定义在 src/styles/custom.css 的 --floral-mask-* 变量里（用 mask 实现，颜色跟随 currentColor）。
-// 用法：<Floral variant="sprig" size="1.2em" /> 或 <Floral variant="bloom" class="xxx" rotate={-12} />
+// 用法：<Floral variant="flower" size="1.2em" /> 或 <Floral variant="bloom" class="xxx" rotate={-12} />
 interface Props {
-  variant?: "bloom" | "bud" | "sprig";
+  variant?: "bloom" | "bud" | "sprig" | "flower";
   size?: string;
   rotate?: number;
   flip?: boolean;
