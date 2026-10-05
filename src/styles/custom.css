@@ -736,15 +736,18 @@ main,
 /* =========================================
    移动端响应式与防横向溢出 (Mobile Safety)
    ========================================= */
+/* `overflow-x: clip` 而不是 `hidden`：hidden 会把 html/body 变成滚动容器，
+   导致 `position: sticky` 的粘性基准从视口变成这个不滚动的容器（目录会失效）。
+   clip 只裁剪溢出，不创建滚动容器。 */
 html, body {
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
   html, body {
-    overflow-x: hidden !important;
+    overflow-x: clip !important;
     max-width: 100vw !important;
   }
 
