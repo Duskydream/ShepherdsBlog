@@ -6,6 +6,9 @@ dist/
 # editor settings
 .vscode/
 
+# pi coding agent local state
+.pi/
+
 # dependencies
 node_modules/
 

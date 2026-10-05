@@ -132,8 +132,9 @@ export default defineConfig({
     }),
     mdx({
       optimize: true,
-      remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex, rehypeImageHints],
+      // remarkMath / rehypeKatex / rehypeImageHints come from the shared
+      // `markdown.processor` above via `extendMarkdownConfig` (default true),
+      // so repeating them here would double-apply the plugins.
     }),
   ],
 });

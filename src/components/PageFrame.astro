@@ -370,6 +370,8 @@ import Floral from "./Floral.astro";
 
     const supportsSmooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const progress = document.querySelector('.reading-progress');
+    let ticking = false;
+
     const toggleVisibility = () => {
       button.classList.toggle('is-visible', window.scrollY > 400);
       if (progress) {
@@ -379,12 +381,62 @@ import Floral from "./Floral.astro";
       }
     };
 
-    window.addEventListener('scroll', toggleVisibility, { passive: true, signal });
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          toggleVisibility();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true, signal });
+
     button.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: supportsSmooth ? 'smooth' : 'auto' });
     }, { signal });
 
     document.addEventListener('astro:after-swap', () => requestAnimationFrame(toggleVisibility), { signal });
     toggleVisibility();
+  })();
+</script>
+
+<script is:inline data-astro-rerun>
+  (() => {
+    // Focus trap for the drawer sidebar
+    window.__focusTrapAbort?.abort?.();
+    const ac = new AbortController();
+    window.__focusTrapAbort = ac;
+    const { signal } = ac;
+
+    const pane = document.getElementById('starlight__sidebar');
+    if (!pane) return;
+
+    function getFocusables() {
+      return pane.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab' || !document.body.hasAttribute('data-drawer-open')) return;
+
+      const focusables = getFocusables();
+      if (!focusables.length) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === first || !pane.contains(document.activeElement)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last || !pane.contains(document.activeElement)) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }, { signal });
   })();
 </script>

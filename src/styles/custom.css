@@ -1,6 +1,5 @@
-@import "katex/dist/katex.min.css";
+@import "./katex.css";
 @import "@fontsource/instrument-serif/400.css";
-@import "@fontsource/instrument-serif/400-italic.css";
 
 :root {
   --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -188,12 +187,25 @@
 }
 
 @media (max-width: 49.999rem) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*),
-  [data-astro-transition-scope] {
-    animation: none !important;
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
   }
+  ::view-transition-old(root) {
+    animation: 80ms ease-out both mobile-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 80ms ease-in both mobile-fade-in;
+  }
+}
+
+@keyframes mobile-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes mobile-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -411,15 +423,15 @@ body .sl-markdown-content h2 {
 
 /* 5. 桌面右栏目录：藤蔓与节点花由 floral-vine 元算法生成 (Aligned Floral TOC) */
 
-/* Starlight core pins the right TOC with `position: fixed`. Keep it in the
-   page flow so it scrolls away together with the article on desktop. */
+/* Starlight core pins the right TOC with `position: fixed`. Use sticky instead
+   so it scrolls with the page but stays visible once the viewport passes it. */
 @media (min-width: 72rem) {
   .right-sidebar-container .right-sidebar {
-    position: static !important;
-    top: auto !important;
+    position: sticky !important;
+    top: calc(var(--sl-nav-height) + 1rem) !important;
     height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
+    max-height: calc(100vh - var(--sl-nav-height) - 2rem) !important;
+    overflow-y: auto !important;
   }
 }
 
@@ -559,6 +571,20 @@ body::after {
   text-overflow: ellipsis;
 }
 
+/* 窄屏正文占满视口，水印压上去会碍读：移到左上角、避开标题行并降低对比。 */
+@media (max-width: 49.999rem) {
+  body::after {
+    top: calc(var(--sl-nav-height, 3.5rem) + 0.5rem);
+    right: auto;
+    left: 0.5rem;
+    transform: none;
+    font-size: 0.5rem;
+    letter-spacing: 0.5em;
+    opacity: 0.22;
+    max-height: 40vh;
+  }
+}
+
 @media (min-width: 50rem) {
   body::after {
     right: 0.25rem;
@@ -657,6 +683,7 @@ body .sl-markdown-content > p:first-of-type::first-letter {
 body .sl-markdown-content p {
   text-align: justify;
   text-justify: inter-ideograph;
+  text-wrap: pretty;
   line-height: 1.85;
   margin-bottom: 1.6em;
 }

@@ -10,10 +10,7 @@
         transition:name="site-toc"
         transition:animate="none"
       >
-        <div
-          class="right-sidebar"
-          style="position: static; top: auto; height: auto; max-height: none; overflow: visible;"
-        >
+        <div class="right-sidebar">
           <slot name="right-sidebar" />
         </div>
       </aside>
@@ -84,11 +81,13 @@
     }
 
     .right-sidebar {
-      /* Keep the TOC in the document flow so it scrolls out of view with the
-         article instead of staying pinned beneath the fixed site header. */
-      position: static;
-      max-height: none;
-      overflow: visible;
+      /* Stick below the fixed site header so the TOC stays reachable while the
+         article scrolls. custom.css refines top/max-height for the wider
+         desktop breakpoint. */
+      position: sticky;
+      top: var(--sl-nav-height);
+      max-height: calc(100vh - var(--sl-nav-height));
+      overflow-y: auto;
       padding-top: 1.5rem;
       padding-bottom: 2rem;
       scrollbar-width: none;

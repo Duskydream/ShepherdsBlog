@@ -5,6 +5,7 @@ import config from "virtual:starlight/user-config";
 
 const { entry } = Astro.locals.starlightRoute || Astro.props;
 const isArticle = entry && (entry.id.startsWith("blog/") || entry.id.startsWith("log/") || entry.id.startsWith("coding-notes/"));
+const isEssay = entry && (entry.id.startsWith("blog/") || entry.id.startsWith("log/"));
 const watermarkText = isArticle && entry.data?.title ? entry.data.title : "DUSKYDREAM";
 
 // config.title 是按语言分组的记录（如 { "zh-CN": "祈りの花庭" }），需先取回字符串
@@ -16,6 +17,22 @@ for (const head of Astro.locals.starlightRoute?.head ?? []) {
     head.content = siteTitle;
   }
 }
+
+// 非散文页面的首字下沉重置样式。
+// custom.css 通过 <link rel="stylesheet"> 加载，在文档流上位于本内联
+// <style> 之后；两者选择器权重必须更高，否则会被 custom.css 的
+// `float: left; font-size: 3.2em` 反超。
+const dropCapReset = !isEssay ? `
+  body .sl-markdown-content > p:first-of-type::first-letter {
+    float: none !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    color: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+  }` : '';
 ---
 
 <DefaultHead {...Astro.props} />
@@ -26,4 +43,5 @@ for (const head of Astro.locals.starlightRoute?.head ?? []) {
   body::after {
     content: ${JSON.stringify(watermarkText)} !important;
   }
+  ${dropCapReset}
 `} />

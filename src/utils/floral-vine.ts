@@ -174,8 +174,10 @@ export function bindFloralVines() {
     // layout changes width. Those changes do not emit mutations or a window
     // resize event, so keep the SVG geometry in sync with the actual box.
     if (typeof ResizeObserver !== "undefined") {
+      let resizeTimer: number;
       const resizeObserver = new ResizeObserver(() => {
-        requestAnimationFrame(() => renderFloralVine(container));
+        clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => renderFloralVine(container), 100);
       });
       resizeObserver.observe(container);
     }
