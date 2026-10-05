@@ -7,9 +7,11 @@ type Props = {
   title: string;
   section: string;
   eyebrow?: string;
+  /** 聚合页自己的描述。不传就会退回站点通用描述，和首页重复。 */
+  description?: string;
 };
 
-const { title, section, eyebrow = title } = Astro.props;
+const { title, section, eyebrow = title, description } = Astro.props;
 
 const posts = await getCollection("docs", (entry) => entry.id.startsWith(`${section}/`) && !entry.id.endsWith("/index.md"))
   .then((entries) =>
@@ -37,7 +39,7 @@ const sectionLevel = (knownSections.includes(section) ? knownSections.indexOf(se
 const sectionLabel = title || labelFromSlug(section);
 ---
 
-<StarlightPage frontmatter={{ title, template: 'splash', tableOfContents: false }} hasSidebar={false}>
+<StarlightPage frontmatter={{ title, description, template: 'splash', tableOfContents: false }} hasSidebar={false}>
   <section class="section-index not-content">
     <header class="section-index-head">
       <p>{eyebrow}</p>
@@ -344,25 +346,9 @@ const sectionLabel = title || labelFromSlug(section);
       font-size: 0.85rem;
     }
 
-    .section-index-section[data-level="1"],
-    .section-index-marker[data-level="1"] {
-      --section-index-blue: #8fb2da;
-    }
-
-    .section-index-section[data-level="2"],
-    .section-index-marker[data-level="2"] {
-      --section-index-blue: #5f8fc2;
-    }
-
-    .section-index-section[data-level="3"],
-    .section-index-marker[data-level="3"] {
-      --section-index-blue: #356b9d;
-    }
-
-    .section-index-section[data-level="4"],
-    .section-index-marker[data-level="4"] {
-      --section-index-blue: #16436e;
-    }
+    /* 注：data-level 只在 <article class="section-index-item"> 上出现，
+       marker / section 都是它的后代，直接继承 --section-index-blue。
+       这里曾有一份一模一样的 [data-level="N"] 颜色表，属重复定义。 */
 
     @media (max-width: 49.999rem) {
       .section-index {

@@ -3,6 +3,10 @@ dist/
 # generated types
 .astro/
 
+# tsc 产物（functions/**/*.ts 是源文件，用 `pnpm run build:functions` 重新生成）
+functions/**/*.js
+functions/**/*.d.ts
+
 # editor settings
 .vscode/
 
@@ -27,3 +31,5 @@ pnpm-debug.log*
 .DS_Store
 
 .antigravityrules
+# 图片优化脚本下载的原始图缓存（可由 refresh:images 随时重建）
+.image-cache/

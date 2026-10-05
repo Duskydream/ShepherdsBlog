@@ -7,8 +7,6 @@ tags: ["Coding", "Notes", "Cpp"]
 categories: ["Notes"]
 ---
 
-# BFS初探
-
 ## DFS -> 利用栈的天然回溯性质，走到死路自动回头
 
 DFS 的核心思想是“能走多深走多深”。它利用栈 (Stack) 或者递归来实现。
@@ -40,7 +38,7 @@ BFS 的核心思想是“先近后远”。它利用队列 (Queue) 逐层扫描�
 
 > 给你二叉树的根节点 root ，返回其节点值的 层序遍历。（即逐层地，从左到右访问所有节点）。
 
-![img](https://pic1.imgdb.cn/item/69a06b82569239540e679d83.png "img")
+![层序遍历示意图](https://pic1.imgdb.cn/item/69a06b82569239540e679d83.png "层序遍历示意图")
 
 **1、两个数组**
 

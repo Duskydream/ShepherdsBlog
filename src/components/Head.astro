@@ -2,14 +2,33 @@
 import DefaultHead from "@astrojs/starlight/components/Head.astro";
 import { ClientRouter } from "astro:transitions";
 import config from "virtual:starlight/user-config";
+// 用 ?url 让 Vite 把 katex 的排版规则当成独立资源发出，而不是并进全站共用的
+// Page.css。全站 27 页里只有 2 篇（位运算 / BFS初探）真的有公式，却每页都付了
+// 约 19 KB 的 .katex 规则（括号树、reset-sizeN.sizeM 共 121 条）。
+import katexStylesUrl from "../styles/katex.css?url";
+import { excerptOf } from "../utils/excerpt";
 
 const { entry } = Astro.locals.starlightRoute || Astro.props;
 const isArticle = entry && (entry.id.startsWith("blog/") || entry.id.startsWith("log/") || entry.id.startsWith("coding-notes/"));
 const isEssay = entry && (entry.id.startsWith("blog/") || entry.id.startsWith("log/"));
 const watermarkText = isArticle && entry.data?.title ? entry.data.title : "DUSKYDREAM";
 
+/**
+ * 这一页要不要加载 katex 排版样式。
+ *
+ * remark-math 只看 `$`/`$$`，而且会跳过围栏代码块，所以这里先把代码块剔掉再找 `$`。
+ * 判断偏保守（宁可多带一次样式，也不能让公式掉成裸文本）：全站目前只有那两篇
+ * coding-notes 含 `$`，其余 6 个内容文件里一个都没有。
+ */
+const sourceBody = (entry?.body ?? "")
+  .replace(/```[\s\S]*?```/g, "")
+  .replace(/~~~[\s\S]*?~~~/g, "")
+  .replace(/`[^`\n]*`/g, "");
+const hasMath = /\$[\s\S]*?\$/.test(sourceBody);
+
 // config.title 是按语言分组的记录（如 { "zh-CN": "祈りの花庭" }），需先取回字符串
 const siteTitle = Object.values(config.title)[0] ?? "";
+
 // 首页 frontmatter title 与站点名相同，Starlight 仍会拼成「站名 | 站名」，渲染前去重
 const duplicateTitle = `${siteTitle} ${config.titleDelimiter ?? "|"} ${siteTitle}`;
 for (const head of Astro.locals.starlightRoute?.head ?? []) {
@@ -17,6 +36,41 @@ for (const head of Astro.locals.starlightRoute?.head ?? []) {
     head.content = siteTitle;
   }
 }
+
+// Starlight 在 utils/head.ts 里把 og:type 硬编码成 article（首页、/tags/、/about/
+// 等聚合页全都会拿到 article）。按页面性质改成更准确的类型。
+const ogType = isArticle ? "article" : "website";
+for (const head of Astro.locals.starlightRoute?.head ?? []) {
+  if (head.tag === "meta" && head.attrs?.property === "og:type") {
+    head.attrs.content = ogType;
+  }
+}
+
+// Starlight 在 utils/head.ts:28 用 `data.description || config.description` 兜底，
+// 所以 4 篇只有 title+date 的 log（以及 /article/ /log/ /notes/ 三个聚合页）
+// 全都拿到同一句站点描述——27 页里有 8 页 meta description 完全相同。
+// 这里对没有 frontmatter description 的内容页改成正文摘要，让每页都不一样。
+const fallbackDescription =
+  entry && !entry.data?.description ? excerptOf(entry.body, 150) : "";
+if (fallbackDescription) {
+  for (const head of Astro.locals.starlightRoute?.head ?? []) {
+    if (head.tag !== "meta") continue;
+    const { attrs } = head;
+    if (attrs?.name === "description" || attrs?.property === "og:description") {
+      attrs.content = fallbackDescription;
+    }
+  }
+}
+
+// 分享图：全站统一一张 1200x630 的站点图。没有它 twitter:card=summary_large_image
+// 是个空承诺（之前 og:image / twitter:image 全站 0 个）。
+const ogImage = new URL("/images/og-default.png", Astro.site ?? Astro.url).href;
+const ogImageAlt = `${siteTitle} · The Garden of Prayer`;
+const socialImage = {
+  width: 1200,
+  height: 630,
+  type: "image/png",
+};
 
 // 非散文页面的首字下沉重置样式。
 // custom.css 通过 <link rel="stylesheet"> 加载，在文档流上位于本内联
@@ -36,7 +90,22 @@ const dropCapReset = !isEssay ? `
 ---
 
 <DefaultHead {...Astro.props} />
-<link rel="preconnect" href="https://pic1.imgdb.cn" crossorigin />
+{hasMath && <link rel="stylesheet" href={katexStylesUrl} />}
+{/* 正文图片已由 scripts/build-images.mjs 镜像到本站 /images/cdn/，不再需要为图床预热连接。
+   剩下两个外部图片主机只在 /links 与 /anime 用得上，用 dns-prefetch 而不是 preconnect，
+   避免在每个页面上都占一条连接。 */}
+<link rel="dns-prefetch" href="https://github.com" />
+<link rel="dns-prefetch" href="https://lain.bgm.tv" />
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="#161a21" />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content={String(socialImage.width)} />
+<meta property="og:image:height" content={String(socialImage.height)} />
+<meta property="og:image:type" content={socialImage.type} />
+<meta property="og:image:alt" content={ogImageAlt} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
 <ClientRouter fallback="swap" />
 
 <style is:inline set:html={`

@@ -1,9 +1,15 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi';
 ---
 
 <StarlightPage
-  frontmatter={{ title: 'Anime Reviews', template: 'splash', tableOfContents: false }}
+  frontmatter={{
+    title: 'Anime Reviews',
+    description: '在 Bangumi 上看过、想看、在追的动画与游戏条目，以及时间线记录。',
+    template: 'splash',
+    tableOfContents: false,
+  }}
   hasSidebar={false}
 >
   <div class="bangumi-page not-content">
@@ -123,6 +129,10 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
             </div>
 
             <div class="home-card-body">
+              {/* 结果区标题：筛选状态由 URL query 决定（?media=&status=&q=），所以标题是动态的。
+                  视觉上筛选栏已经表达了同样的信息，这里只给读屏用户一个语义锚点，
+                  同时补上 h1 -> h3 缺失的 h2 层级。 */}
+              <h2 class="bangumi-results-heading" aria-live="polite">条目列表</h2>
               <div id="bangumi-grid" class="bangumi-grid" aria-busy="false">
                 <div class="bangumi-message is-pulse">加载中...</div>
               </div>
@@ -161,15 +171,14 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     </div>
   </div>
 
-  <script is:inline data-astro-rerun>
+  <script is:inline define:vars={{ MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL }} data-astro-rerun>
     (function initBangumiPage() {
     const API = '/bangumi';
     const STATIC_FALLBACK = '/data/bangumi.json';
     const CACHE_KEY = 'bangumi_cache_v3';
     const CLIENT_TTL = 30 * 60 * 1000;
-    const MEDIA_SUBJECT_TYPE = { anime: 2, game: 4 };
-    const MEDIA_LABEL = { anime: '动画', game: '游戏' };
-    const STATUS_LABEL = { watching: '进行中', wish: '待补完', watched: '已完成' };
+    // MEDIA_SUBJECT_TYPE / MEDIA_LABEL / STATUS_LABEL 由 define:vars 从
+    // src/utils/bangumi.ts 注入，不再在这里重写一份。
 
     const state = {
       mediaType: 'anime',
@@ -335,6 +344,11 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
       const keyword = search.value.trim();
       const base = MEDIA_LABEL[state.mediaType] + ' · ' + STATUS_LABEL[state.status] + ' · ' + total + ' 项';
       resultsMeta.textContent = keyword ? base + ' · 关键词「' + keyword + '」' : base;
+      // 同步给 h2 标题：卡片是 h3，需要有 h2 兜住层级，筛选变化时也跟着播报。
+      const heading = document.getElementById('bangumi-results-heading');
+      if (heading && heading.textContent !== resultsMeta.textContent) {
+        heading.textContent = resultsMeta.textContent;
+      }
     }
 
     function getEmptyMessage() {
@@ -1314,5 +1328,19 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
     .bangumi-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* 读屏专用标题：筛选栏已经用文字重复了同样的信息，所以视觉上藏起来。
+     它的作用是给下方的 h3 卡片标题一个 h2 父级（修 h1 -> h3 跳级）。 */
+  .bangumi-results-heading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
 </style>

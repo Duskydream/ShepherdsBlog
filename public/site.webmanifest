@@ -1,0 +1,21 @@
+{
+  "name": "祈りの花庭",
+  "short_name": "花庭",
+  "description": "Inori no Hananiwa · The Garden of Prayer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#161a21",
+  "theme_color": "#161a21",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

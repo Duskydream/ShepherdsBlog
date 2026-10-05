@@ -3,11 +3,13 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import LilyOrnament from "../components/LilyOrnament.astro";
 import HeroTitleBanner from "../components/HeroTitleBanner.astro";
 import { getCollection } from "astro:content";
-import { execSync } from "node:child_process";
 
 import historicalCommits from "../data/git-commits.json";
+import imageManifest from "../data/image-manifest.json";
 
-const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
+// 见 src/pages/about.astro：换成 scripts/build-images.mjs 生成的本地 WebP 变体。
+const USER_AVATAR_URL = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
+const USER_AVATAR = imageManifest[USER_AVATAR_URL];
 
 const blogPosts = await getCollection("docs", (entry) => entry.id.startsWith("blog/") && entry.id !== "blog/index.md");
 const logPosts = await getCollection("docs", (entry) => entry.id.startsWith("log/") && entry.id !== "log/index.md");
@@ -88,29 +90,14 @@ function formatDate(date: Date) {
 
 const commitCounts = new Map<string, number>();
 
-// 1. 载入完整的历史 commit 数据集（包含 2024 年至今重构前的所有历史）
+// 索引 commit 热力图的数据来自 src/data/git-commits.json。
+//
+// 这里曾经额外跑一次 execSync("git log --all --format=%ad --date=short")：在页面
+// 渲染期调用外部 git 进程，在浅克隆仓库或没有 .git 的构建容器里会失败，而且让
+// 构建产物依赖本地仓库状态（不可复现）。追提交数据是 scripts/sync-commits.mjs
+// （`pnpm run sync:commits`，已包含在 build 前置步骤里）的职责。
 for (const [date, count] of Object.entries(historicalCommits as Record<string, number>)) {
   commitCounts.set(date, count);
-}
-
-// 2. 尝试从本地 git log --all 合并最新增量提交，确保本地与部署永远展示最完整历史
-try {
-  const output = execSync("git log --all --format=%ad --date=short", {
-    cwd: process.cwd(),
-    encoding: "utf-8",
-    stdio: ["ignore", "pipe", "ignore"],
-    timeout: 3000,
-    maxBuffer: 4 * 1024 * 1024,
-  });
-  const runtimeCounts = new Map<string, number>();
-  for (const date of output.split(/\r?\n/).filter(Boolean)) {
-    runtimeCounts.set(date, (runtimeCounts.get(date) || 0) + 1);
-  }
-  for (const [date, count] of runtimeCounts.entries()) {
-    commitCounts.set(date, Math.max(commitCounts.get(date) || 0, count));
-  }
-} catch {
-  // 部署环境即使是浅克隆（shallow clone），也会直接使用完整的历史数据集
 }
 
 const START_FILTER_DATE = "2025-09-01";
@@ -171,7 +158,7 @@ if (sortedDates.length > 0) {
         <div class="home-hero-profile-bar">
           <div class="home-hero-profile-left">
             <a href="/about" class="home-hero-avatar" title="关于我 · About">
-              <img src={USER_AVATAR} alt="Shepherd" width="56" height="56" loading="eager" fetchpriority="high" decoding="async" />
+              <img src={USER_AVATAR?.src ?? USER_AVATAR_URL} srcset={USER_AVATAR?.srcset} sizes={USER_AVATAR ? "56px" : undefined} alt="Shepherd" width="56" height="56" loading="eager" fetchpriority="high" decoding="async" />
             </a>
             <div class="home-hero-info">
               <a href="/about" class="home-hero-author-name-link" title="关于我 · About">

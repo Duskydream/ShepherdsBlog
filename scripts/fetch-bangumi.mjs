@@ -14,6 +14,42 @@ function truncateForDebug(value) {
   return value.length > DEBUG_MAX_BODY ? `${value.slice(0, DEBUG_MAX_BODY)}...` : value;
 }
 
+/**
+ * 裁剪单条收藏记录，只保留前端渲染真正读到的字段。
+ *
+ * 原始 API 返回的字段里有 5 个从未被 anime.astro 读取
+ * （vol_status / ep_status / private / collection_total / volumes），
+ * 而 subject.images 一次带 4 个尺寸、渲染器只用 medium 一份。
+ * 439 KB → 约 269 KB。如果以后页面要显示新字段，记得在这里放行。
+ */
+function slimItem(item) {
+  if (!item || typeof item !== "object") return item;
+  const subject = item.subject ?? {};
+  const medium = subject.images?.medium || subject.images?.common || subject.images?.large || "";
+
+  return {
+    subject_id: item.subject_id ?? subject.id,
+    rate: item.rate ?? 0,
+    comment: item.comment ?? "",
+    updated_at: item.updated_at ?? "",
+    subject: {
+      id: subject.id,
+      name: subject.name ?? "",
+      name_cn: subject.name_cn ?? "",
+      type: subject.type,
+      score: subject.score ?? 0,
+      summary: subject.summary ?? "",
+      short_summary: subject.short_summary ?? "",
+      images: medium ? { medium } : {},
+      // renderTags 只看 tag.name 与前 5 项，但用 tags.length 显示 “+N”，
+      // 所以保留整个数组的长度、每个元素只留 name。
+      tags: Array.isArray(subject.tags)
+        ? subject.tags.map((tag) => ({ name: tag?.name ?? "" }))
+        : [],
+    },
+  };
+}
+
 async function fetchCollection(type) {
   let page = 1;
   const all = [];
@@ -149,10 +185,27 @@ async function fetchUserProfile() {
 }
 
 async function main() {
-  console.log("[bangumi] 开始抓取...");
-
   const outDir = path.resolve(process.cwd(), "public", "data");
   const jsonPath = path.join(outDir, "bangumi.json");
+
+  // `node scripts/fetch-bangumi.mjs --slim-only`：不联网，只把现有
+  // public/data/bangumi.json 按新的字段白名单重新压一遍。
+  if (process.argv.includes("--slim-only")) {
+    const before = await fs.readFile(jsonPath, "utf-8");
+    const data = JSON.parse(before);
+    for (const key of ["watching", "wish", "watched"]) {
+      if (Array.isArray(data[key])) data[key] = data[key].map(slimItem);
+    }
+    const after = `${JSON.stringify(data, null, 2)}\n`;
+    await fs.writeFile(jsonPath, after, "utf-8");
+    console.log(
+      `[bangumi] slim-only: ${(before.length / 1024).toFixed(1)} KB -> ${(after.length / 1024).toFixed(1)} KB`,
+    );
+    return;
+  }
+
+  console.log("[bangumi] 开始抓取...");
+
   const existingMap = new Map();
   let existing = {};
 
@@ -206,9 +259,9 @@ async function main() {
       bio: defaultBio,
       url: "https://bgm.tv/user/duskydream",
     },
-    watching,
-    wish,
-    watched,
+    watching: watching.map(slimItem),
+    wish: wish.map(slimItem),
+    watched: watched.map(slimItem),
     timeline: timeline.length > 0 ? timeline : (existing.timeline || []),
     cachedAt: Date.now(),
   };

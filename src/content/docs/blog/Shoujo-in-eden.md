@@ -7,7 +7,7 @@ tags: ["Galgame", "Innocent Grey", "Fairy Tale"]
 categories: ["Literature"]
 ---
 
-![img](https://pic1.imgdb.cn/item/69b41d6da7f9762e817fe28a.png "1st")
+![《少女于伊甸》场景截图一](https://pic1.imgdb.cn/item/69b41d6da7f9762e817fe28a.png "1st")
 
 当少女醒来时，眼前是一片广袤的大地。
 
@@ -181,7 +181,7 @@ categories: ["Literature"]
 
 两个人并肩站在伊甸园最高的山丘上。
 
-![img](https://pic1.imgdb.cn/item/69b41d74a7f9762e817fe299.png "2nd")
+![《少女于伊甸》场景截图二](https://pic1.imgdb.cn/item/69b41d74a7f9762e817fe299.png "2nd")
 
 「就是这前方的『那颗星』。」玛丽指向天空。
 
@@ -205,7 +205,7 @@ categories: ["Literature"]
 
 莉莉的身体被她带起。她害怕自己会掉下去，于是紧紧地抱住了玛丽的手臂。
 
-![img](https://pic1.imgdb.cn/item/69b41d74a7f9762e817fe298.png "3rd")
+![《少女于伊甸》场景截图三](https://pic1.imgdb.cn/item/69b41d74a7f9762e817fe298.png "3rd")
 
 绿油油的伊甸园大地渐行渐远。宽阔的河流变成了蓝色的线条，广阔的森林变成浓绿色的一块，草木繁茂的山丘变成了绿色的绒毯。
 
@@ -215,7 +215,7 @@ categories: ["Literature"]
 
 「来，进入『焰之路』吧。」玛丽在空无一物的地方做了开门的动作。
 
-![img](https://pic1.imgdb.cn/item/69b41d77a7f9762e817fe29a.png "4th")
+![《少女于伊甸》场景截图四](https://pic1.imgdb.cn/item/69b41d77a7f9762e817fe29a.png "4th")
 
 天空裂开了。从玛丽的双手间喷出了火焰。
 
@@ -319,7 +319,7 @@ categories: ["Literature"]
 
 那是玛丽的头。
 
-![img](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15d.png "5th")
+![《少女于伊甸》场景截图五](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15d.png "5th")
 
 无神的眼睛看着莉莉。
 
@@ -405,7 +405,7 @@ categories: ["Literature"]
 
 莉莉踢起黑沙。沙子飞散。
 
-![img](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15c.png "6th")
+![《少女于伊甸》场景截图六](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15c.png "6th")
 
 说不定这就是『愤怒星』的考验。莉莉这样想着，想要愤怒，但始终不知道怎样愤怒。
 
@@ -501,7 +501,7 @@ categories: ["Literature"]
 
 大颗泪水溢出眼眶。
 
-![img](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15b.png "7th")
+![《少女于伊甸》场景截图七](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15b.png "7th")
 
 「我再也无法忍耐像伊甸园那样，什么都没有的世界了。」
 
@@ -533,7 +533,7 @@ categories: ["Literature"]
 
 『快乐星』和『哀伤星』一样，几乎和伊甸园没有区别。
 
-![img](https://pic1.imgdb.cn/item/69b41d6da7f9762e817fe28a.png "8th")
+![《少女于伊甸》场景截图八](https://pic1.imgdb.cn/item/69b41d6da7f9762e817fe28a.png "8th")
 
 玛丽不知何时又不见了。
 
@@ -681,7 +681,7 @@ categories: ["Literature"]
 
 那为了证明自己，莉莉是不是就必须要杀掉面前的少女？
 
-![img](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15e.png "9th")
+![《少女于伊甸》场景截图九](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15e.png "9th")
 
 少女挥下了柴刀。千钧一发之际，莉莉躲开了。
 
@@ -763,7 +763,7 @@ categories: ["Literature"]
 
 抱起石头，感觉非常沉重。
 
-![img](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe159.png "10th")
+![《少女于伊甸》场景截图十](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe159.png "10th")
 
 「拜托你了。」似乎听到她这样说。
 
@@ -867,7 +867,7 @@ categories: ["Literature"]
 
 兔子人偶……不对，兔子模样的门卫站在那里。
 
-![img](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15a.png "11th")
+![《少女于伊甸》场景截图十一](https://pic1.imgdb.cn/item/69b41caba7f9762e817fe15a.png "11th")
 
 「你是——」遗忘的记忆逐渐复苏了。
 

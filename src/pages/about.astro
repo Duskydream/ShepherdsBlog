@@ -1,8 +1,14 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import LilyOrnament from "../components/LilyOrnament.astro";
+import imageManifest from "../data/image-manifest.json";
 
-const USER_AVATAR = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
+// 头像与二维码原图分别是 800×800（278 KB）和竖版大图，这里换成 scripts/build-images.mjs
+// 生成的本地 WebP 变体：实际显示只有 68px / 170px。
+const USER_AVATAR_URL = "https://pic1.imgdb.cn/item/65c1c9269f345e8d03080e8d.jpg";
+const WECHAT_QR_URL = "https://pic1.imgdb.cn/i/034IJ9x5hhAP5kGdKSrV7l.jpg";
+const USER_AVATAR = imageManifest[USER_AVATAR_URL];
+const WECHAT_QR = imageManifest[WECHAT_QR_URL];
 
 const socialLinks = [
   {
@@ -112,7 +118,9 @@ const colophonData = [
           <div class="about-author-card">
             <div class="about-avatar-ring">
               <img
-                src={USER_AVATAR}
+                src={USER_AVATAR?.src ?? USER_AVATAR_URL}
+                srcset={USER_AVATAR?.srcset}
+                sizes={USER_AVATAR ? "68px" : undefined}
                 alt="Shepherd"
                 width="68"
                 height="68"
@@ -236,7 +244,9 @@ const colophonData = [
             <div class="wechat-qr-body">
               <div class="wechat-qr-box">
                 <img
-                  src="https://pic1.imgdb.cn/i/034IJ9x5hhAP5kGdKSrV7l.jpg"
+                  src={WECHAT_QR?.src ?? WECHAT_QR_URL}
+                  srcset={WECHAT_QR?.srcset}
+                  sizes={WECHAT_QR ? "170px" : undefined}
                   alt="微信公众号二维码"
                   width="170"
                   height="170"
@@ -286,7 +296,9 @@ const colophonData = [
     min-height: calc(100vh - var(--sl-nav-height));
     padding: 3rem 1.5rem 5rem;
     box-sizing: border-box;
-    overflow-x: hidden;
+    /* 必须用 clip 不能用 hidden：hidden 会把本页变成滚动容器，
+       导致子元素 .about-col-side 的 position: sticky 失效。 */
+    overflow-x: clip;
   }
 
   /* 背景环境氛围 */

@@ -8,9 +8,9 @@
     "start": "astro dev",
     "check": "astro check",
     "refresh:bangumi": "node ./scripts/fetch-bangumi.mjs",
-    "refresh:image-sizes": "node ./scripts/fetch-image-sizes.mjs",
+    "refresh:images": "node ./scripts/build-images.mjs",
     "sync:commits": "node ./scripts/sync-commits.mjs",
-    "build": "pnpm run sync:commits && pnpm run refresh:bangumi && pnpm run refresh:image-sizes && astro build",
+    "build": "pnpm run sync:commits && pnpm run refresh:bangumi && pnpm run refresh:images && astro build",
     "build:fast": "astro build",
     "build:functions": "tsc -p tsconfig.functions.json",
     "deploy": "pnpm run check && node ./scripts/deploy.mjs",
@@ -19,10 +19,10 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
-    "@astrojs/internal-helpers": "0.8.0",
     "@astrojs/markdown-remark": "^7.2.0",
     "@astrojs/mdx": "^5.0.6",
     "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.3",
     "@astrojs/starlight": "^0.38.3",
     "@fontsource/instrument-serif": "^5.3.0",
     "astro": "^6.1.5",
@@ -31,7 +31,6 @@
   },
   "devDependencies": {
     "katex": "^0.16.22",
-    "potrace": "^2.1.8",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "typescript": "^5.9.2"

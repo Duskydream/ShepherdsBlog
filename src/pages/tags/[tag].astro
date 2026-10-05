@@ -24,11 +24,19 @@ const tag = Astro.params.tag ? decodeURIComponent(Astro.params.tag) : "";
 const { posts } = Astro.props;
 ---
 
-<StarlightPage frontmatter={{ title: `Tag: #${tag}`, template: "splash", tableOfContents: false }} hasSidebar={false}>
+<StarlightPage
+  frontmatter={{
+    title: `Tag: #${tag}`,
+    description: `Posts tagged with #${tag}（共 ${posts.length} 篇）。`,
+    template: "splash",
+    tableOfContents: false,
+  }}
+  hasSidebar={false}
+>
   <section class="tag-timeline not-content">
     <header>
       <Floral variant="bud" class="tag-head-floral" />
-      <span>Posts tagged with #{tag}</span>
+      <h1>Posts tagged with #{tag}</h1>
     </header>
     <div class="timeline-body"><ContentTimeline posts={posts} /></div>
   </section>
@@ -52,6 +60,14 @@ const { posts } = Astro.props;
       color: var(--sl-color-white);
       font-size: 0.85rem;
       font-weight: 600;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: inherit;
+      font-weight: inherit;
+      line-height: inherit;
+      color: inherit;
     }
 
     header svg { color: var(--sl-color-gray-3); }

@@ -1,10 +1,17 @@
 ---
 import { getCollection } from "astro:content";
 import historicalCommits from "../data/git-commits.json";
+import imageManifest from "../data/image-manifest.json";
 import Floral from "./Floral.astro";
 
+// 页脚横幅是组件里写死的远程图（不会被 markdown 扫描到），但同样受益于
+// scripts/build-images.mjs 的本地 WebP 变体。清单里没有时退回原始远程 URL。
+const BANNER_URL = "https://pic1.imgdb.cn/i/034HC8xfJdk5i0JelBlVVz.jpg";
+const banner = imageManifest[BANNER_URL];
+
+// 运行天数在构建期算会让每次构建的 HTML 都不同（不可复现），所以只把
+// 上线日期写进 HTML，具体天数由页脚末尾的一小段脚本在浏览器里即时计算。
 const LAUNCH_DATE = "2024-03-17";
-const runningDays = Math.max(1, Math.floor((Date.now() - new Date(LAUNCH_DATE).getTime()) / (1000 * 60 * 60 * 24)));
 
 let allPostsCount = 0;
 try {
@@ -30,9 +37,13 @@ if (commitTotal === 0) commitTotal = 625;
   <div class="site-footer-card">
     <div class="site-footer-banner">
       <img
-        src="https://pic1.imgdb.cn/i/034HC8xfJdk5i0JelBlVVz.jpg"
+        src={banner?.src ?? BANNER_URL}
+        srcset={banner?.srcset}
+        sizes={banner ? "100vw" : undefined}
         alt=""
         class="site-footer-banner-img"
+        width={banner?.width ?? 1200}
+        height={banner?.height ?? 1200}
         loading="lazy"
         decoding="async"
       />
@@ -44,16 +55,33 @@ if (commitTotal === 0) commitTotal = 625;
       <div class="site-footer-col site-footer-brand">
         <h2 class="site-footer-brand-title">祈りの花庭</h2>
         <p class="site-footer-brand-motto">如花四散，余香绕指，心中的裂痕亦能被填补。</p>
-        <form class="site-footer-subscribe-form" action="/rss.xml" method="get">
-          <input
-            type="text"
-            name="feed"
-            placeholder="邮箱地址 / RSS 订阅"
-            class="site-footer-subscribe-input"
-            aria-label="订阅邮箱或RSS"
-          />
-          <button type="submit" class="site-footer-subscribe-btn">订阅</button>
-        </form>
+        {/*
+          这里原本是一个 form（action="/rss.xml" + name="feed"）做“订阅”框：
+          提交后浏览器会去 GET /rss.xml?feed=... ，而 rss.xml.js 是静态生成的 XML，
+          根本不读 query 参数 —— 这个表单从来不会发送任何东西。
+          改成真正可用的订阅入口：RSS 链接 + 一键复制订阅地址。
+
+          注意用 JSX 注释而不是 HTML 注释：HTML 注释会被原样写进 27 个页面的
+          产物里（含下面这段文字本身的 300 多字节），JSX 注释构建期就被丢掉。
+        */}
+        <div class="site-footer-subscribe-form" data-rss-subscribe>
+          <a
+            class="site-footer-subscribe-btn"
+            href="/rss.xml"
+            title="在阅读器里打开 RSS 订阅源"
+          >
+            RSS 订阅
+          </a>
+          <button
+            type="button"
+            class="site-footer-subscribe-input site-footer-copy-btn"
+            data-rss-copy
+            data-rss-url={new URL("/rss.xml", Astro.site ?? "https://www.lxzm.space").href}
+            aria-label="复制 RSS 订阅地址"
+          >
+            复制订阅地址
+          </button>
+        </div>
       </div>
 
       <!-- 2. NAVIGATE -->
@@ -170,7 +198,11 @@ if (commitTotal === 0) commitTotal = 625;
               <Floral variant="bloom" class="link-bullet" />
               <span class="stat-label">运行</span>
             </span>
-            <span class="stat-value">{runningDays} 天</span>
+            {/* 构建期不能写死天数，否则每天重新构建都会得到一个不同的产物，
+                构建就不再可复现（每次部署 diff 都有这个数字）。这里只放一个与
+                构建时间无关的静态回退（无 JS 时显示起始日），真实天数由下面
+                的 refreshRunningDays() 在浏览器里补上。 */}
+            <span class="stat-value" data-running-days data-launch={LAUNCH_DATE}><noscript>自 {LAUNCH_DATE}</noscript></span>
           </li>
           <li>
             <span class="stat-left">
@@ -328,6 +360,23 @@ if (commitTotal === 0) commitTotal = 625;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    /* 订阅按钮现在是 <a>，需要去掉下划线并保持与按钮一致的基线 */
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  /* “复制订阅地址”仍是 <button>，但复用输入框的排版 */
+  .site-footer-copy-btn {
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    font-size: 0.82rem;
+  }
+
+  .site-footer-copy-btn[data-copied="true"] {
+    color: var(--sl-color-accent);
   }
 
   .site-footer-subscribe-btn:hover {
@@ -465,3 +514,48 @@ if (commitTotal === 0) commitTotal = 625;
     }
   }
 </style>
+
+<script>
+  // 「运行 XX 天」在浏览器里即时计算：构建期算会让每天的产物都不同，
+  // 而这是一个纯展示数字，没有理由写死在 HTML 里。
+  // 注意服务端只能渲染与构建时间无关的内容（这里是无 JS 时的 <noscript>
+  // 起始日），否则产物仍会随构建日期变化。
+  function refreshRunningDays() {
+    const el = document.querySelector("[data-running-days]");
+    const launch = el?.getAttribute("data-launch");
+    if (!el || !launch) return;
+    const start = new Date(`${launch}T00:00:00Z`).getTime();
+    const days = Math.max(1, Math.floor((Date.now() - start) / 86_400_000));
+    el.textContent = `${days} 天`;
+  }
+
+  function bindRssCopy() {
+    const btn = document.querySelector<HTMLButtonElement>("[data-rss-copy]");
+    if (!btn || btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
+    btn.addEventListener("click", async () => {
+      const url = btn.getAttribute("data-rss-url") ?? "";
+      const original = btn.textContent;
+      try {
+        await navigator.clipboard.writeText(url);
+        btn.dataset.copied = "true";
+        btn.textContent = "已复制 ✓";
+      } catch {
+        // 剪贴板不可用（非 https / 权限被拒）时退化成提示手动复制
+        btn.textContent = url;
+      }
+      window.setTimeout(() => {
+        btn.dataset.copied = "false";
+        btn.textContent = original;
+      }, 1600);
+    });
+  }
+
+  function refreshFooter() {
+    refreshRunningDays();
+    bindRssCopy();
+  }
+
+  refreshFooter();
+  document.addEventListener("astro:page-load", refreshFooter);
+</script>

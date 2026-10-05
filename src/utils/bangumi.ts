@@ -1,29 +1,59 @@
+// bangumi 数据的类型与共享常量。
+//
+// 这份文件之前是一份“完整的第二实现”（filterBangumi / normalizePayload），
+// 但从来没有被 import 过 —— src/pages/anime.astro 把同样的逻辑内联了一份，
+// 于是同一个文件有两套会各自漂移的过滤规则。现在这里只保留 anime.astro
+// 真正用得上的类型和常量，过滤逻辑保持内联（页面需要按 URL query 实时过滤，
+// 走 Astro.glob 的模块代码反而多一层间接）。
+//
+// 注意：/api/bangumi 和 functions/bangumi/index.ts 是 edge runtime，
+// 不能 import 这个文件（它们是独立编译的部署单元）。
+
 export type MediaType = "anime" | "game";
 export type BangumiStatus = "watching" | "wish" | "watched";
+
+export interface BangumiImageSet {
+  large?: string;
+  common?: string;
+  medium?: string;
+  small?: string;
+}
 
 export interface BangumiSubject {
   id: number;
   name: string;
-  name_cn: string;
+  name_cn?: string;
   type: number;
   date?: string;
-  images?: {
-    large?: string;
-    common?: string;
-  };
+  score?: number;
+  tags?: { name: string; count?: number }[];
+  summary?: string;
+  short_summary?: string;
+  images?: BangumiImageSet;
 }
 
 export interface BangumiItem {
   subject: BangumiSubject;
-  comment: string;
+  comment?: string;
+  updated_at?: string;
+  rate?: number;
+}
+
+export interface BangumiTimelineEntry {
+  type?: string;
+  subject?: BangumiSubject;
+  summary?: string;
+  date?: string;
 }
 
 export interface BangumiData {
   watching: BangumiItem[];
   wish: BangumiItem[];
   watched: BangumiItem[];
+  timeline?: BangumiTimelineEntry[];
 }
 
+/** Bangumi API 的 subject.type 枚举里，动画=2，游戏=4。 */
 export const MEDIA_SUBJECT_TYPE: Record<MediaType, number> = {
   anime: 2,
   game: 4,
@@ -39,33 +69,3 @@ export const STATUS_LABEL: Record<BangumiStatus, string> = {
   wish: "待补完",
   watched: "已完成",
 };
-
-export function filterBangumi(
-  data: BangumiData,
-  status: BangumiStatus,
-  mediaType: MediaType,
-  keyword: string,
-): BangumiItem[] {
-  const source = data[status] || [];
-  const typeFilter = MEDIA_SUBJECT_TYPE[mediaType];
-  const kw = keyword.toLowerCase().trim();
-
-  return source
-    .filter((item) => item.subject?.type === typeFilter)
-    .filter((item) => {
-      if (!kw) return true;
-      const title = item.subject?.name_cn || item.subject?.name || "";
-      return title.toLowerCase().includes(kw);
-    });
-}
-
-export function normalizePayload(payload: unknown): BangumiData {
-  const obj = payload as Record<string, unknown> | null;
-  return {
-    watching: Array.isArray(obj?.watching)
-      ? (obj.watching as BangumiItem[])
-      : [],
-    wish: Array.isArray(obj?.wish) ? (obj.wish as BangumiItem[]) : [],
-    watched: Array.isArray(obj?.watched) ? (obj.watched as BangumiItem[]) : [],
-  };
-}

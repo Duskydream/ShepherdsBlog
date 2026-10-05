@@ -1,4 +1,10 @@
 ---
+// 保持内联（不走 <symbol>/<use>、外部 <img> 或 CSS mask 的原因）：
+// 21 条 path 各带 pathLength="1" + stroke-dasharray/-dashoffset 的错峰 lily-draw 描边动画，
+// 且共用一条 userSpaceOnUse 渐变（--sl-color-accent → --sl-color-accent-high）。
+// <use> 进阴影 DOM 后 var() 与 scoped CSS 都不生效，动画和主题渐变会一起丢；
+// 抽成外部文件则丢主题色；改成 CSS mask data URI 则丢掉全部错峰动画。
+// 全站 27 页 × 5.9 KB raw（约 1.5 KB gzip）的代价换主视觉的完整效果，是有意保留的取舍。
 interface Props {
   id?: string;
 }

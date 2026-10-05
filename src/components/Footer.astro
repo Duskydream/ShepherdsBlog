@@ -13,49 +13,10 @@ const showComments =
     filePath.startsWith('src/content/docs/blog/') ||
     filePath.startsWith('src/content/docs/log/') ||
     filePath.startsWith('src/content/docs/coding-notes/');
----
 
-<footer class="sl-flex">
-	{
-		!isSplash && (
-			<div class="meta sl-flex">
-				<EditLink {...Astro.props} />
-				<LastUpdated {...Astro.props} />
-			</div>
-			<Pagination {...Astro.props} />
-		)
-	}
-
-	{showComments && (
-	<div style="margin-top: 2rem; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-6); border-radius: 1rem; overflow: hidden; transition: border-color 0.2s ease;">
-	  <div style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--sl-color-gray-6); font-size: 0.85rem; font-weight: 600; color: var(--sl-color-white);">
-	    <Floral variant="bloom" class="comments-title-floral" />
-	    <span>文章评论 / Comments</span>
-	  </div>
-	  <div class="giscus-container" data-giscus-lazy style="padding: 1rem; min-height: 150px;">
-	    <div class="giscus-placeholder" role="status">Loading comments...</div>
-	  </div>
-	</div>
-	)}
-
-	<!-- 全局通用 4 栏现代化页脚 (NAVIGATE · CONNECT · STATS · BRAND & SUBSCRIBE) -->
-	<SiteFooter />
-
-	{
-		config.credits && (
-			<a class="kudos sl-flex" href="https://starlight.astro.build">
-				<Icon name={'starlight'} /> {Astro.locals.t('builtWithStarlight.label')}
-			</a>
-		)
-	}
-
-	<div class="copyright-notice">
-		Copyright &copy; {new Date().getFullYear()} Shepherd Meng.
-	</div>
-</footer>
-
-<script is:inline data-astro-rerun>
-  (function() {
+// giscus 延迟加载 + 主题同步。抽成字符串常量，好让 <script> 节点能跟着
+// showComments 条件渲染，而不是每页都下发一份注定 return 的副本。
+const giscusScript = `(function() {
     window.__starlightGiscusObserver?.disconnect?.();
     window.__starlightGiscusThemeObserver?.disconnect?.();
 
@@ -122,6 +83,10 @@ const showComments =
       loadGiscus();
     }
 
+    // Astro view transitions 会在导航时把整个 <main> 换掉，旧的 observer 和
+    // themeObserver 会一直持有已移除的节点。这里在 astro:page-load 时重建：
+    // 脚本节点带 data-astro-rerun，每次导航都会重新执行，所以只需要保证
+    // 上一次的 observer 被断开即可。
     document.addEventListener(
       'astro:before-swap',
       () => {
@@ -131,8 +96,56 @@ const showComments =
       { once: true }
     );
 
-  })();
-</script>
+  })();`;
+---
+
+<footer class="sl-flex">
+	{
+		!isSplash && (
+			<div class="meta sl-flex">
+				<EditLink {...Astro.props} />
+				<LastUpdated {...Astro.props} />
+			</div>
+			<Pagination {...Astro.props} />
+		)
+	}
+
+	{showComments && (
+	<div style="margin-top: 2rem; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-6); border-radius: 1rem; overflow: hidden; transition: border-color 0.2s ease;">
+	  <div style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--sl-color-gray-6); font-size: 0.85rem; font-weight: 600; color: var(--sl-color-white);">
+	    <Floral variant="bloom" class="comments-title-floral" />
+	    <span>文章评论 / Comments</span>
+	  </div>
+	  <div class="giscus-container" data-giscus-lazy style="padding: 1rem; min-height: 150px;">
+	    <div class="giscus-placeholder" role="status">Loading comments...</div>
+	  </div>
+	</div>
+	)}
+
+	{/*
+	  giscus 初始化脚本必须和上面的容器同时条件渲染。
+	  之前它是无条件内联的（is:inline 不做提升），于是全站 27 个页面各带一份
+	  2494 B 副本，其中 19 个页面因为没有容器而首行就 return —— 累计浪费 66 KB。
+	*/}
+	{showComments && (
+	<script is:inline data-astro-rerun set:html={giscusScript} />
+	)}
+
+	<!-- 全局通用 4 栏现代化页脚 (NAVIGATE · CONNECT · STATS · BRAND & SUBSCRIBE) -->
+	<SiteFooter />
+
+	{
+		config.credits && (
+			<a class="kudos sl-flex" href="https://starlight.astro.build">
+				<Icon name={'starlight'} /> {Astro.locals.t('builtWithStarlight.label')}
+			</a>
+		)
+	}
+
+	<div class="copyright-notice">
+		Copyright &copy; {new Date().getFullYear()} Shepherd Meng.
+	</div>
+</footer>
 
 <style>
 	.sl-flex {
@@ -198,10 +211,6 @@ const showComments =
 			-webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
 			mask: var(--floral-mask-bloom) center / contain no-repeat;
 			animation: floral-spin 1.8s linear infinite;
-		}
-
-		@keyframes floral-spin {
-			to { transform: rotate(360deg); }
 		}
 	}
 

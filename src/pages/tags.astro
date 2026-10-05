@@ -12,9 +12,13 @@ posts.forEach((post) => {
 });
 
 const tags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+const description = `全部 ${tags.length} 个标签，共 ${[...tagCounts.values()].reduce((a, b) => a + b, 0)} 篇文章。按标签浏览站点内容。`;
 ---
 
-<StarlightPage frontmatter={{ title: "Tags", template: "splash", tableOfContents: false }} hasSidebar={false}>
+<StarlightPage
+  frontmatter={{ title: "Tags", description, template: "splash", tableOfContents: false }}
+  hasSidebar={false}
+>
   <section class="tags-index not-content">
     <header class="tags-index-head">
       <p>Index</p>
