@@ -98,12 +98,12 @@
 /* 左侧目录里的节点花放大一些 */
 .desktop-sidebar-context .floral-vine-svg .fv-star,
 .mobile-sidebar-nav .floral-vine-svg .fv-star {
-  --s: 0.45 !important;
+  --s: 0.5 !important;
 }
 
 .desktop-sidebar-context .floral-vine-svg .fv-star.fv-current,
 .mobile-sidebar-nav .floral-vine-svg .fv-star.fv-current {
-  --s: 0.72 !important;
+  --s: 0.78 !important;
 }
 
 /* =========================================
@@ -115,7 +115,7 @@
   --floral-mask-bud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 C 17 8 17.5 15.5 12 22 C 6.5 15.5 7 8 12 2 Z' fill='%23000'/%3E%3C/svg%3E");
   --floral-mask-sprig: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M12 22 C 12 16 12 10 12 4.6'/%3E%3Cpath d='M12 11 C 14 9.6 16 8.8 18.6 8.2'/%3E%3Cpath d='M12 15 C 10 13.6 8 12.8 5.6 12.2'/%3E%3C/g%3E%3Cg fill='%23000'%3E%3Cpath d='M12 14.5 C 8.5 13 5.5 9.5 5.5 5.5 C 10 6.5 12 10 12 14.5 Z'/%3E%3Cpath d='M12 18.5 C 15 16.5 17.5 13 17.5 9 C 13.5 10 12 13.5 12 18.5 Z'/%3E%3Cpath d='M12 9.5 C 9.8 8 8.4 5.6 8.4 3 C 11 4 12 6.4 12 9.5 Z'/%3E%3Ccircle cx='12' cy='3.4' r='2.4'/%3E%3Ccircle cx='19' cy='7.9' r='1.9'/%3E%3Ccircle cx='5.2' cy='11.9' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
   /* 单朵花：5 片圆润的水滴花瓣环绕花心，比 bloom 的尖刺星形更柔和 */
-  --floral-mask-flower: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='%23000'%3E%3Cpath d='M 12 12 C 9.08 13.8 5.81 13.8 3.4 12 C 5.81 10.2 9.08 10.2 12 12 Z'/%3E%3Cpath d='M 12 12 C 9.38 9.78 8.37 6.67 9.34 3.82 C 11.8 5.55 12.81 8.66 12 12 Z'/%3E%3Cpath d='M 12 12 C 13.31 8.83 15.95 6.9 18.96 6.95 C 18.07 9.82 15.42 11.74 12 12 Z'/%3E%3Cpath d='M 12 12 C 15.42 12.26 18.07 14.18 18.96 17.05 C 15.95 17.1 13.31 15.17 12 12 Z'/%3E%3Cpath d='M 12 12 C 12.81 15.34 11.8 18.45 9.34 20.18 C 8.37 17.33 9.38 14.22 12 12 Z'/%3E%3C/g%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%23000'/%3E%3C/svg%3E");
+  --floral-mask-flower: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='%23000'%3E%3Cpath d='M 12 12 C 8.33 14.25 4.22 14.25 1.2 12 C 4.22 9.75 8.33 9.75 12 12 Z'/%3E%3Cpath d='M 12 12 C 8.73 9.2 7.46 5.3 8.66 1.73 C 11.74 3.91 13.01 7.81 12 12 Z'/%3E%3Cpath d='M 12 12 C 13.65 8.02 16.97 5.61 20.74 5.65 C 19.61 9.25 16.29 11.66 12 12 Z'/%3E%3Cpath d='M 12 12 C 16.29 12.34 19.61 14.75 20.74 18.35 C 16.97 18.39 13.65 15.98 12 12 Z'/%3E%3Cpath d='M 12 12 C 13.01 16.19 11.74 20.09 8.66 22.27 C 7.46 18.7 8.73 14.8 12 12 Z'/%3E%3C/g%3E%3Ccircle cx='12' cy='12' r='2' fill='%23000'/%3E%3C/svg%3E");
 }
 
 .floral {

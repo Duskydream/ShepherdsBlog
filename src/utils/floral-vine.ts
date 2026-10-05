@@ -16,8 +16,14 @@ const DEFAULTS: FloralVineOptions = {
   meander: 2.5,
 };
 
-const SPARK =
-  "M 0 -12 C 1.6 -4 4 -1.6 12 0 C 4 1.6 1.6 4 0 12 C -1.6 4 -4 1.6 -12 0 C -4 -1.6 -1.6 -4 0 -12 Z";
+// 节点花：5 片花瓣绕中心 + 实心花心，半径 11（与藤茎同量级）
+const FLOWER =
+  "M 0 0 C -3.74 2.3 -7.92 2.3 -11 0 C -7.92 -2.3 -3.74 -2.3 0 0 Z " +
+  "M 0 0 C -3.34 -2.85 -4.63 -6.82 -3.4 -10.46 C -0.26 -8.24 1.03 -4.27 0 0 Z " +
+  "M 0 0 C 1.67 -4.06 5.06 -6.52 8.9 -6.47 C 7.76 -2.79 4.38 -0.34 0 0 Z " +
+  "M 0 0 C 4.38 0.34 7.76 2.79 8.9 6.47 C 5.06 6.52 1.67 4.06 0 0 Z " +
+  "M 0 0 C 1.03 4.27 -0.26 8.24 -3.4 10.46 C -4.63 6.82 -3.34 2.85 0 0 Z " +
+  "M 2.05 0 A 2.05 2.05 0 1 0 -2.05 0 A 2.05 2.05 0 1 0 2.05 0 Z";
 const LEAF = "M 0 0 C 14 -9 30 -11 42 -9 C 30 0 14 3 0 0 Z";
 
 let uid = 0;
@@ -63,7 +69,7 @@ export function syncCurrent(container: HTMLElement) {
     const star = stars[i] as SVGPathElement;
     const isCurrent = !!el.querySelector(opts.current);
     star.classList.toggle("fv-current", isCurrent);
-    star.style.setProperty("--s", isCurrent ? "0.45" : "0.28");
+    star.style.setProperty("--s", isCurrent ? "0.5" : "0.32");
   });
 }
 
@@ -112,8 +118,8 @@ export function renderFloralVine(container: HTMLElement) {
     const delay = (0.25 + i * 0.09).toFixed(2);
     deco += `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})">
       <path class="fv-star${isCurrent ? " fv-current" : ""}"
-        style="--s:${isCurrent ? 0.45 : 0.28};animation-delay:${delay}s"
-        d="${SPARK}" fill="url(#${gid})" /></g>`;
+        style="--s:${isCurrent ? 0.5 : 0.32};animation-delay:${delay}s"
+        d="${FLOWER}" fill="url(#${gid})" /></g>`;
     if (i < anchors.length - 1) {
       const ny = ((anchors[i].y + anchors[i + 1].y) / 2).toFixed(1);
       const side = i % 2 === 0 ? 1 : -1;
