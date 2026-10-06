@@ -1,7 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getCollection } from "astro:content";
-import Floral from "./Floral.astro";
 
 type Props = {
   title: string;
@@ -49,7 +48,6 @@ const sectionLabel = title || labelFromSlug(section);
     <div class="section-index-card">
       <div class="section-index-card-head">
         <div class="section-index-card-title">
-          <Floral variant="sprig" class="section-index-head-floral" />
           <span>{sectionLabel} Timeline</span>
         </div>
         <span class="section-index-count">{posts.length} posts</span>
@@ -164,11 +162,6 @@ const sectionLabel = title || labelFromSlug(section);
     .section-index-card-title svg {
       flex: 0 0 auto;
       color: var(--sl-color-gray-3);
-    }
-    .section-index-head-floral {
-      --floral-size: 1rem;
-      flex: 0 0 auto;
-      color: var(--sl-color-accent);
     }
 
     .section-index-count {

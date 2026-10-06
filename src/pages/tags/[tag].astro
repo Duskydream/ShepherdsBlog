@@ -2,7 +2,6 @@
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getCollection } from "astro:content";
 import ContentTimeline from "../../components/ContentTimeline.astro";
-import Floral from "../../components/Floral.astro";
 
 export async function getStaticPaths() {
   const allDocs = await getCollection("docs");
@@ -35,7 +34,6 @@ const { posts } = Astro.props;
 >
   <section class="tag-timeline not-content">
     <header>
-      <Floral variant="bud" class="tag-head-floral" />
       <h1>Posts tagged with #{tag}</h1>
     </header>
     <div class="timeline-body"><ContentTimeline posts={posts} /></div>
@@ -71,11 +69,6 @@ const { posts } = Astro.props;
     }
 
     header svg { color: var(--sl-color-gray-3); }
-    .tag-head-floral {
-      width: 1rem;
-      height: 1rem;
-      color: var(--sl-color-accent);
-    }
     .timeline-body { padding: 0.75rem 1rem; }
   </style>
 </StarlightPage>
