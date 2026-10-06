@@ -30,6 +30,5 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-.antigravityrules
 # 图片优化脚本下载的原始图缓存（可由 refresh:images 随时重建）
 .image-cache/
