@@ -148,11 +148,19 @@ export function renderFloralVine(container: HTMLElement) {
   );
 }
 
+const containerCleanups = new Map<HTMLElement, () => void>();
+
+function clearContainerObservers() {
+  containerCleanups.forEach((cleanup) => cleanup());
+  containerCleanups.clear();
+}
+
 export function bindFloralVines() {
   const w = window as unknown as {
     __fvBound?: boolean;
     __fvObserver?: MutationObserver;
     __fvRedrawAll?: () => void;
+    __fvFrame?: number;
   };
 
   const redrawAll =
@@ -173,37 +181,46 @@ export function bindFloralVines() {
     );
 
   const observeContainer = (container: HTMLElement) => {
-    if (container.dataset.fvObserved) return;
-    container.dataset.fvObserved = "1";
+    if (containerCleanups.has(container)) return;
+    let resizeTimer = 0;
+    let mutationTimer = 0;
+    let resizeObserver: ResizeObserver | undefined;
 
     // TOC height can change after fonts finish loading or when a responsive
     // layout changes width. Those changes do not emit mutations or a window
     // resize event, so keep the SVG geometry in sync with the actual box.
     if (typeof ResizeObserver !== "undefined") {
-      let resizeTimer: number;
-      const resizeObserver = new ResizeObserver(() => {
+      resizeObserver = new ResizeObserver(() => {
         clearTimeout(resizeTimer);
         resizeTimer = window.setTimeout(() => renderFloralVine(container), 100);
       });
       resizeObserver.observe(container);
     }
 
-    new MutationObserver((mutations) => {
+    const mutationObserver = new MutationObserver((mutations) => {
       if (mutations.every(isSvgChurn)) return;
+      clearTimeout(mutationTimer);
       if (
         mutations.every(
           (m) => m.type === "attributes" && m.attributeName === "aria-current"
         )
       ) {
-        setTimeout(() => syncCurrent(container), 0);
+        mutationTimer = window.setTimeout(() => syncCurrent(container), 0);
         return;
       }
-      setTimeout(() => renderFloralVine(container), 0);
-    }).observe(container, {
+      mutationTimer = window.setTimeout(() => renderFloralVine(container), 0);
+    });
+    mutationObserver.observe(container, {
       childList: true,
       subtree: true,
       attributes: true,
       attributeFilter: ["hidden", "aria-expanded", "aria-current"],
+    });
+    containerCleanups.set(container, () => {
+      resizeObserver?.disconnect();
+      mutationObserver.disconnect();
+      clearTimeout(resizeTimer);
+      clearTimeout(mutationTimer);
     });
   };
 
@@ -212,13 +229,25 @@ export function bindFloralVines() {
       .querySelectorAll<HTMLElement>("[data-floral-vine]")
       .forEach(observeContainer);
 
+  containerCleanups.forEach((cleanup, container) => {
+    if (!container.isConnected) { cleanup(); containerCleanups.delete(container); }
+  });
   bindContainers();
-  requestAnimationFrame(redrawAll);
+  if (!w.__fvFrame) {
+    w.__fvFrame = requestAnimationFrame(() => { w.__fvFrame = 0; redrawAll(); });
+  }
 
   // body 在视图过渡时会被整体替换，观察器需重新挂到新 body 上
   if (!w.__fvBound) {
     w.__fvBound = true;
     window.addEventListener("load", redrawAll);
+    document.addEventListener("astro:page-load", bindFloralVines);
+    document.addEventListener("astro:before-swap", () => {
+      clearContainerObservers();
+      w.__fvObserver?.disconnect();
+      if (w.__fvFrame) cancelAnimationFrame(w.__fvFrame);
+      w.__fvFrame = 0;
+    });
 
     let timer: number;
     window.addEventListener("resize", () => {
@@ -246,6 +275,6 @@ export function bindFloralVines() {
     if (mutations.some((m) => m.attributeName === "data-drawer-open"))
       setTimeout(redrawAll, 0);
   });
-  observer.observe(document.body, { attributes: true });
+  observer.observe(document.body, { attributes: true, attributeFilter: ["data-drawer-open"] });
   w.__fvObserver = observer;
 }

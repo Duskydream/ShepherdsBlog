@@ -31,6 +31,9 @@
 - 页面跳转使用 Astro View Transitions，导航保持连续、自然的舞台换幕感。
 - 动画遵循 `prefers-reduced-motion`，在用户要求减少动态效果时自动降低装饰动画。
 - 评论区使用 Giscus，并通过 Intersection Observer 延迟加载，避免影响文章首屏速度。
+- 文章目录以 `72rem` 为统一切换断点；章节定位按固定栏的实际像素位置计算。
+- 文章进度条只计算正文；预计阅读至少 15 分钟的文章支持手动续读。记录仅保存在本机浏览器，最多 40 篇、保留 30 天；读完会清除记录，带章节锚点的链接不提示续读。
+- 导航抽屉支持焦点移入、Tab 循环、Escape 关闭和焦点恢复；开启时背景不可交互。
 
 ## 技术栈
 
@@ -103,6 +106,16 @@ pnpm dev
 开发服务器默认运行在 `http://localhost:4321/`。
 
 如果新建文章后页面没有立即出现，可以重启开发服务器，让 Astro 重新同步内容集合。
+
+## 阅读交互回归测试
+
+```bash
+pnpm run check
+pnpm run build:fast
+node scripts/test-reading-browser.mjs
+```
+
+浏览器测试不引入新依赖，默认使用 Windows 上安装的 Microsoft Edge；其他环境可用 `BROWSER_PATH` 指定 Chromium 浏览器可执行文件。需要支持原生 `WebSocket` 的 Node.js（例如 Node.js 22+）。测试覆盖手机列表、目录断点与定位、抽屉键盘交互、正文进度、续读与多次站内转场；不请求外部服务，也不发布网站。
 
 ## 常用命令
 

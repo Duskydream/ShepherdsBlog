@@ -203,7 +203,7 @@ const { toc } = Astro.locals.starlightRoute;
       --sl-mobile-toc-edge-glass: linear-gradient(180deg, rgba(11, 12, 16, 0.68), rgba(11, 12, 16, 0));
     }
 
-    @media (min-width: 50rem) {
+    @media (min-width: 72rem) {
       mobile-starlight-toc {
         display: none;
       }
@@ -213,8 +213,8 @@ const { toc } = Astro.locals.starlightRoute;
 
 <script>
   import { bindFloralVines } from "../utils/floral-vine";
+  import { getReadingOffset } from "../utils/reading-layout";
   bindFloralVines();
-  document.addEventListener("astro:page-load", () => bindFloralVines());
 
   class MobileStarlightTOC extends HTMLElement {
     details: HTMLDetailsElement | null = null;
@@ -254,6 +254,7 @@ const { toc } = Astro.locals.starlightRoute;
       window.removeEventListener("scroll", this.scheduleCurrentUpdate);
       window.removeEventListener("resize", this.scheduleCurrentUpdate);
       if (this.frame) cancelAnimationFrame(this.frame);
+      this.frame = 0;
     }
 
     onToggle = () => {
@@ -296,6 +297,7 @@ const { toc } = Astro.locals.starlightRoute;
     };
 
     updateCurrent() {
+      if (!this.getClientRects().length) return;
       let current = this.targets[0]?.link || this.links[0];
       const offset = this.getHeaderOffset();
 
@@ -312,10 +314,7 @@ const { toc } = Astro.locals.starlightRoute;
     }
 
     getHeaderOffset() {
-      const styles = getComputedStyle(document.documentElement);
-      const navHeight = Number.parseFloat(styles.getPropertyValue("--sl-nav-height")) || 56;
-      const tocHeight = Number.parseFloat(styles.getPropertyValue("--sl-mobile-toc-height")) || 48;
-      return navHeight + tocHeight + 8;
+      return getReadingOffset();
     }
   }
 

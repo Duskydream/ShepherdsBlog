@@ -218,10 +218,6 @@
 
 /* Keep default docs pages aligned with custom pages like /anime. */
 @media (min-width: 50rem) {
-  .main-frame {
-    padding-top: var(--sl-nav-height) !important;
-  }
-
   .main-pane,
   main[data-pagefind-body] {
     margin-top: 0 !important;
@@ -616,11 +612,6 @@ body .sl-markdown-content ul > li::before {
    文档区块 (Asides & Paragraphs)
 ========================================= */
 
-body .sl-markdown-content p {
-  margin-bottom: 1.5em;
-  line-height: 1.8;
-}
-
 /* 花庭 Aside：圆角软卡 (Soft Floral Admonitions) */
 body .sl-markdown-content .starlight-aside {
   border-radius: 0.75rem !important;
@@ -651,9 +642,74 @@ body .sl-markdown-content {
   color: var(--sl-color-gray-1);
 }
 
-/* 仅在纯文章正文阅读时限制居中最佳阅读视距 (52rem)，仪表盘与聚合列表向两侧充分扩展 */
-body .sl-markdown-content:not(:has(.not-content)) {
-  max-width: 52rem;
+/* 普通正文采用较窄阅读行宽，代码块与表格保留容器宽度。 */
+body .sl-markdown-content:not(:has(.not-content)) > :not(pre):not(table):not(.expressive-code):not(.not-content) {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+/* 打开抽屉锁定滚动时保留滚动条空间，避免正文重新换行。 */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* 与右侧目录统一断点；固定栏占位和锚点偏移使用同一组高度。 */
+@media (min-width: 50rem) and (max-width: 71.999rem) {
+  :root[data-has-toc] {
+    --sl-mobile-toc-height: 3rem;
+  }
+}
+
+@media (min-width: 72rem) {
+  :root {
+    --sl-mobile-toc-height: 0rem;
+  }
+}
+
+.reading-resume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.65rem;
+  color: var(--sl-color-gray-2);
+  font-size: 0.875rem;
+}
+
+.reading-resume button {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--sl-color-gray-4);
+  border-radius: 0.4rem;
+  background: var(--sl-color-bg);
+  color: var(--sl-color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.reading-resume button:hover {
+  color: var(--sl-color-accent);
+  border-color: var(--sl-color-accent);
+}
+
+@media (max-width: 50rem) {
+  body .sl-markdown-content:not(:has(.not-content)) p {
+    text-align: start;
+  }
+  body::after {
+    display: none;
+  }
+}
+
+@media print {
+  .reading-resume,
+  .reading-progress,
+  mobile-starlight-toc,
+  body::after {
+    display: none !important;
+  }
 }
 
 /* 标题采用典雅宋体/明朝体 */

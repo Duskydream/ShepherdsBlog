@@ -50,7 +50,7 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
 
 {
   !isSplash && (
-    <div class="page-title-wrapper">
+    <div class="page-title-wrapper" data-article-reading={date ? "" : undefined} data-reading-minutes={date ? readingTime : undefined}>
       <h1 id={PAGE_TITLE_ID}>
         {entry.data.title}
       </h1>
@@ -66,7 +66,7 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
                 <span>分类：{categories.join("、")}</span>
               )
             }
-            {tags && tags.length > 0 && <span>标签：{tags.join("、")}</span>}
+            {tags && tags.length > 0 && <span>标签：{tags.map((tag, index) => <>{index > 0 && "、"}<a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a></>)}</span>}
           </p>
         )
       }
@@ -98,6 +98,15 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
       font-size: 0.875rem;
       line-height: 1.6;
       color: var(--sl-color-gray-3);
+    }
+    .page-meta a {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-color: var(--sl-color-gray-4);
+      text-underline-offset: 0.2em;
+    }
+    .page-meta a:hover {
+      color: var(--sl-color-accent);
     }
     .page-meta span + span::before {
       content: "·";
