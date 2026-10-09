@@ -4,7 +4,7 @@
 > あなたの望んだその星を\
 > \
 > And it shall be bestowed upon you,\
-> the Star which you have longed for—
+> the Star which you have longed for———
 
 一个以文字、记忆与作品记录为中心的个人博客。
 
