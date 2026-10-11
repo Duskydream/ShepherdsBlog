@@ -30,6 +30,7 @@
     "starlight-theme-rapide": "^0.5.2"
   },
   "devDependencies": {
+    "github-slugger": "^2.0.0",
     "katex": "^0.16.22",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",

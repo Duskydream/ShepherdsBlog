@@ -4,6 +4,7 @@ import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 // @ts-check
 import { defineConfig } from "astro/config";
+import { slug as githubSlug } from "github-slugger";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import rehypeKatex from "rehype-katex";
@@ -113,6 +114,96 @@ function rehypeImageHints() {
   };
 }
 
+/**
+ * 把 Obsidian 风格的相对 markdown 链接（`[x](second-person.md)`）重写成
+ * 站点路由（`/blog/second-person/`）。
+ *
+ * 为什么需要：vault 用 `.obsidian/app.json` 的 `useMarkdownLinks: true`，
+ * 这样插图会写成 `![](path)` 而不是 Astro 不认的 `![[path]]`。
+ * 但 Obsidian 写出来的内部链接是「相对路径 + .md 扩展名」，而 Astro 的
+ * 默认 remark 插件集（含 GitHub 风格链接解析）在自定义 processor 下不会
+ * 自动把 `.md` 改写成路由 —— 实测 `[x](second-person.md)` 直出成
+ * `href="second-person.md"`，浏览器会 404。
+ *
+ * 这里做最小改写：只在「相对路径 + .md/.mdx 结尾 + 文件真实存在」时
+ * 换算成 Starlight 的绝对路由，其余链接原样放过（外链、锚点、已经是
+ * 绝对路径的都不动）。
+ */
+function remarkRewriteObsidianLinks() {
+  const docsRoot = path.resolve(process.cwd(), "src/content/docs");
+
+  /** 与 collectContentDates() 保持一致的 slug 归一化：小写 + 空白折叠成连字符。 */
+  const toRoute = (absFile) => {
+    const rel = path.relative(docsRoot, absFile).split(path.sep).join("/");
+    const slug = rel
+      .replace(/\.(md|mdx)$/, "")
+      .replace(/\/index$/, "")
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+    return `/${slug}/`;
+  };
+
+  /**
+   * 把 Obsidian 写的标题原文（`#DFS -> 利用栈...`）转成页面里真实的 id。
+   *
+   * Astro 的标题 id 来自 github-slugger（`node_modules/astro/dist/content/utils.js:5`
+   * `import { slug as githubSlug } from "github-slugger"`），它会去掉标点、
+   * 空格换连字符、转小写：`## 举例` → `id="举例"`，
+   * `## DFS -> 利用栈的天然回溯性质，走到死路自动回头` →
+   * `id="dfs---利用栈的天然回溯性质走到死路自动回头"`。
+   * Obsidian 写的锚点却是标题原文，不改写就全部点不到。
+   *
+   * 对已经是 slug 的锚点是幂等的（小写、无空格、无标点 → 输出不变），
+   * 所以 `#top` 这类手写锚点不受影响。
+   */
+  const toAnchor = (hash) => {
+    if (!hash || hash === "#") return hash;
+    let text = hash.slice(1);
+    try {
+      // Obsidian 也可能写成 `#Heading%20Text`，先解码再 slug。
+      text = decodeURIComponent(text);
+    } catch {
+      // 畸形百分号转义：按原样处理。
+    }
+    return `#${githubSlug(text)}`;
+  };
+
+  return (tree, file) => {
+    const sourceFile = file?.history?.[0] ?? file?.path;
+    if (!sourceFile) return;
+
+    const walk = (node) => {
+      if (!node || typeof node !== "object") return;
+
+      if (node.type === "link" && typeof node.url === "string") {
+        const url = node.url;
+        const [pathname, hash = ""] = url.split(/(?=#)/);
+        // 只处理相对路径，且路径部分必须带 .md/.mdx 扩展名。
+        // 注意扩展名要在 hash 之前判断：`[x](a.md#标题)` 的 url 以 `#标题`
+        // 结尾，拿整个 url 做 /\\.mdx?$/ 测试会漏掉带锚点的链接。
+        const isRelative = !/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(pathname);
+        if (isRelative && /\.mdx?$/i.test(pathname)) {
+          let decoded = pathname;
+          try {
+            decoded = decodeURIComponent(pathname);
+          } catch {
+            // 畸形百分号转义：保持原样，下面的 existsSync 会放过它。
+          }
+          const target = path.resolve(path.dirname(sourceFile), decoded);
+          if (existsSync(target)) node.url = toRoute(target) + toAnchor(hash);
+        } else if (pathname === "") {
+          // 同页锚点 `[x](#标题)`：Obsidian 同样写标题原文。
+          node.url = toAnchor(hash);
+        }
+      }
+
+      node.children?.forEach(walk);
+    };
+
+    walk(tree);
+  };
+}
+
 export default defineConfig({
   site: "https://www.lxzm.space",
   // Avoid fetching every visible navigation target up front. Hover prefetch keeps
@@ -120,7 +211,7 @@ export default defineConfig({
   prefetch: { defaultStrategy: "hover" },
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [remarkMath, remarkRewriteObsidianLinks],
       rehypePlugins: [rehypeKatex, rehypeImageHints],
     }),
   },
