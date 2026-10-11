@@ -32,3 +32,12 @@ pnpm-debug.log*
 
 # 图片优化脚本下载的原始图缓存（可由 refresh:images 随时重建）
 .image-cache/
+
+# 构建/部署产物与临时目录（历史上曾被误提交）
+.vercel/
+.tmp-screens/
+image-backup/
+
+# Obsidian 本地工作区状态（含窗口布局、打开的文件，每台设备都不同）
+src/content/docs/.obsidian/workspace.json
+src/content/docs/.obsidian/workspace-mobile.json
