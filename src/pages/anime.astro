@@ -649,20 +649,14 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     (async () => {
       readQueryState();
       syncControls();
-      const freshCache = readCache(false);
-      if (freshCache) {
-        state.data = freshCache;
+      const cached = readCache(true);
+      if (cached) {
+        state.data = cached;
         render();
-        return;
-      }
-      const staleCache = readCache(true);
-      if (staleCache) {
-        state.data = staleCache;
-        render();
-        await fetchData(false);
+        void fetchData(true);
       } else {
         renderMessage('加载中...', 'muted', true);
-        await fetchData(false);
+        await fetchData(true);
       }
     })();
     
