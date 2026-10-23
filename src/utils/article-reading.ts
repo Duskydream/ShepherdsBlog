@@ -1,4 +1,4 @@
-import { getReadingOffset } from "./reading-layout";
+import { getReadingOffset, invalidateReadingOffset } from "./reading-layout";
 
 interface Bookmark {
   path: string;
@@ -25,6 +25,70 @@ function readBookmarks(): Bookmark[] {
   } catch { return []; }
 }
 
+function initImageLightbox(article: HTMLElement, signal: AbortSignal) {
+  let dialog: HTMLDialogElement | null = null;
+  let previewImg: HTMLImageElement | null = null;
+  let captionEl: HTMLElement | null = null;
+
+  function ensureDialog() {
+    if (dialog && dialog.isConnected) return dialog;
+    dialog = document.createElement("dialog");
+    dialog.className = "image-lightbox";
+    dialog.setAttribute("aria-label", "图片放大预览");
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "image-lightbox-close";
+    closeBtn.setAttribute("aria-label", "关闭预览");
+    closeBtn.textContent = "✕";
+
+    previewImg = document.createElement("img");
+    previewImg.className = "image-lightbox-img";
+    previewImg.decoding = "async";
+
+    captionEl = document.createElement("p");
+    captionEl.className = "image-lightbox-caption";
+
+    dialog.append(closeBtn, previewImg, captionEl);
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog || event.target === closeBtn || event.target === previewImg) {
+        dialog?.close();
+      }
+    });
+    document.body.appendChild(dialog);
+    return dialog;
+  }
+
+  article.addEventListener("click", (event) => {
+    if (!(event.target instanceof HTMLImageElement)) return;
+    if (event.target.closest("a, button, .not-content")) return;
+
+    const dlg = ensureDialog();
+    if (!previewImg || !captionEl) return;
+
+    previewImg.src = event.target.currentSrc || event.target.src;
+    if (event.target.srcset) {
+      previewImg.srcset = event.target.srcset;
+      previewImg.sizes = "92vw";
+    } else {
+      previewImg.removeAttribute("srcset");
+      previewImg.removeAttribute("sizes");
+    }
+    const alt = event.target.alt?.trim() || "";
+    previewImg.alt = alt;
+    captionEl.textContent = alt;
+    captionEl.hidden = !alt;
+
+    dlg.showModal();
+  }, { signal });
+
+  signal.addEventListener("abort", () => {
+    if (dialog?.open) dialog.close();
+    dialog?.remove();
+    dialog = null;
+  }, { once: true });
+}
+
 export function initArticleReading() {
   dispose?.();
   dispose = undefined;
@@ -39,6 +103,7 @@ export function initArticleReading() {
   const { signal } = controller;
   const path = location.pathname.replace(/\/+$/, "") || "/";
   const headings = [...article.querySelectorAll<HTMLElement>("h2[id], h3[id], h4[id]")];
+  let headingTops: number[] = [];
   const canSave = Number(title.dataset.readingMinutes) >= LONG_READ_MINUTES;
   let start = 0;
   let end = 0;
@@ -48,10 +113,15 @@ export function initArticleReading() {
   let dirty = false;
   let notice: HTMLElement | undefined;
 
+  initImageLightbox(article, signal);
+
   const measure = () => {
+    invalidateReadingOffset();
+    const scrollY = window.scrollY;
     const rect = article.getBoundingClientRect();
-    start = rect.top + window.scrollY;
-    end = rect.bottom + window.scrollY;
+    start = rect.top + scrollY;
+    end = rect.bottom + scrollY;
+    headingTops = headings.map((h) => h.getBoundingClientRect().top + scrollY);
   };
   const update = () => {
     const offset = getReadingOffset();
@@ -69,16 +139,19 @@ export function initArticleReading() {
       const bookmarks = readBookmarks().filter((bookmark) => bookmark.path !== path);
       if (ratio >= 0.03 && ratio < 0.98) {
         const position = window.scrollY + getReadingOffset();
-        let current: HTMLElement | undefined;
+        let currentIndex = -1;
         let currentTop = start;
-        for (const heading of headings) {
-          const top = heading.getBoundingClientRect().top + window.scrollY;
+        for (let i = 0; i < headings.length; i++) {
+          const top = headingTops[i] ?? (headings[i].getBoundingClientRect().top + window.scrollY);
           if (top > position) break;
-          current = heading;
+          currentIndex = i;
           currentTop = top;
         }
-        const next = current ? headings[headings.indexOf(current) + 1] : headings[0];
-        const nextTop = next ? next.getBoundingClientRect().top + window.scrollY : end;
+        const current = currentIndex >= 0 ? headings[currentIndex] : undefined;
+        const nextIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
+        const nextTop = nextIndex < headings.length
+          ? (headingTops[nextIndex] ?? (headings[nextIndex].getBoundingClientRect().top + window.scrollY))
+          : end;
         bookmarks.push({ path, heading: current?.id ?? "", fraction: Math.min(1, Math.max(0,
           (position - currentTop) / Math.max(1, nextTop - currentTop))), ratio, savedAt: Date.now() });
       }
@@ -108,10 +181,11 @@ export function initArticleReading() {
     title.append(notice);
     resume.addEventListener("click", () => {
       measure();
-      const heading = headings.find((item) => item.id === bookmark.heading);
-      const next = heading ? headings[headings.indexOf(heading) + 1] : headings[0];
-      const base = heading ? heading.getBoundingClientRect().top + window.scrollY : start;
-      const limit = next ? next.getBoundingClientRect().top + window.scrollY : end;
+      const headingIndex = headings.findIndex((item) => item.id === bookmark.heading);
+      const heading = headingIndex >= 0 ? headings[headingIndex] : undefined;
+      const nextIndex = headingIndex >= 0 ? headingIndex + 1 : 0;
+      const base = headingIndex >= 0 ? headingTops[headingIndex] : start;
+      const limit = nextIndex < headings.length ? headingTops[nextIndex] : end;
       const position = heading || !bookmark.heading
         ? base + bookmark.fraction * (limit - base)
         : start + bookmark.ratio * Math.max(0, end - start - window.innerHeight + getReadingOffset());

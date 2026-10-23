@@ -1,6 +1,7 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { getCollection } from "astro:content";
+import ContentTimeline from "./ContentTimeline.astro";
+import { getSortedPosts } from "../utils/content";
 
 type Props = {
   title: string;
@@ -11,19 +12,7 @@ type Props = {
 };
 
 const { title, section, eyebrow = title, description } = Astro.props;
-
-const posts = await getCollection("docs", (entry) => entry.id.startsWith(`${section}/`) && !entry.id.endsWith("/index.md"))
-  .then((entries) =>
-    entries.sort((a, b) => {
-      const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
-      const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
-      return dateB - dateA || b.id.localeCompare(a.id);
-    })
-  );
-
-function formatDate(value: Date | undefined) {
-  return value ? new Date(value).toISOString().slice(0, 10) : "";
-}
+const posts = await getSortedPosts(section);
 
 function labelFromSlug(slug: string) {
   return slug
@@ -33,8 +22,6 @@ function labelFromSlug(slug: string) {
     .join(" ");
 }
 
-const knownSections = ["blog", "log", "coding-notes"];
-const sectionLevel = (knownSections.includes(section) ? knownSections.indexOf(section) : 3) + 1;
 const sectionLabel = title || labelFromSlug(section);
 ---
 
@@ -54,43 +41,7 @@ const sectionLabel = title || labelFromSlug(section);
       </div>
 
       <div class="section-index-card-body">
-        <div
-          class="section-index-timeline"
-          data-floral-vine='{"items": ":scope > .section-index-item", "vineX": 5.8, "meander": 2}'
-        >
-          {
-            posts.map((post) => (
-              <article class="section-index-item" data-level={sectionLevel}>
-                <div class="section-index-marker" data-level={sectionLevel}></div>
-                <div class="section-index-content">
-                  <div class="section-index-meta">
-                    <div class="section-index-meta-left">
-                      <span class="section-index-section" data-level={sectionLevel}>{sectionLabel}</span>
-                      {post.data.tags && (
-                        <div class="section-index-tags">
-                          {post.data.tags.map((tag: string) => (
-                            <a href={`/tags/${encodeURIComponent(tag)}`}>
-                              #{tag}
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <time>{formatDate(post.data.date)}</time>
-                  </div>
-
-                  <h2>
-                    <a href={`/${post.id}`}>
-                      {post.data.title}
-                    </a>
-                  </h2>
-                  {post.data.description && <p class="section-index-desc">{post.data.description}</p>}
-                </div>
-              </article>
-            ))
-          }
-          {posts.length === 0 && <p class="section-index-empty">No posts found.</p>}
-        </div>
+        <ContentTimeline posts={posts} sectionLabelOverride={sectionLabel} />
       </div>
     </div>
   </section>
@@ -159,11 +110,6 @@ const sectionLabel = title || labelFromSlug(section);
       font-weight: 650;
     }
 
-    .section-index-card-title svg {
-      flex: 0 0 auto;
-      color: var(--sl-color-gray-3);
-    }
-
     .section-index-count {
       color: var(--sl-color-gray-4);
       font-size: 0.72rem;
@@ -173,175 +119,6 @@ const sectionLabel = title || labelFromSlug(section);
     .section-index-card-body {
       padding: 0.75rem 1rem;
     }
-
-    .section-index-timeline {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .section-index-timeline::before {
-      content: "";
-      position: absolute;
-      top: 0.4rem;
-      bottom: 0.4rem;
-      left: 0.36rem;
-      width: 1px;
-      background: var(--sl-color-gray-6);
-    }
-
-    .section-index-item {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1rem minmax(0, 1fr);
-      gap: 0.75rem;
-      border-radius: 0.7rem;
-      padding: 0.6rem 0.6rem 0.65rem 0;
-      transition: background 0.15s ease;
-    }
-
-    .section-index-item:hover {
-      background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    }
-
-    .section-index-item[data-level="1"] {
-      --section-index-blue: #8fb2da;
-    }
-
-    .section-index-item[data-level="2"] {
-      --section-index-blue: #5f8fc2;
-    }
-
-    .section-index-item[data-level="3"] {
-      --section-index-blue: #356b9d;
-    }
-
-    .section-index-item[data-level="4"] {
-      --section-index-blue: #16436e;
-    }
-
-    .section-index-marker {
-      position: relative;
-      z-index: 1;
-      width: 0.9rem;
-      height: 0.9rem;
-      margin-top: 0.3rem;
-      background-color: var(--section-index-blue, #8fb2da);
-      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
-      mask: var(--floral-mask-bloom) center / contain no-repeat;
-      transition: transform 0.2s ease;
-    }
-    .section-index-item:hover .section-index-marker {
-      transform: scale(1.15) rotate(12deg);
-    }
-
-    .section-index-content {
-      min-width: 0;
-    }
-
-    .section-index-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-bottom: 0.28rem;
-    }
-
-    .section-index-meta-left {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-      min-width: 0;
-    }
-
-    .section-index-meta time {
-      flex: 0 0 auto;
-      color: var(--sl-color-gray-4);
-      font-size: 0.72rem;
-    }
-
-    .section-index-section {
-      display: inline-flex;
-      align-items: center;
-      min-height: 1.35rem;
-      border: 1px solid var(--sl-color-gray-6);
-      border-radius: 999px;
-      padding: 0 0.45rem;
-      background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-      color: var(--section-index-blue);
-      font-size: 0.68rem;
-      font-weight: 650;
-      line-height: 1;
-      white-space: nowrap;
-    }
-
-    .section-index-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.42rem;
-    }
-
-    .section-index-tags a {
-      position: relative;
-      z-index: 2;
-      color: var(--sl-color-gray-4);
-      font-size: 0.68rem;
-      text-decoration: none;
-    }
-
-    .section-index-item h2 {
-      margin: 0;
-      color: var(--sl-color-white);
-      font-size: 0.95rem;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
-    .section-index-item h2 a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .section-index-item h2 a::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-    }
-
-    .section-index-item h2::before,
-    .section-index-item h2::after {
-      background-color: var(--section-index-blue) !important;
-    }
-
-    .section-index-item h2 a:hover,
-    .section-index-tags a:hover {
-      color: var(--sl-color-white);
-      text-decoration: underline;
-    }
-
-    .section-index-desc {
-      display: -webkit-box;
-      margin: 0.25rem 0 0;
-      overflow: hidden;
-      color: var(--sl-color-gray-4);
-      font-size: 0.8rem;
-      line-height: 1.45;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-    }
-
-    .section-index-empty {
-      margin: 0;
-      padding: 1rem;
-      color: var(--sl-color-gray-4);
-      font-size: 0.85rem;
-    }
-
-    /* 注：data-level 只在 <article class="section-index-item"> 上出现，
-       marker / section 都是它的后代，直接继承 --section-index-blue。
-       这里曾有一份一模一样的 [data-level="N"] 颜色表，属重复定义。 */
 
     @media (max-width: 49.999rem) {
       .section-index {
@@ -357,21 +134,6 @@ const sectionLabel = title || labelFromSlug(section);
       .section-index-card-body {
         padding-inline: 0.85rem;
       }
-
-      .section-index-meta {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.35rem;
-      }
-
-      .section-index-meta time {
-        order: -1;
-      }
     }
   </style>
-
-  <script>
-    import { bindFloralVines } from "../utils/floral-vine";
-    bindFloralVines();
-  </script>
 </StarlightPage>

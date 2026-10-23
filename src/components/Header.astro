@@ -17,6 +17,7 @@ const navLinks = [
   { href: '/notes', en: 'NOTES', match: (p: string) => p === '/notes' || p.startsWith('/coding-notes') },
   { href: '/anime', en: 'REVIEW', match: (p: string) => p.startsWith('/anime') },
   { href: '/log', en: 'LOG', match: (p: string) => p === '/log' || p.startsWith('/log') },
+  { href: '/links', en: 'LINKS', match: (p: string) => p.startsWith('/links') },
   { href: '/about', en: 'ABOUT', match: (p: string) => p.startsWith('/about') },
 ];
 ---
@@ -43,8 +44,8 @@ const navLinks = [
   <div class="header-search sl-flex print:hidden">
     {shouldRenderSearch && <Search />}
   </div>
-  <div class="sl-hidden md:sl-flex print:hidden right-group">
-    <nav class="header-nav-links" aria-label="全站主导航">
+  <div class="sl-flex print:hidden right-group mobile-right-group">
+    <nav class="header-nav-links sl-hidden md:sl-flex" aria-label="全站主导航">
       {navLinks.map((item) => {
         const isActive = item.match(rawPathname);
         return (
@@ -55,13 +56,12 @@ const navLinks = [
       })}
     </nav>
     <ThemeSelect />
-    <div class="sl-flex social-icons">
+    <div class="sl-hidden md:sl-flex social-icons">
       <SocialIcons />
     </div>
-    <LanguageSelect />
-  </div>
-  <div class="md:sl-hidden print:hidden mobile-right-group">
-    <ThemeSelect />
+    <div class="sl-hidden md:sl-flex">
+      <LanguageSelect />
+    </div>
   </div>
 </div>
 
@@ -84,12 +84,6 @@ const navLinks = [
 
     .header-search {
       flex: 0 1 auto;
-    }
-
-    .mobile-right-group {
-      display: flex;
-      align-items: center;
-      flex: 0 0 auto;
     }
 
     .catalog-toggle-btn {
@@ -134,6 +128,7 @@ const navLinks = [
     .social-icons {
       gap: 1rem;
       align-items: center;
+      flex: 0 0 auto;
     }
 
     .social-icons::after {
@@ -143,7 +138,6 @@ const navLinks = [
     }
 
     .header-nav-links {
-      display: flex;
       align-items: center;
       gap: 0.95rem;
       margin-inline-end: 0.5rem;

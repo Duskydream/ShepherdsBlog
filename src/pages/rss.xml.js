@@ -1,7 +1,8 @@
 import rss from '@astrojs/rss';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import starlightConfig from 'virtual:starlight/user-config';
+import { getPostHref, getSortedPosts } from '../utils/content';
 import { excerptOf } from '../utils/excerpt';
 
 // 站点名/描述要和其他地方（Head.astro、页面 meta、页脚）保持一致，
@@ -24,20 +25,7 @@ const escapeXml = (value) =>
 
 export async function GET(context) {
   const site = context.site ?? new URL(context.url.origin);
-  const allDocs = await getCollection('docs');
-  const posts = allDocs.filter(
-    (entry) =>
-      (entry.id.startsWith('blog/') ||
-        entry.id.startsWith('log/') ||
-        entry.id.startsWith('coding-notes/')) &&
-      !entry.id.endsWith('index.md'),
-  );
-
-  const sortedPosts = posts.sort((a, b) => {
-    const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
-    const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
-    return dateB - dateA;
-  });
+  const sortedPosts = await getSortedPosts();
 
   // 无日期的条目不能用 new Date()（= 构建时刻），否则每次构建 feed 都会变，
   // 而且比站点内容还“新”。干脆跳过，并在排序时沉到末尾。
@@ -56,7 +44,7 @@ export async function GET(context) {
 
   const items = await Promise.all(
     [...dated, ...undated].map(async (post, index) => {
-      const url = new URL(`/${post.id}/`, site).href;
+      const url = new URL(getPostHref(post), site).href;
       const description = post.data.description || excerptOf(post.body);
       const categories = [post.data.categories ?? [], post.data.tags ?? []].flat();
       const author = post.data.author;

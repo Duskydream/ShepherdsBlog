@@ -132,7 +132,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
               {/* 结果区标题：筛选状态由 URL query 决定（?media=&status=&q=），所以标题是动态的。
                   视觉上筛选栏已经表达了同样的信息，这里只给读屏用户一个语义锚点，
                   同时补上 h1 -> h3 缺失的 h2 层级。 */}
-              <h2 class="bangumi-results-heading" aria-live="polite">条目列表</h2>
+              <h2 id="bangumi-results-heading" class="bangumi-results-heading" aria-live="polite">条目列表</h2>
               <div id="bangumi-grid" class="bangumi-grid" aria-busy="false">
                 <div class="bangumi-message is-pulse">加载中...</div>
               </div>
@@ -217,12 +217,53 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       }
     }
 
-    function readCache() {
+    function readQueryState() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const media = params.get('media');
+        const status = params.get('status');
+        const q = params.get('q');
+        if (media && Object.prototype.hasOwnProperty.call(MEDIA_SUBJECT_TYPE, media)) {
+          state.mediaType = media;
+        }
+        if (status && Object.prototype.hasOwnProperty.call(STATUS_LABEL, status)) {
+          state.status = status;
+        }
+        if (typeof q === 'string' && q.trim()) {
+          search.value = q.trim();
+        }
+      } catch { /* ignore */ }
+    }
+
+    function writeQueryState() {
+      try {
+        const url = new URL(window.location.href);
+        if (state.mediaType !== 'anime') url.searchParams.set('media', state.mediaType);
+        else url.searchParams.delete('media');
+
+        if (state.status !== 'watching') url.searchParams.set('status', state.status);
+        else url.searchParams.delete('status');
+
+        const q = search.value.trim();
+        if (q) url.searchParams.set('q', q);
+        else url.searchParams.delete('q');
+
+        const nextUrl = url.pathname + url.search + url.hash;
+        const currUrl = window.location.pathname + window.location.search + window.location.hash;
+        if (nextUrl !== currUrl) {
+          window.history.replaceState(window.history.state, '', nextUrl);
+        }
+      } catch { /* ignore */ }
+    }
+
+    function readCache(allowStale = false) {
       try {
         const raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
-        if (parsed.__cachedAt && Date.now() - parsed.__cachedAt < CLIENT_TTL) {
+        if (!parsed || typeof parsed !== 'object') return null;
+        const isFresh = Boolean(parsed.__cachedAt && Date.now() - parsed.__cachedAt < CLIENT_TTL);
+        if (isFresh || allowStale) {
           return {
             watching: parsed.watching || [],
             wish: parsed.wish || [],
@@ -249,6 +290,32 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       };
     }
 
+    function mergeSummaries(target, reference) {
+      if (!target || !reference) return target;
+      const summaryMap = new Map();
+      for (const key of ['watching', 'wish', 'watched']) {
+        const list = reference[key];
+        if (!Array.isArray(list)) continue;
+        for (const item of list) {
+          const id = Number(item?.subject_id || item?.subject?.id || 0);
+          const summary = item?.subject?.summary;
+          if (id && summary) summaryMap.set(id, summary);
+        }
+      }
+      if (summaryMap.size === 0) return target;
+      for (const key of ['watching', 'wish', 'watched']) {
+        const list = target[key];
+        if (!Array.isArray(list)) continue;
+        for (const item of list) {
+          const id = Number(item?.subject_id || item?.subject?.id || 0);
+          if (id && item?.subject && !item.subject.summary && summaryMap.has(id)) {
+            item.subject.summary = summaryMap.get(id);
+          }
+        }
+      }
+      return target;
+    }
+
     function hasBangumiItems(payload) {
       return payload.watching.length > 0 || payload.wish.length > 0 || payload.watched.length > 0 || payload.timeline.length > 0;
     }
@@ -272,7 +339,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       if (state.isFetching) return null;
 
       if (!force) {
-        const cached = readCache();
+        const cached = readCache(false);
         if (cached) {
           state.data = cached;
           render();
@@ -289,11 +356,15 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         let payload = normalizePayload(await requestJSON(query, state.fetchAbortController.signal, force));
         if (!hasBangumiItems(payload)) throw new Error('Empty Bangumi payload');
 
-        // 如果 API 返回的 timeline 为空，尝试从静态 fallback 中补充 timeline
-        if (!payload.timeline.length) {
+        mergeSummaries(payload, state.data);
+
+        // 如果 API 返回的 timeline 为空或缺少预构建完整简介，尝试从静态 fallback 中补充
+        const needsFallbackEnrich = !payload.timeline.length || !hasBangumiItems(state.data);
+        if (needsFallbackEnrich) {
           try {
             const fallbackPayload = normalizePayload(await requestJSON(STATIC_FALLBACK, state.fetchAbortController.signal));
-            if (fallbackPayload.timeline.length) {
+            mergeSummaries(payload, fallbackPayload);
+            if (!payload.timeline.length && fallbackPayload.timeline.length) {
               payload.timeline = fallbackPayload.timeline;
             }
           } catch { /* ignore fallback error */ }
@@ -425,7 +496,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         '</div>' +
         '</div>' +
         '</button>' +
-        '<div class="bangumi-detail' + (open ? ' is-open' : '') + '">' +
+        '<div class="bangumi-detail' + (open ? ' is-open' : '') + '"' + (open ? '' : ' inert') + '>' +
         '<div class="bangumi-detail-inner">' +
         '<div class="bangumi-detail-panel">' +
         (originalTitle ? '<div class="bangumi-orig-title">原名：' + originalTitle + '</div>' : '') +
@@ -528,7 +599,11 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         const icon = card.querySelector('.bangumi-toggle-icon');
         const text = card.querySelector('.bangumi-toggle-text');
         trigger?.setAttribute('aria-expanded', String(open));
-        detail?.classList.toggle('is-open', open);
+        if (detail) {
+          detail.classList.toggle('is-open', open);
+          detail.inert = !open;
+          detail.toggleAttribute('inert', !open);
+        }
         icon?.classList.toggle('rotate-180', open);
         if (text) text.textContent = open ? '收起' : '展开详情';
       });
@@ -538,6 +613,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       state.mediaType = type;
       state.expanded = null;
       syncControls();
+      writeQueryState();
       renderCollection();
     }
 
@@ -545,6 +621,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       state.status = status;
       state.expanded = null;
       syncControls();
+      writeQueryState();
       renderCollection();
     }
 
@@ -564,17 +641,25 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         state.expanded = null;
+        writeQueryState();
         renderCollection();
       }, 180);
     });
 
     (async () => {
+      readQueryState();
       syncControls();
-      const cached = readCache();
-      if (cached) {
-        state.data = cached;
+      const freshCache = readCache(false);
+      if (freshCache) {
+        state.data = freshCache;
         render();
-        void fetchData(true);
+        return;
+      }
+      const staleCache = readCache(true);
+      if (staleCache) {
+        state.data = staleCache;
+        render();
+        await fetchData(false);
       } else {
         renderMessage('加载中...', 'muted', true);
         await fetchData(false);
@@ -1098,13 +1183,15 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     display: grid;
     grid-template-rows: 0fr;
     opacity: 0;
-    transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
+    visibility: hidden;
+    transition: grid-template-rows 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
     background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
   }
 
   .bangumi-detail.is-open {
     grid-template-rows: 1fr;
     opacity: 1;
+    visibility: visible;
     border-top: 1px solid var(--sl-color-gray-6);
   }
 

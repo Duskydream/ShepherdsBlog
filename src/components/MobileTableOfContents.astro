@@ -213,7 +213,7 @@ const { toc } = Astro.locals.starlightRoute;
 
 <script>
   import { bindFloralVines } from "../utils/floral-vine";
-  import { getReadingOffset } from "../utils/reading-layout";
+  import { getReadingOffset, invalidateReadingOffset } from "../utils/reading-layout";
   bindFloralVines();
 
   class MobileStarlightTOC extends HTMLElement {
@@ -221,8 +221,9 @@ const { toc } = Astro.locals.starlightRoute;
     panel: HTMLElement | null = null;
     currentDisplay: HTMLSpanElement | null = null;
     links: HTMLAnchorElement[] = [];
-    targets: { link: HTMLAnchorElement; heading: HTMLElement }[] = [];
+    targets: { link: HTMLAnchorElement; heading: HTMLElement; top: number }[] = [];
     currentLink: HTMLAnchorElement | null = null;
+    resizeObserver: ResizeObserver | null = null;
     frame = 0;
 
     connectedCallback() {
@@ -233,16 +234,33 @@ const { toc } = Astro.locals.starlightRoute;
       this.targets = this.links.flatMap((link) => {
         const id = decodeURIComponent(link.hash.slice(1));
         const heading = document.getElementById(id);
-        return heading ? [{ link, heading }] : [];
+        return heading ? [{ link, heading, top: 0 }] : [];
       });
       if (!this.details) return;
 
+      this.measureTargets();
       this.details.addEventListener("toggle", this.onToggle);
       this.panel?.addEventListener("click", this.onPanelClick);
       this.querySelector(".mobile-toc-scrim")?.addEventListener("click", this.close);
       window.addEventListener("keydown", this.onKeydown);
       window.addEventListener("scroll", this.scheduleCurrentUpdate, { passive: true });
-      window.addEventListener("resize", this.scheduleCurrentUpdate, { passive: true });
+      window.addEventListener("resize", this.onResize, { passive: true });
+
+      const article = document.querySelector<HTMLElement>("main .sl-markdown-content");
+      if (article && typeof ResizeObserver !== "undefined") {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.measureTargets();
+          this.scheduleCurrentUpdate();
+        });
+        this.resizeObserver.observe(article);
+      }
+      document.fonts?.ready.then(() => {
+        if (this.isConnected) {
+          this.measureTargets();
+          this.scheduleCurrentUpdate();
+        }
+      });
+
       this.scheduleCurrentUpdate();
     }
 
@@ -252,12 +270,28 @@ const { toc } = Astro.locals.starlightRoute;
       this.querySelector(".mobile-toc-scrim")?.removeEventListener("click", this.close);
       window.removeEventListener("keydown", this.onKeydown);
       window.removeEventListener("scroll", this.scheduleCurrentUpdate);
-      window.removeEventListener("resize", this.scheduleCurrentUpdate);
+      window.removeEventListener("resize", this.onResize);
+      this.resizeObserver?.disconnect();
+      this.resizeObserver = null;
       if (this.frame) cancelAnimationFrame(this.frame);
       this.frame = 0;
     }
 
+    measureTargets = () => {
+      invalidateReadingOffset();
+      const scrollY = window.scrollY;
+      for (const target of this.targets) {
+        target.top = target.heading.getBoundingClientRect().top + scrollY;
+      }
+    };
+
+    onResize = () => {
+      this.measureTargets();
+      this.scheduleCurrentUpdate();
+    };
+
     onToggle = () => {
+      invalidateReadingOffset();
       this.scheduleCurrentUpdate();
     };
 
@@ -299,10 +333,10 @@ const { toc } = Astro.locals.starlightRoute;
     updateCurrent() {
       if (!this.getClientRects().length) return;
       let current = this.targets[0]?.link || this.links[0];
-      const offset = this.getHeaderOffset();
+      const threshold = window.scrollY + this.getHeaderOffset();
 
-      for (const { link, heading } of this.targets) {
-        if (heading.getBoundingClientRect().top <= offset) current = link;
+      for (const { link, top } of this.targets) {
+        if (top <= threshold) current = link;
         else break;
       }
 

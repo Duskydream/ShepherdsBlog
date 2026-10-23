@@ -1,5 +1,3 @@
-@import "@fontsource/instrument-serif/400.css";
-
 :root {
   --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --sl-color-accent-low: #0e1726;
@@ -95,13 +93,11 @@
 }
 
 /* 左侧目录里的节点花放大一些 */
-.desktop-sidebar-context .floral-vine-svg .fv-star,
-.mobile-sidebar-nav .floral-vine-svg .fv-star {
+.catalog-drawer-nav .floral-vine-svg .fv-star {
   --s: 0.5 !important;
 }
 
-.desktop-sidebar-context .floral-vine-svg .fv-star.fv-current,
-.mobile-sidebar-nav .floral-vine-svg .fv-star.fv-current {
+.catalog-drawer-nav .floral-vine-svg .fv-star.fv-current {
   --s: 0.78 !important;
 }
 
@@ -476,32 +472,6 @@ starlight-toc nav ul ul li {
     padding-left: 1rem !important;
   }
 
-  /* 折叠花苞：展开时旋转 */
-  .sidebar-pane details summary svg {
-    display: none !important;
-  }
-  .sidebar-pane details summary::before {
-    content: "✦";
-    display: inline-block;
-    color: var(--sl-color-accent);
-    margin-right: 0.45rem;
-    font-size: 0.8rem;
-    transition: transform 0.3s ease, color 0.3s ease;
-  }
-  .sidebar-pane details[open] summary::before {
-    transform: rotate(90deg);
-    color: var(--sl-color-accent-high);
-  }
-
-  .sidebar-pane .top-level > li > details > summary .large,
-  .sidebar-pane .top-level > li > a > span.large,
-  .sidebar-pane .top-level > li > a.large {
-    letter-spacing: 0.08em;
-    font-size: 0.88rem !important;
-    color: var(--sl-color-text) !important;
-    font-weight: 600 !important;
-  }
-
   /* 侧边栏条目：圆角软底，去掉竖线 */
   .sidebar-pane a {
     position: relative;
@@ -723,9 +693,9 @@ body .sl-markdown-content h4 {
   color: var(--sl-color-white);
 }
 
-/* 首段首字下沉 (Floral Drop Cap) */
-body .sl-markdown-content > p:first-of-type::first-letter {
-  font-family: "Songti SC", "Source Han Serif SC", "Instrument Serif", serif;
+/* 首段首字下沉 (Floral Drop Cap)：仅限散文/日常页，非散文页无需注入内联 !important 重置 */
+body:has(.page-title-wrapper[data-essay]) .sl-markdown-content > p:first-of-type:not(.verse):not(.has-media)::first-letter {
+  font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", serif;
   float: left;
   font-size: 3.2em;
   line-height: 0.85;
@@ -744,7 +714,8 @@ body .sl-markdown-content p {
   margin-bottom: 1.6em;
 }
 
-/* 避免图片产生居中偏移 */
+/* 避免图片产生居中偏移（构建期由 rehypeImageHints 标记 .has-media） */
+body .sl-markdown-content p.has-media,
 body .sl-markdown-content p:has(img),
 body .sl-markdown-content p:has(picture) {
   text-align: center;
@@ -753,10 +724,9 @@ body .sl-markdown-content p:has(picture) {
 /* =========================================
    诗体排版（verse）
    blog/second-person.md 是书信体小说，正文里的诗句全部写成
-   “一句一行、行尾带 `<br>`”，渲染后变成 565 个各自独立的 `<p>`。
-   段落规则（两端对齐 / line-height 1.85 / 下边距 1.6em）会把每一句诗
-   撑成一段空白，所以行尾 `<br>` 的段落必须单独一套紧凑样式。
+   “一句一行、行尾带 `<br>`”，构建期由 rehypeImageHints 标记 `p.verse`。
    ========================================= */
+body .sl-markdown-content p.verse,
 body .sl-markdown-content p:has(> br:last-child) {
   text-align: left;
   line-height: 1.6;
@@ -764,18 +734,8 @@ body .sl-markdown-content p:has(> br:last-child) {
   text-indent: 0;
 }
 
-/* 诗句里的首行缩进 / 首字下沉也不适用 */
-body .sl-markdown-content p:has(> br:last-child)::first-letter {
-  float: none;
-  font-size: inherit;
-  line-height: inherit;
-  margin: 0;
-  color: inherit;
-  font-family: inherit;
-  font-weight: inherit;
-}
-
 /* 连续诗句靠行高区分，不靠段间距 */
+body .sl-markdown-content p.verse + p.verse,
 body .sl-markdown-content p:has(> br:last-child) + p:has(> br:last-child) {
   margin-top: 0;
 }
@@ -974,6 +934,76 @@ body .sl-markdown-content img {
   height: auto;
 }
 
+body .sl-markdown-content:not(:has(.not-content)) img:not(a img) {
+  cursor: zoom-in;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 原生 <dialog> 图片放大灯箱 */
+dialog.image-lightbox {
+  max-width: min(94vw, 88rem);
+  max-height: 92dvh;
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--sl-color-white);
+  overflow: visible;
+}
+
+dialog.image-lightbox::backdrop {
+  background: rgba(8, 10, 15, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.image-lightbox-img {
+  display: block;
+  max-width: min(92vw, 86rem);
+  max-height: 84dvh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 0.65rem;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  cursor: zoom-out;
+  object-fit: contain;
+}
+
+.image-lightbox-caption {
+  margin: 0.65rem auto 0;
+  max-width: 46rem;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--sl-color-gray-2);
+  line-height: 1.5;
+}
+
+.image-lightbox-close {
+  position: fixed;
+  top: 1.15rem;
+  right: 1.25rem;
+  z-index: 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(15, 19, 26, 0.72);
+  color: #fff;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.image-lightbox-close:hover {
+  border-color: var(--sl-color-accent);
+  transform: scale(1.06);
+}
+
 /* =========================================
    统一花元素接入 · 正文（h2 / 提示卡 / 表格 / 代码块 / 折叠 / 分页）
    ========================================= */
@@ -1129,7 +1159,7 @@ body .sl-markdown-content details[open] > summary::before {
 
 .not-found-code {
   margin: 0.5rem 0 0;
-  font-family: "Instrument Serif", "Songti SC", serif;
+  font-family: "Songti SC", "Source Han Serif SC", Georgia, serif;
   font-size: clamp(3rem, 12vw, 5.5rem);
   line-height: 1;
   letter-spacing: 0.08em;

@@ -14,11 +14,9 @@ import StarlightTableOfContents from "@astrojs/starlight/components/TableOfConte
 			if (!ul.hasAttribute("data-floral-vine"))
 				ul.setAttribute("data-floral-vine", VINE_OPTS);
 		});
+		bindFloralVines();
 	}
 
 	hookTocVines();
-	bindFloralVines();
-	document.addEventListener("astro:page-load", () => {
-		hookTocVines();
-	});
+	document.addEventListener("astro:page-load", hookTocVines);
 </script>

@@ -1,10 +1,20 @@
 ---
+import { getTagHref } from "../utils/content";
 
 const PAGE_TITLE_ID = "_top";
 
 const { entry } = Astro.locals.starlightRoute;
 const isSplash = entry.data.template === "splash";
+const isEssay = entry.id.startsWith("blog/") || entry.id.startsWith("log/");
 const { date, tags, author, categories } = entry.data;
+
+const sectionNavMap: Record<string, { label: string; href: string }> = {
+  blog: { label: "Essay · 散文随笔", href: "/article/" },
+  "coding-notes": { label: "Notes · 月累笔记", href: "/notes/" },
+  log: { label: "Log · 日常记录", href: "/log/" },
+};
+const sectionPrefix = entry.id.split("/")[0];
+const sectionNav = sectionNavMap[sectionPrefix];
 
 /**
  * 阅读时长估算。
@@ -50,7 +60,18 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
 
 {
   !isSplash && (
-    <div class="page-title-wrapper" data-article-reading={date ? "" : undefined} data-reading-minutes={date ? readingTime : undefined}>
+    <div
+      class="page-title-wrapper"
+      data-essay={isEssay ? "" : undefined}
+      data-article-reading={date ? "" : undefined}
+      data-reading-minutes={date ? readingTime : undefined}
+    >
+      {sectionNav && (
+        <a href={sectionNav.href} class="page-eyebrow-link">
+          <span aria-hidden="true">✦</span>
+          <span>{sectionNav.label}</span>
+        </a>
+      )}
       <h1 id={PAGE_TITLE_ID}>
         {entry.data.title}
       </h1>
@@ -66,7 +87,7 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
                 <span>分类：{categories.join("、")}</span>
               )
             }
-            {tags && tags.length > 0 && <span>标签：{tags.map((tag, index) => <>{index > 0 && "、"}<a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a></>)}</span>}
+            {tags && tags.length > 0 && <span>标签：{tags.map((tag, index) => <>{index > 0 && "、"}<a href={getTagHref(tag)}>{tag}</a></>)}</span>}
           </p>
         )
       }
@@ -79,6 +100,23 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
     .page-title-wrapper {
       margin-top: 1rem;
       margin-bottom: 2rem;
+    }
+    .page-eyebrow-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-bottom: 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--sl-color-accent);
+      text-decoration: none;
+      opacity: 0.88;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .page-eyebrow-link:hover {
+      opacity: 1;
+      transform: translateX(-2px);
     }
     h1 {
       font-size: var(--sl-text-h1);

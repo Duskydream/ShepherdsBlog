@@ -114,7 +114,8 @@ const SPARK =
   }
 
   .lily-ornament .sparkle {
-    animation: lily-twinkle 3.2s ease-in-out infinite alternate;
+    opacity: 0;
+    animation: lily-sparkle-enter 1s ease forwards;
   }
 
   @keyframes lily-draw {
@@ -129,12 +130,9 @@ const SPARK =
     }
   }
 
-  @keyframes lily-twinkle {
-    from {
-      opacity: 0.3;
-    }
+  @keyframes lily-sparkle-enter {
     to {
-      opacity: 0.95;
+      opacity: 0.82;
     }
   }
 

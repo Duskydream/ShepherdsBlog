@@ -1,54 +1,66 @@
 ---
-import type { CollectionEntry } from "astro:content";
+import {
+  formatIsoDate,
+  getPostHref,
+  getSectionMeta,
+  getTagHref,
+  type DocsEntry,
+} from "../utils/content";
 
 interface Props {
-  posts: CollectionEntry<"docs">[];
+  posts: DocsEntry[];
+  sectionLabelOverride?: string;
 }
 
-const { posts } = Astro.props;
-const sectionLabels = new Map([
-  ["blog", "Essay"],
-  ["log", "Log"],
-  ["coding-notes", "Notes"],
-]);
-const sectionOrder = ["blog", "log", "coding-notes"];
+const { posts, sectionLabelOverride } = Astro.props;
+
 const timeline = posts
   .map((post) => {
-    const sectionSlug = post.id.split("/")[0];
-    const sectionIndex = sectionOrder.indexOf(sectionSlug);
+    const meta = getSectionMeta(post);
     return {
       post,
-      section: sectionLabels.get(sectionSlug) || sectionSlug,
-      sectionLevel: (sectionIndex < 0 ? 3 : sectionIndex) + 1,
+      section: sectionLabelOverride || meta.sectionLabel,
+      sectionLevel: meta.sectionLevel,
     };
   })
   .sort((left, right) => {
     const leftDate = left.post.data.date ? new Date(left.post.data.date).getTime() : 0;
     const rightDate = right.post.data.date ? new Date(right.post.data.date).getTime() : 0;
-    return rightDate - leftDate;
+    return rightDate - leftDate || right.post.id.localeCompare(left.post.id);
   });
 ---
 
-<div class="timeline">
+<div
+  class="timeline"
+  data-floral-vine='{"items": ":scope > .timeline-item", "vineX": 5.8, "meander": 2}'
+>
   {
     timeline.map(({ post, section, sectionLevel }) => (
-      <article class="timeline-item">
-        <div class="timeline-marker" data-level={sectionLevel} />
+      <article class="timeline-item" data-level={sectionLevel}>
+        <div class="timeline-marker" />
         <div class="timeline-content">
           <div class="timeline-meta">
-            <div class="timeline-tags">
-              <span class="timeline-section" data-level={sectionLevel}>{section}</span>
-              {post.data.tags?.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>)}
+            <div class="timeline-meta-left">
+              <span class="timeline-section">{section}</span>
+              {post.data.tags && post.data.tags.length > 0 && (
+                <div class="timeline-tags">
+                  {post.data.tags.map((tag: string) => (
+                    <a href={getTagHref(tag)}>#{tag}</a>
+                  ))}
+                </div>
+              )}
             </div>
-            {post.data.date && <time>{new Date(post.data.date).toISOString().slice(0, 10)}</time>}
+            {post.data.date && <time>{formatIsoDate(post.data.date)}</time>}
           </div>
-          <h2><a href={`/${post.id}`}>{post.data.title}</a></h2>
-          {post.data.description && <p>{post.data.description}</p>}
+          <h2>
+            <a href={getPostHref(post)}>{post.data.title}</a>
+          </h2>
+          {post.data.description && <p class="timeline-desc">{post.data.description}</p>}
         </div>
       </article>
     ))
   }
-  {timeline.length === 0 && <p class="empty">No posts found.</p>}
+  {timeline.length === 0 && <p class="timeline-empty">No posts found.</p>}
 </div>
 
 <style>
@@ -73,12 +85,27 @@ const timeline = posts
     display: grid;
     grid-template-columns: 1rem minmax(0, 1fr);
     gap: 0.75rem;
-    padding: 0.55rem 0.6rem 0.55rem 0;
+    padding: 0.6rem 0.6rem 0.65rem 0;
     border-radius: 0.7rem;
     transition: background 0.15s ease;
   }
 
-  .timeline-item:hover { background: var(--sl-color-gray-7, var(--sl-color-gray-6)); }
+  .timeline-item:hover {
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  }
+
+  .timeline-item[data-level="1"] {
+    --timeline-blue: #8fb2da;
+  }
+  .timeline-item[data-level="2"] {
+    --timeline-blue: #5f8fc2;
+  }
+  .timeline-item[data-level="3"] {
+    --timeline-blue: #356b9d;
+  }
+  .timeline-item[data-level="4"] {
+    --timeline-blue: #16436e;
+  }
 
   .timeline-marker {
     position: relative;
@@ -96,24 +123,30 @@ const timeline = posts
     transform: scale(1.15) rotate(12deg);
   }
 
-  .timeline-content { min-width: 0; }
+  .timeline-content {
+    min-width: 0;
+  }
 
   .timeline-meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.28rem;
   }
 
-  .timeline-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .timeline-meta-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    min-width: 0;
+  }
 
-  .timeline-meta time,
-  .timeline-tags a {
-    position: relative;
-    z-index: 1;
+  .timeline-meta time {
+    flex: 0 0 auto;
     color: var(--sl-color-gray-4);
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
   .timeline-section {
@@ -126,18 +159,83 @@ const timeline = posts
     background: var(--sl-color-gray-7, var(--sl-color-gray-6));
     color: var(--timeline-blue, #8fb2da);
     font-size: 0.68rem;
-    font-weight: 600;
+    font-weight: 650;
+    line-height: 1;
+    white-space: nowrap;
   }
 
-  h2 { margin: 0; color: var(--sl-color-white); font-size: 0.88rem; line-height: 1.35; }
-  h2 a { color: inherit; text-decoration: none; }
-  h2 a:hover, .timeline-tags a:hover { color: var(--sl-color-white); text-decoration: underline; }
+  .timeline-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.42rem;
+  }
 
-  p { display: -webkit-box; margin: 0.18rem 0 0; overflow: hidden; color: var(--sl-color-gray-4); font-size: 0.74rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .empty { padding: 1rem; }
+  .timeline-tags a {
+    position: relative;
+    z-index: 2;
+    color: var(--sl-color-gray-4);
+    font-size: 0.68rem;
+    text-decoration: none;
+  }
 
-  [data-level="1"] { --timeline-blue: #8fb2da; }
-  [data-level="2"] { --timeline-blue: #5f8fc2; }
-  [data-level="3"] { --timeline-blue: #356b9d; }
-  [data-level="4"] { --timeline-blue: #16436e; }
+  h2 {
+    margin: 0;
+    color: var(--sl-color-white);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h2 a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  h2 a:hover,
+  .timeline-tags a:hover {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+  }
+
+  .timeline-desc {
+    display: -webkit-box;
+    margin: 0.25rem 0 0;
+    overflow: hidden;
+    color: var(--sl-color-gray-4);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .timeline-empty {
+    margin: 0;
+    padding: 1rem;
+    color: var(--sl-color-gray-4);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 49.999rem) {
+    .timeline-meta {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .timeline-meta time {
+      order: -1;
+    }
+  }
 </style>
+
+<script>
+  import { bindFloralVines } from "../utils/floral-vine";
+  bindFloralVines();
+</script>

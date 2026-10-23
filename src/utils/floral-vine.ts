@@ -55,51 +55,89 @@ function visibleItems(container: HTMLElement, opts: FloralVineOptions) {
   ).filter((el) => el.offsetParent !== null && el.offsetHeight > 0);
 }
 
+function applySyncCurrent(
+  svg: Element,
+  items: HTMLElement[],
+  opts: FloralVineOptions
+) {
+  const stars = svg.querySelectorAll(".fv-star");
+  if (stars.length !== items.length) return false;
+  items.forEach((el, i) => {
+    const star = stars[i] as SVGPathElement;
+    const isCurrent = Boolean(opts.current && el.querySelector(opts.current));
+    star.classList.toggle("fv-current", isCurrent);
+    star.style.setProperty("--s", isCurrent ? "0.5" : "0.32");
+  });
+  return true;
+}
+
 // 滚动跟随等场景只移动「当前」星，不重画整条藤（避免重播画线动画）
 export function syncCurrent(container: HTMLElement) {
   const opts = readOptions(container);
   const svg = container.querySelector(":scope > svg.floral-vine-svg");
   const items = visibleItems(container, opts);
-  const stars = svg?.querySelectorAll(".fv-star");
-  if (!svg || !stars || stars.length !== items.length) {
+  if (!svg || !applySyncCurrent(svg, items, opts)) {
     renderFloralVine(container);
-    return;
   }
-  items.forEach((el, i) => {
-    const star = stars[i] as SVGPathElement;
-    const isCurrent = !!el.querySelector(opts.current);
-    star.classList.toggle("fv-current", isCurrent);
-    star.style.setProperty("--s", isCurrent ? "0.5" : "0.32");
-  });
 }
 
-export function renderFloralVine(container: HTMLElement) {
-  const opts = readOptions(container);
-  container.querySelector(":scope > svg.floral-vine-svg")?.remove();
+type VinePlan =
+  | { type: "clear"; existingSvg: SVGSVGElement | null }
+  | {
+      type: "sync";
+      existingSvg: SVGSVGElement;
+      items: HTMLElement[];
+      opts: FloralVineOptions;
+    }
+  | {
+      type: "replace";
+      container: HTMLElement;
+      existingSvg: SVGSVGElement | null;
+      html: string;
+    };
 
-  if (!container.offsetWidth && !container.offsetHeight) return;
+/**
+ * 纯读取阶段：测量容器与条目几何坐标，不触发任何 DOM 写操作。
+ * 若几何签名未变且非强制重播，则仅同步当前激活节点，避免打断首屏画线动画。
+ */
+function measureFloralVine(container: HTMLElement, force = false): VinePlan {
+  const opts = readOptions(container);
+  const existingSvg = container.querySelector<SVGSVGElement>(
+    ":scope > svg.floral-vine-svg"
+  );
+
+  if (!container.offsetWidth && !container.offsetHeight) {
+    return { type: "clear", existingSvg };
+  }
 
   const items = visibleItems(container, opts);
-  if (!items.length) return;
-
-  const height = container.scrollHeight;
-  const width = 44;
-  const gid = `fv-grad-${uid++}`;
+  if (!items.length) {
+    return { type: "clear", existingSvg };
+  }
 
   const anchors = items.map((el, i) => ({
     x: opts.vineX + Math.sin(i * 2.1) * opts.meander,
     y: relTop(el, container) + Math.min(el.offsetHeight / 2, 18),
   }));
 
+  const lastItem = items[items.length - 1];
+  const contentHeight = relTop(lastItem, container) + lastItem.offsetHeight;
+  const height = Math.max(container.clientHeight, contentHeight);
+  const geomKey = `${height}:${anchors.map((a) => `${a.x.toFixed(1)},${a.y.toFixed(1)}`).join(";")}`;
+
+  if (!force && existingSvg && existingSvg.dataset.fvGeom === geomKey) {
+    return { type: "sync", existingSvg, items, opts };
+  }
+
+  const width = 44;
+  const gid = `fv-grad-${uid++}`;
+
   const pts = [
     { x: opts.vineX, y: Math.max(anchors[0].y - 14, 2) },
     ...anchors,
     {
       x: opts.vineX,
-      // Keep the stem alive through the whole TOC container.  Using only
-      // `last anchor + 16px` makes the vine stop near the top when the last
-      // item wraps onto several lines (the item still occupies the remaining
-      // height, but its anchor is intentionally capped near the first line).
+      // Keep the stem alive through the whole TOC container.
       y: Math.max(anchors[anchors.length - 1].y + 16, height - 2),
     },
   ];
@@ -114,7 +152,7 @@ export function renderFloralVine(container: HTMLElement) {
 
   let deco = "";
   anchors.forEach((p, i) => {
-    const isCurrent = !!items[i].querySelector(opts.current);
+    const isCurrent = Boolean(opts.current && items[i].querySelector(opts.current));
     const delay = (0.25 + i * 0.09).toFixed(2);
     deco += `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})">
       <path class="fv-star${isCurrent ? " fv-current" : ""}"
@@ -130,9 +168,7 @@ export function renderFloralVine(container: HTMLElement) {
     }
   });
 
-  container.insertAdjacentHTML(
-    "afterbegin",
-    `<svg class="floral-vine-svg" width="${width}" height="${height}"
+  const html = `<svg class="floral-vine-svg" data-fv-geom="${geomKey}" width="${width}" height="${height}"
       viewBox="0 0 ${width} ${height}" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="${gid}" x1="0" y1="${height}" x2="0" y2="0" gradientUnits="userSpaceOnUse">
@@ -144,8 +180,33 @@ export function renderFloralVine(container: HTMLElement) {
       <path class="fv-draw" d="${d}" stroke="url(#${gid})" stroke-width="1.2"
         stroke-linecap="round" pathLength="1" />
       ${deco}
-    </svg>`
-  );
+    </svg>`;
+
+  return { type: "replace", container, existingSvg, html };
+}
+
+function applyVinePlan(plan: VinePlan) {
+  if (plan.type === "clear") {
+    plan.existingSvg?.remove();
+  } else if (plan.type === "sync") {
+    applySyncCurrent(plan.existingSvg, plan.items, plan.opts);
+  } else {
+    plan.existingSvg?.remove();
+    plan.container.insertAdjacentHTML("afterbegin", plan.html);
+  }
+}
+
+export function renderFloralVine(container: HTMLElement, force = false) {
+  applyVinePlan(measureFloralVine(container, force));
+}
+
+export function renderFloralVineBatch(
+  containers: Iterable<HTMLElement>,
+  force = false
+) {
+  const list = Array.from(containers);
+  const plans = list.map((container) => measureFloralVine(container, force));
+  plans.forEach(applyVinePlan);
 }
 
 const containerCleanups = new Map<HTMLElement, () => void>();
@@ -166,9 +227,10 @@ export function bindFloralVines() {
   const redrawAll =
     w.__fvRedrawAll ??
     (() =>
-      document
-        .querySelectorAll<HTMLElement>("[data-floral-vine]")
-        .forEach(renderFloralVine));
+      renderFloralVineBatch(
+        document.querySelectorAll<HTMLElement>("[data-floral-vine]"),
+        false
+      ));
   w.__fvRedrawAll = redrawAll;
 
   // 忽略生成器自身重插 SVG 引起的变更，避免重画死循环
@@ -186,13 +248,13 @@ export function bindFloralVines() {
     let mutationTimer = 0;
     let resizeObserver: ResizeObserver | undefined;
 
-    // TOC height can change after fonts finish loading or when a responsive
-    // layout changes width. Those changes do not emit mutations or a window
-    // resize event, so keep the SVG geometry in sync with the actual box.
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(() => {
         clearTimeout(resizeTimer);
-        resizeTimer = window.setTimeout(() => renderFloralVine(container), 100);
+        resizeTimer = window.setTimeout(
+          () => renderFloralVine(container, false),
+          80
+        );
       });
       resizeObserver.observe(container);
     }
@@ -208,7 +270,10 @@ export function bindFloralVines() {
         mutationTimer = window.setTimeout(() => syncCurrent(container), 0);
         return;
       }
-      mutationTimer = window.setTimeout(() => renderFloralVine(container), 0);
+      mutationTimer = window.setTimeout(
+        () => renderFloralVine(container, false),
+        0
+      );
     });
     mutationObserver.observe(container, {
       childList: true,
@@ -230,11 +295,17 @@ export function bindFloralVines() {
       .forEach(observeContainer);
 
   containerCleanups.forEach((cleanup, container) => {
-    if (!container.isConnected) { cleanup(); containerCleanups.delete(container); }
+    if (!container.isConnected) {
+      cleanup();
+      containerCleanups.delete(container);
+    }
   });
   bindContainers();
   if (!w.__fvFrame) {
-    w.__fvFrame = requestAnimationFrame(() => { w.__fvFrame = 0; redrawAll(); });
+    w.__fvFrame = requestAnimationFrame(() => {
+      w.__fvFrame = 0;
+      redrawAll();
+    });
   }
 
   // body 在视图过渡时会被整体替换，观察器需重新挂到新 body 上
@@ -252,7 +323,7 @@ export function bindFloralVines() {
     let timer: number;
     window.addEventListener("resize", () => {
       window.clearTimeout(timer);
-      timer = window.setTimeout(redrawAll, 150);
+      timer = window.setTimeout(redrawAll, 120);
     });
 
     document.addEventListener(
@@ -261,9 +332,10 @@ export function bindFloralVines() {
         const details = event.target;
         if (!(details instanceof HTMLDetailsElement) || !details.open) return;
         setTimeout(() =>
-          details
-            .querySelectorAll<HTMLElement>("[data-floral-vine]")
-            .forEach(renderFloralVine)
+          renderFloralVineBatch(
+            details.querySelectorAll<HTMLElement>("[data-floral-vine]"),
+            true
+          )
         , 0);
       },
       true
@@ -272,9 +344,24 @@ export function bindFloralVines() {
 
   w.__fvObserver?.disconnect();
   const observer = new MutationObserver((mutations) => {
-    if (mutations.some((m) => m.attributeName === "data-drawer-open"))
-      setTimeout(redrawAll, 0);
+    if (
+      mutations.some((m) => m.attributeName === "data-drawer-open") &&
+      document.body.hasAttribute("data-drawer-open")
+    ) {
+      setTimeout(() => {
+        const drawer = document.getElementById("starlight__sidebar");
+        if (drawer) {
+          renderFloralVineBatch(
+            drawer.querySelectorAll<HTMLElement>("[data-floral-vine]"),
+            true
+          );
+        }
+      }, 0);
+    }
   });
-  observer.observe(document.body, { attributes: true, attributeFilter: ["data-drawer-open"] });
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["data-drawer-open"],
+  });
   w.__fvObserver = observer;
 }

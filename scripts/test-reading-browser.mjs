@@ -159,7 +159,7 @@ try {
   for (let i = 0; i < 3; i++) {
     await evaluate(`window.testPageReady = false; document.addEventListener('astro:page-load', () => { window.testPageReady = true; }, { once: true }); document.querySelector('.site-title-wrapper a').click()`);
     await waitFor(`window.testPageReady && location.pathname === '/' && document.querySelector('.reading-progress').hidden`);
-    await evaluate(`window.testPageReady = false; document.addEventListener('astro:page-load', () => { window.testPageReady = true; }, { once: true }); document.querySelector('.home-fragment-row[href="/blog/second-person"]').click()`);
+    await evaluate(`window.testPageReady = false; document.addEventListener('astro:page-load', () => { window.testPageReady = true; }, { once: true }); document.querySelector('.home-fragment-row[href^="/blog/second-person"]').click()`);
     await waitFor(`window.testPageReady && location.pathname.replace(/\\/+$/, '') === '/blog/second-person' && !document.querySelector('.reading-progress').hidden`);
     await evaluate(`document.getElementById('starlight__drawer-toggle').click()`);
     await waitFor(`document.body.hasAttribute('data-drawer-open') && document.activeElement.id === 'starlight__sidebar'`);

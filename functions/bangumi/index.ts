@@ -35,6 +35,37 @@ function truncateForDebug(value: string) {
   return value.length > DEBUG_MAX_BODY ? `${value.slice(0, DEBUG_MAX_BODY)}...` : value;
 }
 
+function slimItem(item: BangumiCollectionItem): BangumiCollectionItem {
+  if (!item || typeof item !== "object") return item;
+  const subject = (item.subject ?? {}) as Record<string, unknown>;
+  const images = (subject.images ?? {}) as Record<string, unknown>;
+  const medium = (images.medium || images.common || images.large || "") as string;
+  const rawTags = Array.isArray(subject.tags) ? subject.tags : [];
+
+  return {
+    subject_id: item.subject_id ?? subject.id,
+    rate: item.rate ?? 0,
+    comment: item.comment ?? "",
+    updated_at: item.updated_at ?? "",
+    subject: {
+      id: subject.id,
+      name: subject.name ?? "",
+      name_cn: subject.name_cn ?? "",
+      type: subject.type,
+      score: subject.score ?? 0,
+      summary: subject.summary ?? "",
+      short_summary: subject.short_summary ?? "",
+      images: medium ? { medium } : {},
+      tags: rawTags.map((tag: unknown) => ({
+        name:
+          tag && typeof tag === "object" && "name" in tag
+            ? String((tag as { name?: unknown }).name ?? "")
+            : "",
+      })),
+    },
+  };
+}
+
 async function fetchCollection(type: number) {
   let page = 1;
   const all: BangumiCollectionItem[] = [];
@@ -57,7 +88,7 @@ async function fetchCollection(type: number) {
 
     const json = (await res.json()) as { data?: BangumiCollectionItem[] };
     if (!json.data || json.data.length === 0) break;
-    all.push(...json.data);
+    all.push(...json.data.map(slimItem));
     if (json.data.length < LIMIT) break;
     page++;
   }

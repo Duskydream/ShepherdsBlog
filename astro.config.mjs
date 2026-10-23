@@ -46,6 +46,7 @@ function collectContentDates() {
 
   const walk = (dir) => {
     for (const entry of readdirSync(dir)) {
+      if (entry.startsWith(".") || entry.startsWith("_")) continue;
       const full = path.join(dir, entry);
       if (statSync(full).isDirectory()) {
         walk(full);
@@ -83,14 +84,56 @@ function collectContentDates() {
 
 const contentDates = collectContentDates();
 
+function addClass(node, className) {
+  node.properties ??= {};
+  const existing = node.properties.className;
+  if (Array.isArray(existing)) {
+    if (!existing.includes(className)) existing.push(className);
+  } else if (typeof existing === "string" && existing.trim()) {
+    const list = existing.trim().split(/\s+/);
+    if (!list.includes(className)) list.push(className);
+    node.properties.className = list;
+  } else {
+    node.properties.className = [className];
+  }
+}
+
 function rehypeImageHints() {
   return (tree) => {
+    let isFirstImage = true;
+
     const visit = (node) => {
       if (!node || typeof node !== "object") return;
 
+      if (node.type === "element" && node.tagName === "p" && Array.isArray(node.children)) {
+        // 识别行尾带 <br> 的诗句段落与包含图片的段落，构建期直接打上静态 class，
+        // 避免在《二人称》等千段长文中对每个 <p> 运行复杂的 :has() 选择器匹配。
+        let lastMeaningful = null;
+        let hasMedia = false;
+        for (const child of node.children) {
+          if (child.type === "text" && !child.value.trim()) continue;
+          lastMeaningful = child;
+          if (child.type === "element" && (child.tagName === "img" || child.tagName === "picture")) {
+            hasMedia = true;
+          }
+        }
+        if (lastMeaningful?.type === "element" && lastMeaningful.tagName === "br") {
+          addClass(node, "verse");
+        }
+        if (hasMedia) {
+          addClass(node, "has-media");
+        }
+      }
+
       if (node.type === "element" && node.tagName === "img") {
         node.properties ??= {};
-        node.properties.loading ??= "lazy";
+        if (isFirstImage) {
+          isFirstImage = false;
+          node.properties.loading ??= "eager";
+          node.properties.fetchpriority ??= "high";
+        } else {
+          node.properties.loading ??= "lazy";
+        }
         node.properties.decoding ??= "async";
 
         const original = node.properties.src;

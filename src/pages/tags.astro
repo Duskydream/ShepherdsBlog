@@ -1,18 +1,10 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { getCollection } from "astro:content";
+import { collectTagStats, getSortedPosts, getTagHref } from "../utils/content";
 
-const posts = await getCollection("docs");
-const tagCounts = new Map<string, number>();
-
-posts.forEach((post) => {
-  post.data.tags?.forEach((tag: string) => {
-    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-  });
-});
-
-const tags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-const description = `全部 ${tags.length} 个标签，共 ${[...tagCounts.values()].reduce((a, b) => a + b, 0)} 篇文章。按标签浏览站点内容。`;
+const posts = await getSortedPosts();
+const tags = collectTagStats(posts);
+const description = `全部 ${tags.length} 个标签，共 ${posts.length} 篇文章。按标签浏览站点内容。`;
 ---
 
 <StarlightPage
@@ -26,8 +18,8 @@ const description = `全部 ${tags.length} 个标签，共 ${[...tagCounts.value
     </header>
     <div class="tags-index-list">
       {
-        tags.map(([tag, count]) => (
-          <a href={`/tags/${encodeURIComponent(tag)}`}>
+        tags.map(({ tag, count }) => (
+          <a href={getTagHref(tag)}>
             <span>#{tag}</span>
             <small>{count}</small>
           </a>
@@ -82,6 +74,7 @@ const description = `全部 ${tags.length} 个标签，共 ${[...tagCounts.value
       padding: 0.5rem 0.75rem;
       color: var(--sl-color-text);
       text-decoration: none;
+      transition: border-color 0.2s ease, color 0.2s ease;
     }
 
     .tags-index-list a::before {
