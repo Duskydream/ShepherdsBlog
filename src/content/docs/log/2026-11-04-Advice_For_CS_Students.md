@@ -1,5 +1,5 @@
 ---
-title: 未命名
+title: Advice For CS Students
 date: 2026-11-04
 draft: false
 ---
