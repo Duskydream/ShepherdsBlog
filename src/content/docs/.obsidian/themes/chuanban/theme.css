@@ -1,0 +1,1938 @@
+/* ==============================================================================
+   chuanban — Warm Editorial & Long-Form Writing Theme for Obsidian
+   Author: chuanban (https://github.com/Anarcadia)
+   Version: 1.0.2
+   License: MIT
+   Description: 专为小说创作与长篇深度非虚构写作定制的 Obsidian 原生独立主题。
+                融合现代人文编辑室与实体书卷排版哲学，
+                实现温暖、较高对比度、纸墨实体感与极致护眼的现代化写作环境。
+   ------------------------------------------------------------------------------
+   设计规范与理念：
+   1. 色彩体系 (Color System)：
+      - 主页面/阅读区底色：微暖高亮白象牙纸质 (#FCFCFB)
+      - 侧边栏/导航/Tab栏底色：暖燕麦轻米色 (#F7F5F0)
+      - 选中/激活态胶囊底色：深阶暖燕麦 (#ECE9E1)
+      - 次级卡片/输入框底色：浅暖米棕 (#F9F7F2)
+      - 强调色：温暖陶土砖红 (#D97757)，悬停 (#C56345)
+      - 选区与高亮：低饱和护眼柔和草绿圈选 + 经典温润通用淡暖黄高亮 (不刺眼)
+      - 分割线与中缝：高对比清晰单像素实线 (rgba(0, 0, 0, 0.14) ~ #E0D4C3)
+   2. 字体与排版层次 (Typography & Layout)：
+      - 18px 黄金基准字号、1.78 呼吸行高、0.38em/0.95em 段落舒展停顿
+      - 0.25px 微润墨纸墨柔化滤镜，抚平数字矢量硬切角，呈现活字压印质感
+      - 引用块：纯净 3px 陶土指示竖线 + 16px 呼吸留白，彻底移除重复 > 箭头
+      - 原生兼容：完整支持 Obsidian 官方设置菜单（正文字体、字号滑块、窗口缩放）
+      - 双排版预设切换：更纱打字机体 (默认) ⇄ 经典衬线宋体
+      - 悬浮预览卡解耦锁定：13px / 1.52 行高固定高密度信息卡片
+   ============================================================================== */
+
+/* @settings
+name: chuanban
+id: chuanban
+settings:
+    - id: typography-preset
+      title: 排版与字体预设 (Typography Preset)
+      description: 一键切换主题内置的两套核心中英文排版与字体预设
+      type: class-select
+      allowEmpty: false
+      default: preset-typewriter
+      options:
+          - label: "更纱打字机体 (默认 · Sarasa Mono Slab SC · 1.78行高)"
+            value: preset-typewriter
+          - label: "经典书卷宋体 (Classic Songti Serif · 西文无衬线 + 全角宋体-简 · 1.68行高)"
+            value: preset-songti-serif
+    - id: line-height-normal
+      title: 正文行高 (Body Line Height)
+      description: 调整正文标准阅读行高 (默认 1.78，衬线预设默认 1.68)
+      type: variable-number-slider
+      default: 1.78
+      min: 1.40
+      max: 2.20
+      step: 0.02
+    - id: p-spacing
+      title: 阅读视图段落间距 (Paragraph Spacing)
+      description: 调整阅读视图段落间距 (默认 0.95em，衬线预设默认 1.05em)
+      type: variable-text
+      default: 0.95em
+*/
+
+/* ==============================================================================
+   1. 字体声明 (@font-face)
+   - 开源更纱等宽粗衬线打字机体 (Sarasa Mono Slab SC, SIL OFL 1.1)
+   - 衬线预设专用西文/数字无衬线 Unicode 范围隔离层
+   ============================================================================== */
+@font-face {
+  font-family: 'Sarasa Mono Slab SC';
+  src: local('Sarasa Mono Slab SC'), local('等距更纱黑体 Slab SC'), local('Sarasa-Mono-Slab-SC-Regular');
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sarasa Mono Slab SC';
+  src: local('Sarasa Mono Slab SC Bold'), local('等距更纱黑体 Slab SC Bold'), local('Sarasa-Mono-Slab-SC-Bold');
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: '等距更纱黑体 Slab SC';
+  src: local('Sarasa Mono Slab SC'), local('等距更纱黑体 Slab SC'), local('Sarasa-Mono-Slab-SC-Regular');
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: '等距更纱黑体 Slab SC';
+  src: local('Sarasa Mono Slab SC Bold'), local('等距更纱黑体 Slab SC Bold'), local('Sarasa-Mono-Slab-SC-Bold');
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+/* 衬线预设专用西文/数字无衬线隔离层：严格限定拉丁与数字 Unicode 范围，绝不拦截中文落入宋体 */
+@font-face {
+  font-family: 'Chuanban Western Sans';
+  src: local('SF Pro Text'), local('.AppleSystemUIFont'), local('Inter'), local('DM Sans'), local('Helvetica Neue'), local('Segoe UI'), local('Arial');
+  unicode-range: U+0000-024F, U+0250-02AF, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F;
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chuanban Western Sans';
+  src: local('SF Pro Text Bold'), local('Inter Bold'), local('DM Sans Bold'), local('Helvetica Neue Bold'), local('Segoe UI Bold'), local('Arial Bold');
+  unicode-range: U+0000-024F, U+0250-02AF, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F;
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==============================================================================
+   2. 全局主题变量与色彩系统 (Light / Dark)
+   - 挂载在 body 上以直接覆盖 Obsidian app.css 的 body 默认变量声明
+   ============================================================================== */
+body {
+  /* 字体族全局声明 (100% 开源字体 + 系统原生公有字体链) */
+  /* UI 控件：现代几何人文无衬线 + 苹果原生人文黑体 (苹方/冬青) */
+  --ag-font-ui: 'SF Pro Text', 'Inter', 'DM Sans', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Sarasa UI SC', '更纱黑体 UI SC', system-ui, sans-serif;
+  
+  /* 正文阅读 (预设 1)：开源更纱粗衬线打字机体 (Sarasa Mono Slab SC + JetBrains Mono + 等宽回退) */
+  --ag-font-content: 'Sarasa Mono Slab SC', '等距更纱黑体 Slab SC', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  
+  /* 正文阅读 (预设 2 · 经典书卷宋体)：西文无衬线 + 中文原生宋体-简 */
+  --ag-font-songti-serif: 'Chuanban Western Sans', 'Songti SC', 'Songti TC', 'STSong', 'Newsreader', 'Source Serif 4', 'Georgia', serif;
+
+  /* 代码与技术徽章：等宽更纱黑体 Slab 与开源等宽字体 */
+  --ag-font-mono: 'Sarasa Mono Slab SC', '等距更纱黑体 Slab SC', 'Sarasa Mono SC', '等距更纱黑体 SC', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+  /* 注入 Obsidian 系统变量 (标准主题规范：默认采用主题预设，同时完美支持原生设置菜单的自定义覆盖) */
+  --font-interface-theme: var(--ag-font-ui);
+  --font-text-theme: var(--ag-font-content);
+  --font-monospace-theme: var(--ag-font-mono);
+
+  --font-text-size: 18px; /* 主题默认基准字号：18px 实体书卷质感 */
+
+  --font-interface: var(--font-interface-override, var(--font-interface-theme));
+  --font-text: var(--font-text-override, var(--font-text-theme));
+  --font-monospace: var(--font-monospace-override, var(--font-monospace-theme));
+
+  /* 基础微调 (黄金呼吸比例：行高 1.78，消除挤压紧密感) */
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 8px;
+  --radius-xl: 10px;
+  --line-height-normal: 1.78;
+  --line-height-tight: 1.45;
+  --p-spacing: 0.95em;
+
+  /* 悬浮预览卡原生尺寸与字号变量 */
+  --popover-width: 440px;
+  --popover-height: 360px;
+  --popover-font-size: 13px;
+
+  /* 块引用变量体系 */
+  --blockquote-border-thickness: 3px;
+  --blockquote-border-color: #D97757;
+  --blockquote-font-style: normal;
+  --blockquote-color: #383532;
+  --blockquote-background-color: var(--background-primary-alt);
+}
+
+/* --- 浅色主题 (chuanban 暖白象牙默认首选) --- */
+.theme-light {
+  /* 背景层次 */
+  --background-primary: #FCFCFB;                  /* 主编辑/阅读区：微暖亮白纸质 */
+  --background-primary-alt: #F9F7F2;              /* 引用块/卡片底色：浅暖米棕 */
+  --background-secondary: #F7F5F0;                /* 左侧边栏/导航/工具条：暖燕麦纸质 */
+  --background-secondary-alt: #ECE9E1;            /* 侧栏/列表激活条目胶囊底色 */
+  --background-modifier-hover: #F2EFE7;           /* 鼠标悬停背景色 */
+  --background-modifier-active-hover: #E6DCCE;
+  
+  /* 轮廓线条与高对比清晰中缝 */
+  --background-modifier-border: rgba(0, 0, 0, 0.14);
+  --background-modifier-border-hover: rgba(0, 0, 0, 0.24);
+  --background-modifier-border-focus: #D97757;
+  --divider-color: rgba(0, 0, 0, 0.15);           /* 强化竖线中缝实线 */
+  --divider-width: 1px;
+  --divider-width-hover: 1.5px;
+  --border-width: 1px;
+
+  /* 文本层次 (温暖炭墨色体系) */
+  --text-normal: #1F1E1D;                         /* 温暖炭黑正文 */
+  --text-muted: #7A7670;                          /* 次要分类与辅助标签 */
+  --text-faint: #9C978F;                          /* 占位符与微弱标识 */
+  --text-accent: #D97757;                         /* 温暖陶土砖红 */
+  --text-accent-hover: #C56345;
+  --text-selection: rgba(120, 168, 110, 0.30);   /* 护眼柔和草绿圈选（低饱和度，不刺眼） */
+  --text-selection-match: rgba(120, 168, 110, 0.16);
+  --text-highlight-bg: rgba(255, 220, 80, 0.35); /* 经典通用柔和淡暖黄高亮（温润不晃眼） */
+
+  /* 交互与按钮 */
+  --interactive-normal: #FFFFFF;
+  --interactive-hover: #F2EFE7;
+  --interactive-accent: #D97757;
+  --interactive-accent-hover: #C56345;
+  --interactive-accent-rgb: 217, 119, 87;
+
+  /* 标签页与标题栏 */
+  --titlebar-background: #F7F5F0;
+  --titlebar-background-focused: #F7F5F0;
+  --titlebar-border-color: rgba(0, 0, 0, 0.14);
+  --status-bar-background: #F7F5F0;
+  --status-bar-border-color: rgba(0, 0, 0, 0.14);
+  --status-bar-text-color: #0A0A0A;
+  --tab-background-active: #FCFCFB;
+  --tab-text-color-focused-active: #0A0A0A;
+  --tab-outline-color: rgba(0, 0, 0, 0.14);
+  --tab-container-background: #F7F5F0;
+  --tab-divider-color: rgba(0, 0, 0, 0.14);
+
+  /* 代码与标记 */
+  --code-background: #F4F0E6;
+  --code-normal: #242220;
+  --code-comment: #7A7670;
+  --code-string: #2E6F40;
+  --code-keyword: #A83A20;
+  --code-function: #C05621;
+
+  /* Notebook Navigator 核心变量注入 (浅色) */
+  --nn-theme-nav-bg: #F7F5F0;
+  --nn-theme-list-bg: #F7F5F0;
+  --nn-theme-foreground: #1F1E1D;
+  --nn-theme-foreground-muted: #7A7670;
+  --nn-theme-foreground-faint: #9C978F;
+  --nn-theme-file-border-radius: 6px;
+  --nn-theme-file-name-color: #262422;
+  --nn-theme-file-name-font-weight: 450;
+  --nn-theme-file-preview-color: #7A7670;
+  --nn-theme-file-preview-font-weight: 400;
+  --nn-theme-file-date-color: #9C978F;
+  --nn-theme-file-selected-bg: #ECE9E1;
+  --nn-theme-file-selected-name-color: #0A0A0A;
+  --nn-theme-file-selected-preview-color: #383533;
+  --nn-theme-file-selected-date-color: #4A4642;
+  --nn-theme-file-selected-border-color: transparent;
+  --nn-theme-divider-border-color: rgba(0, 0, 0, 0.15);
+  --nn-theme-list-group-header-color: #7A7670;
+  --nn-theme-list-group-header-font-weight: 550;
+  --nn-theme-file-tag-bg: #ECE8DF;
+  --nn-theme-file-tag-color: #55504A;
+  --nn-theme-file-tag-border-color: rgba(0, 0, 0, 0.12);
+  --nn-theme-file-tag-border-radius: 4px;
+  --nn-theme-navitem-hover-bg: #F2EFE7;
+  --nn-theme-navitem-selected-bg: #ECE9E1;
+  --nn-theme-navitem-name-color: #262422;
+  --nn-theme-navitem-selected-name-color: #0A0A0A;
+  --nn-theme-navitem-name-font-weight: 450;
+  --nn-theme-navitem-border-radius: 6px;
+}
+
+/* --- 深色主题 (保留备用暗调暖炭) --- */
+.theme-dark {
+  --background-primary: #191817;
+  --background-primary-alt: #1F1E1D;
+  --background-secondary: #1F1E1D;
+  --background-secondary-alt: #2D2B28;
+  --background-modifier-hover: #262422;
+  --background-modifier-active-hover: #33302C;
+  --background-modifier-border: rgba(255, 255, 255, 0.14);
+  --background-modifier-border-hover: rgba(255, 255, 255, 0.24);
+  --background-modifier-border-focus: #D97757;
+  --divider-color: rgba(255, 255, 255, 0.14);
+  --text-normal: #E6E4DE;
+  --text-muted: #9E998F;
+  --text-faint: #6E6A63;
+  --text-accent: #D97757;
+  --text-accent-hover: #E2886A;
+  --text-selection: rgba(116, 168, 110, 0.32);   /* 暗色模式护眼素雅草绿圈选 */
+  --text-selection-match: rgba(116, 168, 110, 0.16);
+  --text-highlight-bg: rgba(245, 208, 92, 0.25); /* 暗色模式温和麦黄高亮 */
+  --interactive-normal: #262422;
+  --interactive-hover: #2E2B28;
+  --interactive-accent: #D97757;
+  --interactive-accent-hover: #E2886A;
+  --titlebar-background: #1F1E1D;
+  --titlebar-background-focused: #1F1E1D;
+  --titlebar-border-color: rgba(255, 255, 255, 0.14);
+  --status-bar-background: #1F1E1D;
+  --status-bar-border-color: rgba(255, 255, 255, 0.14);
+  --status-bar-text-color: #E6E4DE;
+  --tab-background-active: #191817;
+  --tab-text-color-focused-active: #FFFFFF;
+  --tab-outline-color: rgba(255, 255, 255, 0.14);
+  --tab-container-background: #1F1E1D;
+  --tab-divider-color: rgba(255, 255, 255, 0.14);
+  --code-background: #242220;
+  --code-normal: #E6E4DE;
+  --code-comment: #8A857C;
+  --code-string: #7EAF85;
+  --code-keyword: #E27B62;
+  --code-function: #E59F67;
+
+  --nn-theme-nav-bg: #1F1E1D;
+  --nn-theme-list-bg: #1F1E1D;
+  --nn-theme-foreground: #E6E4DE;
+  --nn-theme-foreground-muted: #9E998F;
+  --nn-theme-foreground-faint: #6E6A63;
+  --nn-theme-file-border-radius: 6px;
+  --nn-theme-file-name-color: #E6E4DE;
+  --nn-theme-file-selected-bg: #2D2B28;
+  --nn-theme-file-selected-name-color: #FFFFFF;
+  --nn-theme-file-selected-preview-color: #CCCCCC;
+  --nn-theme-file-selected-date-color: #AAAAAA;
+  --nn-theme-file-selected-border-color: transparent;
+  --nn-theme-divider-border-color: rgba(255, 255, 255, 0.14);
+  --nn-theme-list-group-header-color: #9E998F;
+  --nn-theme-file-tag-bg: #2B2926;
+  --nn-theme-file-tag-color: #BDB9AF;
+  --nn-theme-file-tag-border-color: rgba(255, 255, 255, 0.12);
+  --nn-theme-file-tag-border-radius: 4px;
+
+  /* 块引用暗色模式变量 */
+  --blockquote-border-color: #D97757;
+  --blockquote-color: #CCC7BD;
+  --blockquote-background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ==============================================================================
+   3. 全局控件与窗口框架 (Window Header & MacOS Frame)
+   ============================================================================== */
+body {
+  font-family: var(--font-interface);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 顶部 macOS 窗口与红黄绿灯区域 */
+.titlebar {
+  background-color: var(--titlebar-background) !important;
+  border-bottom: 1px solid var(--titlebar-border-color) !important;
+  font-family: var(--font-interface);
+  height: 38px;
+}
+.titlebar-text {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-muted);
+}
+
+/* 左右分栏中缝实线加固 (清晰单像素中缝深度) */
+.workspace-split.mod-left-split,
+.workspace-split.mod-right-split,
+.workspace-sidedock,
+.workspace-leaf-content[data-type=notebook-navigator] {
+  border-right: 1px solid var(--divider-color) !important;
+}
+
+.workspace-split.mod-right-split {
+  border-left: 1px solid var(--divider-color) !important;
+  border-right: none !important;
+}
+
+/* 分栏拖拽调节手柄中缝 (清除原生发虚多层边框) */
+.workspace-split-gutter {
+  width: 1px !important;
+  background-color: var(--divider-color) !important;
+  transition: background-color 0.15s ease;
+  z-index: 10;
+}
+.workspace-split-gutter:hover {
+  background-color: var(--interactive-accent) !important;
+}
+
+/* ==============================================================================
+   3.1 主工作区标签栏 (Editor Tabs in mod-root) - 书卷卡片形态
+   ============================================================================== */
+.mod-root .workspace-tab-header-container {
+  background-color: var(--tab-container-background) !important;
+  border-bottom: 1px solid var(--tab-divider-color) !important;
+  padding: 4px 8px 0 8px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  box-sizing: border-box !important;
+}
+
+.mod-root .workspace-tab-header {
+  font-family: var(--font-interface);
+  font-size: 12.5px;
+  font-weight: 450;
+  letter-spacing: -0.012em;
+  color: var(--text-muted);
+  border-radius: 6px 6px 0 0 !important;
+  padding: 6px 12px !important;
+  margin-right: 3px !important;
+  border: 1px solid transparent !important;
+  border-bottom: none !important;
+  transition: all 0.15s ease;
+  height: 33px !important;
+}
+
+.mod-root .workspace-tab-header:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* 激活标签页：底部与主编辑区无缝咬合，消除突兀粗下划线 */
+.mod-root .workspace-tab-header.is-active {
+  background-color: var(--background-primary) !important;
+  color: #0A0A0A !important;
+  font-weight: 520 !important;
+  border: 1px solid var(--divider-color) !important;
+  border-bottom: 1px solid var(--background-primary) !important;
+  margin-bottom: -1px !important;
+  box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.03) !important;
+  text-shadow: 0 0 0.2px rgba(10, 10, 10, 0.35);
+}
+
+.mod-root .workspace-tab-header-inner-title {
+  font-family: var(--font-interface);
+}
+
+.mod-root .workspace-tab-header-inner-close-button {
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+.mod-root .workspace-tab-header-inner-close-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ==============================================================================
+   3.2 侧边栏图标标签栏 (Sidebar Icon Tabs) - 极简垂直居中微胶囊工具栏
+   ============================================================================== */
+.workspace-sidedock .workspace-tab-header-container,
+.mod-left-split .workspace-tab-header-container,
+.mod-right-split .workspace-tab-header-container {
+  background-color: var(--background-secondary) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.09) !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  box-sizing: border-box !important;
+}
+.theme-dark .workspace-sidedock .workspace-tab-header-container,
+.theme-dark .mod-left-split .workspace-tab-header-container,
+.theme-dark .mod-right-split .workspace-tab-header-container {
+  border-bottom-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+.workspace-sidedock .workspace-tab-header-tab-list,
+.mod-left-split .workspace-tab-header-tab-list {
+  display: flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  height: 100% !important;
+}
+
+.workspace-sidedock .workspace-tab-header,
+.mod-left-split .workspace-tab-header,
+.mod-right-split .workspace-tab-header {
+  height: 28px !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-muted) !important;
+  transition: all 0.15s ease !important;
+}
+
+.workspace-sidedock .workspace-tab-header:hover,
+.mod-left-split .workspace-tab-header:hover,
+.mod-right-split .workspace-tab-header:hover {
+  background-color: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  border-color: transparent !important;
+}
+
+/* 侧栏 Tab 激活态：精致悬浮微胶囊，彻底摆脱厚重大方块与贴线感 */
+.workspace-sidedock .workspace-tab-header.is-active,
+.mod-left-split .workspace-tab-header.is-active,
+.mod-right-split .workspace-tab-header.is-active {
+  background-color: var(--background-secondary-alt) !important;
+  color: #0A0A0A !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  margin: 0 !important;
+}
+.theme-dark .workspace-sidedock .workspace-tab-header.is-active,
+.theme-dark .mod-left-split .workspace-tab-header.is-active,
+.theme-dark .mod-right-split .workspace-tab-header.is-active {
+  background-color: #2D2B28 !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.workspace-sidedock .workspace-tab-header-inner,
+.workspace-sidedock .workspace-tab-header-inner-icon,
+.mod-left-split .workspace-tab-header-inner,
+.mod-left-split .workspace-tab-header-inner-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.workspace-sidedock .workspace-tab-header-inner-icon svg,
+.mod-left-split .workspace-tab-header-inner-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* 侧栏折叠按钮 (与 Tab 图标等高居中) */
+.workspace-sidedock-collapse-button,
+.workspace-tab-header-new-tab {
+  height: 28px !important;
+  width: 28px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-muted) !important;
+  margin-left: auto !important;
+}
+.workspace-sidedock-collapse-button:hover,
+.workspace-tab-header-new-tab:hover {
+  background-color: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+}
+
+/* ==============================================================================
+   4. Notebook Navigator 深度对标与精细适配 (核心视觉)
+   ============================================================================== */
+/* 列表与导航容器底色 */
+.nn-list-pane,
+.nn-nav-pane,
+.nn-view,
+.workspace-leaf-content[data-type=notebook-navigator] .view-content {
+  background-color: var(--background-secondary) !important;
+}
+
+/* Notebook Navigator 专属沉浸顶栏：消除冗余标签头，内容顶格吸附 (原生自包含，无须外挂 Snippet) */
+.workspace-tabs:has(.workspace-leaf-content[data-type="notebook-navigator"]) > .workspace-tab-header-container,
+.workspace-leaf-content[data-type="notebook-navigator"] > .view-header {
+  display: none !important;
+}
+.workspace-leaf-content[data-type="notebook-navigator"] > .view-content {
+  padding-top: 0 !important;
+}
+
+/* 顶部搜索框：白底微阴影圆角卡片 */
+.nn-search-input-container {
+  padding: 8px 10px !important;
+  background-color: var(--background-secondary) !important;
+}
+.nn-search-input-wrapper {
+  background: transparent !important;
+}
+input.nn-search-input {
+  background-color: var(--interactive-normal) !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  border-radius: 6px !important;
+  padding: 5px 12px 5px 30px !important;
+  height: 32px !important;
+  font-family: var(--font-interface) !important;
+  font-size: 12.5px !important;
+  letter-spacing: -0.01em !important;
+  color: var(--text-normal) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+.theme-dark input.nn-search-input {
+  background-color: var(--interactive-normal) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+}
+input.nn-search-input:focus {
+  border-color: #D97757 !important;
+  box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.2) !important;
+}
+
+/* 顶部工具按钮 (新建、排序、视图切换等) */
+.nn-header-actions-profile button,
+.nn-action-btn,
+.nn-search-star-button,
+.nn-search-clear-button {
+  border-radius: 5px !important;
+  color: var(--text-muted) !important;
+  transition: all 0.15s ease !important;
+}
+.nn-header-actions-profile button:hover,
+.nn-action-btn:hover {
+  background-color: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+}
+
+/* 分组小标题 (今天、过去 7 天、月份等)：置顶/项目小标题 */
+.nn-list-group-header {
+  height: 24px !important;
+  padding: 4px 12px 2px 12px !important;
+  font-family: var(--font-interface) !important;
+  font-size: 11px !important;
+  font-weight: 550 !important;
+  letter-spacing: 0.035em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+  background-color: transparent !important;
+}
+.nn-list-group-header-text {
+  font-weight: 550 !important;
+  color: var(--text-muted) !important;
+}
+
+/* 文件列表项 (File Item) - 去卡片药丸化，连续书卷文档清单流 */
+.nn-file {
+  margin: 1px 4px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  background: transparent !important;
+  transition: background-color 0.1s ease !important;
+}
+.nn-file-content {
+  padding: 5px 8px !important;
+  border-radius: 4px !important;
+  border: none !important;
+}
+
+/* 悬停状态：极其轻柔的底色 */
+.nn-file:hover:not(.nn-selected) {
+  background-color: var(--background-modifier-hover) !important;
+}
+
+/* 激活选中状态：轻薄暖燕麦底色 + 陶土微指示条 + 纯墨加固，无厚重膨胀感 */
+.nn-file.nn-selected,
+.nn-file.nn-selected .nn-file-content {
+  background-color: var(--background-secondary-alt) !important;
+  border-radius: 4px !important;
+  box-shadow: inset 2.5px 0 0 #D97757 !important;
+}
+.nn-file.nn-selected .nn-file-content::before {
+  box-shadow: none !important;
+  display: none !important;
+}
+
+/* 文件标题 */
+.nn-file-name {
+  font-family: var(--font-interface) !important;
+  font-size: 13px !important;
+  font-weight: 450 !important;
+  letter-spacing: -0.012em !important;
+  color: #262422 !important;
+  line-height: 1.35 !important;
+  text-rendering: optimizeLegibility !important;
+  text-shadow: 0 0 0.2px rgba(38, 36, 34, 0.35) !important;
+}
+.theme-dark .nn-file-name {
+  color: #E6E4DE !important;
+  text-shadow: none !important;
+}
+
+/* 激活态标题加深与纯墨加固 */
+.nn-file.nn-selected .nn-file-name {
+  font-weight: 520 !important;
+  color: #0A0A0A !important;
+  text-shadow: 0 0 0.25px rgba(10, 10, 10, 0.4) !important;
+}
+.theme-dark .nn-file.nn-selected .nn-file-name {
+  color: #FFFFFF !important;
+  text-shadow: none !important;
+}
+
+/* 预览正文与时间 */
+.nn-file-preview {
+  font-family: var(--font-interface) !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: var(--text-muted) !important;
+  margin-top: 3px !important;
+}
+.nn-file.nn-selected .nn-file-preview {
+  color: #383533 !important;
+}
+.theme-dark .nn-file.nn-selected .nn-file-preview {
+  color: #CCCCCC !important;
+}
+
+.nn-file-date {
+  font-family: var(--font-interface) !important;
+  font-size: 11px !important;
+  color: var(--text-faint) !important;
+  letter-spacing: -0.01em !important;
+}
+.nn-file.nn-selected .nn-file-date {
+  color: #55504A !important;
+}
+
+/* 标签小胶囊 (Tags in NN) */
+.nn-file-tag {
+  background-color: #ECE8DF !important;
+  color: #4A4640 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 4px !important;
+  font-family: var(--font-interface) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 1px 6px !important;
+  height: 18px !important;
+  line-height: 16px !important;
+}
+.theme-dark .nn-file-tag {
+  background-color: #262422 !important;
+  color: #B5B0A6 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.nn-file.nn-selected .nn-file-tag {
+  background-color: #DFD8CC !important;
+  color: #1F1E1D !important;
+}
+
+/* 缩略图平滑圆角与细边框 */
+.nn-file-thumbnail,
+.nn-file-thumbnail-img {
+  border-radius: 5px !important;
+}
+.nn-file-thumbnail {
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+}
+.theme-dark .nn-file-thumbnail {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ==============================================================================
+   5. 原生文件列表与侧栏树 (Native File Tree & Left Dock - 严格锁定层级防飘移)
+   ============================================================================== */
+.nav-files-container,
+.workspace-sidedock {
+  background-color: var(--background-secondary) !important;
+}
+
+/* 原生侧栏目录树全局变量严谨锁定 (防止各层级缩进倍增或点击后百像素漂移) */
+body {
+  --nav-item-size: 13.5px;
+  --nav-item-padding: 3px 6px 3px 20px;
+  --nav-item-parent-padding: 3px 6px 3px 20px;
+  --nav-item-children-padding-start: 4px !important;
+  --nav-item-children-margin-start: 12px !important;
+  --nav-indentation-guide-width: 1px !important;
+  --nav-indentation-guide-color: rgba(0, 0, 0, 0.1) !important;
+  --nav-collapse-icon-color: var(--text-muted);
+}
+.theme-dark {
+  --nav-indentation-guide-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 原生文件树动作栏 (新建文件、新建文件夹、排序、折叠等) - 匀称呼吸排布 */
+.nav-header,
+.nav-buttons-container {
+  padding: 8px 12px 6px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 36px !important;
+  box-sizing: border-box !important;
+  background-color: var(--background-secondary) !important;
+}
+
+.nav-action-button {
+  height: 24px !important;
+  width: 24px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+  color: var(--text-muted) !important;
+  transition: all 0.12s ease !important;
+}
+.nav-action-button:hover {
+  background-color: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+}
+.nav-action-button svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+/* 文件列表容器与顶部留白 */
+.nav-files-container {
+  padding-top: 6px !important;
+}
+
+/* 列表条目去按钮化：移除全局 padding !important，保留 Obsidian 内部折叠内边距机制 */
+.nav-folder-title,
+.nav-file-title {
+  font-family: var(--font-interface);
+  font-weight: 450;
+  letter-spacing: -0.012em;
+  color: #262422;
+  margin-top: 1px !important;
+  margin-bottom: 1px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  background: transparent;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  text-shadow: 0 0 0.2px rgba(38, 36, 34, 0.35);
+  box-sizing: border-box;
+}
+
+/* 严正锁定各级子目录容器缩进阶梯：每层固定 16px (12px 标尺线 + 4px 呼吸间距)，决不发生错位漂移 */
+.nav-folder-children,
+.tree-item-children {
+  margin-inline-start: 12px !important;
+  padding-inline-start: 4px !important;
+  border-inline-start: 1px solid var(--nav-indentation-guide-color) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* 列表条目小微圆点前缀 (增强文章清单意图，若有外部图标插件则自动避让) */
+.nav-file-title:not(:has(.iconize-icon)) .nav-file-title-content::before {
+  content: "○" !important;
+  display: inline-block !important;
+  font-size: 10px !important;
+  color: var(--text-faint) !important;
+  margin-right: 6px !important;
+  vertical-align: middle !important;
+}
+.theme-dark .nav-folder-title,
+.theme-dark .nav-file-title {
+  color: #E6E4DE;
+  text-shadow: none;
+}
+
+.nav-folder-title:hover,
+.nav-file-title:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.nav-file-title.is-active {
+  background-color: var(--background-secondary-alt) !important;
+  color: #0A0A0A !important;
+  font-weight: 520 !important;
+  box-shadow: inset 2px 0 0 #D97757 !important;
+  text-shadow: 0 0 0.25px rgba(10, 10, 10, 0.4);
+}
+.theme-dark .nav-file-title.is-active {
+  color: #FFFFFF !important;
+  text-shadow: none;
+}
+
+/* ==============================================================================
+   5.3 大纲视图 (Outline View / TOC) 树形标题对齐加固
+   解决核心 Bug：无论各级标题是否包含子标题（即是否有折叠箭头），同一层级标题文字
+   严格左对齐在同一水平线，决不允许无子标题的同级项突兀缩进或错位。
+   ============================================================================== */
+.workspace-leaf-content[data-type='outline'] .view-content {
+  padding: 6px 8px !important;
+}
+
+.workspace-leaf-content[data-type='outline'] .tree-item {
+  position: relative !important;
+}
+
+.workspace-leaf-content[data-type='outline'] .tree-item-self {
+  display: flex !important;
+  align-items: center !important;
+  padding-inline-start: 22px !important;
+  padding-inline-end: 8px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  margin-bottom: 1px !important;
+  border-radius: 6px !important;
+  position: relative !important;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.workspace-leaf-content[data-type='outline'] .tree-item-self.mod-collapsible {
+  padding-inline-start: 22px !important;
+}
+
+/* 折叠小箭头：精确定位在左侧 22px 预留槽内 (left: 3px, 宽 16px)，不挤占文字起始坐标 */
+.workspace-leaf-content[data-type='outline'] .tree-item-self .tree-item-icon {
+  position: absolute !important;
+  left: 3px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  margin: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-muted) !important;
+  flex: 0 0 auto !important;
+}
+
+.workspace-leaf-content[data-type='outline'] .tree-item-self .tree-item-inner {
+  font-family: var(--font-interface) !important;
+  font-size: 13.5px !important;
+  font-weight: 450 !important;
+  letter-spacing: -0.012em !important;
+  color: #262422 !important;
+  line-height: 1.4 !important;
+}
+
+.theme-dark .workspace-leaf-content[data-type='outline'] .tree-item-self .tree-item-inner {
+  color: #E6E4DE !important;
+}
+
+/* 激活态 (当前正文浏览所在的大纲章节)：精致高亮暖胶囊底 */
+.workspace-leaf-content[data-type='outline'] .tree-item-self.is-active {
+  background-color: var(--background-secondary-alt) !important;
+  color: #0A0A0A !important;
+  font-weight: 520 !important;
+}
+
+.workspace-leaf-content[data-type='outline'] .tree-item-self.is-active .tree-item-inner {
+  color: #0A0A0A !important;
+  font-weight: 520 !important;
+}
+
+.theme-dark .workspace-leaf-content[data-type='outline'] .tree-item-self.is-active .tree-item-inner {
+  color: #FFFFFF !important;
+}
+
+/* 子层级缩进与微竖线标尺 */
+.workspace-leaf-content[data-type='outline'] .tree-item-children {
+  margin-inline-start: 11px !important;
+  padding-inline-start: 4px !important;
+  border-inline-start: 1px solid var(--nav-indentation-guide-color) !important;
+}
+
+/* ==============================================================================
+   6. 笔记属性与元数据面板 (Properties / Frontmatter)
+   ============================================================================== */
+.metadata-container {
+  background-color: var(--background-primary-alt) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
+  margin: 14px 0 20px 0 !important;
+}
+
+.metadata-properties-heading {
+  font-family: var(--font-interface) !important;
+  font-size: 11.5px !important;
+  font-weight: 550 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text-muted) !important;
+  margin-bottom: 6px !important;
+}
+
+.metadata-property-key {
+  font-family: var(--font-interface) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--text-muted) !important;
+}
+
+.metadata-property-value {
+  font-family: var(--font-interface) !important;
+  font-size: 12.5px !important;
+  color: var(--text-normal) !important;
+}
+
+/* 属性标签小胶囊 (统一为陶土色与暖调) */
+.metadata-property-value .multi-select-pill,
+.metadata-property-value .tag,
+a.tag {
+  background-color: rgba(217, 119, 87, 0.1) !important;
+  color: #D97757 !important;
+  border: 1px solid rgba(217, 119, 87, 0.25) !important;
+  border-radius: 4px !important;
+  font-family: var(--font-interface) !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  padding: 1px 6px !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+}
+.metadata-property-value .multi-select-pill:hover,
+a.tag:hover {
+  background-color: rgba(217, 119, 87, 0.18) !important;
+  color: #C56345 !important;
+  border-color: rgba(217, 119, 87, 0.4) !important;
+}
+
+/* ==============================================================================
+   7. 正文与 Markdown 阅读排版 (Markdown & CodeMirror 6)
+   ============================================================================== */
+.view-header {
+  background-color: var(--background-primary) !important;
+  border-bottom: 1px solid var(--divider-color) !important;
+}
+.view-header-title {
+  font-family: var(--font-interface);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-normal);
+}
+
+.view-content,
+.markdown-source-view.mod-cm6,
+.markdown-reading-view,
+.markdown-rendered {
+  background-color: var(--background-primary) !important;
+}
+
+/* 核心阅读区：现代书卷排版 (18px 物理实体字号、1.72 致密行高、0.25px 润墨实体感柔化) */
+.markdown-rendered,
+.markdown-source-view.mod-cm6 .cm-content,
+.markdown-source-view.mod-cm6 .cm-line {
+  font-family: var(--font-text) !important;
+  font-size: var(--font-text-size, 18px) !important;
+  line-height: var(--line-height-normal) !important;
+  letter-spacing: normal !important;
+  color: var(--text-normal) !important;
+  font-weight: 400 !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-shadow: 0 0 0.25px rgba(31, 30, 29, 0.35) !important;
+}
+
+.theme-dark .markdown-rendered,
+.theme-dark .markdown-source-view.mod-cm6 .cm-content,
+.theme-dark .markdown-source-view.mod-cm6 .cm-line {
+  color: var(--text-normal) !important;
+  text-shadow: 0 0 0.25px rgba(230, 228, 222, 0.35) !important;
+}
+
+/* 文字圈选高亮 (Selection)：低饱和护眼草绿（柔和不刺眼，书卷舒适感） */
+::selection,
+.markdown-rendered ::selection,
+.markdown-source-view.mod-cm6 ::selection,
+.cm-content ::selection,
+.cm-line ::selection,
+input::selection,
+textarea::selection {
+  background-color: var(--text-selection) !important;
+}
+
+.cm-selectionBackground,
+.cm-selectionLayer .cm-selectionBackground,
+.cm-focused .cm-selectionBackground {
+  background-color: var(--text-selection) !important;
+}
+
+/* 词语双击同词关联匹配轻柔草绿高亮 */
+.cm-selectionMatch {
+  background-color: var(--text-selection-match) !important;
+}
+.theme-dark .cm-selectionMatch {
+  background-color: var(--text-selection-match) !important;
+}
+
+/* Markdown 文本高亮 (==高亮== 与 <mark>)：经典温润淡暖黄（通用高亮，温润不刺眼） */
+mark,
+.cm-highlight {
+  background-color: var(--text-highlight-bg) !important;
+  color: inherit !important;
+  border-radius: 2.5px !important;
+  padding: 0.1em 0.25em !important;
+}
+
+/* 阅读视图段落留白：默认 0.95em，支持 --p-spacing 变量动态调节 */
+.markdown-rendered p,
+.markdown-rendered li {
+  line-height: var(--line-height-normal) !important;
+  margin-block: 0 var(--p-spacing, 0.95em) !important;
+  font-weight: 400 !important;
+}
+
+/* CodeMirror 6 实时预览段落留白：从 0.22em 适度舒展至 0.38em (~7px)，提供清晰舒适的段落视觉停顿 */
+.cm-line {
+  line-height: var(--line-height-normal) !important;
+  padding-bottom: 0.38em !important;
+  font-weight: 400 !important;
+}
+
+/* 特殊行（代码块、表格、空行）排除段落底留白，避免代码被拉伸断裂 */
+.cm-line.HyperMD-codeblock,
+.cm-line:has(.cm-table-widget),
+.cm-line:empty {
+  padding-bottom: 0 !important;
+}
+
+/* 列表行采用适度呼吸留白 */
+.cm-line.HyperMD-list-line {
+  padding-bottom: 0.30em !important;
+}
+
+/* HTML 注释与技术元信息隐退 (消除喧宾夺主) */
+.cm-comment,
+.cm-line .cm-comment {
+  font-family: var(--font-monospace) !important;
+  font-style: italic !important;
+  color: #8A857C !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  opacity: 0.75 !important;
+}
+
+/* 列表圆点与数字加固 */
+.markdown-rendered ul > li::marker {
+  color: #1F1E1D !important;
+}
+.markdown-rendered ol > li::marker {
+  color: #1F1E1D !important;
+  font-weight: 600 !important;
+}
+
+/* 标题体系：原生 Bold 600 纯深黑压舱石 (与正文 400 拉开清晰天然阶梯) */
+.inline-title,
+.markdown-rendered h1, .cm-header-1,
+.markdown-rendered h2, .cm-header-2,
+.markdown-rendered h3, .cm-header-3,
+.markdown-rendered h4, .cm-header-4,
+.markdown-rendered h5, .cm-header-5,
+.markdown-rendered h6, .cm-header-6,
+.cm-line.HyperMD-header {
+  font-family: var(--font-text) !important;
+  letter-spacing: -0.015em !important;
+  color: #0D0D0C !important;
+  font-weight: 600 !important;
+  text-rendering: optimizeLegibility !important;
+}
+.theme-dark .inline-title,
+.theme-dark .markdown-rendered h1, .theme-dark .cm-header-1,
+.theme-dark .markdown-rendered h2, .theme-dark .cm-header-2,
+.theme-dark .markdown-rendered h3, .theme-dark .cm-header-3,
+.theme-dark .markdown-rendered h4, .theme-dark .cm-header-4,
+.theme-dark .markdown-rendered h5, .theme-dark .cm-header-5,
+.theme-dark .markdown-rendered h6, .theme-dark .cm-header-6,
+.theme-dark .cm-line.HyperMD-header {
+  color: #FFFFFF !important;
+  text-shadow: none !important;
+}
+
+/* 文章主标题 (H1 / Inline Title) - 书卷留白，移除死板下划线 */
+.inline-title,
+.markdown-rendered h1,
+.cm-header-1 {
+  font-size: 2.1rem !important;
+  line-height: 1.25 !important;
+  padding-bottom: 0 !important;
+  margin-top: 1.4em !important;
+  margin-bottom: 0.9em !important;
+  border-bottom: none !important;
+}
+
+/* 二级标题 (H2) - 纯深墨压舱石，紧致下留白统领正文 */
+.markdown-rendered h2,
+.cm-header-2 {
+  font-size: 1.42rem !important;
+  line-height: 1.3 !important;
+  padding-bottom: 0 !important;
+  margin-top: 1.5em !important;
+  margin-bottom: 0.42em !important;
+  border-bottom: none !important;
+}
+
+/* 三级标题 (H3) */
+.markdown-rendered h3,
+.cm-header-3 {
+  font-size: 1.25rem !important;
+  line-height: 1.4 !important;
+  margin-top: 1.4em !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* 块引用 (Blockquote)：陶土砖红前缀与暖象牙米底卡片 */
+/* 7.1 阅读视图 (Reading View) */
+.markdown-rendered blockquote {
+  border-left: 3px solid #D97757 !important;
+  border-inline-start: 3px solid #D97757 !important;
+  background-color: var(--background-primary-alt) !important;
+  border-radius: 0 6px 6px 0 !important;
+  padding: 10px 16px !important;
+  color: #383532 !important;
+  margin: 1.3em 0 !important;
+}
+.theme-dark .markdown-rendered blockquote {
+  color: #CCC7BD !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* 7.2 实时编辑与所见即所得视图 (Live Preview / CM6)
+   重要防错位与防碎片机制：
+   - 彻底清除行容器上的 !important padding-inline-start，严禁破坏 Obsidian 原生排版引擎动态计算的
+     text-indent (-k px) 与 padding-inline-start (k px) 的平衡，确保引用竖线、引用符号 > 与正文严丝合缝；
+   - 移除编辑态下逐行切割的孤立矩形背景，提供干净、透亮、专注的正文书写体验；
+   - 指示竖线精确吸附于左侧边界 (inset-inline-start: 0)，与换行后多行文本保持完美平行基准。
+*/
+.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote {
+  background-color: transparent !important;
+  color: #383532 !important;
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+  padding-inline-start: 16px !important;
+  text-indent: 0 !important;
+}
+.theme-dark .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote {
+  background-color: transparent !important;
+  color: #CCC7BD !important;
+}
+.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote-2 {
+  padding-inline-start: 32px !important;
+}
+.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote-3 {
+  padding-inline-start: 48px !important;
+}
+.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote:before {
+  border-left: 3px solid #D97757 !important;
+  border-inline-start: 3px solid #D97757 !important;
+  inset-inline-start: 0 !important;
+}
+.markdown-source-view.mod-cm6 .cm-blockquote-border:before {
+  border-left: 3px solid #D97757 !important;
+  border-inline-start: 3px solid #D97757 !important;
+}
+
+/* 引用符号 (>) 消除重复显示：
+   在实时预览模式下彻底隐藏符号箭头 (>)，仅保留纯净优雅的左侧陶土指示竖线，杜绝“竖线 + 箭头”双重样式重复 */
+.markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote .cm-formatting-quote,
+.markdown-source-view.mod-cm6.is-live-preview span.cm-formatting-quote {
+  display: none !important;
+}
+
+/* Callout 头部行（在实时编辑展开时如 > [!想法]+）样式提升，呈现自然标题徽章感 */
+.markdown-source-view.mod-cm6.is-live-preview .line-HyperMD-callout {
+  font-weight: 600 !important;
+  color: #1F1E1D !important;
+}
+.theme-dark .markdown-source-view.mod-cm6.is-live-preview .line-HyperMD-callout {
+  color: #FFFFFF !important;
+}
+
+/* 坚决杜绝行内 span.cm-quote 继承卡片边框与内边距 */
+.markdown-source-view.mod-cm6 .cm-quote,
+span.cm-quote {
+  border: none !important;
+  border-left: none !important;
+  border-inline-start: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+/* 7.3 呼出区块与写作分区体系 (Callouts & Writing Zones)
+   - 全局支持暖调卡片视觉与圆角
+   - 原生集成船板专属写作工作区四分区：
+     • [!想法] / [!idea]：琥珀暖金 (灯泡 lightbulb)
+     • [!草稿] / [!draft]：护眼柔和草绿 (铅笔 pencil)
+     • [!正文] / [!main]：澄澈湖蓝 (书卷 book-open)
+     • [!预告] / [!next]：静谧素灰 (眼睛 eye)
+*/
+.callout {
+  overflow: hidden;
+  border-style: solid !important;
+  border-width: 0 0 0 4px !important;
+  border-left-color: rgb(var(--callout-color)) !important;
+  background-color: rgba(var(--callout-color), 0.08) !important;
+  border-radius: 8px !important;
+  padding: 0.7em 1em !important;
+  margin: 1.2em 0 !important;
+  mix-blend-mode: normal !important;
+}
+.theme-dark .callout {
+  background-color: rgba(var(--callout-color), 0.14) !important;
+}
+.callout-title {
+  font-family: var(--font-text) !important;
+  font-size: 16.5px !important;
+  font-weight: 600 !important;
+  color: rgb(var(--callout-color)) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0 0 0.4em 0 !important;
+}
+.callout-title-inner {
+  font-weight: 600 !important;
+  color: rgb(var(--callout-color)) !important;
+}
+.callout-icon {
+  color: rgb(var(--callout-color)) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.callout-icon .svg-icon {
+  color: rgb(var(--callout-color)) !important;
+}
+.callout-content {
+  padding: 0.2em 0 0 0 !important;
+  background-color: transparent !important;
+}
+
+/* ── 船板专属四大写作分区定义 ── */
+.callout[data-callout="想法"],
+.callout[data-callout="idea"] {
+  --callout-color: 222, 158, 54;
+  --callout-icon: lightbulb;
+}
+.callout[data-callout="草稿"],
+.callout[data-callout="draft"] {
+  --callout-color: 116, 148, 107;
+  --callout-icon: pencil;
+}
+.callout[data-callout="正文"],
+.callout[data-callout="main"] {
+  --callout-color: 74, 144, 228;
+  --callout-icon: book-open;
+}
+.callout[data-callout="预告"],
+.callout[data-callout="next"] {
+  --callout-color: 145, 145, 145;
+  --callout-icon: eye;
+}
+
+/* 超链接与双链交互见第 10 节 (Notion 统一交互体系) */
+
+/* 分割线 (HR) */
+hr, .cm-hr {
+  border: none !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.14) !important;
+  margin: 2.2em 0 !important;
+}
+.theme-dark hr,
+.theme-dark .cm-hr {
+  border-top-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* ==============================================================================
+   8. 代码块、打字机等宽层与行内代码 (Code & Monospace)
+   ============================================================================== */
+code,
+pre,
+.cm-inline-code,
+.cm-line .HyperMD-codeblock,
+.markdown-rendered code,
+.markdown-rendered pre {
+  font-family: var(--font-monospace) !important;
+  font-variant-ligatures: normal;
+}
+
+/* 行内代码胶囊 - 陶土暖红技术徽章 (限定在非代码块行内) */
+.cm-line:not(.HyperMD-codeblock) .cm-inline-code,
+.markdown-rendered code:not(pre code) {
+  background-color: rgba(217, 119, 87, 0.08) !important;
+  color: #A83A20 !important;
+  border: 1px solid rgba(217, 119, 87, 0.22) !important;
+  border-radius: 3.5px !important;
+  padding: 0.12em 0.45em !important;
+  font-size: 0.88em !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+}
+.theme-dark .cm-line:not(.HyperMD-codeblock) .cm-inline-code,
+.theme-dark .markdown-rendered code:not(pre code) {
+  background-color: rgba(217, 119, 87, 0.15) !important;
+  color: #E6E4DE !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 围栏代码块：打字机排布与整块背景，避免多行代码逐行独立加框 */
+.markdown-rendered pre {
+  font-family: var(--font-monospace) !important;
+  font-weight: 400 !important;
+  background-color: #F8F6F0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 6px !important;
+  line-height: 1.55 !important;
+  padding: 12px 16px !important;
+}
+.theme-dark .markdown-rendered pre {
+  background-color: #242220 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock {
+  font-family: var(--font-monospace) !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  border: none !important;
+  background: transparent !important;
+}
+.markdown-source-view.mod-cm6 div.HyperMD-codeblock-bg {
+  background-color: #F8F6F0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 6px !important;
+}
+.theme-dark .markdown-source-view.mod-cm6 div.HyperMD-codeblock-bg {
+  background-color: #242220 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* ==============================================================================
+   9. 状态栏、弹窗、菜单与按钮 (UI Controls, Modals & Status Bar)
+   ============================================================================== */
+/* 底部状态栏 */
+.status-bar {
+  background-color: var(--status-bar-background) !important;
+  border-top: 1px solid var(--status-bar-border-color) !important;
+  font-family: var(--font-interface) !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  height: 26px !important;
+}
+.status-bar-item {
+  color: var(--status-bar-text-color) !important;
+  text-shadow: 0 0 0.2px rgba(10, 10, 10, 0.3) !important;
+}
+
+/* 快速切换器与命令面板 (Quick Switcher & Command Palette) */
+.prompt {
+  background-color: var(--background-primary) !important;
+  border: 1px solid rgba(0, 0, 0, 0.16) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
+}
+.theme-dark .prompt {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5) !important;
+}
+.prompt-input {
+  font-family: var(--font-interface) !important;
+  font-size: 13.5px !important;
+  border-radius: 6px !important;
+}
+.suggestion-item {
+  border-radius: 5px !important;
+  font-family: var(--font-interface) !important;
+  font-size: 12.5px !important;
+  padding: 5px 10px !important;
+}
+.suggestion-item.is-selected {
+  background-color: var(--background-secondary-alt) !important;
+  color: #0A0A0A !important;
+  font-weight: 520 !important;
+  box-shadow: inset 2px 0 0 #D97757 !important;
+}
+.theme-dark .suggestion-item.is-selected {
+  color: #FFFFFF !important;
+}
+
+/* 下拉菜单与右键上下文菜单 */
+.menu {
+  background-color: var(--background-primary) !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+  padding: 4px !important;
+}
+.menu-item {
+  border-radius: 4px !important;
+  font-family: var(--font-interface) !important;
+  font-size: 12.5px !important;
+  color: var(--text-normal) !important;
+}
+.menu-item:hover,
+.menu-item.is-selected {
+  background-color: var(--background-secondary-alt) !important;
+  color: #0A0A0A !important;
+}
+
+/* 全局按钮紧实排版 */
+button,
+.mod-cta {
+  font-family: var(--font-interface) !important;
+  letter-spacing: -0.012em !important;
+  border-radius: 5px !important;
+}
+button.mod-cta {
+  background-color: #D97757 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+}
+button.mod-cta:hover {
+  background-color: #C56345 !important;
+}
+
+/* ==============================================================================
+   10. Notion 风格页面链接交互 (v1.3.3 单一容器纯净层级 & 彻底清除原生箭头与重影)
+   ============================================================================== */
+
+/* --- 10.0 核心基础防御：清空所有子元素与原生 pseudo-element 的重复渲染 --- */
+.cm-underline,
+.cm-link .cm-underline,
+.cm-hmd-internal-link .cm-underline,
+.cm-link:hover .cm-underline,
+.cm-link:active .cm-underline,
+.cm-hmd-internal-link:hover .cm-underline,
+.cm-hmd-internal-link:active .cm-underline {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 彻底清除 Obsidian 原生外部链接斜上箭头图片与边距 (全生命周期抹平) */
+.external-link,
+a.external-link,
+.markdown-rendered .external-link,
+.markdown-source-view.mod-cm6 .cm-link,
+.external-link:hover,
+a.external-link:hover,
+.markdown-rendered .external-link:hover,
+.markdown-source-view.mod-cm6 .cm-link:hover,
+.external-link:active,
+a.external-link:active,
+.markdown-rendered .external-link:active,
+.markdown-source-view.mod-cm6 .cm-link:active {
+  background-image: none !important;
+  background: none !important;
+  padding-right: 0 !important;
+  padding-inline-end: 0 !important;
+}
+
+.external-link::after,
+a.external-link::after,
+.markdown-rendered .external-link::after,
+.markdown-source-view.mod-cm6 .cm-link::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* --- 10.1 内部双链与页面引用 (常态: 折角文档图标 + 炭黑下划线) --- */
+.markdown-rendered .internal-link,
+.markdown-source-view.mod-cm6 .cm-hmd-internal-link {
+  color: #1F1E1D !important;
+  font-weight: 500 !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(31, 30, 29, 0.45) !important;
+  text-underline-offset: 3px !important;
+  text-decoration-thickness: 1px !important;
+  padding: 1px 4px !important;
+  border-radius: 4px !important;
+  transition: background-color 0.12s ease, color 0.12s ease !important;
+  background-color: transparent !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+.theme-dark .markdown-rendered .internal-link,
+.theme-dark .markdown-source-view.mod-cm6 .cm-hmd-internal-link {
+  color: #E6E4DE !important;
+  text-decoration-color: rgba(230, 228, 222, 0.45) !important;
+}
+
+/* 前置 Notion 折角文档图标 (仅挂在最外层容器) */
+.markdown-rendered .internal-link::before,
+.markdown-source-view.mod-cm6 .cm-hmd-internal-link::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  background-color: currentColor !important;
+  -webkit-mask: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M14%202H6a2%202%200%200%200-2%202v16a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V8z%22/%3E%3Cpolyline%20points%3D%2214%202%2014%208%2020%208%22/%3E%3C/svg%3E') no-repeat center !important;
+  -webkit-mask-size: contain !important;
+  mask: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M14%202H6a2%202%200%200%200-2%202v16a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V8z%22/%3E%3Cpolyline%20points%3D%2214%202%2014%208%2020%208%22/%3E%3C/svg%3E') no-repeat center !important;
+  mask-size: contain !important;
+  opacity: 0.65 !important;
+  vertical-align: middle !important;
+}
+
+/* 内部双链悬停/激活态：单层纯净温润底色 (彻底避免双重阴影，纯正 Notion 触感) */
+.markdown-rendered .internal-link:hover,
+.markdown-rendered .internal-link:active,
+.markdown-source-view.mod-cm6 .cm-hmd-internal-link:hover,
+.markdown-source-view.mod-cm6 .cm-hmd-internal-link:active {
+  background-color: rgba(0, 0, 0, 0.055) !important;
+  color: #0A0A0A !important;
+  text-decoration-color: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-dark .markdown-rendered .internal-link:hover,
+.theme-dark .markdown-rendered .internal-link:active,
+.theme-dark .markdown-source-view.mod-cm6 .cm-hmd-internal-link:hover,
+.theme-dark .markdown-source-view.mod-cm6 .cm-hmd-internal-link:active {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF !important;
+  text-decoration-color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* --- 10.2 外部链接与 Markdown 链接 (如 [标题](url) 及 notion:// 链接 - 图 4 全圆角药丸) --- */
+.markdown-rendered .external-link,
+.markdown-source-view.mod-cm6 .cm-link {
+  color: #1F1E1D !important;
+  font-weight: 500 !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(31, 30, 29, 0.4) !important;
+  text-underline-offset: 3px !important;
+  padding: 1px 6px !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  background-color: transparent !important;
+}
+
+.theme-dark .markdown-rendered .external-link,
+.theme-dark .markdown-source-view.mod-cm6 .cm-link {
+  color: #E6E4DE !important;
+  text-decoration-color: rgba(230, 228, 222, 0.4) !important;
+}
+
+/* 前置 Notion 地球小图标 (仅挂在最外层容器，图 4) */
+.markdown-rendered .external-link::before,
+.markdown-source-view.mod-cm6 .cm-link::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  background-color: currentColor !important;
+  -webkit-mask: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22/%3E%3Cline%20x1%3D%222%22%20y1%3D%2212%22%20x2%3D%2222%22%20y2%3D%2212%22/%3E%3Cpath%20d%3D%22M12%202a15.3%2015.3%200%200%201%204%2010%2015.3%2015.3%200%200%201-4%2010%2015.3%2015.3%200%200%201-4-10%2015.3%2015.3%200%200%201%204-10z%22/%3E%3C/svg%3E') no-repeat center !important;
+  -webkit-mask-size: contain !important;
+  mask: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22/%3E%3Cline%20x1%3D%222%22%20y1%3D%2212%22%20x2%3D%2222%22%20y2%3D%2212%22/%3E%3Cpath%20d%3D%22M12%202a15.3%2015.3%200%200%201%204%2010%2015.3%2015.3%200%200%201-4%2010%2015.3%2015.3%200%200%201-4-10%2015.3%2015.3%200%200%201%204-10z%22/%3E%3C/svg%3E') no-repeat center !important;
+  mask-size: contain !important;
+  opacity: 0.65 !important;
+  vertical-align: middle !important;
+}
+
+/* 外部/Notion 链接悬停态：单层纯净全圆角药丸框 (彻底消除双重阴影重叠，图 4) */
+.markdown-rendered .external-link:hover,
+.markdown-rendered .external-link:active,
+.markdown-source-view.mod-cm6 .cm-link:hover,
+.markdown-source-view.mod-cm6 .cm-link:active {
+  background-color: rgba(0, 0, 0, 0.055) !important;
+  color: #0A0A0A !important;
+  text-decoration: none !important;
+  border-radius: 999px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-dark .markdown-rendered .external-link:hover,
+.theme-dark .markdown-rendered .external-link:active,
+.theme-dark .markdown-source-view.mod-cm6 .cm-link:hover,
+.theme-dark .markdown-source-view.mod-cm6 .cm-link:active {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ==============================================================================
+   11. 排版预设扩展系统 (Typography Preset Extensions)
+   - 默认预设 (Preset 1): 更纱打字机体 (Sarasa Mono Slab SC · 1.78行高 · 0.38em/0.95em段距 · 0.25px润墨)
+   - 书卷宋体预设 (Preset 2): 经典书卷宋体 (Chuanban Western Sans + Songti SC 宋体-简 · 1.68行高 · 0.82em/1.05em段距 · 锐利无阴影)
+   - 激活方式 (公开版纯 CSS 主题不含额外插件，默认即更纱打字机体；如需切换书卷宋体)：
+     ① 任意单篇文档 YAML frontmatter: cssclasses: [preset-songti-serif]
+     ② 社区通用插件 Style Settings 下拉选择 (chuanban -> 排版与字体预设)
+   ============================================================================== */
+
+body.preset-songti-serif,
+.preset-songti-serif,
+body.preset-notion-serif,
+.preset-notion-serif {
+  --font-text-theme: var(--ag-font-songti-serif);
+  --font-text: var(--font-text-override, var(--font-text-theme));
+  --line-height-normal: 1.68;
+  --p-spacing: 1.05em;
+}
+
+body.preset-songti-serif .markdown-rendered,
+body.preset-songti-serif .markdown-source-view.mod-cm6 .cm-content,
+body.preset-songti-serif .markdown-source-view.mod-cm6 .cm-line,
+.preset-songti-serif.markdown-rendered,
+.preset-songti-serif .markdown-rendered,
+.preset-songti-serif.markdown-source-view.mod-cm6 .cm-content,
+.preset-songti-serif .markdown-source-view.mod-cm6 .cm-content,
+.preset-songti-serif.markdown-source-view.mod-cm6 .cm-line,
+.preset-songti-serif .markdown-source-view.mod-cm6 .cm-line,
+body.preset-notion-serif .markdown-rendered,
+body.preset-notion-serif .markdown-source-view.mod-cm6 .cm-content,
+body.preset-notion-serif .markdown-source-view.mod-cm6 .cm-line,
+.preset-notion-serif.markdown-rendered,
+.preset-notion-serif .markdown-rendered,
+.preset-notion-serif.markdown-source-view.mod-cm6 .cm-content,
+.preset-notion-serif .markdown-source-view.mod-cm6 .cm-content,
+.preset-notion-serif.markdown-source-view.mod-cm6 .cm-line,
+.preset-notion-serif .markdown-source-view.mod-cm6 .cm-line {
+  font-family: var(--ag-font-songti-serif) !important;
+  line-height: var(--line-height-normal) !important;
+  letter-spacing: normal !important;
+  text-shadow: none !important;
+  font-variant-numeric: tabular-nums !important;
+  font-variant-east-asian: full-width !important;
+  font-feature-settings: "tnum" 1, "halt" 0, "chws" 0, "pwid" 0 !important;
+}
+
+body.preset-songti-serif .cm-line,
+.preset-songti-serif .cm-line,
+body.preset-notion-serif .cm-line,
+.preset-notion-serif .cm-line {
+  line-height: var(--line-height-normal) !important;
+  padding-bottom: 0.82em !important;
+}
+
+body.preset-songti-serif .cm-line.HyperMD-codeblock,
+body.preset-songti-serif .cm-line:has(.cm-table-widget),
+body.preset-songti-serif .cm-line:empty,
+.preset-songti-serif .cm-line.HyperMD-codeblock,
+.preset-songti-serif .cm-line:has(.cm-table-widget),
+.preset-songti-serif .cm-line:empty,
+body.preset-notion-serif .cm-line.HyperMD-codeblock,
+body.preset-notion-serif .cm-line:has(.cm-table-widget),
+body.preset-notion-serif .cm-line:empty,
+.preset-notion-serif .cm-line.HyperMD-codeblock,
+.preset-notion-serif .cm-line:has(.cm-table-widget),
+.preset-notion-serif .cm-line:empty {
+  padding-bottom: 0 !important;
+}
+
+body.preset-songti-serif .cm-line.HyperMD-list-line,
+.preset-songti-serif .cm-line.HyperMD-list-line,
+body.preset-notion-serif .cm-line.HyperMD-list-line,
+.preset-notion-serif .cm-line.HyperMD-list-line {
+  padding-bottom: 0.35em !important;
+}
+
+body.preset-songti-serif .markdown-rendered p,
+body.preset-songti-serif .markdown-rendered li,
+.preset-songti-serif.markdown-rendered p,
+.preset-songti-serif .markdown-rendered p,
+.preset-songti-serif.markdown-rendered li,
+.preset-songti-serif .markdown-rendered li,
+body.preset-notion-serif .markdown-rendered p,
+body.preset-notion-serif .markdown-rendered li,
+.preset-notion-serif.markdown-rendered p,
+.preset-notion-serif .markdown-rendered p,
+.preset-notion-serif.markdown-rendered li,
+.preset-notion-serif .markdown-rendered li {
+  line-height: var(--line-height-normal) !important;
+  margin-block: 0 var(--p-spacing, 1.05em) !important;
+}
+
+body.preset-songti-serif .inline-title,
+body.preset-songti-serif .markdown-rendered h1, body.preset-songti-serif .cm-header-1,
+body.preset-songti-serif .markdown-rendered h2, body.preset-songti-serif .cm-header-2,
+body.preset-songti-serif .markdown-rendered h3, body.preset-songti-serif .cm-header-3,
+body.preset-songti-serif .markdown-rendered h4, body.preset-songti-serif .cm-header-4,
+body.preset-songti-serif .markdown-rendered h5, body.preset-songti-serif .cm-header-5,
+body.preset-songti-serif .markdown-rendered h6, body.preset-songti-serif .cm-header-6,
+body.preset-songti-serif .cm-line.HyperMD-header,
+.preset-songti-serif .inline-title,
+.preset-songti-serif.markdown-rendered h1, .preset-songti-serif .markdown-rendered h1, .preset-songti-serif .cm-header-1,
+.preset-songti-serif.markdown-rendered h2, .preset-songti-serif .markdown-rendered h2, .preset-songti-serif .cm-header-2,
+.preset-songti-serif.markdown-rendered h3, .preset-songti-serif .markdown-rendered h3, .preset-songti-serif .cm-header-3,
+.preset-songti-serif.markdown-rendered h4, .preset-songti-serif .markdown-rendered h4, .preset-songti-serif .cm-header-4,
+.preset-songti-serif.markdown-rendered h5, .preset-songti-serif .markdown-rendered h5, .preset-songti-serif .cm-header-5,
+.preset-songti-serif.markdown-rendered h6, .preset-songti-serif .markdown-rendered h6, .preset-songti-serif .cm-header-6,
+.preset-songti-serif .cm-line.HyperMD-header,
+body.preset-notion-serif .inline-title,
+body.preset-notion-serif .markdown-rendered h1, body.preset-notion-serif .cm-header-1,
+body.preset-notion-serif .markdown-rendered h2, body.preset-notion-serif .cm-header-2,
+body.preset-notion-serif .markdown-rendered h3, body.preset-notion-serif .cm-header-3,
+body.preset-notion-serif .markdown-rendered h4, body.preset-notion-serif .cm-header-4,
+body.preset-notion-serif .markdown-rendered h5, body.preset-notion-serif .cm-header-5,
+body.preset-notion-serif .markdown-rendered h6, body.preset-notion-serif .cm-header-6,
+body.preset-notion-serif .cm-line.HyperMD-header,
+.preset-notion-serif .inline-title,
+.preset-notion-serif.markdown-rendered h1, .preset-notion-serif .markdown-rendered h1, .preset-notion-serif .cm-header-1,
+.preset-notion-serif.markdown-rendered h2, .preset-notion-serif .markdown-rendered h2, .preset-notion-serif .cm-header-2,
+.preset-notion-serif.markdown-rendered h3, .preset-notion-serif .markdown-rendered h3, .preset-notion-serif .cm-header-3,
+.preset-notion-serif.markdown-rendered h4, .preset-notion-serif .markdown-rendered h4, .preset-notion-serif .cm-header-4,
+.preset-notion-serif.markdown-rendered h5, .preset-notion-serif .markdown-rendered h5, .preset-notion-serif .cm-header-5,
+.preset-notion-serif.markdown-rendered h6, .preset-notion-serif .markdown-rendered h6, .preset-notion-serif .cm-header-6,
+.preset-notion-serif .cm-line.HyperMD-header {
+  font-family: var(--ag-font-songti-serif) !important;
+  letter-spacing: -0.015em !important;
+  text-shadow: none !important;
+  font-variant-numeric: tabular-nums !important;
+  font-variant-east-asian: full-width !important;
+  font-feature-settings: "tnum" 1, "halt" 0, "chws" 0 !important;
+}
+
+body.preset-songti-serif .markdown-rendered blockquote,
+body.preset-songti-serif .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote,
+.preset-songti-serif.markdown-rendered blockquote,
+.preset-songti-serif .markdown-rendered blockquote,
+.preset-songti-serif .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote,
+body.preset-notion-serif .markdown-rendered blockquote,
+body.preset-notion-serif .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote,
+.preset-notion-serif.markdown-rendered blockquote,
+.preset-notion-serif .markdown-rendered blockquote,
+.preset-notion-serif .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote {
+  font-family: var(--ag-font-songti-serif) !important;
+  line-height: var(--line-height-normal) !important;
+  text-shadow: none !important;
+  font-variant-numeric: tabular-nums !important;
+  font-variant-east-asian: full-width !important;
+}
+
+body.preset-songti-serif .callout,
+body.preset-songti-serif .callout-title,
+body.preset-songti-serif .callout-content,
+.preset-songti-serif .callout,
+.preset-songti-serif .callout-title,
+.preset-songti-serif .callout-content,
+body.preset-notion-serif .callout,
+body.preset-notion-serif .callout-title,
+body.preset-notion-serif .callout-content,
+.preset-notion-serif .callout,
+.preset-notion-serif .callout-title,
+.preset-notion-serif .callout-content {
+  font-family: var(--ag-font-songti-serif) !important;
+  font-variant-numeric: tabular-nums !important;
+  font-variant-east-asian: full-width !important;
+}
+
+/* ==============================================================================
+   12. 悬浮卡片预览 (Hover Popover - 固定高信息密度微缩排版，彻底解耦正文缩放与预设行距)
+   - 置于文件最末尾并使用 body .popover.hover-popover 高特异度选择器，高于一切预设规则
+   - 采用 Obsidian 原生 --popover-width / --popover-height 契约，确保滚动条与底部内容完整可见
+   ============================================================================== */
+body .popover.hover-popover {
+  --popover-width: 440px !important;
+  --popover-height: 360px !important;
+  --popover-font-size: 13px !important;
+  --font-text-size: 13px !important;
+  --line-height-normal: 1.52 !important;
+  --p-spacing: 0.45em !important;
+  background-color: var(--background-primary) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.theme-dark .popover.hover-popover {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5) !important;
+}
+
+body .popover.hover-popover > .markdown-embed,
+body .popover.hover-popover .markdown-embed-content,
+body .popover.hover-popover .markdown-preview-view,
+body .popover.hover-popover .markdown-rendered {
+  border: none !important;
+  padding: 6px 10px !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.52 !important;
+}
+
+/* 隐藏预览卡内占空间的顶部「笔记属性」折叠框，直接展现正文核心信息 */
+body .popover.hover-popover .metadata-container {
+  display: none !important;
+}
+
+/* 锁定预览卡内正文、列表、代码行的固定紧凑字号与上下段距（彻底阻断外部 rem/baseFontSize 渗透） */
+body .popover.hover-popover .markdown-rendered p,
+body .popover.hover-popover .markdown-rendered li,
+body .popover.hover-popover .markdown-source-view.mod-cm6 .cm-content,
+body .popover.hover-popover .markdown-source-view.mod-cm6 .cm-line,
+body .popover.hover-popover .markdown-source-view.mod-cm6.is-live-preview .HyperMD-quote {
+  font-size: 13px !important;
+  line-height: 1.52 !important;
+  margin-block: 0 0.45em !important;
+  padding-bottom: 0 !important;
+}
+
+body .popover.hover-popover .markdown-rendered ul,
+body .popover.hover-popover .markdown-rendered ol {
+  margin-block: 0.25em 0.45em !important;
+  padding-inline-start: 1.3em !important;
+}
+
+/* 锁定预览卡内各级标题的精致微缩比例，消除巨型标题霸屏 */
+body .popover.hover-popover .inline-title,
+body .popover.hover-popover .markdown-rendered h1,
+body .popover.hover-popover .cm-header-1 {
+  font-size: 15.5px !important;
+  line-height: 1.3 !important;
+  margin-block: 0.1em 0.45em !important;
+  padding-bottom: 0 !important;
+}
+
+body .popover.hover-popover .markdown-rendered h2,
+body .popover.hover-popover .cm-header-2 {
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  margin-block: 0.65em 0.3em !important;
+  padding-bottom: 0 !important;
+}
+
+body .popover.hover-popover .markdown-rendered h3,
+body .popover.hover-popover .cm-header-3,
+body .popover.hover-popover .markdown-rendered h4,
+body .popover.hover-popover .cm-header-4,
+body .popover.hover-popover .markdown-rendered h5,
+body .popover.hover-popover .cm-header-5,
+body .popover.hover-popover .markdown-rendered h6,
+body .popover.hover-popover .cm-header-6 {
+  font-size: 13.2px !important;
+  line-height: 1.4 !important;
+  margin-block: 0.5em 0.25em !important;
+  padding-bottom: 0 !important;
+}
+
+body .popover.hover-popover .markdown-rendered blockquote,
+body .popover.hover-popover .callout {
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+  margin-block: 0.45em !important;
+  padding: 0.35em 0.7em !important;
+}
+
+body .popover.hover-popover .markdown-rendered hr {
+  margin: 0.75em 0 !important;
+}
+
+body .popover.hover-popover .markdown-rendered pre {
+  margin-block: 0.45em !important;
+  padding: 6px 8px !important;
+}
+
