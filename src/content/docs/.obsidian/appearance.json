@@ -1,4 +1,7 @@
 {
   "theme": "moonstone",
-  "cssTheme": "chuanban"
+  "cssTheme": "chuanban",
+  "baseFontSizeAction": true,
+  "showRibbon": true,
+  "nativeMenus": true
 }
