@@ -9,7 +9,7 @@
 // 注意：/api/bangumi 和 functions/bangumi/index.ts 是 edge runtime，
 // 不能 import 这个文件（它们是独立编译的部署单元）。
 
-export type MediaType = "anime" | "game";
+export type MediaType = "anime" | "game" | "music" | "book";
 export type BangumiStatus = "watching" | "wish" | "watched";
 
 export interface BangumiImageSet {
@@ -53,15 +53,19 @@ export interface BangumiData {
   timeline?: BangumiTimelineEntry[];
 }
 
-/** Bangumi API 的 subject.type 枚举里，动画=2，游戏=4。 */
+/** Bangumi API 的 subject.type 枚举里，书籍=1，动画=2，音乐=3，游戏=4。 */
 export const MEDIA_SUBJECT_TYPE: Record<MediaType, number> = {
   anime: 2,
   game: 4,
+  music: 3,
+  book: 1,
 };
 
 export const MEDIA_LABEL: Record<MediaType, string> = {
   anime: "动画",
   game: "游戏",
+  music: "音乐",
+  book: "书籍",
 };
 
 export const STATUS_LABEL: Record<BangumiStatus, string> = {

@@ -1,12 +1,14 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import LilyOrnament from '../components/LilyOrnament.astro';
+import Floral from '../components/Floral.astro';
 import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi';
 ---
 
 <StarlightPage
   frontmatter={{
-    title: 'Anime Reviews',
-    description: '在 Bangumi 上看过、想看、在追的动画与游戏条目，以及时间线记录。',
+    title: '鉴赏 · Review',
+    description: '在 Bangumi 上记录的动画、游戏、音乐与书籍鉴赏档案，以及时间胶囊动态。',
     template: 'splash',
     tableOfContents: false,
   }}
@@ -15,68 +17,70 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   <div class="bangumi-page not-content">
     <div class="bangumi-shell">
       <!-- 头部 Bangumi 专属概览与个人资料卡片 -->
-      <header class="home-card bangumi-hero-card">
-        <div class="bangumi-hero-inner">
-          <div class="bangumi-user-profile">
-            <a
-              href="https://bgm.tv/user/duskydream"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="bangumi-user-avatar"
-              title="前往 Lxzm 的 Bangumi 主页"
-            >
-              <img
-                src="https://lain.bgm.tv/pic/user/l/000/85/16/851657_upVeN.jpg?r=1781703517&hd=1"
-                alt="Lxzm (duskydream)"
-                width="64"
-                height="64"
-                loading="eager"
-              />
-            </a>
-            <div class="bangumi-user-info">
-              <div class="bangumi-user-names">
-                <h1 class="bangumi-user-name">Lxzm</h1>
-                <span class="bangumi-user-handle">@duskydream</span>
-                <span class="bangumi-user-badge">Bangumi 番组计划</span>
+      <header class="bangumi-surface bangumi-hero-card">
+        <div class="bangumi-hero-decor" aria-hidden="true">
+          <LilyOrnament id="anime-lily" />
+        </div>
+        <div class="bangumi-hero-content">
+          <div class="bangumi-eyebrow">
+            <span class="bangumi-eyebrow-dot" aria-hidden="true"></span>
+            <span class="bangumi-eyebrow-text">REVIEW · BANGUMI ARCHIVE</span>
+          </div>
+
+          <div class="bangumi-hero-inner">
+            <div class="bangumi-user-profile">
+              <a
+                href="https://bgm.tv/user/duskydream"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bangumi-user-avatar"
+                title="前往 Lxzm 的 Bangumi 主页"
+              >
+                <img
+                  src="https://lain.bgm.tv/pic/user/l/000/85/16/851657_upVeN.jpg?r=1781703517&hd=1"
+                  alt="Lxzm (duskydream)"
+                  width="64"
+                  height="64"
+                  loading="eager"
+                />
+              </a>
+              <div class="bangumi-user-info">
+                <div class="bangumi-user-names">
+                  <h1 class="bangumi-user-name">Lxzm</h1>
+                  <span class="bangumi-user-handle">@duskydream</span>
+                  <span class="bangumi-user-badge">Bangumi 番组计划</span>
+                </div>
+                <p class="bangumi-user-sign">“Everything that rises must converge”</p>
+                <p id="bangumi-stats" class="bangumi-stats" aria-live="polite">正在同步档案统计…</p>
               </div>
-              <p class="bangumi-user-sign">“Everything that rises must converge”</p>
+            </div>
+
+            <div class="bangumi-hero-actions">
+              <a
+                href="https://bgm.tv/user/duskydream"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="home-quick-pill"
+              >
+                <Floral variant="bloom" size="0.82em" />
+                <span>Bangumi 主页</span>
+              </a>
             </div>
           </div>
 
-          <div class="bangumi-hero-actions">
-            <a
-              href="https://bgm.tv/user/duskydream"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="home-quick-pill"
-            >
-              <span>✦ Bangumi 主页</span>
-            </a>
-            <a
-              href="https://bgm.tv/feed/user/duskydream/timeline"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="home-quick-pill"
-              title="订阅 Bangumi 时间胶囊 RSS"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-              <span>RSS 订阅</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- 自我介绍 (Bio Panel) -->
-        <div class="bangumi-user-intro-panel">
-          <div class="bangumi-user-intro-header">
-            <span class="bangumi-user-intro-icon">✦</span>
-            <span class="bangumi-user-intro-title">自我介绍</span>
-          </div>
-          <div class="bangumi-user-intro-content">
-            <p>杉菜水姫、松本文纪、深泽秀行、MANYO</p>
-            <p>永久眷恋着天国的音乐妖精</p>
-            <p>Innocent Grey、貴方へ捧ぐ戀紅色の花</p>
-            <p>直观&gt;印象&gt;分析、随缘百合</p>
-            <p>关于如何对抗遗忘</p>
+          <!-- 自我介绍 (Bio Panel) -->
+          <div class="bangumi-user-intro-panel">
+            <div class="bangumi-user-intro-header">
+              <Floral variant="bud" size="0.85em" class="bangumi-user-intro-icon" />
+              <span class="bangumi-user-intro-title">自我介绍</span>
+            </div>
+            <div class="bangumi-user-intro-content">
+              <p>杉菜水姫、松本文纪、深泽秀行、MANYO</p>
+              <p>永久眷恋着天国的音乐妖精</p>
+              <p>Innocent Grey、貴方へ捧ぐ戀紅色の花</p>
+              <p>直观&gt;印象&gt;分析、随缘百合</p>
+              <p>关于如何对抗遗忘</p>
+            </div>
           </div>
         </div>
       </header>
@@ -85,11 +89,12 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       <div class="bangumi-layout">
         <!-- 主栏：鉴赏收藏 -->
         <main class="bangumi-main-section">
-          <section class="home-card bangumi-collections-card">
-            <div class="home-card-head">
-              <div class="home-card-head-left">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg>
-                <span class="home-card-title">鉴赏收藏</span>
+          <section class="bangumi-surface bangumi-collections-card">
+            <div class="bangumi-surface-head">
+              <div class="bangumi-surface-head-left">
+                <span class="bangumi-head-dot" aria-hidden="true"></span>
+                <span class="bangumi-head-en">COLLECTIONS</span>
+                <span class="bangumi-surface-title">鉴赏收藏</span>
               </div>
               <div id="bangumi-meta" class="bangumi-meta-badge" aria-live="polite"></div>
             </div>
@@ -100,8 +105,8 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
                 <input
                   type="text"
                   id="bangumi-search"
-                  aria-label="搜索动画或游戏"
-                  placeholder="搜索动画 / 游戏..."
+                  aria-label="搜索动画、游戏、音乐或书籍"
+                  placeholder="搜索动画、游戏、音乐或书籍..."
                   autocomplete="off"
                 />
               </div>
@@ -110,8 +115,10 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
                 <div class="bangumi-filterbar-group">
                   <span class="bangumi-filterbar-label">类型</span>
                   <div class="bangumi-filterbar-options">
-                    <button type="button" data-media="anime" class="bangumi-chip is-active">动画</button>
-                    <button type="button" data-media="game" class="bangumi-chip">游戏</button>
+                    <button type="button" data-media="anime" class="bangumi-chip is-active">动画 <span class="bangumi-chip-count"></span></button>
+                    <button type="button" data-media="game" class="bangumi-chip">游戏 <span class="bangumi-chip-count"></span></button>
+                    <button type="button" data-media="music" class="bangumi-chip">音乐 <span class="bangumi-chip-count"></span></button>
+                    <button type="button" data-media="book" class="bangumi-chip">书籍 <span class="bangumi-chip-count"></span></button>
                   </div>
                 </div>
 
@@ -120,16 +127,23 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
                 <div class="bangumi-filterbar-group bangumi-filterbar-group-status">
                   <span class="bangumi-filterbar-label">状态</span>
                   <div class="bangumi-filterbar-options bangumi-filterbar-options-status">
-                    <button type="button" data-status="watching" class="bangumi-pill is-active">进行中</button>
-                    <button type="button" data-status="wish" class="bangumi-pill">待补完</button>
-                    <button type="button" data-status="watched" class="bangumi-pill">已完成</button>
+                    <button type="button" data-status="watched" class="bangumi-pill is-active">已完成 <span class="bangumi-pill-count"></span></button>
+                    <button type="button" data-status="watching" class="bangumi-pill">进行中 <span class="bangumi-pill-count"></span></button>
+                    <button type="button" data-status="wish" class="bangumi-pill">待补完 <span class="bangumi-pill-count"></span></button>
                   </div>
+                </div>
+
+                <div class="bangumi-filterbar-group bangumi-filterbar-group-toggle">
+                  <button type="button" id="bangumi-reviewed-toggle" class="bangumi-toggle-chip" aria-pressed="false">
+                    <span class="bangumi-toggle-dot" aria-hidden="true"></span>
+                    <span>仅看短评</span> <span class="bangumi-toggle-count"></span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div class="home-card-body">
-              {/* 结果区标题：筛选状态由 URL query 决定（?media=&status=&q=），所以标题是动态的。
+            <div class="bangumi-surface-body">
+              {/* 结果区标题：筛选状态由 URL query 决定（?media=&status=&q=&reviewed=1），所以标题是动态的。
                   视觉上筛选栏已经表达了同样的信息，这里只给读屏用户一个语义锚点，
                   同时补上 h1 -> h3 缺失的 h2 层级。 */}
               <h2 id="bangumi-results-heading" class="bangumi-results-heading" aria-live="polite">条目列表</h2>
@@ -142,11 +156,12 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
 
         <!-- 侧栏：Bangumi 时间胶囊 -->
         <aside class="bangumi-aside-section">
-          <section class="home-card home-card--timeline bangumi-timeline-card">
-            <div class="home-card-head">
-              <div class="home-card-head-left">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"></path><path d="M5 7h14"></path><path d="M5 17h14"></path><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
-                <span class="home-card-title">时间胶囊</span>
+          <section class="bangumi-surface bangumi-timeline-card">
+            <div class="bangumi-surface-head">
+              <div class="bangumi-surface-head-left">
+                <span class="bangumi-head-dot" aria-hidden="true"></span>
+                <span class="bangumi-head-en">TIME CAPSULE</span>
+                <span class="bangumi-surface-title">时间胶囊</span>
               </div>
               <a
                 href="https://bgm.tv/feed/user/duskydream/timeline"
@@ -156,12 +171,12 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
                 title="订阅时间胶囊 RSS"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-                <span>Feed</span>
+                <span>RSS</span>
               </a>
             </div>
 
-            <div class="home-card-body bangumi-timeline-scroll">
-              <div id="bangumi-timeline" class="bangumi-timeline" data-floral-vine='{"items": ".bangumi-timeline-item", "current": "", "vineX": 12, "meander": 3}'>
+            <div class="bangumi-surface-body bangumi-timeline-scroll">
+              <div id="bangumi-timeline" class="bangumi-timeline" data-floral-vine='{"items": ".bangumi-timeline-item", "current": "", "vineX": 10, "meander": 2.5}'>
                 <div class="bangumi-message is-pulse" style="padding: 1.5rem 0.5rem;">加载动态...</div>
               </div>
             </div>
@@ -182,7 +197,8 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
 
     const state = {
       mediaType: 'anime',
-      status: 'watching',
+      status: 'watched',
+      onlyReviewed: false,
       data: { watching: [], wish: [], watched: [], timeline: [] },
       expanded: null,
       isFetching: false,
@@ -193,11 +209,36 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     const gridArea = document.getElementById('bangumi-grid');
     const timelineArea = document.getElementById('bangumi-timeline');
     const resultsMeta = document.getElementById('bangumi-meta');
+    const statsEl = document.getElementById('bangumi-stats');
+    const reviewedToggle = document.getElementById('bangumi-reviewed-toggle');
     const mediaButtons = [...document.querySelectorAll('.bangumi-chip')];
     const statusButtons = [...document.querySelectorAll('.bangumi-pill')];
     let searchTimer;
 
     if (!search || !gridArea || !resultsMeta) return;
+
+    const HTML_ENTITIES = {
+      amp: '&',
+      lt: '<',
+      gt: '>',
+      quot: '"',
+      apos: "'",
+      nbsp: ' ',
+    };
+
+    function decodeHtmlEntities(value) {
+      if (value == null) return '';
+      return String(value).replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity) => {
+        if (entity[0] === '#') {
+          const isHex = entity[1] === 'x' || entity[1] === 'X';
+          const codePoint = Number.parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+          if (!Number.isFinite(codePoint) || codePoint <= 0 || codePoint > 0x10ffff) return match;
+          return String.fromCodePoint(codePoint);
+        }
+        const key = entity.toLowerCase();
+        return Object.prototype.hasOwnProperty.call(HTML_ENTITIES, key) ? HTML_ENTITIES[key] : match;
+      });
+    }
 
     function escapeHTML(value) {
       return String(value)
@@ -206,6 +247,15 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+    }
+
+    function cleanSummaryPreview(summary) {
+      return String(summary || '')
+        .replace(/\r\n?/g, '\n')
+        .replace(/^[￣―─—\-=_*~·•\s]{4,}$/gm, '')
+        .replace(/\n+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
     }
 
     function safeImageURL(value) {
@@ -223,6 +273,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         const media = params.get('media');
         const status = params.get('status');
         const q = params.get('q');
+        const reviewed = params.get('reviewed');
         if (media && Object.prototype.hasOwnProperty.call(MEDIA_SUBJECT_TYPE, media)) {
           state.mediaType = media;
         }
@@ -232,6 +283,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         if (typeof q === 'string' && q.trim()) {
           search.value = q.trim();
         }
+        state.onlyReviewed = reviewed === '1';
       } catch { /* ignore */ }
     }
 
@@ -241,12 +293,15 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         if (state.mediaType !== 'anime') url.searchParams.set('media', state.mediaType);
         else url.searchParams.delete('media');
 
-        if (state.status !== 'watching') url.searchParams.set('status', state.status);
+        if (state.status !== 'watched') url.searchParams.set('status', state.status);
         else url.searchParams.delete('status');
 
         const q = search.value.trim();
         if (q) url.searchParams.set('q', q);
         else url.searchParams.delete('q');
+
+        if (state.onlyReviewed) url.searchParams.set('reviewed', '1');
+        else url.searchParams.delete('reviewed');
 
         const nextUrl = url.pathname + url.search + url.hash;
         const currUrl = window.location.pathname + window.location.search + window.location.hash;
@@ -397,6 +452,83 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       }
     }
 
+    function getSupportedItems(list) {
+      const supported = new Set(Object.values(MEDIA_SUBJECT_TYPE));
+      return Array.isArray(list) ? list.filter(item => supported.has(item?.subject?.type)) : [];
+    }
+
+    function updateStats() {
+      if (!statsEl) return;
+      if (!hasBangumiItems(state.data)) {
+        statsEl.textContent = '正在同步档案统计…';
+        return;
+      }
+      const watched = getSupportedItems(state.data.watched);
+      const watching = getSupportedItems(state.data.watching);
+      const wish = getSupportedItems(state.data.wish);
+      const total = watched.length + watching.length + wish.length;
+      const reviewed = [...watched, ...watching, ...wish].filter(item => Boolean(decodeHtmlEntities(item.comment || '').trim())).length;
+      statsEl.textContent =
+        '共 ' + total + ' 项 · 已完成 ' + watched.length +
+        ' · 进行中 ' + watching.length +
+        ' · 待补完 ' + wish.length +
+        ' · 短评 ' + reviewed;
+    }
+
+    function updateFilterCounts() {
+      const loaded = hasBangumiItems(state.data);
+      const statusKeys = ['watched', 'watching', 'wish'];
+
+      mediaButtons.forEach((button) => {
+        const countEl = button.querySelector('.bangumi-chip-count');
+        if (!countEl) return;
+        if (!loaded) {
+          countEl.textContent = '';
+          return;
+        }
+        const typeFilter = MEDIA_SUBJECT_TYPE[button.dataset.media];
+        let count = 0;
+        for (const key of statusKeys) {
+          const list = state.data[key] || [];
+          for (const item of list) {
+            if (item?.subject?.type === typeFilter) count++;
+          }
+        }
+        countEl.textContent = String(count);
+      });
+
+      const activeType = MEDIA_SUBJECT_TYPE[state.mediaType];
+      statusButtons.forEach((button) => {
+        const countEl = button.querySelector('.bangumi-pill-count');
+        if (!countEl) return;
+        if (!loaded) {
+          countEl.textContent = '';
+          return;
+        }
+        const list = state.data[button.dataset.status] || [];
+        const count = list.filter(item => item?.subject?.type === activeType).length;
+        countEl.textContent = String(count);
+      });
+
+      if (reviewedToggle) {
+        const countEl = reviewedToggle.querySelector('.bangumi-toggle-count');
+        const activeSlice = (state.data[state.status] || []).filter(item => item?.subject?.type === activeType);
+        const reviewedCount = activeSlice.filter(item => Boolean(decodeHtmlEntities(item.comment || '').trim())).length;
+        if (countEl) {
+          countEl.textContent = loaded ? String(reviewedCount) : '';
+        }
+        if (loaded && reviewedCount === 0 && state.onlyReviewed) {
+          state.onlyReviewed = false;
+          writeQueryState();
+        }
+        const isDisabled = loaded && reviewedCount === 0;
+        reviewedToggle.disabled = isDisabled;
+        reviewedToggle.classList.toggle('is-disabled', isDisabled);
+        reviewedToggle.classList.toggle('is-active', state.onlyReviewed);
+        reviewedToggle.setAttribute('aria-pressed', String(state.onlyReviewed));
+      }
+    }
+
     function getFilteredList() {
       const source = state.data[state.status] || [];
       const typeFilter = MEDIA_SUBJECT_TYPE[state.mediaType];
@@ -405,15 +537,20 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       return source
         .filter(item => item.subject?.type === typeFilter)
         .filter((item) => {
+          if (state.onlyReviewed && !decodeHtmlEntities(item.comment || '').trim()) {
+            return false;
+          }
           if (!keyword) return true;
-          const title = item.subject?.name_cn || item.subject?.name || '';
-          return title.toLowerCase().includes(keyword);
+          const cn = decodeHtmlEntities(item.subject?.name_cn || '').toLowerCase();
+          const orig = decodeHtmlEntities(item.subject?.name || '').toLowerCase();
+          return cn.includes(keyword) || orig.includes(keyword);
         });
     }
 
     function updateResultsMeta(total) {
       const keyword = search.value.trim();
-      const base = MEDIA_LABEL[state.mediaType] + ' · ' + STATUS_LABEL[state.status] + ' · ' + total + ' 项';
+      const reviewedPart = state.onlyReviewed ? ' · 仅短评' : '';
+      const base = MEDIA_LABEL[state.mediaType] + ' · ' + STATUS_LABEL[state.status] + reviewedPart + ' · ' + total + ' 项';
       resultsMeta.textContent = keyword ? base + ' · 关键词「' + keyword + '」' : base;
       // 同步给 h2 标题：卡片是 h3，需要有 h2 兜住层级，筛选变化时也跟着播报。
       const heading = document.getElementById('bangumi-results-heading');
@@ -424,6 +561,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
 
     function getEmptyMessage() {
       if (search.value.trim()) return '没有找到匹配的内容';
+      if (state.onlyReviewed) return '当前分类下还没有撰写短评的' + MEDIA_LABEL[state.mediaType] + '条目';
       return '当前分类下还没有' + MEDIA_LABEL[state.mediaType] + '条目';
     }
 
@@ -435,37 +573,53 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       for (let i = 0; i < 5; i++) {
         stars += '<span class="bangumi-star' + (i < filled ? ' is-filled' : '') + '" aria-hidden="true">✦</span>';
       }
-      return '<span class="bangumi-score" aria-label="评分 ' + escapeHTML(value.toFixed(1)) + '">' +
+      return '<span class="bangumi-score" aria-label="个人评分 ' + escapeHTML(value.toFixed(1)) + '">' +
         stars +
         '<span class="bangumi-score-value">' + escapeHTML(value.toFixed(1)) + '</span>' +
         '</span>';
     }
 
     function renderTags(tags) {
-      const list = Array.isArray(tags) ? tags.filter(tag => tag && tag.name).slice(0, 5) : [];
-      if (!list.length) return '';
-      const pills = list.map(tag => '<span class="tag-pill">' + escapeHTML(tag.name) + '</span>').join('');
-      const extra = tags.length > 5 ? '<span class="tag-pill tag-pill-more">+' + (tags.length - 5) + '</span>' : '';
+      const valid = Array.isArray(tags) ? tags.filter(tag => tag && tag.name && String(tag.name).trim()) : [];
+      if (!valid.length) return '';
+      const list = valid.slice(0, 4);
+      const pills = list.map(tag => '<span class="tag-pill">' + escapeHTML(decodeHtmlEntities(tag.name).trim()) + '</span>').join('');
+      const extra = valid.length > 4 ? '<span class="tag-pill tag-pill-more">+' + (valid.length - 4) + '</span>' : '';
       return '<div class="bangumi-tags">' + pills + extra + '</div>';
     }
 
     function renderCard(item, index) {
       const subject = item.subject || {};
       const id = Number(item.subject_id || subject.id || 0);
-      const title = escapeHTML(subject.name_cn || subject.name || '未命名条目');
-      const originalTitle = subject.name && subject.name !== subject.name_cn ? escapeHTML(subject.name) : '';
+      const rawNameCn = decodeHtmlEntities(subject.name_cn || '').trim();
+      const rawName = decodeHtmlEntities(subject.name || '').trim();
+      const title = escapeHTML(rawNameCn || rawName || '未命名条目');
+      const originalTitle = rawNameCn && rawName && rawName !== rawNameCn ? escapeHTML(rawName) : '';
       const image = safeImageURL(subject.images?.medium || subject.images?.common || subject.images?.large || '');
-      const rate = renderStars(item.rate || subject.score);
+
+      const personalRate = Number(item.rate);
+      const bgmScore = Number(subject.score);
+      const hasPersonalRate = Number.isFinite(personalRate) && personalRate > 0;
+      const hasBgmScore = Number.isFinite(bgmScore) && bgmScore > 0;
+      const rateHtml = hasPersonalRate ? renderStars(personalRate) : '';
+      const bgmHtml = hasBgmScore
+        ? (hasPersonalRate
+            ? '<span class="bangumi-bgm-score" title="Bangumi 社区评分">BGM ' + escapeHTML(bgmScore.toFixed(1)) + '</span>'
+            : '<span class="bangumi-bgm-score is-unrated" title="尚未个人打分 · Bangumi 社区评分">BGM ' + escapeHTML(bgmScore.toFixed(1)) + '</span>')
+        : '';
+
       const tags = renderTags(subject.tags);
-      const comment = (item.comment || '').trim();
-      const summary = (subject.summary || subject.short_summary || '').trim();
+      const comment = decodeHtmlEntities(item.comment || '').trim();
+      const rawSummary = decodeHtmlEntities(subject.summary || subject.short_summary || '').trim();
+      const summaryPreview = cleanSummaryPreview(rawSummary);
+      const fullSummary = rawSummary.replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
       const updated = item.updated_at ? escapeHTML(String(item.updated_at).slice(0, 10)) : '';
       const open = state.expanded === id;
       const hasReview = Boolean(comment);
 
-      const flowerIcon = hasReview
-        ? '<span class="bangumi-title-flower is-reviewed" title="已撰写心得评价">✦</span>'
-        : '<span class="bangumi-title-flower" title="暂无评价">✦</span>';
+      const reviewedBadge = hasReview
+        ? '<span class="bangumi-reviewed-badge" title="已撰写个人短评"><span class="bangumi-reviewed-dot" aria-hidden="true"></span>短评</span>'
+        : '';
 
       const coverHtml = image
         ? '<img src="' + image + '" alt="' + title + '" loading="lazy" decoding="async" />'
@@ -473,19 +627,43 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
 
       const previewText = hasReview
         ? '<p class="bangumi-preview">“' + escapeHTML(comment) + '”</p>'
-        : (summary ? '<p class="bangumi-preview bangumi-no-review">' + escapeHTML(summary) + '</p>' : '<p class="bangumi-preview bangumi-no-review">暂无简介与评价</p>');
+        : (summaryPreview
+            ? '<p class="bangumi-preview bangumi-no-review">' + escapeHTML(summaryPreview) + '</p>'
+            : '<p class="bangumi-preview bangumi-no-review">暂无简介与评价</p>');
 
-      const detailBody = hasReview
-        ? '<div class="bangumi-review-box"><p>' + escapeHTML(comment) + '</p></div>' + (summary ? '<div class="bangumi-summary-box"><p>' + escapeHTML(summary) + '</p></div>' : '')
-        : (summary ? '<div class="bangumi-summary-box"><p>' + escapeHTML(summary) + '</p></div>' : '<div class="bangumi-summary-box"><p>暂无完整简介</p></div>');
+      const detailMetaItems = [];
+      if (originalTitle) {
+        detailMetaItems.push('<span class="bangumi-detail-meta-item"><span class="bangumi-detail-meta-label">原名</span>' + originalTitle + '</span>');
+      }
+      if (hasBgmScore) {
+        detailMetaItems.push('<span class="bangumi-detail-meta-item"><span class="bangumi-detail-meta-label">BGM 评分</span>' + escapeHTML(bgmScore.toFixed(1)) + '</span>');
+      }
+      if (updated) {
+        detailMetaItems.push('<span class="bangumi-detail-meta-item"><span class="bangumi-detail-meta-label">标记于</span>' + updated + '</span>');
+      }
+      const detailMetaHtml = detailMetaItems.length
+        ? '<div class="bangumi-detail-meta">' + detailMetaItems.join('') + '</div>'
+        : '';
+
+      const showFullReviewInDetail = hasReview && (comment.length > 42 || comment.includes('\n'));
+      const reviewBlockHtml = showFullReviewInDetail
+        ? '<div class="bangumi-review-box"><div class="bangumi-detail-section-label">个人短评</div><p>' + escapeHTML(comment) + '</p></div>'
+        : '';
+      const summaryBlockHtml = fullSummary
+        ? '<div class="bangumi-summary-box"><div class="bangumi-detail-section-label">作品简介</div><p>' + escapeHTML(fullSummary) + '</p></div>'
+        : '<div class="bangumi-summary-box is-empty"><div class="bangumi-detail-section-label">作品简介</div><p>暂无作品简介</p></div>';
 
       return '<article class="bangumi-card' + (open ? ' is-open' : '') + '" data-card-id="' + id + '" style="--enter-index:' + index + ';">' +
         '<button type="button" class="bangumi-card-trigger" data-toggle-id="' + id + '" aria-expanded="' + String(open) + '">' +
         '<div class="bangumi-cover">' + coverHtml + '</div>' +
         '<div class="bangumi-card-info">' +
-        '<h3>' + flowerIcon + '<span class="bangumi-title-text">' + title + '</span></h3>' +
+        '<div class="bangumi-card-title-row">' +
+        '<h3>' + title + '</h3>' +
+        reviewedBadge +
+        '</div>' +
         '<div class="bangumi-card-meta">' +
-        rate +
+        rateHtml +
+        bgmHtml +
         (updated ? '<span class="bangumi-date">' + updated + '</span>' : '') +
         '</div>' +
         previewText +
@@ -499,8 +677,9 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         '<div class="bangumi-detail' + (open ? ' is-open' : '') + '"' + (open ? '' : ' inert') + '>' +
         '<div class="bangumi-detail-inner">' +
         '<div class="bangumi-detail-panel">' +
-        (originalTitle ? '<div class="bangumi-orig-title">原名：' + originalTitle + '</div>' : '') +
-        detailBody +
+        detailMetaHtml +
+        reviewBlockHtml +
+        summaryBlockHtml +
         '<a href="https://bgm.tv/subject/' + id + '" target="_blank" rel="noopener noreferrer" class="bangumi-link">' +
         '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>' +
         '<span>前往 Bangumi 条目</span>' +
@@ -518,9 +697,11 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
       statusButtons.forEach((button) => {
         button.classList.toggle('is-active', button.dataset.status === state.status);
       });
+      updateFilterCounts();
     }
 
     function renderCollection() {
+      updateFilterCounts();
       const list = getFilteredList();
       updateResultsMeta(list.length);
 
@@ -545,27 +726,59 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
         '在玩': 'var(--sl-color-accent)',
         '在看': 'var(--sl-color-accent)',
         '在读': 'var(--sl-color-accent)',
+        '在听': 'var(--sl-color-accent)',
         '看过': '#5f8fc2',
         '读过': '#5f8fc2',
         '玩过': '#5f8fc2',
+        '听过': '#5f8fc2',
         '想看': '#8fb2da',
         '想读': '#8fb2da',
         '想玩': '#8fb2da',
+        '想听': '#8fb2da',
+        '搁置': '#b59e72',
+        '抛弃': '#8b99ab',
+        '人物': '#8b7ec8',
+        '目录': '#5fa3a6',
+        '好友': '#bd8398',
       };
 
       const itemsHtml = list.map((item, index) => {
-        const action = item.action || '动态';
-        const actionColor = actionColorMap[action] || 'var(--sl-color-accent)';
-        const subjectUrl = item.subjectId ? 'https://bgm.tv/subject/' + item.subjectId : 'https://bgm.tv/user/duskydream/timeline';
-        const displayName = escapeHTML(item.subjectNameCn || item.cleanTitle || item.title);
-        const subName = (item.cleanTitle && item.cleanTitle !== item.subjectNameCn)
-          ? '<span class="bangumi-timeline-sub">' + escapeHTML(item.cleanTitle) + '</span>'
+        const rawCn = decodeHtmlEntities(item.subjectNameCn || '').trim();
+        let clean = decodeHtmlEntities(item.cleanTitle || '').trim();
+        const rawTitle = decodeHtmlEntities(item.title || '').trim();
+        let displayAction = decodeHtmlEntities(item.action || '动态').trim();
+
+        if (displayAction === '更新了' || displayAction === '动态') {
+          const targetText = clean || rawTitle;
+          const verbMatch = targetText.match(/^(在玩|玩过|想玩|在看|看过|想看|在读|读过|想读|在听|听过|想听|搁置|抛弃)\s+/);
+          if (verbMatch) {
+            displayAction = verbMatch[1];
+            clean = targetText.slice(verbMatch[0].length).trim();
+          } else if (/^收藏了人物\s+/.test(targetText)) {
+            displayAction = '人物';
+            clean = targetText.replace(/^收藏了人物\s+/, '').trim();
+          } else if (/^收藏了目录[：:\s]+/.test(targetText)) {
+            displayAction = '目录';
+            clean = targetText.replace(/^收藏了目录[：:\s]+/, '').trim();
+          } else if (/加为了好友/.test(targetText)) {
+            displayAction = '好友';
+          }
+        }
+
+        const actionColor = actionColorMap[displayAction] || 'var(--sl-color-accent)';
+        const subjectId = Number(item.subjectId || 0);
+        const subjectUrl = subjectId ? 'https://bgm.tv/subject/' + subjectId : 'https://bgm.tv/user/duskydream/timeline';
+        const rawDisplayName = rawCn || clean || rawTitle || '未命名动态';
+        const displayName = escapeHTML(rawDisplayName);
+        const subName = (rawCn && clean && clean !== rawCn)
+          ? '<span class="bangumi-timeline-sub">' + escapeHTML(clean) + '</span>'
           : '';
+        const dateText = escapeHTML(decodeHtmlEntities(item.dateFormatted || item.pubDate || ''));
 
         return '<div class="bangumi-timeline-item" style="--i: ' + index + ';">' +
           '<div class="bangumi-timeline-meta">' +
-          '<span class="bangumi-timeline-action" style="--action-color: ' + actionColor + ';">' + escapeHTML(action) + '</span>' +
-          '<time class="bangumi-timeline-date">' + escapeHTML(item.dateFormatted || item.pubDate || '') + '</time>' +
+          '<span class="bangumi-timeline-action" style="--action-color: ' + actionColor + ';">' + escapeHTML(displayAction) + '</span>' +
+          '<time class="bangumi-timeline-date">' + dateText + '</time>' +
           '</div>' +
           '<div class="bangumi-timeline-body">' +
           '<a href="' + subjectUrl + '" target="_blank" rel="noopener noreferrer" class="bangumi-timeline-link">' +
@@ -584,6 +797,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     }
 
     function render() {
+      updateStats();
       renderCollection();
       renderTimeline();
     }
@@ -610,14 +824,27 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     }
 
     function setMediaType(type) {
+      if (!Object.prototype.hasOwnProperty.call(MEDIA_SUBJECT_TYPE, type)) return;
       state.mediaType = type;
       state.expanded = null;
+      state.onlyReviewed = false;
+      const typeFilter = MEDIA_SUBJECT_TYPE[type];
+      const currentSlice = (state.data[state.status] || []).filter(item => item?.subject?.type === typeFilter);
+      if (hasBangumiItems(state.data) && currentSlice.length === 0) {
+        const fallbackStatus = ['watched', 'watching', 'wish'].find(
+          s => (state.data[s] || []).some(item => item?.subject?.type === typeFilter)
+        );
+        if (fallbackStatus) {
+          state.status = fallbackStatus;
+        }
+      }
       syncControls();
       writeQueryState();
       renderCollection();
     }
 
     function setStatus(status) {
+      if (!Object.prototype.hasOwnProperty.call(STATUS_LABEL, status)) return;
       state.status = status;
       state.expanded = null;
       syncControls();
@@ -627,6 +854,14 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
 
     mediaButtons.forEach(button => button.addEventListener('click', () => setMediaType(button.dataset.media)));
     statusButtons.forEach(button => button.addEventListener('click', () => setStatus(button.dataset.status)));
+    reviewedToggle?.addEventListener('click', () => {
+      if (reviewedToggle.disabled) return;
+      state.onlyReviewed = !state.onlyReviewed;
+      state.expanded = null;
+      syncControls();
+      writeQueryState();
+      renderCollection();
+    });
 
     gridArea.addEventListener('click', (event) => {
       if (!(event.target instanceof Element)) return;
@@ -675,34 +910,181 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
 </StarlightPage>
 
 <style is:global>
+  /* 覆盖 Starlight splash 页默认的 --sl-content-width (67.5rem)，让 /anime 舒展呈现双栏卡片布局 */
+  .content-panel:has(.bangumi-page) > .sl-container {
+    max-width: min(84rem, 100%);
+  }
+
   .bangumi-page {
+    --bangumi-accent-ink: var(--sl-color-accent-high);
+    --bangumi-accent-badge-bg: color-mix(in srgb, var(--sl-color-accent) 13%, transparent);
+    --bangumi-accent-badge-border: color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
+    --bangumi-soft-wash: color-mix(in srgb, var(--sl-color-accent) 4.5%, transparent);
+    --bangumi-card-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+
     max-width: min(86rem, 100%);
     margin: 0 auto;
-    padding: 0.25rem 0.5rem 2.5rem;
+    padding: 0.25rem 0.5rem 2.75rem;
     display: flex;
     flex-direction: column;
     gap: 1.4rem;
     width: 100%;
     box-sizing: border-box;
-    font-size: 1.08rem;
+    font-size: 1.05rem;
+    /* 使用 clip 而非 hidden，避免破坏右侧时间胶囊的 position: sticky */
+    overflow-x: clip;
+  }
+
+  :root[data-theme="light"] .bangumi-page {
+    --bangumi-accent-ink: #356b9d;
+    --bangumi-accent-badge-bg: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+    --bangumi-accent-badge-border: color-mix(in srgb, var(--sl-color-accent) 32%, transparent);
+    --bangumi-soft-wash: color-mix(in srgb, var(--sl-color-accent) 5%, transparent);
+    --bangumi-card-shadow: 0 6px 18px rgba(30, 50, 80, 0.07);
+  }
+
+  /* 抵消 custom.css 中针对文章正文的 p margin-bottom 与 text-align: justify */
+  .bangumi-page p {
+    margin: 0;
+    text-align: start;
+    line-height: 1.5;
   }
 
   .bangumi-shell {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    min-width: 0;
+  }
+
+  /* 自包含表面卡片（不依赖 index.astro 的 scoped/unloaded CSS） */
+  .bangumi-surface {
+    position: relative;
+    margin: 0;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-6);
+    border-radius: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .bangumi-surface:hover {
+    border-color: var(--sl-color-gray-5);
+  }
+
+  .bangumi-surface-head {
+    padding: 0 0 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+
+  .bangumi-surface-head-left {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .bangumi-head-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    flex-shrink: 0;
+    background-color: var(--sl-color-accent);
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
+  }
+
+  .bangumi-head-en {
+    font-family: var(--sl-font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--bangumi-accent-ink);
+    line-height: 1;
+  }
+
+  .bangumi-surface-title {
+    font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+
+  .bangumi-surface-body {
+    padding: 1rem 0 0;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   /* 头部 Profile 资料卡片 */
   .bangumi-hero-card {
-    padding: 1.25rem 1.5rem;
+    overflow: hidden;
+    padding: 1.35rem 1.65rem;
+  }
+
+  .bangumi-hero-decor {
+    position: absolute;
+    right: -1.5rem;
+    bottom: -2.5rem;
+    width: min(36%, 18.5rem);
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: 0;
+    transform: rotate(-8deg);
+  }
+
+  :root[data-theme="light"] .bangumi-hero-decor {
+    opacity: 0.16;
+  }
+
+  .bangumi-hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    min-width: 0;
+  }
+
+  .bangumi-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bangumi-eyebrow-dot {
+    width: 0.62rem;
+    height: 0.62rem;
+    flex-shrink: 0;
+    background-color: var(--sl-color-accent);
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
+  }
+
+  .bangumi-eyebrow-text {
+    font-family: var(--sl-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--bangumi-accent-ink);
+    font-weight: 600;
   }
 
   .bangumi-hero-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.25rem;
+    gap: 1rem 1.25rem;
     flex-wrap: wrap;
   }
 
@@ -711,18 +1093,25 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     align-items: center;
     gap: 1rem;
     min-width: 0;
+    flex: 1 1 20rem;
   }
 
   .bangumi-user-avatar {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3.75rem;
+    height: 3.75rem;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
-    border: 2px solid color-mix(in srgb, var(--sl-color-accent) 35%, transparent);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--sl-color-accent) 15%, transparent);
+    border: 2px solid color-mix(in srgb, var(--sl-color-accent) 42%, transparent);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
     transition: transform 0.25s ease, border-color 0.25s ease;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bangumi-soft-wash);
+    color: var(--bangumi-accent-ink);
+    font-size: 0.72rem;
+    text-decoration: none;
   }
 
   .bangumi-user-avatar:hover {
@@ -740,7 +1129,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   .bangumi-user-info {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.24rem;
     min-width: 0;
   }
 
@@ -752,8 +1141,8 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   }
 
   .bangumi-user-name {
-    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
-    font-size: 1.35rem;
+    font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", serif;
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--sl-color-white);
     margin: 0;
@@ -761,25 +1150,35 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   }
 
   .bangumi-user-handle {
-    font-size: 0.8rem;
-    color: var(--sl-color-gray-4);
+    font-family: var(--sl-font-mono);
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
   }
 
   .bangumi-user-badge {
     font-size: 0.68rem;
-    padding: 0.08rem 0.45rem;
+    padding: 0.1rem 0.5rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
-    color: var(--sl-color-accent);
-    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 25%, transparent);
+    background: var(--bangumi-accent-badge-bg);
+    color: var(--bangumi-accent-ink);
+    border: 1px solid var(--bangumi-accent-badge-border);
+    line-height: 1.2;
   }
 
   .bangumi-user-sign {
-    font-size: 0.84rem;
-    color: var(--sl-color-accent);
-    margin: 0;
+    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+    font-size: 0.86rem;
+    color: var(--bangumi-accent-ink);
     font-style: italic;
     letter-spacing: 0.02em;
+  }
+
+  .bangumi-stats {
+    font-family: var(--sl-font-mono);
+    font-size: 0.74rem;
+    color: var(--sl-color-gray-3);
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
   }
 
   .bangumi-hero-actions {
@@ -789,14 +1188,21 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     align-items: center;
   }
 
-  /* 自我介绍 Bio 面板 */
+  .bangumi-hero-actions .home-quick-pill {
+    color: var(--sl-color-white) !important;
+  }
+
+  .bangumi-hero-actions .home-quick-pill .floral {
+    color: var(--sl-color-accent);
+  }
+
+  /* 自我介绍 Bio 面板：左细线诗意引言排版 */
   .bangumi-user-intro-panel {
-    margin-top: 0.85rem;
-    padding: 0.65rem 0.95rem;
-    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
-    border-radius: 0.55rem;
-    border: 1px solid var(--sl-color-gray-6);
-    border-inline-start: 3px solid var(--sl-color-accent);
+    padding: 0.65rem 1rem;
+    background: var(--bangumi-soft-wash);
+    border-radius: 0 0.75rem 0.75rem 0;
+    border: none;
+    border-inline-start: 2px solid color-mix(in srgb, var(--sl-color-accent) 60%, transparent);
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
@@ -808,30 +1214,47 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     gap: 0.35rem;
     font-size: 0.74rem;
     font-weight: 600;
-    color: var(--sl-color-accent);
-    letter-spacing: 0.04em;
+    color: var(--bangumi-accent-ink);
+    letter-spacing: 0.06em;
     margin: 0 !important;
   }
 
   .bangumi-user-intro-icon {
-    font-size: 0.85em;
+    color: var(--sl-color-accent);
   }
 
   .bangumi-user-intro-content {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.22rem;
   }
 
   .bangumi-page :where(.bangumi-user-intro-content p),
   .bangumi-user-intro-content p {
     margin: 0 !important;
     padding: 0 !important;
-    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
-    font-size: 0.84rem;
-    line-height: 1.35;
+    font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", serif;
+    font-size: 0.85rem;
+    line-height: 1.5;
     color: var(--sl-color-gray-2);
     letter-spacing: 0.02em;
+  }
+
+  @media (min-width: 700px) {
+    .bangumi-user-intro-content {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.25rem 0;
+    }
+
+    .bangumi-user-intro-content p:not(:last-child)::after {
+      content: "✦";
+      margin-inline: 0.55rem;
+      color: color-mix(in srgb, var(--sl-color-accent) 68%, transparent);
+      font-size: 0.72em;
+      vertical-align: 0.05em;
+    }
   }
 
   /* 双栏布局 */
@@ -840,6 +1263,19 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     grid-template-columns: minmax(0, 1fr) 21.5rem;
     gap: 1.25rem;
     align-items: start;
+    min-width: 0;
+  }
+
+  .bangumi-main-section,
+  .bangumi-aside-section {
+    min-width: 0;
+  }
+
+  @media (min-width: 981px) {
+    .bangumi-aside-section {
+      position: sticky;
+      top: calc(var(--sl-nav-height) + 1.25rem);
+    }
   }
 
   @media (max-width: 980px) {
@@ -848,22 +1284,18 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     }
   }
 
-  .bangumi-collections-card,
-  .bangumi-timeline-card {
-    display: flex;
-    flex-direction: column;
-  }
-
   .bangumi-meta-badge {
-    font-size: 0.76rem;
+    font-family: var(--sl-font-mono);
+    font-size: 0.74rem;
     color: var(--sl-color-gray-3);
+    overflow-wrap: anywhere;
   }
 
   .bangumi-toolbar-inner {
-    padding: 1rem 1.25rem 0.5rem;
+    padding: 0.95rem 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.9rem;
     border-bottom: 1px solid var(--sl-color-gray-6);
   }
 
@@ -871,6 +1303,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     position: relative;
     width: 100%;
     max-width: 28rem;
+    box-sizing: border-box;
   }
 
   .bangumi-search-icon {
@@ -878,19 +1311,27 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     left: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-3);
     pointer-events: none;
   }
 
   .bangumi-search input {
     width: 100%;
-    padding: 0.5rem 1rem 0.5rem 2.3rem;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 0.48rem 1rem 0.48rem 2.35rem;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999px;
-    background: transparent;
+    background: var(--sl-color-bg);
     color: var(--sl-color-white);
-    font-size: 0.88rem;
+    font-family: inherit;
+    font-size: 0.86rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .bangumi-search input::placeholder {
+    color: var(--sl-color-gray-3);
+    opacity: 0.8;
   }
 
   .bangumi-search input:focus {
@@ -902,25 +1343,28 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   .bangumi-filterbar {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.7rem 1rem;
     flex-wrap: wrap;
   }
 
   .bangumi-filterbar-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    min-width: 0;
   }
 
   .bangumi-filterbar-label {
-    font-size: 0.78rem;
-    color: var(--sl-color-gray-4);
+    font-size: 0.76rem;
+    color: var(--sl-color-gray-3);
+    white-space: nowrap;
   }
 
   .bangumi-filterbar-options {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.38rem;
     flex-wrap: wrap;
   }
 
@@ -930,65 +1374,111 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     background: var(--sl-color-gray-6);
   }
 
+  .bangumi-filterbar-group-toggle {
+    margin-inline-start: auto;
+  }
+
+  @media (max-width: 1180px) {
+    .bangumi-filterbar-divider {
+      display: none;
+    }
+    .bangumi-filterbar-group-toggle {
+      margin-inline-start: 0;
+    }
+  }
+
   .bangumi-chip,
-  .bangumi-pill {
+  .bangumi-pill,
+  .bangumi-toggle-chip {
     appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
     background: transparent;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999px;
-    color: var(--sl-color-gray-3);
+    color: var(--sl-color-gray-2);
+    font-family: inherit;
     font-size: 0.78rem;
     font-weight: 500;
+    line-height: 1.25;
     cursor: pointer;
-    padding: 0.24rem 0.75rem;
-    transition: all 0.2s ease;
+    padding: 0.28rem 0.72rem;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
   }
 
   .bangumi-chip:hover,
-  .bangumi-pill:hover {
-    border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
-    color: var(--sl-color-accent);
-    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+  .bangumi-pill:hover,
+  .bangumi-toggle-chip:not(:disabled):hover {
+    border-color: color-mix(in srgb, var(--sl-color-accent) 48%, transparent);
+    color: var(--bangumi-accent-ink);
+    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
   }
 
   .bangumi-chip.is-active,
-  .bangumi-pill.is-active {
-    background: color-mix(in srgb, var(--sl-color-accent) 20%, transparent);
+  .bangumi-pill.is-active,
+  .bangumi-toggle-chip.is-active {
+    background: var(--bangumi-accent-badge-bg);
     border-color: var(--sl-color-accent);
-    color: var(--sl-color-accent);
+    color: var(--bangumi-accent-ink);
     font-weight: 600;
+  }
+
+  .bangumi-toggle-chip:disabled,
+  .bangumi-toggle-chip.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .bangumi-toggle-dot {
+    width: 0.56rem;
+    height: 0.56rem;
+    flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
+    opacity: 0.8;
+  }
+
+  .bangumi-chip-count,
+  .bangumi-pill-count,
+  .bangumi-toggle-count {
+    font-family: var(--sl-font-mono);
+    font-size: 0.7rem;
+    opacity: 0.78;
+  }
+
+  .bangumi-chip-count:empty,
+  .bangumi-pill-count:empty,
+  .bangumi-toggle-count:empty {
+    display: none;
   }
 
   .bangumi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
     gap: 1rem;
-    padding: 1.25rem;
-  }
-
-  @media (max-width: 600px) {
-    .bangumi-grid {
-      grid-template-columns: 1fr;
-      padding: 0.75rem;
-    }
+    align-items: start;
+    padding: 0;
   }
 
   .bangumi-card {
-    border-radius: 0.85rem;
+    border-radius: 0.95rem;
     border: 1px solid var(--sl-color-gray-6);
     background: var(--sl-color-bg);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 0;
     animation: floral-bloom 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(var(--enter-index, 0) * 25ms);
+    animation-delay: calc(min(var(--enter-index, 0), 12) * 22ms);
     transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .bangumi-card:hover {
     border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--bangumi-card-shadow);
   }
 
   .bangumi-card.is-open {
@@ -999,13 +1489,16 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   .bangumi-card-trigger {
     width: 100%;
     display: flex;
-    gap: 0.85rem;
-    padding: 0.85rem;
+    gap: 0.9rem;
+    padding: 0.9rem;
     align-items: stretch;
     cursor: pointer;
     background: none;
     border: none;
+    font: inherit;
+    color: inherit;
     text-align: left;
+    min-width: 0;
   }
 
   .bangumi-cover {
@@ -1013,8 +1506,11 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     min-width: 4.5rem;
     height: 6.3rem;
     background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    border-radius: 0.45rem;
+    border-radius: 0.5rem;
     overflow: hidden;
+    flex-shrink: 0;
+    color: var(--sl-color-gray-3);
+    font-size: 0.72rem;
   }
 
   /* 提高选择器权重，覆盖 custom.css 中 body .sl-markdown-content img 的 height:auto，
@@ -1034,7 +1530,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     height: 100%;
     font-size: 0;
     color: var(--sl-color-accent);
-    opacity: 0.4;
+    opacity: 0.45;
   }
 
   .bangumi-cover-placeholder::before {
@@ -1053,14 +1549,24 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     flex-direction: column;
   }
 
-  .bangumi-card-info h3 {
+  .bangumi-card-title-row {
     display: flex;
-    align-items: center;
-    font-size: 0.98rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.45rem;
+    margin: 0 0 0.35rem;
+    min-width: 0;
+  }
+
+  .bangumi-card-info h3 {
+    font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", serif;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--sl-color-white);
-    margin: 0 0 0.35rem;
-    line-height: 1.35;
+    margin: 0;
+    line-height: 1.38;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .bangumi-card-info h3::before {
@@ -1068,36 +1574,46 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     display: none !important;
   }
 
-  .bangumi-title-flower {
+  .bangumi-reviewed-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 0.35rem;
-    font-size: 0.85em;
-    color: var(--sl-color-gray-4);
+    gap: 0.25rem;
     flex-shrink: 0;
-    line-height: 1;
+    padding: 0.12rem 0.46rem;
+    border-radius: 999px;
+    font-size: 0.67rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--bangumi-accent-ink);
+    background: var(--bangumi-accent-badge-bg);
+    border: 1px solid var(--bangumi-accent-badge-border);
+    white-space: nowrap;
+    margin-top: 0.1rem;
   }
 
-  .bangumi-title-flower.is-reviewed {
-    color: var(--sl-color-accent);
-    text-shadow: 0 0 8px color-mix(in srgb, var(--sl-color-accent) 60%, transparent);
+  .bangumi-reviewed-dot {
+    width: 0.58rem;
+    height: 0.58rem;
+    flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+    mask: var(--floral-mask-bloom) center / contain no-repeat;
   }
 
   .bangumi-card-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.35rem 0.6rem;
-    margin: 0 0 0.4rem;
+    gap: 0.35rem 0.55rem;
+    margin: 0 0 0.45rem;
     font-size: 0.74rem;
-    color: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-3);
   }
 
   .bangumi-score {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.22rem;
   }
 
   .bangumi-star {
@@ -1116,61 +1632,88 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   }
 
   .bangumi-score-value {
-    color: var(--sl-color-gray-3);
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-gray-2);
     font-weight: 600;
+    margin-inline-start: 0.1rem;
+  }
+
+  .bangumi-bgm-score {
+    font-family: var(--sl-font-mono);
+    font-size: 0.68rem;
+    line-height: 1.25;
+    padding: 0.08rem 0.44rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    color: var(--sl-color-gray-3);
+  }
+
+  .bangumi-bgm-score.is-unrated {
+    color: var(--sl-color-gray-2);
+    border-color: var(--sl-color-gray-5);
   }
 
   .bangumi-date {
-    font-size: 0.72rem;
-    color: var(--sl-color-gray-4);
+    font-family: var(--sl-font-mono);
+    font-size: 0.7rem;
+    color: var(--sl-color-gray-3);
   }
 
   .bangumi-preview {
-    font-size: 0.8rem;
-    color: var(--sl-color-gray-3);
-    line-height: 1.5;
+    font-size: 0.81rem;
+    color: var(--sl-color-gray-2);
+    line-height: 1.52;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    overflow-wrap: anywhere;
   }
 
   .bangumi-no-review {
-    color: var(--sl-color-gray-5);
+    color: var(--sl-color-gray-3);
   }
 
   .bangumi-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
-    margin-top: 0.5rem;
+    margin-top: 0.55rem;
   }
 
   .tag-pill {
     border-radius: 999px;
-    padding: 0.08rem 0.5rem;
+    padding: 0.1rem 0.5rem;
     font-size: 0.68rem;
-    color: var(--sl-color-accent);
-    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+    line-height: 1.25;
+    border: 1px solid var(--sl-color-gray-6);
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    color: var(--sl-color-gray-2);
   }
 
   .tag-pill-more {
-    opacity: 0.7;
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-gray-3);
   }
 
   .bangumi-toggle-hint {
     margin-top: auto;
-    padding-top: 0.5rem;
+    padding-top: 0.55rem;
     display: flex;
     align-items: center;
     gap: 0.25rem;
     font-size: 0.74rem;
-    color: var(--sl-color-accent);
+    color: var(--bangumi-accent-ink);
   }
 
   .bangumi-toggle-icon {
     transition: transform 0.2s ease;
+  }
+
+  .bangumi-toggle-icon.rotate-180 {
+    transform: rotate(180deg);
   }
 
   .bangumi-detail {
@@ -1179,7 +1722,7 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     opacity: 0;
     visibility: hidden;
     transition: grid-template-rows 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
-    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
+    background: var(--bangumi-soft-wash);
   }
 
   .bangumi-detail.is-open {
@@ -1194,49 +1737,78 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   }
 
   .bangumi-detail-panel {
-    padding: 1rem 1.15rem;
+    padding: 0.95rem 1.05rem 1.05rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    min-width: 0;
   }
 
-  .bangumi-orig-title {
-    font-size: 0.76rem;
-    color: var(--sl-color-gray-4);
+  .bangumi-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 70%, transparent);
+    font-size: 0.74rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .bangumi-detail-meta-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .bangumi-detail-meta-label {
+    font-family: var(--sl-font-mono);
+    font-size: 0.68rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .bangumi-detail-section-label {
+    font-family: var(--sl-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--bangumi-accent-ink);
+    margin-bottom: 0.28rem;
+    font-weight: 600;
   }
 
   .bangumi-review-box {
-    position: relative;
-    padding: 0.4rem 0.5rem 0.2rem 1.25rem;
-  }
-
-  .bangumi-review-box::before {
-    content: "❝";
-    position: absolute;
-    left: -0.1rem;
-    top: -0.6rem;
-    font-size: 2.2rem;
-    line-height: 1;
-    color: var(--sl-color-accent);
-    opacity: 0.25;
-    pointer-events: none;
+    border-inline-start: 2px solid color-mix(in srgb, var(--sl-color-accent) 55%, transparent);
+    padding: 0.45rem 0.75rem;
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
+    border-radius: 0 0.5rem 0.5rem 0;
   }
 
   .bangumi-review-box p {
     font-size: 0.84rem;
-    color: var(--sl-color-gray-2);
+    color: var(--sl-color-gray-1);
     line-height: 1.65;
-    font-style: italic;
     margin: 0;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .bangumi-summary-box p {
-    font-size: 0.82rem;
-    color: var(--sl-color-gray-3);
+    font-size: 0.81rem;
+    color: var(--sl-color-gray-2);
     line-height: 1.6;
     margin: 0;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .bangumi-summary-box.is-empty .bangumi-detail-section-label {
+    color: var(--sl-color-gray-3);
+  }
+
+  .bangumi-summary-box.is-empty p {
+    color: var(--sl-color-gray-3);
+    font-style: italic;
   }
 
   .bangumi-link {
@@ -1246,17 +1818,17 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     padding: 0.35rem 0.9rem;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999px;
-    color: var(--sl-color-text);
+    color: var(--sl-color-white);
     font-size: 0.76rem;
     text-decoration: none;
     align-self: flex-start;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   }
 
   .bangumi-link:hover {
     border-color: var(--sl-color-accent);
-    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
-    color: var(--sl-color-accent);
+    background: var(--bangumi-accent-badge-bg);
+    color: var(--bangumi-accent-ink);
   }
 
   /* 时间胶囊侧栏卡片 */
@@ -1264,25 +1836,27 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.2rem 0.6rem;
+    padding: 0.22rem 0.62rem;
     border-radius: 999px;
-    border: 1px solid var(--sl-color-gray-6);
-    color: var(--sl-color-gray-3);
-    font-size: 0.72rem;
+    border: 1px solid var(--sl-color-gray-5);
+    color: var(--sl-color-gray-2);
+    font-family: var(--sl-font-mono);
+    font-size: 0.7rem;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
   }
 
   .bangumi-timeline-rss-btn:hover {
-    color: var(--sl-color-accent);
+    color: var(--bangumi-accent-ink);
     border-color: var(--sl-color-accent);
-    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+    background: var(--bangumi-accent-badge-bg);
   }
 
   .bangumi-timeline-scroll {
-    max-height: 720px;
+    max-height: min(680px, calc(100vh - var(--sl-nav-height) - 7rem));
     overflow-y: auto;
-    padding: 1rem 0.85rem;
+    overflow-x: clip;
+    padding: 0.75rem 0.25rem 0.25rem 0;
   }
 
   .bangumi-timeline-scroll::-webkit-scrollbar {
@@ -1298,8 +1872,8 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    padding-inline-start: 1.8rem;
+    gap: 0.15rem;
+    padding-inline-start: 1.65rem;
     width: 100%;
     box-sizing: border-box;
   }
@@ -1308,19 +1882,24 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.65rem 0.85rem;
-    border-radius: 0.75rem;
-    border: 1px solid var(--sl-color-gray-6);
-    background: var(--sl-color-bg);
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    gap: 0.28rem;
+    padding: 0.62rem 0.65rem;
+    border-radius: 0.6rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 60%, transparent);
+    background: transparent;
+    min-width: 0;
+    transition: background-color 0.18s ease, transform 0.18s ease;
     animation: floral-bloom 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(var(--i, 0) * 30ms);
+    animation-delay: calc(min(var(--i, 0), 12) * 28ms);
+  }
+
+  .bangumi-timeline-item:last-child {
+    border-bottom: none;
   }
 
   .bangumi-timeline-item:hover {
-    border-color: color-mix(in srgb, var(--sl-color-accent) 45%, transparent);
-    transform: translateX(3px);
+    background: color-mix(in srgb, var(--sl-color-accent) 6%, transparent);
+    transform: translateX(2px);
   }
 
   .bangumi-timeline-meta {
@@ -1328,53 +1907,60 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .bangumi-timeline-action {
     display: inline-flex;
     align-items: center;
-    padding: 0.08rem 0.55rem;
+    padding: 0.08rem 0.52rem;
     border-radius: 999px;
-    font-size: 0.68rem;
+    font-size: 0.67rem;
     font-weight: 600;
-    color: var(--action-color, var(--sl-color-accent));
-    background: color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 25%, transparent);
+    line-height: 1.25;
+    color: color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 72%, var(--sl-color-white));
+    background: color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 11%, transparent);
+    border: 1px solid color-mix(in srgb, var(--action-color, var(--sl-color-accent)) 28%, transparent);
   }
 
   .bangumi-timeline-date {
+    font-family: var(--sl-font-mono);
     font-size: 0.7rem;
-    color: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-3);
   }
 
   .bangumi-timeline-body {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.14rem;
+    min-width: 0;
   }
 
   .bangumi-timeline-link {
-    font-size: 0.88rem;
+    font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", serif;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--sl-color-white);
     text-decoration: none;
-    line-height: 1.35;
+    line-height: 1.38;
+    overflow-wrap: anywhere;
     transition: color 0.15s ease;
   }
 
   .bangumi-timeline-link:hover {
-    color: var(--sl-color-accent);
+    color: var(--bangumi-accent-ink);
   }
 
   .bangumi-timeline-sub {
-    font-size: 0.74rem;
-    color: var(--sl-color-gray-4);
+    font-size: 0.73rem;
+    color: var(--sl-color-gray-3);
+    overflow-wrap: anywhere;
   }
 
   .bangumi-message {
     padding: 2.5rem 1rem;
     text-align: center;
-    color: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-3);
     border: 1px dashed var(--sl-color-gray-5);
     border-radius: 0.75rem;
     grid-column: 1 / -1;
@@ -1393,20 +1979,83 @@ import { MEDIA_SUBJECT_TYPE, MEDIA_LABEL, STATUS_LABEL } from '../utils/bangumi'
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .bangumi-surface,
     .bangumi-card,
     .bangumi-detail,
-    .bangumi-toggle-icon {
+    .bangumi-toggle-icon,
+    .bangumi-timeline-item,
+    .bangumi-chip,
+    .bangumi-pill,
+    .bangumi-toggle-chip,
+    .bangumi-message.is-pulse::before {
       animation: none !important;
       transition: none !important;
     }
   }
 
+  @media (max-width: 980px) {
+    .bangumi-timeline-scroll {
+      max-height: 460px;
+    }
+  }
+
   @media (max-width: 768px) {
+    .bangumi-page {
+      padding: 0.1rem 0 2.5rem;
+    }
+    .bangumi-surface {
+      padding: 1rem 1.05rem;
+      border-radius: 1.05rem;
+    }
+    .bangumi-hero-card {
+      padding: 1.1rem 1.1rem;
+    }
+    .bangumi-hero-decor {
+      width: min(46%, 11.5rem);
+      right: -1rem;
+      bottom: -1.5rem;
+      opacity: 0.15;
+    }
     .bangumi-filterbar {
-      gap: 1rem;
+      gap: 0.65rem 0.85rem;
+    }
+    .bangumi-filterbar-divider {
+      display: none;
     }
     .bangumi-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .bangumi-user-profile {
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+    .bangumi-user-avatar {
+      width: 3.15rem;
+      height: 3.15rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .bangumi-surface {
+      padding: 0.9rem 0.85rem;
+    }
+    .bangumi-card-trigger {
+      gap: 0.72rem;
+      padding: 0.78rem;
+    }
+    .bangumi-cover {
+      width: 4rem;
+      min-width: 4rem;
+      height: 5.6rem;
+    }
+    .bangumi-chip,
+    .bangumi-pill,
+    .bangumi-toggle-chip {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.74rem;
     }
   }
 
