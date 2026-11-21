@@ -7,80 +7,121 @@ type Props = {
   title: string;
   section: string;
   eyebrow?: string;
+  sectionLabel?: string;
   /** 聚合页自己的描述。不传就会退回站点通用描述，和首页重复。 */
   description?: string;
 };
 
-const { title, section, eyebrow = title, description } = Astro.props;
+const { title, section, eyebrow = title, sectionLabel, description } = Astro.props;
 const posts = await getSortedPosts(section);
 
-function labelFromSlug(slug: string) {
-  return slug
-    .split("-")
+function formatTitleCase(text: string) {
+  return text
+    .split(/\s+/)
     .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
 }
 
-const sectionLabel = title || labelFromSlug(section);
+const eyebrowUpper = eyebrow.toUpperCase();
+const eyebrowTitle = formatTitleCase(eyebrow);
+const pageTitle = eyebrowTitle && eyebrowTitle !== title ? `${title} · ${eyebrowTitle}` : title;
+const timelineSectionLabel = sectionLabel || title;
 ---
 
-<StarlightPage frontmatter={{ title, description, template: 'splash', tableOfContents: false }} hasSidebar={false}>
+<StarlightPage frontmatter={{ title: pageTitle, description, template: "splash", tableOfContents: false }} hasSidebar={false}>
   <section class="section-index not-content">
     <header class="section-index-head">
-      <p>{eyebrow}</p>
+      <div class="section-index-eyebrow">
+        <span class="section-index-eyebrow-dot" aria-hidden="true"></span>
+        <span class="section-index-eyebrow-text">{eyebrowUpper}</span>
+      </div>
       <h1>{title}</h1>
+      {description && <p class="section-index-desc">{description}</p>}
     </header>
 
-    <div class="section-index-card">
+    <div class="section-index-card hananiwa-surface">
       <div class="section-index-card-head">
         <div class="section-index-card-title">
-          <span>{sectionLabel} Timeline</span>
+          <span class="section-index-card-dot" aria-hidden="true"></span>
+          <span class="section-index-card-en">{eyebrowUpper} TIMELINE</span>
+          <span class="section-index-card-zh">{title}归档</span>
         </div>
-        <span class="section-index-count">{posts.length} posts</span>
+        <span class="section-index-count">{posts.length} 篇</span>
       </div>
 
       <div class="section-index-card-body">
-        <ContentTimeline posts={posts} sectionLabelOverride={sectionLabel} />
+        <ContentTimeline posts={posts} sectionLabelOverride={timelineSectionLabel} />
       </div>
     </div>
   </section>
 
   <style>
     .section-index {
-      max-width: 64rem;
+      max-width: var(--hananiwa-width-index, 68rem);
       margin: 0 auto;
-      padding: 1.5rem 1rem 3rem;
+      padding: 2.25rem 0 4rem;
+      box-sizing: border-box;
     }
 
     .section-index-head {
-      margin-bottom: 1.25rem;
-      border-bottom: 1px solid var(--sl-color-hairline-shade);
-      padding-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.65rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
     }
 
-    .section-index-head p {
-      margin: 0 0 0.35rem;
-      color: var(--sl-color-accent);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+    .section-index-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-index-eyebrow-dot,
+    .section-index-card-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      flex-shrink: 0;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+      mask: var(--floral-mask-bloom) center / contain no-repeat;
+    }
+
+    .section-index-eyebrow-text {
+      font-family: var(--sl-font-mono);
       font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--sl-color-accent-high);
       text-transform: uppercase;
     }
 
     .section-index-head h1 {
       margin: 0;
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
       color: var(--sl-color-white);
-      font-size: clamp(2rem, 7vw, 3.75rem);
-      line-height: 1;
-      letter-spacing: 0;
+      font-size: clamp(2.35rem, 6vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: 0.08em;
+    }
+
+    .section-index-desc {
+      margin: 0 !important;
+      color: var(--sl-color-gray-3);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      letter-spacing: 0.03em;
+      text-align: start !important;
     }
 
     .section-index-card {
       margin: 0;
       border: 1px solid var(--sl-color-gray-6);
-      border-radius: 1rem;
+      border-radius: var(--hananiwa-radius-lg, 1.25rem);
       background: var(--sl-color-bg);
       overflow: hidden;
       transition:
@@ -96,43 +137,67 @@ const sectionLabel = title || labelFromSlug(section);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
       border-bottom: 1px solid var(--sl-color-gray-6);
-      padding: 0.75rem 1rem;
+      padding: 0.95rem 1.4rem;
     }
 
     .section-index-card-title {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .section-index-card-en {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-accent-high);
+      line-height: 1;
+    }
+
+    .section-index-card-zh {
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
       color: var(--sl-color-white);
-      font-size: 0.85rem;
-      font-weight: 650;
+      font-size: 0.96rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
     }
 
     .section-index-count {
-      color: var(--sl-color-gray-4);
-      font-size: 0.72rem;
+      font-family: var(--sl-font-mono);
+      color: var(--sl-color-gray-3);
+      font-size: 0.74rem;
       white-space: nowrap;
     }
 
     .section-index-card-body {
-      padding: 0.75rem 1rem;
+      padding: 0.85rem 1.25rem 1rem;
     }
 
     @media (max-width: 49.999rem) {
       .section-index {
-        padding-inline: 1.25rem;
+        padding: 1.35rem 0 3rem;
+      }
+
+      .section-index-head {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.15rem;
+      }
+
+      .section-index-card {
+        border-radius: 1.1rem;
       }
 
       .section-index-card-head {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.35rem;
+        padding: 0.85rem 1rem;
       }
 
       .section-index-card-body {
-        padding-inline: 0.85rem;
+        padding: 0.65rem 0.75rem 0.85rem;
       }
     }
   </style>

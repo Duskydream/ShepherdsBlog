@@ -104,19 +104,26 @@ async function main() {
       if (key) dropped.add(`${key.family}${key.style === "italic" ? " Italic" : ""}/${key.weight}`);
       continue;
     }
+    const baseFace = rewriteFontDisplay(stripLegacyFallbacks(rule));
     const face = match.inline
       ? // 内联 face：把 woff2 换成 data URI，省掉一个 HTTP 请求（也省掉一个文件）。
         // 先把三连回退摘成只剩 woff2，再替换那个唯一的 URL，否则会拼出
         // `format("woff2") format("woff2")` 这种重复声明。
-        stripLegacyFallbacks(rule).replace(
+        baseFace.replace(
           /url\([^)]*\.woff2\)/,
           `url(data:font/woff2;base64,${(await readFile(path.join(srcFonts, `${match.file}.woff2`))).toString("base64")})`,
         )
-      : stripLegacyFallbacks(rule);
+      : baseFace;
     faceRules.push(face);
   }
 
   const resolvedFaceRules = faceRules;
+
+  // KaTeX 官方默认 font-display:block 会让公式在字体下载期间隐形（FOIT）；
+  // 改成 swap 让系统衬线体先顶上，字体就绪后立即替换。
+  function rewriteFontDisplay(css) {
+    return css.replace(/font-display\s*:\s*block\b/gi, "font-display:swap");
+  }
 
   // katex.min.css 的每个 src 都是 woff2/woff/ttf 三连回退。我们只随包分发 woff2
   // （2026 年没有任何需要 woff/ttf 的浏览器），所以把后两项摘掉：留着它们会让

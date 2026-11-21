@@ -29,7 +29,7 @@ const renderedItems = shouldNestUnderOverview
     renderedItems.map((heading, index) => {
       const hasChildren = heading.children.length > 0;
       return (
-        <li class:list={{ 'has-children': hasChildren }} style={`--i: ${index}`}>
+        <li class:list={{ 'has-children': hasChildren }} style={`--i: ${Math.min(index, 8)}`}>
           <div class="mobile-toc-row">
             <a href={`#${heading.slug}`}>
               <span>{heading.text}</span>
@@ -61,7 +61,7 @@ const renderedItems = shouldNestUnderOverview
 <style>
   .mobile-toc-list {
     --mobile-tree-indent: 0.95rem;
-    --mobile-tree-pad-inline: 0.15rem;
+    --mobile-tree-pad-inline: 0.45rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -134,27 +134,16 @@ const renderedItems = shouldNestUnderOverview
     display: flex;
     flex: 1 1 auto;
     align-items: center;
-    gap: 0.5rem;
     min-width: 0;
     min-height: 2.45rem;
     padding: 0.44rem var(--mobile-tree-pad-inline);
-    border-radius: 0.6rem;
+    border-radius: var(--hananiwa-radius-sm, 0.6rem);
     color: var(--sl-color-text);
     font-size: var(--sl-text-sm);
     line-height: 1.35;
     text-decoration: none;
     outline-offset: var(--sl-outline-offset-inside);
     transition: color 0.2s ease, background-color 0.2s ease;
-  }
-
-  /* 花苞：每个条目前的小花，活动位置绽放 */
-  .mobile-toc-list a::before {
-    content: "✦";
-    flex: 0 0 auto;
-    color: var(--sl-color-accent);
-    font-size: 0.55rem;
-    opacity: 0.4;
-    transition: opacity 0.2s ease;
   }
 
   .mobile-toc-list:not(.is-nested) > li > .mobile-toc-row > a {
@@ -168,19 +157,10 @@ const renderedItems = shouldNestUnderOverview
     background: color-mix(in srgb, var(--sl-color-accent) 8%, transparent);
   }
 
-  .mobile-toc-list a:hover::before,
-  .mobile-toc-list a:focus::before {
-    opacity: 0.8;
-  }
-
   .mobile-toc-list a[aria-current="true"] {
     color: var(--sl-color-accent);
     font-weight: 700;
-  }
-
-  .mobile-toc-list a[aria-current="true"]::before {
-    font-size: 0.8rem;
-    opacity: 1;
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
   }
 
   .mobile-toc-branch-toggle {
@@ -191,7 +171,7 @@ const renderedItems = shouldNestUnderOverview
     align-items: center;
     justify-content: center;
     border: 0;
-    border-radius: 0.6rem;
+    border-radius: var(--hananiwa-radius-sm, 0.6rem);
     padding: 0;
     color: var(--sl-color-gray-3);
     background: transparent;
@@ -219,10 +199,10 @@ const renderedItems = shouldNestUnderOverview
     display: none;
   }
 
-  /* 逐项生长：藤茎画线后按序号错峰绽放，每次展开重播 */
+  /* 限制错峰总延迟（<=144ms）与时长（0.2s），长目录展开立即全部可见 */
   .mobile-toc-list li {
     transform-origin: left center;
-    animation: floral-bloom 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(var(--i, 0) * 60ms + 0.15s);
+    animation: floral-bloom 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(min(var(--i, 0), 8) * 18ms);
   }
 </style>

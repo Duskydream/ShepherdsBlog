@@ -5,6 +5,7 @@ type SidebarLinkEntry = Extract<SidebarEntry, { type: 'link' }>;
 type SidebarGroupEntry = Extract<SidebarEntry, { type: 'group' }>;
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import { getCollection } from 'astro:content';
+import { isContentPost, getPostHref } from '../utils/content';
 
 const { sidebar } = Astro.locals.starlightRoute;
 const rawPathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
@@ -79,7 +80,7 @@ const navLinks: SidebarLinkEntry[] = hasTagsLink
 			},
 		];
 
-const groupSections = sidebar
+const groupSectionsFromSidebar = sidebar
 	.filter((item): item is SidebarGroupEntry => item.type === 'group')
 	.map((item) => {
 		const links = collectLinks(item.entries);
@@ -93,9 +94,59 @@ const groupSections = sidebar
 	})
 	.filter((section) => section.links.length > 0);
 
-// 若当前正在阅读某分类下的文章，将该分类置顶，同时保留其余分类与全局导航，
-// 消除之前桌面端抽屉只能看到当前分类 2 篇文章、移动端抽屉进不去专栏页的割裂感，
-// 并彻底省去双份 DOM 树与废弃的 SidebarPersister 脚本。
+const canonicalSections = [
+	{ label: 'Essay', section: 'blog', href: '/article' },
+	{ label: 'Notes', section: 'coding-notes', href: '/notes' },
+	{ label: 'Log', section: 'log', href: '/log' },
+] as const;
+
+function buildFallbackLinks(section: string): SidebarLinkEntry[] {
+	const currentKey = pathKey(rawPathname);
+	return docs
+		.filter((entry) => isContentPost(entry, section))
+		.sort((a, b) => {
+			const aDate = a.data.date instanceof Date ? a.data.date.getTime() : undefined;
+			const bDate = b.data.date instanceof Date ? b.data.date.getTime() : undefined;
+			if (aDate !== undefined && bDate !== undefined && aDate !== bDate) return bDate - aDate;
+			if (aDate !== undefined && bDate === undefined) return -1;
+			if (aDate === undefined && bDate !== undefined) return 1;
+			return a.id.localeCompare(b.id);
+		})
+		.map((entry) => {
+			const href = getPostHref(entry);
+			return {
+				type: 'link' as const,
+				label: entry.data.title,
+				href,
+				isCurrent: pathKey(href) === currentKey,
+				badge: undefined,
+				attrs: {},
+			};
+		});
+}
+
+const existingByLabel = new Map(groupSectionsFromSidebar.map((s) => [s.label, s]));
+const extraGroups = groupSectionsFromSidebar.filter(
+	(s) => !canonicalSections.some((c) => c.label === s.label)
+);
+const groupSections = [
+	...canonicalSections
+		.map(({ label, section, href }) => {
+			const existing = existingByLabel.get(label);
+			if (existing) return existing;
+			const links = buildFallbackLinks(section);
+			if (!links.length) return undefined;
+			return {
+				label,
+				href,
+				links,
+				isCurrentGroup: links.some((link) => link.isCurrent),
+			};
+		})
+		.filter((section): section is NonNullable<typeof section> => Boolean(section)),
+	...extraGroups,
+];
+
 const orderedGroupSections = [...groupSections].sort(
 	(a, b) => Number(b.isCurrentGroup) - Number(a.isCurrentGroup)
 );
@@ -135,7 +186,7 @@ const sections = [
 			</div>
 			<ul data-floral-vine>
 				{section.links.map((link, index) => (
-					<li style={`--i: ${index}`}>
+					<li style={`--i: ${Math.min(index, 8)}`}>
 						<a href={link.href} aria-current={link.isCurrent ? 'page' : undefined}>
 							<span>{link.label}</span>
 						</a>
@@ -165,13 +216,6 @@ const sections = [
 	font-size: 0.85rem;
 	font-weight: 600;
 	letter-spacing: 0.05em;
-}
-
-.catalog-drawer-section h2::before {
-	content: "✦";
-	color: var(--sl-color-accent);
-	font-size: 0.85em;
-	flex-shrink: 0;
 }
 
 .catalog-section-link {
@@ -217,13 +261,13 @@ const sections = [
 }
 
 :global(body[data-drawer-open]) .catalog-drawer-section li {
-	animation: floral-bloom 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-	animation-delay: calc(var(--i, 0) * 45ms + 0.12s);
+	animation: floral-bloom 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation-delay: calc(min(var(--i, 0), 8) * 30ms + 0.06s);
 }
 
 .catalog-drawer-section ul a {
 	display: block;
-	border-radius: 0.6rem;
+	border-radius: var(--hananiwa-radius-sm, 0.6rem);
 	padding: 0.34rem 0.65rem;
 	color: var(--sl-color-gray-3);
 	font-size: 0.88rem;
@@ -242,12 +286,6 @@ const sections = [
 	color: var(--sl-color-accent);
 	font-weight: 600;
 	background: color-mix(in srgb, var(--sl-color-accent) 14%, transparent);
-}
-
-.catalog-drawer-section ul a[aria-current="page"] span::before {
-	content: "✦ ";
-	color: var(--sl-color-accent-high);
-	font-size: 0.75em;
 }
 
 @media (max-width: 49.999rem) {
@@ -271,8 +309,3 @@ const sections = [
 	}
 }
 </style>
-
-<script>
-	import { bindFloralVines } from "../utils/floral-vine";
-	bindFloralVines();
-</script>

@@ -49,7 +49,11 @@ const navLinks = [
       {navLinks.map((item) => {
         const isActive = item.match(rawPathname);
         return (
-          <a href={item.href} class:list={["header-nav-item", { active: isActive }]}>
+          <a
+            href={item.href}
+            class:list={["header-nav-item", { active: isActive }]}
+            aria-current={isActive ? 'page' : undefined}
+          >
             <span class="nav-item-en">{item.en}</span>
           </a>
         );

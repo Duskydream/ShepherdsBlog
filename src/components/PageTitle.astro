@@ -1,5 +1,6 @@
 ---
 import { getTagHref } from "../utils/content";
+import Floral from "./Floral.astro";
 
 const PAGE_TITLE_ID = "_top";
 
@@ -16,29 +17,42 @@ const sectionNavMap: Record<string, { label: string; href: string }> = {
 const sectionPrefix = entry.id.split("/")[0];
 const sectionNav = sectionNavMap[sectionPrefix];
 
+function hasEditorialFirstParagraph(body: string | undefined): boolean {
+  if (!body) return false;
+  const blocks = body
+    .split(/\r?\n\s*\r?\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  const firstPara = blocks.find(
+    (block) => !/^(#{1,6}\s|>|---|===|\*\*\*|```|~~~)/.test(block)
+  );
+  if (!firstPara) return false;
+  if (/^(!\[|\*\*|__|~~|[（(「『【\[《<*—-])/.test(firstPara)) return false;
+  if (/^(翻译|声明|注|注意|图源|附)[：:]/.test(firstPara)) return false;
+  return firstPara.length >= 24;
+}
+
+const allowDropCap = isEssay && hasEditorialFirstParagraph(entry.body);
+
 /**
- * 阅读时长估算。
- *
- * 旧实现是 `entry.body.length / 400`，直接把原始 markdown 字符数当正文：
- * 代码块、图片 URL、`<br>`、`**` 标记、frontmatter 全都算成了“读到的字”，
- * 所以 second-person 显示 102 分钟，而实际正文只有约 3.7 万字。
- * 现在先剥掉这些噪声，再按中文 400 字/分、西文 200 词/分分别累计。
+ * 阅读时长估算：先剥掉代码块、图片、HTML 与 markdown 标记，
+ * 再按中文 400 字/分、西文 200 词/分分别累计。
  */
 function estimateReadingTime(body: string | undefined): number | null {
   if (!body) return null;
 
   const text = body
-    .replace(/```[\s\S]*?```/g, " ") // fenced code block
-    .replace(/`[^`\n]*`/g, " ") // inline code
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // image
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // link keeps its text
-    .replace(/<[^>]+>/g, " ") // raw HTML (<br>, <blockquote class=...>)
-    .replace(/^\s{0,3}#{1,6}\s+/gm, "") // heading markers
-    .replace(/^\s{0,3}>\s?/gm, "") // blockquote markers
-    .replace(/^\s{0,3}[-*+]\s+/gm, "") // bullet markers
-    .replace(/^\s{0,3}\d+\.\s+/gm, "") // ordered list markers
-    .replace(/^\s*[-=*_]{3,}\s*$/gm, " ") // horizontal rules
-    .replace(/[*_~]{1,3}/g, "") // emphasis markers
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`\n]*`/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/^\s{0,3}>\s?/gm, "")
+    .replace(/^\s{0,3}[-*+]\s+/gm, "")
+    .replace(/^\s{0,3}\d+\.\s+/gm, "")
+    .replace(/^\s*[-=*_]{3,}\s*$/gm, " ")
+    .replace(/[*_~]{1,3}/g, "")
     .replace(/\s+/g, " ");
 
   const cjk = (text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) ?? []).length;
@@ -63,12 +77,13 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
     <div
       class="page-title-wrapper"
       data-essay={isEssay ? "" : undefined}
+      data-dropcap={allowDropCap ? "" : undefined}
       data-article-reading={date ? "" : undefined}
       data-reading-minutes={date ? readingTime : undefined}
     >
       {sectionNav && (
         <a href={sectionNav.href} class="page-eyebrow-link">
-          <span aria-hidden="true">✦</span>
+          <Floral variant="bloom" class="page-eyebrow-floral" />
           <span>{sectionNav.label}</span>
         </a>
       )}
@@ -79,15 +94,19 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
         (formattedDate || readingTime || author || (tags && tags.length > 0) ||
           (categories && categories.length > 0)) && (
           <p class="page-meta">
-            {formattedDate && <span>记录于：{formattedDate}</span>}
-            {author && <span>作者：{author}</span>}
-            {readingTime && <span>预计阅读：约 {readingTime} 分钟</span>}
+            {formattedDate && <span class="page-meta-item">记录于：{formattedDate}</span>}
+            {author && <span class="page-meta-item">作者：{author}</span>}
+            {readingTime && <span class="page-meta-item">预计阅读：约 {readingTime} 分钟</span>}
             {
               categories && categories.length > 0 && (
-                <span>分类：{categories.join("、")}</span>
+                <span class="page-meta-item">分类：{categories.join("、")}</span>
               )
             }
-            {tags && tags.length > 0 && <span>标签：{tags.map((tag, index) => <>{index > 0 && "、"}<a href={getTagHref(tag)}>{tag}</a></>)}</span>}
+            {tags && tags.length > 0 && (
+              <span class="page-meta-item">
+                标签：{tags.map((tag, index) => <>{index > 0 && "、"}<a href={getTagHref(tag)}>{tag}</a></>)}
+              </span>
+            )}
           </p>
         )
       }
@@ -98,30 +117,36 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
 <style>
   @layer starlight.core {
     .page-title-wrapper {
-      margin-top: 1rem;
-      margin-bottom: 2rem;
+      width: 100%;
+      max-width: 44rem;
+      margin: 1rem auto 2rem;
     }
     .page-eyebrow-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       margin-bottom: 0.55rem;
       font-size: 0.78rem;
       font-weight: 600;
       letter-spacing: 0.06em;
       color: var(--sl-color-accent);
       text-decoration: none;
-      opacity: 0.88;
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
+    .page-eyebrow-link :global(.page-eyebrow-floral) {
+      --floral-size: 0.8em;
+      color: var(--sl-color-accent);
+    }
     .page-eyebrow-link:hover {
-      opacity: 1;
+      opacity: 0.88;
       transform: translateX(-2px);
     }
     h1 {
+      font-family: var(--hananiwa-font-serif);
       font-size: var(--sl-text-h1);
       line-height: var(--sl-line-height-headings);
       font-weight: 600;
+      letter-spacing: 0.02em;
       color: var(--sl-color-white);
       width: fit-content;
       max-width: 100%;
@@ -131,11 +156,16 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 0.45rem 0.7rem;
+      gap: 0.45rem 1.15rem;
       margin: 0.9rem 0 0;
       font-size: 0.875rem;
       line-height: 1.6;
       color: var(--sl-color-gray-3);
+    }
+    .page-meta-item {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
     }
     .page-meta a {
       color: inherit;
@@ -145,12 +175,6 @@ const formattedDate = date ? dateFormatter.format(new Date(date)) : null;
     }
     .page-meta a:hover {
       color: var(--sl-color-accent);
-    }
-    .page-meta span + span::before {
-      content: "·";
-      color: var(--sl-color-accent);
-      opacity: 0.6;
-      margin-inline-end: 0.7rem;
     }
   }
 </style>

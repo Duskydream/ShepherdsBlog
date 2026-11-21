@@ -20,11 +20,38 @@ const localized = (value, fallback) => {
 const siteTitle = localized(starlightConfig.title, '祈りの花庭');
 const siteDescription = localized(starlightConfig.description, 'Inori no Hananiwa · The Garden of Prayer');
 
+const FALLBACK_SITE = 'https://www.lxzm.space';
+
 const escapeXml = (value) =>
   String(value).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[c]);
 
+/**
+ * 清理 Starlight 渲染出的正文 HTML，使其适合外部 RSS 阅读器：
+ * 1. 去掉标题旁的锚点链接（`.sl-anchor-link`）、屏幕阅读器提示（`.sr-only`）以及外层 `.sl-heading-wrapper`；
+ * 2. 把站内根相对路径（`src="/..."`、`href="/..."`、`srcset="/... 800w"`）重写为绝对 URL。
+ */
+function sanitizeRssHtml(html, site) {
+  const baseUrl = site ?? FALLBACK_SITE;
+  return html
+    .replace(/<a\b[^>]*\bclass=(["'])[^"']*\bsl-anchor-link\b[^"']*\1[^>]*>[\s\S]*?<\/a>/gi, '')
+    .replace(/<span\b[^>]*\bclass=(["'])[^"']*\bsr-only\b[^"']*\1[^>]*>[\s\S]*?<\/span>/gi, '')
+    .replace(
+      /<div\b[^>]*\bclass=(["'])[^"']*\bsl-heading-wrapper\b[^"']*\1[^>]*>\s*(<h[1-6]\b[\s\S]*?<\/h[1-6]>)\s*<\/div>/gi,
+      '$2',
+    )
+    .replace(/\b(src|href)=(["'])(\/(?!\/)[^"']*)\2/gi, (_, attr, quote, relPath) => {
+      return `${attr}=${quote}${new URL(relPath, baseUrl).href}${quote}`;
+    })
+    .replace(/\bsrcset=(["'])([^"']*)\1/gi, (_, quote, value) => {
+      const rewritten = value.replace(/(^|,\s*)(\/(?!\/)[^\s,]+)/g, (_, prefix, relPath) => {
+        return `${prefix}${new URL(relPath, baseUrl).href}`;
+      });
+      return `srcset=${quote}${rewritten}${quote}`;
+    });
+}
+
 export async function GET(context) {
-  const site = context.site ?? new URL(context.url.origin);
+  const site = context.site ?? new URL(FALLBACK_SITE);
   const sortedPosts = await getSortedPosts();
 
   // 无日期的条目不能用 new Date()（= 构建时刻），否则每次构建 feed 都会变，
@@ -48,11 +75,12 @@ export async function GET(context) {
       const description = post.data.description || excerptOf(post.body);
       const categories = [post.data.categories ?? [], post.data.tags ?? []].flat();
       const author = post.data.author;
-      // 全文只给最新几篇。8 篇里有单篇 7 万字的翻译，全塞进 feed 会变成
-      // 600 KB 原始 / 115 KB gzip，而订阅器每轮询一次都要重下整个 feed。
+      // 全文只给最新几篇。长篇译文全塞进 feed 会导致体积暴涨，
+      // 而订阅器每轮询一次都要重下整个 feed。
       const body = index < FULL_TEXT_LIMIT
         ? await render(post)
             .then(({ Content }) => container.renderToString(Content, { props: {} }))
+            .then((html) => sanitizeRssHtml(html, site))
             .catch((error) => {
               console.warn(`[rss] ${post.id} 正文渲染失败，只输出摘要：${error.message}`);
               return null;

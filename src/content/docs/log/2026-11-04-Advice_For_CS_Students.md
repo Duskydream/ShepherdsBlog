@@ -3,7 +3,6 @@ title: Advice For CS Students
 date: 2026-11-04
 draft: false
 ---
-# Advice For CS Students
 
 > 转自：[Tw93 (@HiTw93) / X](https://x.com/HiTw93)
 

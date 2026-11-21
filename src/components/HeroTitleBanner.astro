@@ -26,15 +26,15 @@
     height: auto;
     display: block;
     overflow: visible;
-    color: #9bb7e6;
+    color: var(--sl-color-accent-high);
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     user-select: none;
     -webkit-user-drag: none;
   }
 
-  /* 统一纯色填充：主题 accent-high 淡蓝（无渐变、无光晕） */
+  /* 统一纯色填充：跟随主题 --sl-color-accent-high（统一为原版标题浅蓝 #9bb7e6，无渐变无光晕） */
   .hero-title-svg path {
-    fill: #9bb7e6;
+    fill: var(--sl-color-accent-high);
   }
 
   /* 文字笔画（假名/汉字/副标题）使用奇偶填充，恢复被填充死的封闭孔留白

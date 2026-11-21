@@ -29,6 +29,39 @@ function initImageLightbox(article: HTMLElement, signal: AbortSignal) {
   let dialog: HTMLDialogElement | null = null;
   let previewImg: HTMLImageElement | null = null;
   let captionEl: HTMLElement | null = null;
+  let counterEl: HTMLElement | null = null;
+  let prevBtn: HTMLButtonElement | null = null;
+  let nextBtn: HTMLButtonElement | null = null;
+  let gallery: HTMLImageElement[] = [];
+  let currentIndex = -1;
+
+  function renderAt(index: number) {
+    if (!previewImg || !captionEl || !counterEl || !prevBtn || !nextBtn || !gallery.length) return;
+    currentIndex = Math.max(0, Math.min(index, gallery.length - 1));
+    const target = gallery[currentIndex];
+    previewImg.src = target.currentSrc || target.src;
+    if (target.srcset) {
+      previewImg.srcset = target.srcset;
+      previewImg.sizes = "92vw";
+    } else {
+      previewImg.removeAttribute("srcset");
+      previewImg.removeAttribute("sizes");
+    }
+    const alt = target.alt?.trim() || "";
+    previewImg.alt = alt;
+    captionEl.textContent = alt;
+    captionEl.hidden = !alt;
+
+    const multi = gallery.length > 1;
+    prevBtn.hidden = !multi;
+    nextBtn.hidden = !multi;
+    counterEl.hidden = !multi;
+    if (multi) {
+      counterEl.textContent = `${currentIndex + 1} / ${gallery.length}`;
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === gallery.length - 1;
+    }
+  }
 
   function ensureDialog() {
     if (dialog && dialog.isConnected) return dialog;
@@ -42,17 +75,54 @@ function initImageLightbox(article: HTMLElement, signal: AbortSignal) {
     closeBtn.setAttribute("aria-label", "关闭预览");
     closeBtn.textContent = "✕";
 
+    prevBtn = document.createElement("button");
+    prevBtn.type = "button";
+    prevBtn.className = "image-lightbox-nav image-lightbox-prev";
+    prevBtn.setAttribute("aria-label", "上一张图片");
+    prevBtn.textContent = "‹";
+    prevBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (currentIndex > 0) renderAt(currentIndex - 1);
+    });
+
     previewImg = document.createElement("img");
     previewImg.className = "image-lightbox-img";
     previewImg.decoding = "async";
 
+    nextBtn = document.createElement("button");
+    nextBtn.type = "button";
+    nextBtn.className = "image-lightbox-nav image-lightbox-next";
+    nextBtn.setAttribute("aria-label", "下一张图片");
+    nextBtn.textContent = "›";
+    nextBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (currentIndex < gallery.length - 1) renderAt(currentIndex + 1);
+    });
+
+    const meta = document.createElement("div");
+    meta.className = "image-lightbox-meta";
+
+    counterEl = document.createElement("span");
+    counterEl.className = "image-lightbox-counter";
+
     captionEl = document.createElement("p");
     captionEl.className = "image-lightbox-caption";
 
-    dialog.append(closeBtn, previewImg, captionEl);
+    meta.append(counterEl, captionEl);
+    dialog.append(closeBtn, prevBtn, previewImg, nextBtn, meta);
     dialog.addEventListener("click", (event) => {
       if (event.target === dialog || event.target === closeBtn || event.target === previewImg) {
         dialog?.close();
+      }
+    });
+    dialog.addEventListener("keydown", (event) => {
+      if (!dialog?.open || gallery.length <= 1) return;
+      if (event.key === "ArrowLeft" && currentIndex > 0) {
+        event.preventDefault();
+        renderAt(currentIndex - 1);
+      } else if (event.key === "ArrowRight" && currentIndex < gallery.length - 1) {
+        event.preventDefault();
+        renderAt(currentIndex + 1);
       }
     });
     document.body.appendChild(dialog);
@@ -63,23 +133,15 @@ function initImageLightbox(article: HTMLElement, signal: AbortSignal) {
     if (!(event.target instanceof HTMLImageElement)) return;
     if (event.target.closest("a, button, .not-content")) return;
 
+    gallery = [...article.querySelectorAll<HTMLImageElement>("img")].filter(
+      (img) => !img.closest("a, button, .not-content")
+    );
+    const idx = gallery.indexOf(event.target);
+    if (idx < 0) gallery = [event.target];
+
     const dlg = ensureDialog();
-    if (!previewImg || !captionEl) return;
-
-    previewImg.src = event.target.currentSrc || event.target.src;
-    if (event.target.srcset) {
-      previewImg.srcset = event.target.srcset;
-      previewImg.sizes = "92vw";
-    } else {
-      previewImg.removeAttribute("srcset");
-      previewImg.removeAttribute("sizes");
-    }
-    const alt = event.target.alt?.trim() || "";
-    previewImg.alt = alt;
-    captionEl.textContent = alt;
-    captionEl.hidden = !alt;
-
-    dlg.showModal();
+    renderAt(Math.max(0, idx));
+    if (!dlg.open) dlg.showModal();
   }, { signal });
 
   signal.addEventListener("abort", () => {
@@ -96,7 +158,7 @@ export function initArticleReading() {
   const title = document.querySelector<HTMLElement>("[data-article-reading]");
   const article = document.querySelector<HTMLElement>("main .sl-markdown-content");
   if (!bar) return;
-  bar.hidden = !title || !article || !!article.querySelector(".not-content");
+  bar.hidden = !title || !article || !!article.querySelector(":scope > .not-content");
   if (bar.hidden || !article || !title) return;
 
   const controller = new AbortController();
@@ -229,7 +291,7 @@ export function initArticleReading() {
   window.addEventListener("pagehide", save, { signal });
   document.addEventListener("visibilitychange", () => { if (document.hidden) save(); }, { signal });
   const observer = new ResizeObserver(() => { measure(); schedule(); });
-  document.fonts.ready.then(() => { if (!signal.aborted) { measure(); schedule(); } });
+  document.fonts?.ready.then(() => { if (!signal.aborted) { measure(); schedule(); } });
   // Title (including the notice) and content can resize as fonts/images load.
   observer.observe(article);
   observer.observe(title);

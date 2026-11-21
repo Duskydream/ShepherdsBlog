@@ -20,58 +20,212 @@ const { posts } = Astro.props;
 
 <StarlightPage
   frontmatter={{
-    title: `Tag: #${tag}`,
-    description: `Posts tagged with #${tag}（共 ${posts.length} 篇）。`,
+    title: `#${tag} · Tags`,
+    description: `标签 #${tag} 下的全部文章（共 ${posts.length} 篇）。`,
     template: "splash",
     tableOfContents: false,
   }}
   hasSidebar={false}
 >
-  <section class="tag-timeline not-content">
-    <header>
-      <h1>Posts tagged with #{tag}</h1>
-      <span class="tag-count">{posts.length} posts</span>
+  <section class="tag-page not-content">
+    <header class="tag-page-head">
+      <div class="tag-page-top">
+        <div class="tag-page-eyebrow">
+          <span class="tag-page-eyebrow-dot" aria-hidden="true"></span>
+          <span class="tag-page-eyebrow-text">TAGS</span>
+        </div>
+        <a href="/tags/" class="tag-back-link">← 全部标签</a>
+      </div>
+      <h1>#{tag}</h1>
+      <p class="tag-page-desc">共 {posts.length} 篇文章</p>
     </header>
-    <div class="timeline-body"><ContentTimeline posts={posts} /></div>
+
+    <div class="tag-timeline hananiwa-surface">
+      <div class="tag-timeline-head">
+        <div class="tag-timeline-title">
+          <span class="tag-timeline-dot" aria-hidden="true"></span>
+          <span class="tag-timeline-en">TAG ARCHIVE</span>
+          <span class="tag-timeline-zh">标签归档</span>
+        </div>
+        <span class="tag-count">{posts.length} 篇</span>
+      </div>
+      <div class="timeline-body">
+        <ContentTimeline posts={posts} />
+      </div>
+    </div>
   </section>
 
   <style>
-    .tag-timeline {
-      width: min(64rem, 100%);
-      margin: 1.5rem auto 3rem;
-      overflow: hidden;
-      border: 1px solid var(--sl-color-gray-6);
-      border-radius: 1rem;
-      background: var(--sl-color-bg);
+    .tag-page {
+      max-width: var(--hananiwa-width-index, 68rem);
+      margin: 0 auto;
+      padding: 2.25rem 0 4rem;
+      box-sizing: border-box;
     }
 
-    header {
+    .tag-page-head {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.65rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+    }
+
+    .tag-page-top {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--sl-color-gray-6);
-      color: var(--sl-color-white);
-      font-size: 0.85rem;
-      font-weight: 600;
+      flex-wrap: wrap;
     }
 
-    header h1 {
+    .tag-page-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tag-page-eyebrow-dot,
+    .tag-timeline-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      flex-shrink: 0;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+      mask: var(--floral-mask-bloom) center / contain no-repeat;
+    }
+
+    .tag-page-eyebrow-text {
+      font-family: var(--sl-font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--sl-color-accent-high);
+      text-transform: uppercase;
+    }
+
+    .tag-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.28rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-6);
+      background: var(--sl-color-bg);
+      color: var(--sl-color-accent-high);
+      font-size: 0.78rem;
+      text-decoration: none !important;
+      transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .tag-back-link:hover {
+      border-color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+      transform: translateX(-2px);
+    }
+
+    .tag-page-head h1 {
       margin: 0;
-      font-size: inherit;
-      font-weight: inherit;
-      line-height: inherit;
-      color: inherit;
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      color: var(--sl-color-white);
+      font-size: clamp(2.1rem, 6vw, 3.2rem);
+      font-weight: 600;
+      line-height: 1.18;
+      letter-spacing: 0.04em;
+      overflow-wrap: anywhere;
+    }
+
+    .tag-page-desc {
+      margin: 0 !important;
+      color: var(--sl-color-gray-3);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      letter-spacing: 0.03em;
+      text-align: start !important;
+    }
+
+    .tag-timeline {
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: var(--hananiwa-radius-lg, 1.25rem);
+      background: var(--sl-color-bg);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tag-timeline:hover {
+      border-color: var(--sl-color-gray-5);
+    }
+
+    .tag-timeline-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
+      padding: 0.95rem 1.4rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+    }
+
+    .tag-timeline-title {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .tag-timeline-en {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-accent-high);
+      line-height: 1;
+    }
+
+    .tag-timeline-zh {
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      color: var(--sl-color-white);
+      font-size: 0.96rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
     }
 
     .tag-count {
-      color: var(--sl-color-gray-4);
-      font-size: 0.72rem;
-      font-weight: 400;
+      font-family: var(--sl-font-mono);
+      color: var(--sl-color-gray-3);
+      font-size: 0.74rem;
       white-space: nowrap;
     }
 
-    .timeline-body { padding: 0.75rem 1rem; }
+    .timeline-body {
+      padding: 0.85rem 1.25rem 1rem;
+    }
+
+    @media (max-width: 49.999rem) {
+      .tag-page {
+        padding: 1.35rem 0 3rem;
+      }
+
+      .tag-page-head {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.15rem;
+      }
+
+      .tag-timeline {
+        border-radius: 1.1rem;
+      }
+
+      .tag-timeline-head {
+        padding: 0.85rem 1rem;
+      }
+
+      .timeline-body {
+        padding: 0.65rem 0.75rem 0.85rem;
+      }
+    }
   </style>
 </StarlightPage>

@@ -2,7 +2,6 @@
 title: Revue Starlight
 date: 2025-10-18
 ---
-# 2025-10-18-Revue Starlight
 
 ## 少歌剧场版线下观影会
 

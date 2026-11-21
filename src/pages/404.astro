@@ -1,6 +1,15 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import Floral from "../components/Floral.astro";
+import LilyOrnament from "../components/LilyOrnament.astro";
+
+const quickLinks = [
+  { label: "散文", href: "/article" },
+  { label: "笔记", href: "/notes" },
+  { label: "鉴赏", href: "/anime" },
+  { label: "日常", href: "/log" },
+  { label: "标签", href: "/tags" },
+];
 ---
 
 <StarlightPage
@@ -13,12 +22,175 @@ import Floral from "../components/Floral.astro";
   hasSidebar={false}
 >
   <section class="not-found not-content">
-    <div class="not-found-art" aria-hidden="true">
-      <Floral variant="bud" class="not-found-bud" />
+    <div class="not-found-lily-backdrop" aria-hidden="true">
+      <LilyOrnament id="not-found-lily" />
     </div>
-    <p class="not-found-code">404</p>
-    <h1>花径迷途</h1>
-    <p class="not-found-desc">这一枝没有通向任何庭院，也许它还在生长。</p>
-    <a class="not-found-home" href="/"><Floral variant="bloom" class="not-found-home-floral" />返回祈りの花庭</a>
+
+    <div class="not-found-inner">
+      <div class="not-found-emblem" aria-hidden="true">
+        <span class="not-found-line"></span>
+        <Floral variant="flower" size="1.35rem" class="not-found-flower" />
+        <span class="not-found-line"></span>
+      </div>
+
+      <p class="not-found-code">404</p>
+      <h1>花径迷途</h1>
+      <p class="not-found-desc">这一枝没有通向任何庭院，也许它还在生长。</p>
+
+      <a class="not-found-home" href="/">
+        <Floral variant="bloom" class="not-found-home-floral" />
+        <span>返回祈りの花庭</span>
+      </a>
+
+      <nav class="not-found-nav" aria-label="快捷导航">
+        {
+          quickLinks.map((item) => (
+            <a class="not-found-pill" href={item.href}>
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
   </section>
+
+  <style>
+    .not-found {
+      position: relative;
+      max-width: 38rem;
+      margin: 0 auto;
+      padding: clamp(2.5rem, 9vh, 5.5rem) 1.25rem 4.5rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .not-found-lily-backdrop {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: min(24rem, 88vw);
+      transform: translate(-50%, -48%) rotate(-8deg);
+      opacity: 0.14;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    :global([data-theme="dark"]) .not-found-lily-backdrop {
+      opacity: 0.11;
+    }
+
+    .not-found-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .not-found p {
+      margin: 0;
+      text-align: center !important;
+    }
+
+    .not-found-emblem {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      width: min(12rem, 70%);
+      margin-bottom: 0.75rem;
+    }
+
+    .not-found-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--sl-color-gray-5), transparent);
+    }
+
+    .not-found-emblem :global(.not-found-flower) {
+      color: var(--sl-color-accent-high);
+      opacity: 0.9;
+    }
+
+    .not-found-code {
+      margin: 0.2rem 0 0 !important;
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      font-size: clamp(3.4rem, 12vw, 5.5rem);
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      color: var(--sl-color-accent-high);
+    }
+
+    .not-found h1 {
+      margin: 0.6rem 0 0;
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      font-size: 1.38rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-white);
+    }
+
+    .not-found-desc {
+      margin: 0.85rem 0 0 !important;
+      color: var(--sl-color-gray-2);
+      font-size: 0.92rem;
+      line-height: 1.8;
+    }
+
+    .not-found-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.85rem;
+      padding: 0.6rem 1.45rem;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--sl-color-accent) 48%, transparent);
+      background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+      color: var(--sl-color-accent-high);
+      text-decoration: none !important;
+      font-size: 0.86rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: background-color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+    }
+
+    .not-found-home:hover {
+      background: color-mix(in srgb, var(--sl-color-accent) 18%, transparent);
+      border-color: var(--sl-color-accent);
+      transform: translateY(-1px);
+    }
+
+    .not-found-home :global(.not-found-home-floral) {
+      --floral-size: 0.9rem;
+    }
+
+    .not-found-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.35rem;
+    }
+
+    .not-found-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.34rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-6);
+      background: var(--sl-color-bg);
+      color: var(--sl-color-gray-2);
+      text-decoration: none !important;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .not-found-pill:hover {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-accent-high);
+      background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+      transform: translateY(-1px);
+    }
+  </style>
 </StarlightPage>

@@ -2,7 +2,7 @@
 import { Icon } from '@astrojs/starlight/components';
 ---
 
-{/* Keep theme state stable across ClientRouter swaps. */}
+{/* Keep theme state and theme-color meta stable across ClientRouter swaps. */}
 <script is:inline>
 	(() => {
 		const storageKey = 'starlight-theme';
@@ -24,8 +24,17 @@ import { Icon } from '@astrojs/starlight/components';
 			return parseTheme(theme) === 'auto' ? (systemLightQuery.matches ? 'light' : 'dark') : theme;
 		}
 
+		function syncThemeColor(resolved, doc = document) {
+			const meta = doc.querySelector('meta[name="theme-color"]');
+			if (meta) {
+				meta.setAttribute('content', resolved === 'light' ? '#fafafa' : '#161a21');
+			}
+		}
+
 		function applyTheme(theme = readTheme(), root = document.documentElement) {
-			root.dataset.theme = resolveTheme(theme);
+			const resolved = resolveTheme(theme);
+			root.dataset.theme = resolved;
+			syncThemeColor(resolved, root.ownerDocument || document);
 		}
 
 		function updateDefaultPickers(theme = readTheme()) {
@@ -57,8 +66,10 @@ import { Icon } from '@astrojs/starlight/components';
 
 		window.StarlightThemeProvider = {
 			updatePickers(theme = readTheme()) {
-				updateDefaultPickers(parseTheme(theme));
-				updateRapideButtons(parseTheme(theme));
+				const parsed = parseTheme(theme);
+				syncThemeColor(resolveTheme(parsed));
+				updateDefaultPickers(parsed);
+				updateRapideButtons(parsed);
 			},
 		};
 

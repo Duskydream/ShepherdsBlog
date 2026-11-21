@@ -1,10 +1,601 @@
 ---
-import SectionIndex from "../components/SectionIndex.astro";
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import Floral from "../components/Floral.astro";
+import {
+  collectTagStats,
+  countCodeBlocks,
+  countPostChars,
+  extractSectionHeadings,
+  formatCharCount,
+  formatIsoDate,
+  getPostHref,
+  getSortedPosts,
+  getTagHref,
+} from "../utils/content";
+import { excerptOf } from "../utils/excerpt";
+
+const posts = await getSortedPosts("coding-notes");
+const description = "算法与计算机基础的学习笔记，边写边记的推导过程与代码实现。";
+const noteTags = collectTagStats(posts);
+
+const entries = posts.map((post, index) => {
+  const chars = countPostChars(post.body);
+  const codeBlocks = countCodeBlocks(post.body);
+  const headings = extractSectionHeadings(post.body, 6);
+  const summary = post.data.description?.trim() || excerptOf(post.body, 140);
+  const rawSlug = (post.id.split("/").pop() ?? post.id).replace(/\.(md|mdx)$/i, "");
+  return {
+    post,
+    index,
+    lineNum: String(index + 1).padStart(2, "0"),
+    fileName: `${rawSlug}.md`,
+    chars,
+    codeBlocks,
+    headings,
+    summary,
+  };
+});
+
+const totalChars = entries.reduce((sum, item) => sum + item.chars, 0);
+const totalSnippets = entries.reduce((sum, item) => sum + item.codeBlocks, 0);
 ---
 
-<SectionIndex
-  title="Notes"
-  section="coding-notes"
-  eyebrow="月累笔记"
-  description="算法与计算机基础的学习笔记，边写边记的推导过程与代码实现。"
-/>
+<StarlightPage
+  frontmatter={{
+    title: "笔记 · Notes",
+    description,
+    template: "splash",
+    tableOfContents: false,
+  }}
+  hasSidebar={false}
+>
+  <section class="notes-index not-content">
+    <header class="notes-hero hananiwa-surface">
+      <div class="notes-hero-grid-bg" aria-hidden="true" />
+      <div class="notes-hero-inner">
+        <div class="notes-eyebrow">
+          <Floral variant="bloom" size="0.72rem" class="notes-eyebrow-floral" />
+          <span class="notes-eyebrow-text">NOTES · ~/coding-notes</span>
+        </div>
+        <h1>笔记</h1>
+        <p class="notes-hero-comment">// {description}</p>
+
+        <div class="notes-status-bar">
+          <div class="notes-status-metrics">
+            <span>files: {posts.length}</span>
+            <span class="notes-status-sep" aria-hidden="true">·</span>
+            <span>code blocks: {totalSnippets}</span>
+            <span class="notes-status-sep" aria-hidden="true">·</span>
+            <span>words: {formatCharCount(totalChars)}</span>
+          </div>
+          {
+            noteTags.length > 0 && (
+              <div class="notes-hero-tags">
+                {noteTags.map(({ tag }) => (
+                  <a href={getTagHref(tag)} class="notes-hero-tag">
+                    #{tag}
+                  </a>
+                ))}
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </header>
+
+    <div class="notes-workbench hananiwa-surface">
+      <div class="notes-titlebar">
+        <div class="notes-titlebar-left">
+          <span class="notes-window-dots" aria-hidden="true">
+            <Floral variant="bloom" size="0.68rem" class="notes-titlebar-floral" />
+            <span class="notes-dot" />
+            <span class="notes-dot" />
+          </span>
+          <span class="notes-breadcrumb">src / content / docs / coding-notes</span>
+        </div>
+        <span class="notes-titlebar-badge">
+          Markdown · UTF-8 · {posts.length} {posts.length === 1 ? "file" : "files"}
+        </span>
+      </div>
+
+      <div class="notes-list">
+        {
+          entries.map(({ post, lineNum, fileName, chars, codeBlocks, headings, summary }) => (
+            <article class="note-entry">
+              <div class="note-gutter" aria-hidden="true">
+                <span class="note-line-num">{lineNum}</span>
+                <Floral variant="bud" size="0.68rem" class="note-gutter-floral" />
+              </div>
+
+              <div class="note-main">
+                <div class="note-meta">
+                  <span class="note-filename">{fileName}</span>
+                  {post.data.date && (
+                    <time datetime={formatIsoDate(post.data.date)}>
+                      updated: {formatIsoDate(post.data.date)}
+                    </time>
+                  )}
+                  <span>{codeBlocks} snippets</span>
+                  <span>{formatCharCount(chars)}</span>
+                </div>
+
+                <h2 class="note-title">
+                  <a href={getPostHref(post)}>{post.data.title}</a>
+                </h2>
+
+                {summary && <p class="note-desc">{summary}</p>}
+
+                {headings.length > 0 && (
+                  <div class="note-outline" aria-label="章节大纲预览">
+                    <span class="note-outline-label">// outline</span>
+                    <div class="note-outline-chips">
+                      {headings.map((heading, hIndex) => (
+                        <span class="note-outline-chip">
+                          <span class="note-outline-idx">{String(hIndex + 1).padStart(2, "0")}</span>
+                          <span>{heading}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div class="note-foot">
+                  <div class="note-tags">
+                    {post.data.tags?.map((tag: string) => (
+                      <a href={getTagHref(tag)} class="note-tag">
+                        #{tag}
+                      </a>
+                    ))}
+                  </div>
+                  <span class="note-open-cue" aria-hidden="true">
+                    open() -&gt;
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+        {entries.length === 0 && <p class="notes-empty">暂无笔记文件。</p>}
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .notes-index {
+      max-width: var(--hananiwa-width-index, 68rem);
+      margin: 0 auto;
+      padding: 2.25rem 0 4rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .notes-index p {
+      margin: 0;
+      text-align: start;
+    }
+
+    /* 代码稿纸 Hero */
+    .notes-hero {
+      overflow: hidden;
+      padding: 1.95rem 2.15rem 1.75rem;
+    }
+
+    .notes-hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.65;
+      background-image: radial-gradient(color-mix(in srgb, var(--sl-color-accent) 26%, transparent) 1px, transparent 1px);
+      background-size: 18px 18px;
+      -webkit-mask-image: radial-gradient(circle at 86% 28%, #000 0%, transparent 72%);
+      mask-image: radial-gradient(circle at 86% 28%, #000 0%, transparent 72%);
+    }
+
+    .notes-hero-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.68rem;
+    }
+
+    .notes-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .notes-eyebrow-floral {
+      color: var(--sl-color-accent);
+    }
+
+    .notes-eyebrow-text {
+      font-family: var(--sl-font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-accent-high);
+    }
+
+    .notes-hero h1 {
+      margin: 0;
+      font-family: var(--hananiwa-font-serif);
+      color: var(--sl-color-white);
+      font-size: clamp(2.35rem, 6vw, 3.35rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: 0.08em;
+    }
+
+    .notes-hero-comment {
+      font-family: var(--sl-font-mono);
+      color: var(--sl-color-gray-3);
+      font-size: 0.85rem;
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    .notes-status-bar {
+      width: 100%;
+      margin-top: 0.35rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 85%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
+    }
+
+    .notes-status-metrics {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.55rem;
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    .notes-status-sep {
+      color: var(--sl-color-accent);
+      opacity: 0.7;
+    }
+
+    .notes-hero-tags {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.38rem;
+    }
+
+    .notes-hero-tag {
+      padding: 0.14rem 0.56rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-6);
+      background: color-mix(in srgb, var(--sl-color-bg) 94%, var(--sl-color-accent) 6%);
+      color: var(--sl-color-gray-2);
+      font-family: var(--sl-font-mono);
+      font-size: 0.7rem;
+      text-decoration: none;
+      transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .notes-hero-tag:hover {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-accent-high);
+      background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    }
+
+    /* 工作台式笔记本 */
+    .notes-workbench {
+      overflow: hidden;
+    }
+
+    .notes-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
+      padding: 0.85rem 1.35rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+      background: color-mix(in srgb, var(--sl-color-accent) 4%, var(--sl-color-bg));
+    }
+
+    .notes-titlebar-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .notes-window-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .notes-titlebar-floral {
+      color: var(--sl-color-accent);
+    }
+
+    .notes-dot {
+      width: 0.52rem;
+      height: 0.52rem;
+      border-radius: 50%;
+      border: 1px solid var(--sl-color-gray-5);
+      background: transparent;
+    }
+
+    .notes-breadcrumb {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      color: var(--sl-color-gray-2);
+      letter-spacing: 0.02em;
+      overflow-wrap: anywhere;
+    }
+
+    .notes-titlebar-badge {
+      font-family: var(--sl-font-mono);
+      font-size: 0.7rem;
+      color: var(--sl-color-gray-3);
+      white-space: nowrap;
+    }
+
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .note-entry {
+      position: relative;
+      display: grid;
+      grid-template-columns: 3.4rem minmax(0, 1fr);
+      border-bottom: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 70%, transparent);
+      transition: background-color 0.18s ease;
+    }
+
+    .note-entry:last-child {
+      border-bottom: none;
+    }
+
+    .note-entry:hover {
+      background: color-mix(in srgb, var(--sl-color-accent) 4.5%, transparent);
+    }
+
+    .note-gutter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 1.35rem 0.45rem;
+      border-inline-end: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 75%, transparent);
+      background: color-mix(in srgb, var(--sl-color-gray-6) 16%, transparent);
+      font-family: var(--sl-font-mono);
+      font-size: 0.72rem;
+      color: var(--sl-color-gray-4);
+      user-select: none;
+    }
+
+    .note-gutter-floral {
+      color: var(--sl-color-gray-4);
+      transition: color 0.18s ease, transform 0.18s ease;
+    }
+
+    .note-entry:hover .note-gutter {
+      color: var(--sl-color-accent-high);
+    }
+
+    .note-entry:hover .note-gutter-floral {
+      color: var(--sl-color-accent);
+      transform: scale(1.12);
+    }
+
+    .note-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.68rem;
+      padding: 1.3rem 1.6rem 1.35rem;
+      min-width: 0;
+    }
+
+    .note-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.75rem;
+      font-family: var(--sl-font-mono);
+      font-size: 0.72rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    .note-filename {
+      padding: 0.12rem 0.52rem;
+      border-radius: var(--hananiwa-radius-sm, 0.45rem);
+      border: 1px solid color-mix(in srgb, var(--sl-color-accent) 34%, transparent);
+      background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+      color: var(--sl-color-accent-high);
+      font-weight: 600;
+    }
+
+    .note-title {
+      margin: 0;
+      font-family: var(--hananiwa-font-serif);
+      font-size: clamp(1.18rem, 2.2vw, 1.4rem);
+      font-weight: 600;
+      line-height: 1.38;
+      color: var(--sl-color-white);
+      overflow-wrap: anywhere;
+    }
+
+    .note-title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+
+    .note-title a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .note-entry:hover .note-title a,
+    .note-title a:hover {
+      color: var(--sl-color-accent-high);
+    }
+
+    .note-desc {
+      font-size: 0.88rem;
+      color: var(--sl-color-gray-2);
+      line-height: 1.65;
+    }
+
+    .note-outline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding: 0.72rem 0.9rem;
+      border-radius: var(--hananiwa-radius-sm, 0.6rem);
+      border: 1px dashed color-mix(in srgb, var(--sl-color-gray-5) 70%, transparent);
+      background: color-mix(in srgb, var(--sl-color-accent) 3.5%, var(--sl-color-bg));
+    }
+
+    .note-outline-label {
+      font-family: var(--sl-font-mono);
+      font-size: 0.68rem;
+      color: var(--sl-color-accent-high);
+      letter-spacing: 0.04em;
+    }
+
+    .note-outline-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.55rem;
+    }
+
+    .note-outline-chip {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.32rem;
+      padding: 0.18rem 0.56rem;
+      border-radius: 0.45rem;
+      border: 1px solid var(--sl-color-gray-6);
+      background: var(--sl-color-bg);
+      font-size: 0.76rem;
+      color: var(--sl-color-gray-2);
+      line-height: 1.35;
+    }
+
+    .note-outline-idx {
+      font-family: var(--sl-font-mono);
+      font-size: 0.66rem;
+      color: var(--sl-color-accent-high);
+    }
+
+    .note-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.2rem;
+      padding-top: 0.7rem;
+      border-top: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 55%, transparent);
+    }
+
+    .note-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.38rem;
+    }
+
+    .note-tag {
+      position: relative;
+      z-index: 2;
+      padding: 0.12rem 0.52rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-6);
+      background: color-mix(in srgb, var(--sl-color-bg) 94%, var(--sl-color-accent) 6%);
+      color: var(--sl-color-gray-2);
+      font-family: var(--sl-font-mono);
+      font-size: 0.69rem;
+      text-decoration: none;
+      transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .note-tag:hover {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-accent-high);
+      background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    }
+
+    .note-open-cue {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      color: var(--sl-color-gray-3);
+      transition: color 0.18s ease, transform 0.18s ease;
+    }
+
+    .note-entry:hover .note-open-cue {
+      color: var(--sl-color-accent-high);
+      transform: translateX(3px);
+    }
+
+    .notes-empty {
+      padding: 1.5rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .note-entry,
+      .note-gutter-floral,
+      .note-open-cue {
+        transition: none !important;
+      }
+    }
+
+    @media (max-width: 49.999rem) {
+      .notes-index {
+        padding: 1.35rem 0 3rem;
+        gap: 1.15rem;
+      }
+
+      .notes-hero {
+        padding: 1.35rem 1.2rem;
+        border-radius: 1.1rem;
+      }
+
+      .notes-workbench {
+        border-radius: 1.1rem;
+      }
+
+      .notes-titlebar {
+        padding: 0.75rem 1rem;
+      }
+
+      .note-entry {
+        grid-template-columns: 1fr;
+      }
+
+      .note-gutter {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        border-inline-end: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 75%, transparent);
+      }
+
+      .note-main {
+        padding: 1rem 1.05rem 1.15rem;
+      }
+    }
+  </style>
+</StarlightPage>

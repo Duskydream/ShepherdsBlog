@@ -1,0 +1,228 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import FriendLinks from "../components/FriendLinks.astro";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "友链 · Links",
+    description: "祈りの花庭的友情链接与同行站点。",
+    template: "splash",
+    tableOfContents: false,
+  }}
+  hasSidebar={false}
+>
+  <section class="links-page not-content">
+    <header class="links-header">
+      <div class="links-eyebrow">
+        <span class="links-eyebrow-dot" aria-hidden="true"></span>
+        <span class="links-eyebrow-text">LINKS</span>
+      </div>
+      <h1>友链</h1>
+      <p class="links-subtitle">同行者的花园与栖息地，欢迎互相拜访。</p>
+    </header>
+
+    <FriendLinks />
+
+    <aside class="links-exchange hananiwa-surface" aria-label="交换友链说明">
+      <div class="links-exchange-head">
+        <span class="links-exchange-dot" aria-hidden="true"></span>
+        <span class="links-exchange-en">EXCHANGE</span>
+        <span class="links-exchange-zh">交换友链</span>
+      </div>
+      <p class="links-exchange-desc">
+        欢迎发邮件至 <a href="mailto:lxzm1211@outlook.com">lxzm1211@outlook.com</a> 附上你的站点名称、链接、简介与头像（或 GitHub 主页）。本站信息如下：
+      </p>
+      <dl class="links-site-info">
+        <div class="links-site-row">
+          <dt>NAME</dt>
+          <dd>祈りの花庭</dd>
+        </div>
+        <div class="links-site-row">
+          <dt>URL</dt>
+          <dd>https://www.lxzm.space</dd>
+        </div>
+        <div class="links-site-row">
+          <dt>DESC</dt>
+          <dd>如花四散，余香绕指，心中的裂痕亦能被填补。</dd>
+        </div>
+      </dl>
+    </aside>
+  </section>
+
+  <style>
+    .links-page {
+      max-width: var(--hananiwa-width-index, 68rem);
+      margin: 0 auto;
+      padding: 2.25rem 0 4rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .links-page p {
+      margin: 0;
+      text-align: start;
+    }
+
+    .links-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+    }
+
+    .links-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .links-eyebrow-dot,
+    .links-exchange-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      flex-shrink: 0;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+      mask: var(--floral-mask-bloom) center / contain no-repeat;
+    }
+
+    .links-eyebrow-text {
+      font-family: var(--sl-font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--sl-color-accent-high);
+      text-transform: uppercase;
+    }
+
+    .links-header h1 {
+      margin: 0;
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      color: var(--sl-color-white);
+      font-size: clamp(2.35rem, 6vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: 0.08em;
+    }
+
+    .links-subtitle {
+      color: var(--sl-color-gray-3);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      letter-spacing: 0.03em;
+    }
+
+    .links-exchange {
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: var(--hananiwa-radius-lg, 1.25rem);
+      background: var(--sl-color-bg);
+      padding: 1.25rem 1.5rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .links-exchange:hover {
+      border-color: var(--sl-color-gray-5);
+    }
+
+    .links-exchange-head {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+    }
+
+    .links-exchange-en {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-accent-high);
+      line-height: 1;
+    }
+
+    .links-exchange-zh {
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      color: var(--sl-color-white);
+      font-size: 0.96rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .links-exchange-desc {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--sl-color-gray-2);
+    }
+
+    .links-exchange-desc a {
+      color: var(--sl-color-accent-high);
+      font-family: var(--sl-font-mono);
+      font-size: 0.84rem;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+
+    .links-site-info {
+      margin: 0;
+      padding: 0.75rem 1rem;
+      border-radius: var(--hananiwa-radius-sm, 0.6rem);
+      background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
+      border: 1px solid var(--sl-color-gray-6);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .links-site-row {
+      display: grid;
+      grid-template-columns: 3.6rem minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: baseline;
+    }
+
+    .links-site-row dt {
+      font-family: var(--sl-font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: var(--sl-color-gray-3);
+    }
+
+    .links-site-row dd {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--sl-color-gray-1);
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 49.999rem) {
+      .links-page {
+        padding: 1.35rem 0 3rem;
+        gap: 1.5rem;
+      }
+
+      .links-header {
+        padding-bottom: 1.15rem;
+      }
+
+      .links-exchange {
+        padding: 1.05rem 1.1rem;
+        border-radius: 1.1rem;
+      }
+
+      .links-site-row {
+        grid-template-columns: 1fr;
+        gap: 0.15rem;
+      }
+    }
+  </style>
+</StarlightPage>

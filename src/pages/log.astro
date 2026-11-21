@@ -1,10 +1,627 @@
 ---
-import SectionIndex from "../components/SectionIndex.astro";
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import Floral from "../components/Floral.astro";
+import {
+  countPostChars,
+  formatCharCount,
+  formatIsoDate,
+  getPostHref,
+  getSortedPosts,
+  getTagHref,
+  type DocsEntry,
+} from "../utils/content";
+import { excerptOf } from "../utils/excerpt";
+
+const posts = await getSortedPosts("log");
+const description = "观影、通关、节日与日常的流水记录——祈りの花庭里的日记本。";
+
+const MONTH_ZH = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+const MONTH_EN = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+interface LogEntryView {
+  post: DocsEntry;
+  isoDate: string;
+  monthDay: string;
+  chars: number;
+  summary: string;
+}
+
+interface MonthGroup {
+  monthNum: string;
+  monthEn: string;
+  monthZh: string;
+  items: LogEntryView[];
+}
+
+interface YearGroup {
+  year: string;
+  count: number;
+  months: MonthGroup[];
+}
+
+const yearMap = new Map<string, Map<string, MonthGroup>>();
+
+for (const post of posts) {
+  const isoDate = formatIsoDate(post.data.date);
+  const [rawYear, rawMonth, rawDay] = isoDate ? isoDate.split("-") : ["归档", "--", "--"];
+  const monthIndex = Number(rawMonth) - 1;
+  const monthEn = MONTH_EN[monthIndex] ?? "ETC";
+  const monthZh = MONTH_ZH[monthIndex] ?? "其他";
+
+  let monthsMap = yearMap.get(rawYear);
+  if (!monthsMap) {
+    monthsMap = new Map<string, MonthGroup>();
+    yearMap.set(rawYear, monthsMap);
+  }
+
+  let monthGroup = monthsMap.get(rawMonth);
+  if (!monthGroup) {
+    monthGroup = {
+      monthNum: rawMonth,
+      monthEn,
+      monthZh,
+      items: [],
+    };
+    monthsMap.set(rawMonth, monthGroup);
+  }
+
+  monthGroup.items.push({
+    post,
+    isoDate,
+    monthDay: rawMonth !== "--" && rawDay ? `${rawMonth}-${rawDay}` : "未定日期",
+    chars: countPostChars(post.body),
+    summary: post.data.description?.trim() || excerptOf(post.body, 140),
+  });
+}
+
+const yearGroups: YearGroup[] = [...yearMap.entries()].map(([year, monthsMap]) => {
+  const months = [...monthsMap.values()];
+  return {
+    year,
+    count: months.reduce((sum, m) => sum + m.items.length, 0),
+    months,
+  };
+});
+
+const datedIsos = posts.map((p) => formatIsoDate(p.data.date)).filter(Boolean);
+const latestYm = datedIsos[0] ? datedIsos[0].slice(0, 7).replace("-", ".") : "";
+const earliestYm = datedIsos.length ? datedIsos[datedIsos.length - 1].slice(0, 7).replace("-", ".") : "";
+const spanLabel = earliestYm && latestYm ? `${earliestYm} — ${latestYm}` : "";
 ---
 
-<SectionIndex
-  title="Log"
-  section="log"
-  eyebrow="Journal"
-  description="观影、通关、节日与日常的流水记录——祈りの花庭里的日记本。"
-/>
+<StarlightPage
+  frontmatter={{
+    title: "日常 · Log",
+    description,
+    template: "splash",
+    tableOfContents: false,
+  }}
+  hasSidebar={false}
+>
+  <section class="log-index not-content">
+    <header class="log-hero hananiwa-surface">
+      <div class="log-eyebrow">
+        <Floral variant="bloom" size="0.72rem" class="log-eyebrow-floral" />
+        <span class="log-eyebrow-text">LOG · CHRONOLOGICAL ARCHIVE</span>
+      </div>
+      <h1>日常</h1>
+      <p class="log-hero-desc">{description}</p>
+
+      <div class="log-year-bar">
+        <nav class="log-year-nav" aria-label="按年份快速跳转">
+          {
+            yearGroups.map((yg) => (
+              <a href={`#year-${yg.year}`} class="log-year-pill">
+                <Floral variant="bud" size="0.65em" class="log-year-pill-floral" />
+                <span>{yg.year}</span>
+                <small>{yg.count} 篇</small>
+              </a>
+            ))
+          }
+        </nav>
+        <span class="log-span-meta">
+          {spanLabel ? `${spanLabel} · ` : ""}共 {posts.length} 篇
+        </span>
+      </div>
+    </header>
+
+    <div class="log-years">
+      {
+        yearGroups.map((yg) => (
+          <section class="log-year-section" id={`year-${yg.year}`} aria-labelledby={`year-heading-${yg.year}`}>
+            <div class="log-year-head">
+              <div class="log-year-title-wrap">
+                <Floral variant="bloom" size="0.86rem" class="log-year-floral" />
+                <h2 id={`year-heading-${yg.year}`}>{yg.year}</h2>
+              </div>
+              <span class="log-year-rule" aria-hidden="true" />
+              <span class="log-year-summary">
+                {yg.count} 篇 · {yg.months.length} 个月
+              </span>
+            </div>
+
+            <div class="log-months">
+              {yg.months.map((mg) => (
+                <div class="log-month-card hananiwa-surface">
+                  <div class="log-month-stamp">
+                    <div class="log-month-stamp-main">
+                      <span class="log-month-num">{mg.monthNum}</span>
+                      <div class="log-month-labels">
+                        <span class="log-month-zh">{mg.monthZh}</span>
+                        <span class="log-month-en">{mg.monthEn}</span>
+                      </div>
+                    </div>
+                    <span class="log-month-count">{mg.items.length} 篇</span>
+                  </div>
+
+                  <div
+                    class="log-month-list"
+                    data-floral-vine='{"items": ":scope > .log-entry", "current": "", "vineX": 10, "meander": 2.2}'
+                  >
+                    {mg.items.map(({ post, isoDate, monthDay, chars, summary }) => (
+                      <article class="log-entry">
+                        <div class="log-entry-meta">
+                          <div class="log-entry-meta-left">
+                            {isoDate ? (
+                              <time datetime={isoDate}>{monthDay}</time>
+                            ) : (
+                              <span class="log-entry-day">{monthDay}</span>
+                            )}
+                            <span class="log-entry-chars">{formatCharCount(chars)}</span>
+                          </div>
+                          {post.data.tags && post.data.tags.length > 0 && (
+                            <div class="log-entry-tags">
+                              {post.data.tags.map((tag: string) => (
+                                <a href={getTagHref(tag)} class="log-entry-tag">
+                                  #{tag}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <h3 class="log-entry-title">
+                          <a href={getPostHref(post)}>{post.data.title}</a>
+                        </h3>
+
+                        {summary && <p class="log-entry-desc">{summary}</p>}
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+      {yearGroups.length === 0 && <p class="log-empty">暂无日常记录。</p>}
+    </div>
+  </section>
+
+  <style>
+    .log-index {
+      max-width: var(--hananiwa-width-index, 68rem);
+      margin: 0 auto;
+      padding: 2.25rem 0 4rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .log-index p {
+      margin: 0;
+      text-align: start;
+    }
+
+    /* 日记本 Hero */
+    .log-hero {
+      padding: 1.95rem 2.15rem 1.7rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.68rem;
+    }
+
+    .log-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .log-eyebrow-floral {
+      color: var(--sl-color-accent);
+    }
+
+    .log-eyebrow-text {
+      font-family: var(--sl-font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--sl-color-accent-high);
+      text-transform: uppercase;
+    }
+
+    .log-hero h1 {
+      margin: 0;
+      font-family: var(--hananiwa-font-serif);
+      color: var(--sl-color-white);
+      font-size: clamp(2.35rem, 6vw, 3.35rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: 0.08em;
+    }
+
+    .log-hero-desc {
+      color: var(--sl-color-gray-3);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      letter-spacing: 0.03em;
+    }
+
+    .log-year-bar {
+      width: 100%;
+      margin-top: 0.35rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 85%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
+    }
+
+    .log-year-nav {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .log-year-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.38rem;
+      padding: 0.24rem 0.74rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-6);
+      background: color-mix(in srgb, var(--sl-color-bg) 94%, var(--sl-color-accent) 6%);
+      color: var(--sl-color-white);
+      font-family: var(--sl-font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .log-year-pill-floral {
+      color: var(--sl-color-accent);
+    }
+
+    .log-year-pill small {
+      color: var(--sl-color-gray-3);
+      font-size: 0.68rem;
+      font-weight: 400;
+    }
+
+    .log-year-pill:hover {
+      border-color: var(--sl-color-accent);
+      color: var(--sl-color-accent-high);
+      background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+      transform: translateY(-1px);
+    }
+
+    .log-span-meta {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    /* 按年份分区 */
+    .log-years {
+      display: flex;
+      flex-direction: column;
+      gap: 2.15rem;
+    }
+
+    .log-year-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      scroll-margin-top: calc(var(--sl-nav-height, 3.75rem) + 1.5rem);
+    }
+
+    .log-year-head {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .log-year-title-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .log-year-floral {
+      color: var(--sl-color-accent);
+    }
+
+    .log-year-head h2 {
+      margin: 0;
+      font-family: var(--hananiwa-font-serif);
+      font-size: clamp(1.45rem, 3vw, 1.85rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--sl-color-white);
+      line-height: 1.1;
+    }
+
+    .log-year-rule {
+      flex: 1 1 auto;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--sl-color-accent) 42%, var(--sl-color-gray-6)),
+        color-mix(in srgb, var(--sl-color-gray-6) 35%, transparent)
+      );
+    }
+
+    .log-year-summary {
+      flex-shrink: 0;
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    /* 月份归档卡片：左月印 + 右花蔓时间线 */
+    .log-months {
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+    }
+
+    .log-month-card {
+      display: grid;
+      grid-template-columns: 8.6rem minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .log-month-stamp {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 1.25rem 1.15rem;
+      background: color-mix(in srgb, var(--sl-color-accent) 5%, var(--sl-color-bg));
+      border-inline-end: 1px solid var(--sl-color-gray-6);
+    }
+
+    .log-month-stamp-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .log-month-num {
+      font-family: var(--sl-font-mono);
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--sl-color-accent-high);
+      letter-spacing: -0.02em;
+    }
+
+    .log-month-labels {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .log-month-zh {
+      font-family: var(--hananiwa-font-serif);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--sl-color-white);
+    }
+
+    .log-month-en {
+      font-family: var(--sl-font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: var(--sl-color-gray-3);
+    }
+
+    .log-month-count {
+      font-family: var(--sl-font-mono);
+      font-size: 0.68rem;
+      color: var(--sl-color-gray-3);
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid var(--sl-color-gray-6);
+      background: var(--sl-color-bg);
+    }
+
+    /* 右侧花蔓时间线条目 */
+    .log-month-list {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+      padding: 0.75rem 1.25rem 0.75rem 2.2rem;
+      min-width: 0;
+    }
+
+    .log-entry {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 0.72rem 0.85rem;
+      border-radius: var(--hananiwa-radius-sm, 0.6rem);
+      border-bottom: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 55%, transparent);
+      transition: background-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-entry:hover {
+      background: color-mix(in srgb, var(--sl-color-accent) 6%, transparent);
+      transform: translateX(2px);
+    }
+
+    .log-entry-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem 0.75rem;
+      flex-wrap: wrap;
+      font-family: var(--sl-font-mono);
+      font-size: 0.72rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    .log-entry-meta-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .log-entry-meta time,
+    .log-entry-day {
+      color: var(--sl-color-accent-high);
+      font-weight: 600;
+    }
+
+    .log-entry-chars {
+      color: var(--sl-color-gray-3);
+    }
+
+    .log-entry-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .log-entry-tag {
+      position: relative;
+      z-index: 2;
+      color: var(--sl-color-gray-3);
+      font-size: 0.7rem;
+      text-decoration: none;
+      transition: color 0.16s ease;
+    }
+
+    .log-entry-tag:hover {
+      color: var(--sl-color-accent-high);
+      text-decoration: underline;
+    }
+
+    .log-entry-title {
+      margin: 0;
+      font-family: var(--hananiwa-font-serif);
+      font-size: 1.08rem;
+      font-weight: 600;
+      line-height: 1.42;
+      letter-spacing: 0.02em;
+      color: var(--sl-color-white);
+      overflow-wrap: anywhere;
+    }
+
+    .log-entry-title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+
+    .log-entry-title a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .log-entry:hover .log-entry-title a,
+    .log-entry-title a:hover {
+      color: var(--sl-color-accent-high);
+    }
+
+    .log-entry-desc {
+      display: -webkit-box;
+      margin: 0.05rem 0 0 !important;
+      overflow: hidden;
+      color: var(--sl-color-gray-3);
+      font-size: 0.85rem;
+      line-height: 1.58;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .log-empty {
+      color: var(--sl-color-gray-3);
+      padding: 1.5rem 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .log-year-pill,
+      .log-entry {
+        transition: none !important;
+      }
+      .log-entry:hover {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 49.999rem) {
+      .log-index {
+        padding: 1.35rem 0 3rem;
+        gap: 1.35rem;
+      }
+
+      .log-hero {
+        padding: 1.35rem 1.2rem;
+        border-radius: 1.1rem;
+      }
+
+      .log-month-card {
+        grid-template-columns: 1fr;
+        border-radius: 1.1rem;
+      }
+
+      .log-month-stamp {
+        flex-direction: row;
+        align-items: center;
+        padding: 0.72rem 1.05rem;
+        border-inline-end: none;
+        border-bottom: 1px solid var(--sl-color-gray-6);
+      }
+
+      .log-month-stamp-main {
+        flex-direction: row;
+        align-items: baseline;
+        gap: 0.55rem;
+      }
+
+      .log-month-num {
+        font-size: 1.35rem;
+      }
+
+      .log-month-list {
+        padding: 0.55rem 0.85rem 0.65rem 1.95rem;
+      }
+
+      .log-entry {
+        padding: 0.65rem 0.5rem;
+      }
+
+      .log-entry:hover {
+        transform: none;
+      }
+    }
+  </style>
+</StarlightPage>

@@ -104,3 +104,73 @@ export function collectTagStats(posts: DocsEntry[]): TagStat[] {
     })
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
+
+/**
+ * 统计 markdown 正文大致字数（剥除 frontmatter、代码块、图片、HTML 标签与格式符号）。
+ */
+export function countPostChars(body: string | undefined): number {
+  if (!body) return 0;
+  const normalized = body.replace(/\r\n?/g, "\n");
+  const stripped = normalized
+    .replace(/^---\n[\s\S]*?\n---/, "")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/~~~[\s\S]*?~~~/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[#*_`>~|$]/g, " ");
+  const cjk = (stripped.match(/[\u4e00-\u9fff\u3040-\u30ff]/g) || []).length;
+  const words = (stripped.match(/[A-Za-z0-9_]+/g) || []).length;
+  return cjk + words;
+}
+
+/**
+ * 将字数格式化为简洁的阅读计量文本。
+ */
+export function formatCharCount(count: number): string {
+  if (count >= 1000) return `${(count / 1000).toFixed(1)}k 字`;
+  return `${count} 字`;
+}
+
+/**
+ * 按每分钟约 400 字估算阅读耗时（分钟）。
+ */
+export function estimateReadingMinutes(charCount: number): number {
+  return Math.max(1, Math.round(charCount / 400));
+}
+
+/**
+ * 统计 markdown 中的围栏代码块数量。
+ */
+export function countCodeBlocks(body: string | undefined): number {
+  if (!body) return 0;
+  const normalized = body.replace(/\r\n?/g, "\n").replace(/^---\n[\s\S]*?\n---/, "");
+  const backticks = (normalized.match(/^```/gm) || []).length;
+  const tildes = (normalized.match(/^~~~/gm) || []).length;
+  return Math.floor(backticks / 2) + Math.floor(tildes / 2);
+}
+
+/**
+ * 提取 markdown 中的二级章节标题（自动跳过 frontmatter 与代码块）。
+ */
+export function extractSectionHeadings(body: string | undefined, limit = 6): string[] {
+  if (!body) return [];
+  const normalized = body
+    .replace(/\r\n?/g, "\n")
+    .replace(/^---\n[\s\S]*?\n---/, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/~~~[\s\S]*?~~~/g, "");
+  const headings: string[] = [];
+  for (const line of normalized.split("\n")) {
+    const match = line.match(/^##\s+(.+?)\s*$/);
+    if (!match) continue;
+    const clean = match[1]
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/[*_`~]/g, "")
+      .replace(/\s*#+\s*$/, "")
+      .trim();
+    if (clean) headings.push(clean);
+    if (headings.length >= limit) break;
+  }
+  return headings;
+}

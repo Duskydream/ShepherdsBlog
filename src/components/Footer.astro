@@ -9,94 +9,10 @@ import Floral from './Floral.astro';
 
 const filePath = Astro.locals.starlightRoute.entry.filePath.replaceAll('\\', '/');
 const isSplash = Astro.locals.starlightRoute.entry.data.template === 'splash';
-const showComments = 
-    filePath.startsWith('src/content/docs/blog/') ||
-    filePath.startsWith('src/content/docs/log/') ||
-    filePath.startsWith('src/content/docs/coding-notes/');
-
-// giscus 延迟加载 + 主题同步。抽成字符串常量，好让 <script> 节点能跟着
-// showComments 条件渲染，而不是每页都下发一份注定 return 的副本。
-const giscusScript = `(function() {
-    window.__starlightGiscusObserver?.disconnect?.();
-    window.__starlightGiscusThemeObserver?.disconnect?.();
-
-    const container = document.querySelector('.giscus-container[data-giscus-lazy]');
-    if (!container) return;
-
-    let loaded = false;
-
-    function giscusTheme() {
-      return document.documentElement.dataset.theme === 'dark' ? 'transparent_dark' : 'light';
-    }
-
-    function updateLoadedGiscusTheme() {
-      const frame = container.querySelector('iframe.giscus-frame');
-      frame?.contentWindow?.postMessage(
-        { giscus: { setConfig: { theme: giscusTheme() } } },
-        'https://giscus.app'
-      );
-    }
-
-    function disconnectObserver() {
-      window.__starlightGiscusObserver?.disconnect?.();
-      window.__starlightGiscusObserver = undefined;
-    }
-
-    function loadGiscus() {
-      if (loaded) return;
-      loaded = true;
-      disconnectObserver();
-      container.innerHTML = '';
-
-      const script = document.createElement('script');
-      script.src = 'https://giscus.app/client.js';
-      script.setAttribute('data-repo', 'Duskydream/ShepherdsBlog');
-      script.setAttribute('data-repo-id', 'R_kgDOR_rpZg');
-      script.setAttribute('data-mapping', 'pathname');
-      script.setAttribute('data-strict', '0');
-      script.setAttribute('data-reactions-enabled', '1');
-      script.setAttribute('data-emit-metadata', '0');
-      script.setAttribute('data-input-position', 'bottom');
-      script.setAttribute('data-theme', giscusTheme());
-      script.setAttribute('data-lang', 'zh-CN');
-      script.setAttribute('crossorigin', 'anonymous');
-      script.async = true;
-      container.appendChild(script);
-    }
-
-    const themeObserver = new MutationObserver(() => {
-      if (loaded) updateLoadedGiscusTheme();
-    });
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    window.__starlightGiscusThemeObserver = themeObserver;
-
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) loadGiscus();
-        },
-        { rootMargin: '300px 0px' }
-      );
-      observer.observe(container);
-      window.__starlightGiscusObserver = observer;
-    } else {
-      loadGiscus();
-    }
-
-    // Astro view transitions 会在导航时把整个 <main> 换掉，旧的 observer 和
-    // themeObserver 会一直持有已移除的节点。这里在 astro:page-load 时重建：
-    // 脚本节点带 data-astro-rerun，每次导航都会重新执行，所以只需要保证
-    // 上一次的 observer 被断开即可。
-    document.addEventListener(
-      'astro:before-swap',
-      () => {
-        disconnectObserver();
-        themeObserver.disconnect();
-      },
-      { once: true }
-    );
-
-  })();`;
+const showComments =
+	filePath.startsWith('src/content/docs/blog/') ||
+	filePath.startsWith('src/content/docs/log/') ||
+	filePath.startsWith('src/content/docs/coding-notes/');
 ---
 
 <footer class="sl-flex">
@@ -111,27 +27,18 @@ const giscusScript = `(function() {
 	}
 
 	{showComments && (
-	<div style="margin-top: 2rem; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-6); border-radius: 1rem; overflow: hidden; transition: border-color 0.2s ease;">
-	  <div style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--sl-color-gray-6); font-size: 0.85rem; font-weight: 600; color: var(--sl-color-white);">
-	    <Floral variant="bloom" class="comments-title-floral" />
-	    <span>文章评论 / Comments</span>
-	  </div>
-	  <div class="giscus-container" data-giscus-lazy style="padding: 1rem; min-height: 150px;">
-	    <div class="giscus-placeholder" role="status">Loading comments...</div>
-	  </div>
-	</div>
+		<section class="comments-card hananiwa-surface" aria-label="文章评论">
+			<div class="comments-card-head">
+				<Floral variant="bloom" class="comments-title-floral" />
+				<span>文章评论 · Comments</span>
+			</div>
+			<div class="giscus-container" data-giscus-lazy>
+				<div class="giscus-placeholder" role="status">Loading comments...</div>
+			</div>
+		</section>
 	)}
 
-	{/*
-	  giscus 初始化脚本必须和上面的容器同时条件渲染。
-	  之前它是无条件内联的（is:inline 不做提升），于是全站 27 个页面各带一份
-	  2494 B 副本，其中 19 个页面因为没有容器而首行就 return —— 累计浪费 66 KB。
-	*/}
-	{showComments && (
-	<script is:inline data-astro-rerun set:html={giscusScript} />
-	)}
-
-	<!-- 全局通用 4 栏现代化页脚 (NAVIGATE · CONNECT · STATS · BRAND & SUBSCRIBE) -->
+	{/* 全局通用 4 栏现代化页脚 (BRAND & SUBSCRIBE · NAVIGATE · CONNECT · STATS) */}
 	<SiteFooter />
 
 	{
@@ -147,19 +54,105 @@ const giscusScript = `(function() {
 	</div>
 </footer>
 
-<style>
-	.sl-flex {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
+<script>
+	let giscusObserver: IntersectionObserver | undefined;
+	let giscusThemeObserver: MutationObserver | undefined;
+
+	function cleanupGiscus() {
+		giscusObserver?.disconnect();
+		giscusObserver = undefined;
+		giscusThemeObserver?.disconnect();
+		giscusThemeObserver = undefined;
 	}
 
+	function initGiscus() {
+		cleanupGiscus();
+
+		const container = document.querySelector<HTMLElement>('.giscus-container[data-giscus-lazy]');
+		if (!container) return;
+
+		let loaded = false;
+
+		function giscusTheme() {
+			return document.documentElement.dataset.theme === 'dark' ? 'transparent_dark' : 'light';
+		}
+
+		function updateLoadedGiscusTheme() {
+			const frame = container?.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+			frame?.contentWindow?.postMessage(
+				{ giscus: { setConfig: { theme: giscusTheme() } } },
+				'https://giscus.app'
+			);
+		}
+
+		function loadGiscus() {
+			if (loaded || !container) return;
+			loaded = true;
+			giscusObserver?.disconnect();
+			giscusObserver = undefined;
+			container.innerHTML = '';
+
+			const script = document.createElement('script');
+			script.src = 'https://giscus.app/client.js';
+			script.setAttribute('data-repo', 'Duskydream/ShepherdsBlog');
+			script.setAttribute('data-repo-id', 'R_kgDOR_rpZg');
+			script.setAttribute('data-mapping', 'pathname');
+			script.setAttribute('data-strict', '0');
+			script.setAttribute('data-reactions-enabled', '1');
+			script.setAttribute('data-emit-metadata', '0');
+			script.setAttribute('data-input-position', 'bottom');
+			script.setAttribute('data-theme', giscusTheme());
+			script.setAttribute('data-lang', 'zh-CN');
+			script.setAttribute('crossorigin', 'anonymous');
+			script.async = true;
+			container.appendChild(script);
+		}
+
+		giscusThemeObserver = new MutationObserver(() => {
+			if (loaded) updateLoadedGiscusTheme();
+		});
+		giscusThemeObserver.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme'],
+		});
+
+		if ('IntersectionObserver' in window) {
+			giscusObserver = new IntersectionObserver(
+				(entries) => {
+					if (entries.some((entry) => entry.isIntersecting)) loadGiscus();
+				},
+				{ rootMargin: '300px 0px' }
+			);
+			giscusObserver.observe(container);
+		} else {
+			loadGiscus();
+		}
+	}
+
+	document.addEventListener('astro:before-swap', cleanupGiscus);
+	document.addEventListener('astro:page-load', initGiscus);
+</script>
+
+<style>
 	@layer starlight.core {
 		footer {
+			display: flex;
 			flex-direction: column;
 			gap: 1.5rem;
 		}
+
+		.meta,
+		.comments-card,
+		footer :global(.pagination-links) {
+			width: 100%;
+			max-width: 44rem;
+			margin-inline: auto;
+		}
+
 		.meta {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 			gap: 0.75rem 3rem;
 			justify-content: space-between;
 			flex-wrap: wrap;
@@ -167,8 +160,30 @@ const giscusScript = `(function() {
 			font-size: var(--sl-text-sm);
 			color: var(--sl-color-gray-3);
 		}
+
 		.meta > :global(p:only-child) {
 			margin-inline-start: auto;
+		}
+
+		.comments-card {
+			margin-top: 2rem;
+			overflow: hidden;
+		}
+
+		.comments-card-head {
+			padding: 0.75rem 1rem;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			border-bottom: 1px solid var(--sl-color-gray-6);
+			font-size: 0.85rem;
+			font-weight: 600;
+			color: var(--sl-color-white);
+		}
+
+		.giscus-container {
+			padding: 1rem;
+			min-height: 150px;
 		}
 
 		.kudos {
@@ -179,16 +194,17 @@ const giscusScript = `(function() {
 			text-decoration: none;
 			color: var(--sl-color-gray-3);
 		}
+
 		.kudos:hover {
 			color: var(--sl-color-white);
 		}
-		
+
 		.copyright-notice {
 			text-align: center;
 			margin: 1.5rem auto;
 			font-size: 0.75rem;
 			color: var(--sl-color-gray-4);
-			font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+			font-family: var(--sl-font-mono);
 			letter-spacing: 0.05em;
 			text-transform: uppercase;
 		}

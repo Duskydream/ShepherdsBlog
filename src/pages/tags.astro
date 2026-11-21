@@ -4,105 +4,276 @@ import { collectTagStats, getSortedPosts, getTagHref } from "../utils/content";
 
 const posts = await getSortedPosts();
 const tags = collectTagStats(posts);
-const description = `全部 ${tags.length} 个标签，共 ${posts.length} 篇文章。按标签浏览站点内容。`;
+const description = `共 ${tags.length} 个标签，${posts.length} 篇文章。按标签浏览祈りの花庭的全部内容。`;
 ---
 
 <StarlightPage
-  frontmatter={{ title: "Tags", description, template: "splash", tableOfContents: false }}
+  frontmatter={{ title: "标签 · Tags", description, template: "splash", tableOfContents: false }}
   hasSidebar={false}
 >
   <section class="tags-index not-content">
     <header class="tags-index-head">
-      <p>Index</p>
-      <h1>Tags</h1>
+      <div class="tags-index-eyebrow">
+        <span class="tags-index-eyebrow-dot" aria-hidden="true"></span>
+        <span class="tags-index-eyebrow-text">TAGS</span>
+      </div>
+      <h1>标签</h1>
+      <p class="tags-index-desc">共 {tags.length} 个标签，{posts.length} 篇文章</p>
     </header>
-    <div class="tags-index-list">
-      {
-        tags.map(({ tag, count }) => (
-          <a href={getTagHref(tag)}>
-            <span>#{tag}</span>
-            <small>{count}</small>
-          </a>
-        ))
-      }
+
+    <div class="tags-index-card hananiwa-surface">
+      <div class="tags-index-card-head">
+        <div class="tags-index-card-title">
+          <span class="tags-index-card-dot" aria-hidden="true"></span>
+          <span class="tags-index-card-en">TAG INDEX</span>
+          <span class="tags-index-card-zh">全部标签</span>
+        </div>
+        <span class="tags-index-total">{tags.length} 个</span>
+      </div>
+
+      <div class="tags-index-card-body">
+        <div class="tags-index-list">
+          {
+            tags.map(({ tag, count, level }) => (
+              <a
+                href={getTagHref(tag)}
+                class="tags-index-pill"
+                data-level={level}
+                aria-label={`#${tag}，共 ${count} 篇文章`}
+              >
+                <span class="tags-index-name">#{tag}</span>
+                <small class="tags-index-count">{count}</small>
+              </a>
+            ))
+          }
+        </div>
+      </div>
     </div>
   </section>
 
   <style>
     .tags-index {
-      max-width: 58rem;
+      max-width: var(--hananiwa-width-index, 68rem);
       margin: 0 auto;
-      padding: 1.5rem 1rem 3rem;
+      padding: 2.25rem 0 4rem;
+      box-sizing: border-box;
     }
 
     .tags-index-head {
-      margin-bottom: 1.25rem;
-      border-bottom: 1px solid var(--sl-color-hairline-shade);
-      padding-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.65rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--sl-color-gray-6);
     }
 
-    .tags-index-head p {
-      margin: 0 0 0.35rem;
-      color: var(--sl-color-accent);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+    .tags-index-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tags-index-eyebrow-dot,
+    .tags-index-card-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      flex-shrink: 0;
+      background-color: var(--sl-color-accent);
+      -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
+      mask: var(--floral-mask-bloom) center / contain no-repeat;
+    }
+
+    .tags-index-eyebrow-text {
+      font-family: var(--sl-font-mono);
       font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--sl-color-accent-high);
       text-transform: uppercase;
     }
 
     .tags-index-head h1 {
       margin: 0;
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
       color: var(--sl-color-white);
-      font-size: clamp(2rem, 7vw, 4.25rem);
+      font-size: clamp(2.35rem, 6vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: 0.08em;
+    }
+
+    .tags-index-desc {
+      margin: 0 !important;
+      color: var(--sl-color-gray-3);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      letter-spacing: 0.03em;
+      text-align: start !important;
+    }
+
+    .tags-index-card {
+      margin: 0;
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: var(--hananiwa-radius-lg, 1.25rem);
+      background: var(--sl-color-bg);
+      overflow: hidden;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tags-index-card:hover {
+      border-color: var(--sl-color-gray-5);
+    }
+
+    .tags-index-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--sl-color-gray-6);
+      padding: 0.95rem 1.4rem;
+    }
+
+    .tags-index-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .tags-index-card-en {
+      font-family: var(--sl-font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--sl-color-accent-high);
       line-height: 1;
-      letter-spacing: 0;
+    }
+
+    .tags-index-card-zh {
+      font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
+      color: var(--sl-color-white);
+      font-size: 0.96rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .tags-index-total {
+      font-family: var(--sl-font-mono);
+      color: var(--sl-color-gray-3);
+      font-size: 0.74rem;
+      white-space: nowrap;
+    }
+
+    .tags-index-card-body {
+      padding: 1.35rem 1.4rem 1.5rem;
     }
 
     .tags-index-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.6rem;
+      align-items: center;
+      gap: 0.65rem 0.7rem;
     }
 
-    .tags-index-list a {
+    .tags-index-pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      border: 1px solid var(--sl-color-hairline-shade);
+      gap: 0.45rem;
+      border: 1px solid var(--sl-color-gray-6);
       border-radius: 999px;
-      padding: 0.5rem 0.75rem;
+      padding: 0.44rem 0.85rem;
+      background: color-mix(in srgb, var(--sl-color-bg) 96%, var(--sl-color-accent) 4%);
       color: var(--sl-color-text);
-      text-decoration: none;
-      transition: border-color 0.2s ease, color 0.2s ease;
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none !important;
+      transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
     }
 
-    .tags-index-list a::before {
+    .tags-index-pill[data-level="1"] {
+      color: var(--sl-color-gray-2);
+      font-size: 0.85rem;
+    }
+
+    .tags-index-pill[data-level="2"] {
+      font-size: 0.88rem;
+    }
+
+    .tags-index-pill[data-level="3"] {
+      font-size: 0.92rem;
+      font-weight: 550;
+      border-color: color-mix(in srgb, var(--sl-color-accent) 26%, var(--sl-color-gray-6));
+    }
+
+    .tags-index-pill[data-level="4"],
+    .tags-index-pill[data-level="5"] {
+      font-size: 0.96rem;
+      font-weight: 600;
+      color: var(--sl-color-accent-high);
+      border-color: color-mix(in srgb, var(--sl-color-accent) 42%, var(--sl-color-gray-6));
+      background: color-mix(in srgb, var(--sl-color-accent) 10%, var(--sl-color-bg));
+    }
+
+    .tags-index-pill::before {
       content: "";
-      width: 0.7rem;
-      height: 0.7rem;
+      width: 0.68rem;
+      height: 0.68rem;
       flex-shrink: 0;
       opacity: 0.75;
       background-color: var(--sl-color-accent);
       -webkit-mask: var(--floral-mask-bud) center / contain no-repeat;
       mask: var(--floral-mask-bud) center / contain no-repeat;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
-    .tags-index-list a:hover::before {
+    .tags-index-pill:hover::before {
       opacity: 1;
       -webkit-mask-image: var(--floral-mask-bloom);
       mask-image: var(--floral-mask-bloom);
+      transform: scale(1.08);
     }
 
-    .tags-index-list a:hover {
+    .tags-index-pill:hover {
       border-color: var(--sl-color-accent);
-      color: var(--sl-color-accent);
+      color: var(--sl-color-accent-high);
+      background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+      transform: translateY(-1px);
     }
 
-    .tags-index-list small {
-      color: var(--sl-color-gray-4);
+    .tags-index-count {
+      font-family: var(--sl-font-mono);
+      color: var(--sl-color-gray-3);
       font-size: 0.72rem;
+      line-height: 1;
+      padding: 0.12rem 0.36rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--sl-color-gray-6) 70%, transparent);
+    }
+
+    @media (max-width: 49.999rem) {
+      .tags-index {
+        padding: 1.35rem 0 3rem;
+      }
+
+      .tags-index-head {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.15rem;
+      }
+
+      .tags-index-card {
+        border-radius: 1.1rem;
+      }
+
+      .tags-index-card-head {
+        padding: 0.85rem 1rem;
+      }
+
+      .tags-index-card-body {
+        padding: 1rem;
+      }
     }
   </style>
 </StarlightPage>

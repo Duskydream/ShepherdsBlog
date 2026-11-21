@@ -1,7 +1,7 @@
 ---
 import MobileTableOfContents from "virtual:starlight/components/MobileTableOfContents";
 import Sidebar from "./Sidebar.astro";
-import LilyOrnament from "./LilyOrnament.astro";
+import Floral from "./Floral.astro";
 ---
 
 <div class="page sl-flex">
@@ -16,15 +16,16 @@ import LilyOrnament from "./LilyOrnament.astro";
   >
     <div class="drawer-scrim" aria-hidden="true"></div>
     <div id="starlight__sidebar" class="sidebar-pane drawer-pane" role="dialog" aria-modal="true" aria-labelledby="drawer-title" aria-hidden="true" inert tabindex="-1">
-      <div class="drawer-decor" aria-hidden="true">
-        <LilyOrnament id="drawer-lily" />
-      </div>
+      <div class="drawer-decor" data-drawer-lily aria-hidden="true"></div>
       <div class="drawer-header">
-        <span id="drawer-title" class="drawer-title">✦ 祈りの花庭 · 目録</span>
+        <span id="drawer-title" class="drawer-title">
+          <Floral variant="bloom" class="drawer-title-floral" />
+          <span>祈りの花庭 · 目録</span>
+        </span>
         <button type="button" class="drawer-close-btn" aria-label="关闭目录">✕</button>
       </div>
       <div class="sidebar-content sl-flex">
-        <Sidebar />
+        {Astro.locals.starlightRoute.hasSidebar && Astro.slots.has("sidebar") ? <slot name="sidebar" /> : <Sidebar />}
       </div>
     </div>
   </nav>
@@ -78,25 +79,42 @@ import LilyOrnament from "./LilyOrnament.astro";
       justify-content: center;
     }
 
+    :global(.main-pane > main) {
+      width: 100%;
+      min-width: 0;
+    }
+
     :global(.content-panel) {
       width: 100%;
-      max-width: min(52rem, 100%);
+      max-width: min(var(--hananiwa-width-reading, 52rem), 100%);
+      margin-inline: auto;
       padding: 1.5rem 1.25rem 3.5rem;
       box-sizing: border-box;
     }
 
-    :global(.content-panel:has(.not-content)) {
-      max-width: min(88rem, 100%);
-      padding-inline: 0.5rem;
+    /* 标准 splash 索引/展示页：统一收束至 index 宽度（68rem），使 SiteFooter 与正文严格齐宽 */
+    :global(.content-panel:has(.sl-markdown-content > .not-content)) {
+      max-width: min(var(--hananiwa-width-index, 68rem), 100%);
+      padding-inline: 1.25rem;
+    }
+
+    /* 宽屏 splash 页（首页 / 鉴赏页）：扩展至 wide 宽度（84rem） */
+    :global(.content-panel:has(.sl-markdown-content > :is(.home-dashboard, .bangumi-page).not-content)) {
+      max-width: min(var(--hananiwa-width-wide, 84rem), 100%);
+      padding-inline: 1rem;
     }
 
     @media (max-width: 50rem) {
-      :global(.content-panel) {
-        padding: 0.85rem 0.85rem 3rem !important;
+      :global(.content-panel),
+      :global(.content-panel:has(.sl-markdown-content > .not-content)) {
+        padding: 0.85rem 0.85rem 3rem;
       }
-      :global(.content-panel:has(.not-content)) {
-        padding: 0.85rem 0.85rem 3rem !important;
-      }
+    }
+
+    /* splash 页无 PageTitle 时 Starlight 仍渲染空的首个 .content-panel，折叠它以消除顶部留白 */
+    :global(main > .content-panel:first-child:not(:has(.sl-container > *))) {
+      display: none;
+      padding: 0;
     }
 
     /* Floating Floral Drawer：透明点击层 + 不透明主题色面板 */
@@ -125,28 +143,83 @@ import LilyOrnament from "./LilyOrnament.astro";
       visibility: hidden;
       transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
       overflow-y: auto;
-      /* 右下角百合装饰以负偏移定位，overflow-y:auto 会让 overflow-x 也变成
-         auto，从而多出一条横向滚动条；clip 只裁剪不产生滚动 */
       overflow-x: clip;
       display: flex;
       flex-direction: column;
     }
 
-    /* 抽屉右下角百合线稿装饰 */
+    .drawer-pane:focus,
+    .drawer-pane:focus-visible {
+      outline: none;
+    }
+
+    /* 抽屉右下角百合线稿装饰（按需由 drawer.ts 在首次打开时注入，零首屏 HTML 开销） */
     .drawer-decor {
       position: absolute;
-      right: -0.5rem;
-      bottom: -0.5rem;
-      width: 12.5rem;
-      height: 12.5rem;
+      right: 0;
+      bottom: 0;
+      width: 12rem;
+      height: 12rem;
       pointer-events: none;
       opacity: 0.42;
       z-index: 0;
+      overflow: hidden;
     }
 
     .drawer-decor :global(.lily-ornament) {
+      display: block;
       width: 100%;
       height: 100%;
+      filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sl-color-accent) 24%, transparent));
+    }
+
+    .drawer-decor :global(.lily-ornament .draw) {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: drawer-lily-draw 1.4s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+    }
+
+    .drawer-decor :global(.lily-ornament .fade) {
+      opacity: 0;
+      animation: drawer-lily-fade 0.8s ease forwards;
+    }
+
+    .drawer-decor :global(.lily-ornament .sparkle) {
+      opacity: 0;
+      animation: drawer-lily-sparkle 1s ease forwards;
+    }
+
+    @keyframes drawer-lily-draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes drawer-lily-fade {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes drawer-lily-sparkle {
+      to {
+        opacity: 0.82;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drawer-decor :global(.lily-ornament .draw) {
+        animation: none;
+        stroke-dashoffset: 0;
+      }
+      .drawer-decor :global(.lily-ornament .fade) {
+        animation: none;
+        opacity: 1;
+      }
+      .drawer-decor :global(.lily-ornament .sparkle) {
+        animation: none;
+        opacity: 0.8;
+      }
     }
 
     .drawer-header {
@@ -161,11 +234,19 @@ import LilyOrnament from "./LilyOrnament.astro";
     }
 
     .drawer-title {
-      font-family: "Songti SC", "Source Han Serif SC", serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--hananiwa-font-serif);
       font-size: 0.95rem;
       font-weight: 600;
       color: var(--sl-color-accent);
       letter-spacing: 0.05em;
+    }
+
+    .drawer-title :global(.drawer-title-floral) {
+      --floral-size: 0.85em;
+      color: var(--sl-color-accent);
     }
 
     .drawer-close-btn {
@@ -238,11 +319,20 @@ import LilyOrnament from "./LilyOrnament.astro";
 <script>
   import { initDrawer } from "../utils/drawer";
   import { initArticleReading } from "../utils/article-reading";
+  import { bindFloralVines } from "../utils/floral-vine";
+
+  const TOC_VINE_OPTS = JSON.stringify({ items: ":scope > li", vineX: 8 });
 
   function initPageInteractions() {
+    document.querySelectorAll("starlight-toc nav > ul").forEach((ul) => {
+      if (!ul.hasAttribute("data-floral-vine")) {
+        ul.setAttribute("data-floral-vine", TOC_VINE_OPTS);
+      }
+    });
     initDrawer();
     initArticleReading();
+    bindFloralVines();
   }
-  initPageInteractions();
+
   document.addEventListener("astro:page-load", initPageInteractions);
 </script>

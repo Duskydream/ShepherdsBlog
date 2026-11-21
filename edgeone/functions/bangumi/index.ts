@@ -8,8 +8,14 @@ const USER_ID = "duskydream";
 const BASE = `https://api.bgm.tv/v0/users/${USER_ID}/collections`;
 const TIMELINE_URL = `https://bgm.tv/feed/user/${USER_ID}/timeline`;
 const LIMIT = 30;
+const MAX_PAGES = 20;
 const CACHE_TTL = 15 * 60 * 1000;
+const FORCE_COOLDOWN = 60 * 1000;
+const UPSTREAM_TIMEOUT_MS = 8000;
 const DEBUG_MAX_BODY = 400;
+const TIMELINE_ACTION_RE = /^(在玩|玩过|想玩|在看|看过|想看|在读|读过|想读|在听|听过|想听|搁置|抛弃)/;
+const TIMELINE_ACTION_PREFIX_RE =
+  /^(在玩|玩过|想玩|在看|看过|想看|在读|读过|想读|在听|听过|想听|搁置|抛弃)\s*/;
 
 type BangumiCollectionItem = Record<string, unknown>;
 type BangumiTimelineItem = {
@@ -22,14 +28,16 @@ type BangumiTimelineItem = {
   pubDate: string;
   dateFormatted: string;
 };
-
-let memoryCache: {
+type BangumiPayload = {
   watching: BangumiCollectionItem[];
   wish: BangumiCollectionItem[];
   watched: BangumiCollectionItem[];
   timeline: BangumiTimelineItem[];
   cachedAt: number;
-} | null = null;
+};
+
+let memoryCache: BangumiPayload | null = null;
+let inflightFetch: Promise<BangumiPayload> | null = null;
 
 function truncateForDebug(value: string) {
   return value.length > DEBUG_MAX_BODY ? `${value.slice(0, DEBUG_MAX_BODY)}...` : value;
@@ -70,7 +78,7 @@ async function fetchCollection(type: number) {
   let page = 1;
   const all: BangumiCollectionItem[] = [];
 
-  while (true) {
+  while (page <= MAX_PAGES) {
     const url = `${BASE}?type=${type}&limit=${LIMIT}&offset=${(page - 1) * LIMIT}&timestamp=${Date.now()}`;
     const res = await fetch(url, {
       headers: {
@@ -79,6 +87,7 @@ async function fetchCollection(type: number) {
         Pragma: "no-cache",
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
     if (!res.ok) {
@@ -105,6 +114,7 @@ async function fetchTimeline(): Promise<BangumiTimelineItem[]> {
         Pragma: "no-cache",
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
     if (!res.ok) return [];
@@ -129,9 +139,13 @@ async function fetchTimeline(): Promise<BangumiTimelineItem[]> {
       const cnNameMatch = desc.match(/data-subject-name-cn="([^"]*)"/);
       const subjectNameCn = cnNameMatch ? cnNameMatch[1] : "";
 
-      const actionMatch = title.match(/^(在玩|读过|在读|想读|看过|在看|想看|想玩|搁置|抛弃)/);
+      const actionMatch = title.match(TIMELINE_ACTION_RE);
       const action = actionMatch ? actionMatch[1] : "更新了";
-      const cleanTitle = title.replace(/^(在玩|读过|在读|想读|看过|在看|想看|想玩|搁置|抛弃)\s*/, "");
+      const cleanTitle = title.replace(TIMELINE_ACTION_PREFIX_RE, "");
+
+      const parsed = pubDate ? new Date(pubDate) : null;
+      const dateFormatted =
+        parsed && !Number.isNaN(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : "";
 
       items.push({
         guid,
@@ -141,7 +155,7 @@ async function fetchTimeline(): Promise<BangumiTimelineItem[]> {
         subjectId,
         subjectNameCn,
         pubDate,
-        dateFormatted: pubDate ? new Date(pubDate).toISOString().slice(0, 10) : "",
+        dateFormatted,
       });
     }
 
@@ -151,27 +165,52 @@ async function fetchTimeline(): Promise<BangumiTimelineItem[]> {
   }
 }
 
-async function getData(force: boolean) {
+async function getData(force: boolean): Promise<BangumiPayload> {
   const now = Date.now();
-  if (!force && memoryCache && now - memoryCache.cachedAt < CACHE_TTL) {
-    return memoryCache;
+  if (memoryCache) {
+    const age = now - memoryCache.cachedAt;
+    if (!force && age < CACHE_TTL) {
+      return memoryCache;
+    }
+    if (force && age < FORCE_COOLDOWN) {
+      return memoryCache;
+    }
   }
 
-  const [watching, wish, watched, timeline] = await Promise.all([
-    fetchCollection(3),
-    fetchCollection(1),
-    fetchCollection(2),
-    fetchTimeline(),
-  ]);
+  if (inflightFetch) {
+    return inflightFetch;
+  }
 
-  memoryCache = {
-    watching,
-    wish,
-    watched,
-    timeline: timeline.length > 0 ? timeline : (memoryCache?.timeline || []),
-    cachedAt: now,
-  };
-  return memoryCache;
+  inflightFetch = (async () => {
+    const [watching, wish, watched, timeline] = await Promise.all([
+      fetchCollection(3),
+      fetchCollection(1),
+      fetchCollection(2),
+      fetchTimeline(),
+    ]);
+
+    const nextPayload: BangumiPayload = {
+      watching,
+      wish,
+      watched,
+      timeline: timeline.length > 0 ? timeline : (memoryCache?.timeline || []),
+      cachedAt: Date.now(),
+    };
+
+    const totalItems =
+      nextPayload.watching.length + nextPayload.wish.length + nextPayload.watched.length;
+    if (totalItems > 0) {
+      memoryCache = nextPayload;
+    }
+
+    return nextPayload;
+  })();
+
+  try {
+    return await inflightFetch;
+  } finally {
+    inflightFetch = null;
+  }
 }
 
 export async function handleRequest(request: Request): Promise<Response> {
@@ -214,4 +253,3 @@ export async function handleRequest(request: Request): Promise<Response> {
 export function onRequest(context: { request: Request }) {
   return handleRequest(context.request);
 }
-

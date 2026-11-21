@@ -6,6 +6,7 @@ import {
   getTagHref,
   type DocsEntry,
 } from "../utils/content";
+import { excerptOf } from "../utils/excerpt";
 
 interface Props {
   posts: DocsEntry[];
@@ -17,8 +18,10 @@ const { posts, sectionLabelOverride } = Astro.props;
 const timeline = posts
   .map((post) => {
     const meta = getSectionMeta(post);
+    const summary = post.data.description?.trim() || excerptOf(post.body, 140);
     return {
       post,
+      summary,
       section: sectionLabelOverride || meta.sectionLabel,
       sectionLevel: meta.sectionLevel,
     };
@@ -32,12 +35,11 @@ const timeline = posts
 
 <div
   class="timeline"
-  data-floral-vine='{"items": ":scope > .timeline-item", "vineX": 5.8, "meander": 2}'
+  data-floral-vine='{"items": ":scope > .timeline-item", "current": "", "vineX": 10, "meander": 2.2}'
 >
   {
-    timeline.map(({ post, section, sectionLevel }) => (
+    timeline.map(({ post, summary, section, sectionLevel }) => (
       <article class="timeline-item" data-level={sectionLevel}>
-        <div class="timeline-marker" />
         <div class="timeline-content">
           <div class="timeline-meta">
             <div class="timeline-meta-left">
@@ -50,17 +52,19 @@ const timeline = posts
                 </div>
               )}
             </div>
-            {post.data.date && <time>{formatIsoDate(post.data.date)}</time>}
+            {post.data.date && (
+              <time datetime={formatIsoDate(post.data.date)}>{formatIsoDate(post.data.date)}</time>
+            )}
           </div>
           <h2>
             <a href={getPostHref(post)}>{post.data.title}</a>
           </h2>
-          {post.data.description && <p class="timeline-desc">{post.data.description}</p>}
+          {summary && <p class="timeline-desc">{summary}</p>}
         </div>
       </article>
     ))
   }
-  {timeline.length === 0 && <p class="timeline-empty">No posts found.</p>}
+  {timeline.length === 0 && <p class="timeline-empty">暂无文章记录。</p>}
 </div>
 
 <style>
@@ -68,59 +72,33 @@ const timeline = posts
     position: relative;
     display: flex;
     flex-direction: column;
-  }
-
-  .timeline::before {
-    position: absolute;
-    top: 0.4rem;
-    bottom: 0.4rem;
-    left: 0.36rem;
-    width: 1px;
-    background: var(--sl-color-gray-6);
-    content: "";
+    gap: 0.2rem;
+    padding-inline-start: 1.8rem;
   }
 
   .timeline-item {
     position: relative;
-    display: grid;
-    grid-template-columns: 1rem minmax(0, 1fr);
-    gap: 0.75rem;
-    padding: 0.6rem 0.6rem 0.65rem 0;
-    border-radius: 0.7rem;
-    transition: background 0.15s ease;
+    display: block;
+    padding: 0.72rem 0.85rem;
+    border-radius: var(--hananiwa-radius-sm, 0.6rem);
+    border-bottom: 1px solid color-mix(in srgb, var(--sl-color-gray-6) 55%, transparent);
+    transition: background-color 0.18s ease, transform 0.18s ease;
+  }
+
+  .timeline-item:last-child {
+    border-bottom: none;
   }
 
   .timeline-item:hover {
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    background: color-mix(in srgb, var(--sl-color-accent) 6%, transparent);
+    transform: translateX(2px);
   }
 
-  .timeline-item[data-level="1"] {
-    --timeline-blue: #8fb2da;
-  }
-  .timeline-item[data-level="2"] {
-    --timeline-blue: #5f8fc2;
-  }
-  .timeline-item[data-level="3"] {
-    --timeline-blue: #356b9d;
-  }
+  .timeline-item[data-level="1"],
+  .timeline-item[data-level="2"],
+  .timeline-item[data-level="3"],
   .timeline-item[data-level="4"] {
-    --timeline-blue: #16436e;
-  }
-
-  .timeline-marker {
-    position: relative;
-    z-index: 1;
-    width: 0.9rem;
-    height: 0.9rem;
-    margin-top: 0.3rem;
-    background-color: var(--timeline-blue, #8fb2da);
-    -webkit-mask: var(--floral-mask-bloom) center / contain no-repeat;
-    mask: var(--floral-mask-bloom) center / contain no-repeat;
-    transition: transform 0.2s ease;
-  }
-
-  .timeline-item:hover .timeline-marker {
-    transform: scale(1.15) rotate(12deg);
+    --timeline-accent: var(--sl-color-accent-high);
   }
 
   .timeline-content {
@@ -132,7 +110,7 @@ const timeline = posts
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    margin-bottom: 0.28rem;
+    margin-bottom: 0.32rem;
   }
 
   .timeline-meta-left {
@@ -145,21 +123,23 @@ const timeline = posts
 
   .timeline-meta time {
     flex: 0 0 auto;
-    color: var(--sl-color-gray-4);
-    font-size: 0.72rem;
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-gray-3);
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
   }
 
   .timeline-section {
     display: inline-flex;
     align-items: center;
     min-height: 1.35rem;
-    padding: 0 0.45rem;
-    border: 1px solid var(--sl-color-gray-6);
+    padding: 0.08rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
     border-radius: 999px;
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    color: var(--timeline-blue, #8fb2da);
+    background: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
+    color: var(--timeline-accent, var(--sl-color-accent-high));
     font-size: 0.68rem;
-    font-weight: 650;
+    font-weight: 600;
     line-height: 1;
     white-space: nowrap;
   }
@@ -173,56 +153,78 @@ const timeline = posts
   .timeline-tags a {
     position: relative;
     z-index: 2;
-    color: var(--sl-color-gray-4);
-    font-size: 0.68rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.7rem;
     text-decoration: none;
+    transition: color 0.16s ease;
   }
 
-  h2 {
+  .timeline-item h2 {
     margin: 0;
+    font-family: var(--hananiwa-font-serif, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "STSong", Georgia, serif);
     color: var(--sl-color-white);
-    font-size: 0.95rem;
-    font-weight: 700;
-    line-height: 1.35;
+    font-size: 1.06rem;
+    font-weight: 600;
+    line-height: 1.42;
+    letter-spacing: 0.02em;
   }
 
-  h2 a {
+  .timeline-item h2 a {
     color: inherit;
     text-decoration: none;
+    transition: color 0.18s ease;
   }
 
-  h2 a::before {
+  .timeline-item h2 a::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: 1;
   }
 
-  h2 a:hover,
+  .timeline-item:hover h2 a,
+  .timeline-item h2 a:hover {
+    color: var(--sl-color-accent-high);
+  }
+
   .timeline-tags a:hover {
-    color: var(--sl-color-white);
+    color: var(--sl-color-accent-high);
     text-decoration: underline;
   }
 
   .timeline-desc {
     display: -webkit-box;
-    margin: 0.25rem 0 0;
+    margin: 0.3rem 0 0 !important;
     overflow: hidden;
-    color: var(--sl-color-gray-4);
-    font-size: 0.8rem;
-    line-height: 1.45;
+    color: var(--sl-color-gray-3);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    text-align: start !important;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
 
   .timeline-empty {
-    margin: 0;
-    padding: 1rem;
-    color: var(--sl-color-gray-4);
-    font-size: 0.85rem;
+    margin: 0 !important;
+    padding: 1rem 0.5rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.86rem;
+    text-align: start !important;
   }
 
   @media (max-width: 49.999rem) {
+    .timeline {
+      padding-inline-start: 1.55rem;
+    }
+
+    .timeline-item {
+      padding: 0.65rem 0.5rem;
+    }
+
+    .timeline-item:hover {
+      transform: none;
+    }
+
     .timeline-meta {
       align-items: flex-start;
       flex-direction: column;
@@ -234,8 +236,3 @@ const timeline = posts
     }
   }
 </style>
-
-<script>
-  import { bindFloralVines } from "../utils/floral-vine";
-  bindFloralVines();
-</script>

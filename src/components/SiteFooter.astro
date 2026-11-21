@@ -33,7 +33,7 @@ if (commitTotal === 0) commitTotal = 625;
       <img
         src={banner?.src ?? BANNER_URL}
         srcset={banner?.srcset}
-        sizes={banner ? "100vw" : undefined}
+        sizes={banner ? "(max-width: 84rem) 100vw, 1344px" : undefined}
         alt=""
         class="site-footer-banner-img"
         width={banner?.width ?? 1200}
@@ -107,7 +107,7 @@ if (commitTotal === 0) commitTotal = 625;
             <a href="/anime">
               <Floral variant="bloom" class="link-bullet" />
               <span class="link-label">鉴赏</span>
-              <span class="en-code">ANIME</span>
+              <span class="en-code">REVIEW</span>
             </a>
           </li>
           <li>
@@ -118,10 +118,10 @@ if (commitTotal === 0) commitTotal = 625;
             </a>
           </li>
           <li>
-            <a href="/about">
+            <a href="/tags">
               <Floral variant="bloom" class="link-bullet" />
-              <span class="link-label">关于</span>
-              <span class="en-code">ABOUT</span>
+              <span class="link-label">标签</span>
+              <span class="en-code">TAGS</span>
             </a>
           </li>
           <li>
@@ -129,6 +129,13 @@ if (commitTotal === 0) commitTotal = 625;
               <Floral variant="bloom" class="link-bullet" />
               <span class="link-label">友链</span>
               <span class="en-code">LINKS</span>
+            </a>
+          </li>
+          <li>
+            <a href="/about">
+              <Floral variant="bloom" class="link-bullet" />
+              <span class="link-label">关于</span>
+              <span class="en-code">ABOUT</span>
             </a>
           </li>
         </ul>
@@ -224,6 +231,8 @@ if (commitTotal === 0) commitTotal = 625;
     width: 100%;
     margin-top: 3.5rem;
     box-sizing: border-box;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 320px;
   }
 
   .site-footer-card {
@@ -300,7 +309,7 @@ if (commitTotal === 0) commitTotal = 625;
   }
 
   .site-footer-brand-title {
-    font-family: "Songti SC", "Source Han Serif SC", "STSong", serif;
+    font-family: var(--hananiwa-font-serif);
     font-size: 1.45rem;
     font-weight: 600;
     color: var(--sl-color-text);
@@ -310,7 +319,7 @@ if (commitTotal === 0) commitTotal = 625;
   }
 
   .site-footer-brand-motto {
-    font-family: "Songti SC", "Source Han Serif SC", serif;
+    font-family: var(--hananiwa-font-serif);
     font-size: 0.85rem;
     color: var(--sl-color-gray-3);
     line-height: 1.6;
@@ -474,15 +483,15 @@ if (commitTotal === 0) commitTotal = 625;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: #52c41a;
+    color: var(--hananiwa-status-ok);
   }
 
   .online-indicator {
     width: 0.45rem;
     height: 0.45rem;
     border-radius: 50%;
-    background: #52c41a;
-    box-shadow: 0 0 6px #52c41a;
+    background: var(--hananiwa-status-ok);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--hananiwa-status-ok) 65%, transparent);
   }
 
   @media (max-width: 980px) {
@@ -550,6 +559,5 @@ if (commitTotal === 0) commitTotal = 625;
     bindRssCopy();
   }
 
-  refreshFooter();
   document.addEventListener("astro:page-load", refreshFooter);
 </script>

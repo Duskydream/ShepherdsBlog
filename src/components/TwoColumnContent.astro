@@ -35,16 +35,21 @@
   .main-pane {
     flex: 1 1 0%;
     min-width: 0;
-    max-width: 52rem;
+    max-width: var(--hananiwa-width-reading, 52rem);
     width: 100%;
     display: flex;
     justify-content: center;
     isolation: isolate;
   }
 
-  /* 针对 dashboard、gallery 等宽屏页面的扩展 */
-  :global(.main-frame:has(.not-content)) .two-column-layout {
-    max-width: 90rem;
+  /* 仅针对正文含直接 .not-content 的 splash 页面扩展，避免被 SiteFooter.not-content 误伤文章页 */
+  :global(.main-frame:has(.sl-markdown-content > .not-content)) .two-column-layout {
+    max-width: calc(var(--hananiwa-width-index, 68rem) + 3rem);
+    padding-inline: 0.5rem;
+  }
+
+  :global(.main-frame:has(.sl-markdown-content > :is(.home-dashboard, .bangumi-page).not-content)) .two-column-layout {
+    max-width: calc(var(--hananiwa-width-wide, 84rem) + 3rem);
     padding-inline: 0.5rem;
   }
 
@@ -53,12 +58,12 @@
       padding-inline: 0;
       gap: 0;
     }
-    :global(.main-frame:has(.not-content)) .two-column-layout {
+    :global(.main-frame:has(.sl-markdown-content > .not-content)) .two-column-layout {
       padding-inline: 0;
     }
   }
 
-  :global(.main-frame:has(.not-content)) .main-pane {
+  :global(.main-frame:has(.sl-markdown-content > .not-content)) .main-pane {
     max-width: 100%;
   }
 

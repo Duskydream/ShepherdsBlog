@@ -269,7 +269,7 @@ async function main() {
   await fs.mkdir(outDir, { recursive: true });
   await fs.writeFile(
     jsonPath,
-    JSON.stringify(payload, null, 2),
+    JSON.stringify(payload),
     "utf-8",
   );
 

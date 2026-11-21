@@ -36,7 +36,7 @@ if (process.env.NODE_ENV !== "development") {
  * 扫描 src/content/docs 下每个 markdown/mdx 文件的 frontmatter `date`，
  * 建一张 “站点路径 → 发布日期” 的表，供 sitemap 的 serialize 使用。
  *
- * 构建期读文件是同步的，内容量很小（8 个文件），代价可忽略。
+ * 构建期读文件是同步的，内容量很小（十余个文件），代价可忽略。
  */
 function collectContentDates() {
   /** @type {Map<string, Date>} */
@@ -117,7 +117,10 @@ function rehypeImageHints() {
             hasMedia = true;
           }
         }
-        if (lastMeaningful?.type === "element" && lastMeaningful.tagName === "br") {
+        if (
+          (lastMeaningful?.type === "element" && lastMeaningful.tagName === "br") ||
+          (lastMeaningful?.type === "raw" && /^<br\s*\/?>$/i.test(String(lastMeaningful.value ?? "").trim()))
+        ) {
           addClass(node, "verse");
         }
         if (hasMedia) {
@@ -288,7 +291,7 @@ export default defineConfig({
 
       customCss: ["./src/styles/custom.css"],
       description: "Inori no Hananiwa · The Garden of Prayer",
-      defaultLocale: "zh",
+      defaultLocale: "root",
       locales: {
         root: { label: "简体中文", lang: "zh-CN" },
       },
@@ -321,21 +324,21 @@ export default defineConfig({
           autogenerate: { directory: "coding-notes" },
         },
         {
+          label: "Review",
+          link: "/anime",
+        },
+        {
           label: "Log",
           collapsed: false,
           autogenerate: { directory: "log" },
         },
         {
-          label: "Anime",
-          link: "/anime",
+          label: "Links",
+          link: "/links",
         },
         {
           label: "About",
           link: "/about",
-        },
-        {
-          label: "Links",
-          link: "/links",
         },
       ],
       editLink: {

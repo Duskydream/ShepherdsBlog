@@ -3,20 +3,3 @@ import StarlightTableOfContents from "@astrojs/starlight/components/TableOfConte
 ---
 
 <StarlightTableOfContents />
-
-<script>
-	import { bindFloralVines } from "../utils/floral-vine";
-
-	const VINE_OPTS = JSON.stringify({ items: ":scope > li", vineX: 8 });
-
-	function hookTocVines() {
-		document.querySelectorAll("starlight-toc nav > ul").forEach((ul) => {
-			if (!ul.hasAttribute("data-floral-vine"))
-				ul.setAttribute("data-floral-vine", VINE_OPTS);
-		});
-		bindFloralVines();
-	}
-
-	hookTocVines();
-	document.addEventListener("astro:page-load", hookTocVines);
-</script>
